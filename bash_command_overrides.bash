@@ -1,10 +1,15 @@
 #! /dev/null/bash
 
 function bash_command_overrides ()
+{ bash_command_list --overrides "${@}"; }
+
+function bash_command_list ()
 {
 
     #
-    ## Display list of commands defined multiple times.
+    ## Display list of commands and where they are defined.
+    #
+    # If called as *_overrides or with --overrides, only show those defined multiple times.
     #
     # Includes BASH Alias/Keyword/Function/Builtin entries.
     #
@@ -14,6 +19,7 @@ function bash_command_overrides ()
 
         fnc                     # Function name.
         tmp                     # General temporary variable.
+        arg                     # Argument for parsing.
 
         # TERM chars for regex/delim use.
         tc_spc tc_tab tc_nln    # Space, Tab, Newline
@@ -31,9 +37,16 @@ function bash_command_overrides ()
     # List of exported local strings.
     declare vars_slx=( IFS )
     # List of local arrays.
-    declare vars_al_=( typs dirs cmds cmd_typs )
+    declare vars_al_=(
+        args                    # Arguments to function.
+        typs dirs cmds cmd_typs
+    )
     # List of local integers.
-    declare vars_il_=( fnc_return I J K )
+    declare vars_il_=(
+        fnc_return
+        I J K
+        flg_overrides           # Ran in list-overrides mode?
+    )
     # List of all local variables.
     declare vars____=( ${vars_sl_[*]} ${vars_slx[*]} ${vars_al_[*]} ${vars_il_[*]} )
     # Declare variables.
@@ -57,6 +70,18 @@ function bash_command_overrides ()
     printf -v IFS_RGX   '|\t\n'
     IFS="${IFS_DEF}"
 
+    flg_overrides=0
+    args=( "${@}" )
+    for (( I=0; I<"${#args[@]}"; I++ ))
+    do
+        [[ "${args[${I}]}" == --* ]] || continue
+        case "${args[${I}]:2}" in
+        ( overrides )       flg_overrides=1;;
+        esac
+        unset args[${I}]
+    done
+    args=( "${args[@]}" )
+
     # Default types of commands for BASH.
     typs=( alias keyword function builtin file )
 
@@ -67,7 +92,7 @@ function bash_command_overrides ()
     dirs=( ${PATH//:/${tc_nln}} )
 
     # Use completion capability to generate list of commands.
-    cmds=( $( compgen -A command ) )
+    cmds=( $( compgen -A command "${args[@]}" | sort -u ) )
 
     # Reset IFS to default.
     IFS="${IFS_DEF}"
@@ -80,7 +105,7 @@ function bash_command_overrides ()
         cmd_typs=( $( type -at "${cmd}" ) )
 
         # This function is only concerned with overrides ( i.e. duplicates )
-        [ "${#cmd_typs[@]}" -gt 1 ] || continue
+        [ "${#cmd_typs[@]}" -gt 1 -o "${flg_overrides}" -eq 0 ] || continue
 
         # Show what command we're looking at.
         printf %s "${cmd}"
