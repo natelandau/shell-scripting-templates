@@ -3,8 +3,17 @@
 function gits ()
 { git status -sb "${@}"; }
 
-function gitC ()
+function gitC0 ()
 { git commit -m "lazy.. no notes" "${@}"; }
+
+function gitC1 ()
+{ git commit -m "meh.. whitespace" "${@}"; }
+
+function gitC3 ()
+{ git commit -m "code comments" "${@}"; }
+
+function gitC4 ()
+{ git commit -m "restructuring" "${@}"; }
 
 function git_url_go ()
 {
