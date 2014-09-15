@@ -1,5 +1,14 @@
 #! /dev/null/bash
 
+function gitp ()
+{ git pull "${@}"; }
+
+function gitP ()
+{ git push "${@}"; }
+
+function gita ()
+{ git add "${@}"; }
+
 function gitd ()
 { git diff "${@}"; }
 
