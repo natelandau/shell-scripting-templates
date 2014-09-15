@@ -1,5 +1,23 @@
 #! /dev/null/bash
 
+function brew ()
+{
+
+    #
+    # Reset PATHs for clean run of Homebrew
+    #
+
+    # Only change PATHs for this function and any sub-procs
+    declare -x PATH MANPATH
+
+    # Reset PATHs
+    eval "$( PATH= MANPATH= /usr/libexec/path_helper -s )"
+
+    # Run Homebrew
+    command brew "${@}"
+
+}
+
 function brew_actioner ()
 {
     #
