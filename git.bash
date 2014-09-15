@@ -1,7 +1,7 @@
 #! /dev/null/bash
 
 function gits ()
-{ git status "${@}"; }
+{ git status -sb "${@}"; }
 
 function gitC ()
 { git commit -m "lazy.. no notes" "${@}"; }
