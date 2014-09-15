@@ -27,4 +27,5 @@ function num_file_renum ()
         command mv -vi "${file}" "${file_d:+${file_d}/}${J}_${file_b}"
 
     done
+
 }
