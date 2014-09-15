@@ -133,11 +133,24 @@ function brew_stat ()
     # Modeled after output of aptitude
     #
 
-    declare tc_tab
+    declare -x IFS
+    declare -a brews_ents brewl_ents
+    declare    tc_tab ent
 
     printf -v tc_tab '\t'
+    printf -v IFS    '\n'
 
-    comm <( brew search ) <( brew list ) |
+    for ent in "${@}"
+    do
+        brews_ents=( "${brews_ents[@]}" $( brew search "${ent}" ) )
+    done
+
+    for ent in "${brews_ents[@]}"
+    do
+        brewl_ents=( "${brewl_ents[@]}" $( brew list | grep -i "${ent}" ) )
+    done
+
+    comm <( printf '%s\n' "${brews_ents[@]}" ) <( printf '%s\n' "${brewl_ents[@]}" ) |
     sed \
             -e "s/^${tc_tab}${tc_tab}/i   /;tEND" \
             -e "s/^${tc_tab}/i?  /;tEND" \
