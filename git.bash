@@ -1,7 +1,13 @@
 #! /dev/null/bash
 
+function gitd ()
+{ git diff "${@}"; }
+
 function gits ()
 { git status -sb "${@}"; }
+
+function gitc ()
+{ git commit "${@}"; }
 
 function gitC0 ()
 { git commit -m "lazy.. no notes" "${@}"; }
