@@ -5,7 +5,7 @@ function functionsrc ()
 
     declare fnc_names fnc_name fnc_src rgx tc_nln
 
-    fnc_names="${@}"
+    fnc_names=( "${@}" )
 
     printf -v tc_nln '\n'
 
