@@ -1,0 +1,2 @@
+#pattern  filter=crypt diff=crypt
+UGLY.bash filter=crypt diff=crypt
