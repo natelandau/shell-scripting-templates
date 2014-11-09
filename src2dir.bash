@@ -25,10 +25,10 @@ function src2dir ()
 
     fnc="${FUNCNAME}"
 
-    src_repo="${SRC2DIR_REPO:-${HOME}/.src}"
+    src_repo="${SRC2DIR_REPO:-${HOME_SRC_DIR}}"
     [ -d "${src_repo}/." -a -n "${src_repo}" ] || {
         printf "${fnc}: %s\n" \
-                "Could not find source target directory environment variable SRC2DIR_REPO or { ~/.src }"
+                "Could not find source target directory environment variable SRC2DIR_REPO or HOME_SRC_DIR"
         return 9
     }
 
@@ -109,6 +109,8 @@ function src2dir ()
         dir="${dir//${tc_colon}${tc_fslash}/${tc_fslash}}"
         dir="${dir%/}"
         dir="${dir//:/${tc_fslash}}"
+        [[ "${dir}" != github.* || ! "${uri}" =~ https?:/ ]] \
+            || dir="${dir}.git"
         dir="${src_repo}/${dir}"
 
         printf "${fnc}: %s\n" "Dir   ${dir/#${HOME}/${tc_tilde}}"
