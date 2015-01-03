@@ -1,4 +1,5 @@
 *
 
 !.gitignore
-!.README.md
+!README.md
+!pushover.cfg.sample

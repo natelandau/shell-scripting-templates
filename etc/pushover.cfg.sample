@@ -1,0 +1,12 @@
+# PUSHOVER CONFIGURATION FILE
+# -------------------------------------------------------------
+# To enable the ability to send notifications from scripts 
+# via Pushover enter your Pushover API and USER keys below.
+# Then rename this file to pushover.cfg 
+#
+# You may obtain these credentials at https://pushover.net
+# 
+# -------------------------------------------------------------
+
+PUSHOVER_API_KEY="aUJmXXN5KUqMDWDsRaxYtMzVjE4ibt"
+PUSHOVER_USER_KEY="u8Q5yJsut7jq5bcKioPa3f9MHbGyNW"
