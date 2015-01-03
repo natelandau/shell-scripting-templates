@@ -138,6 +138,8 @@ NEEDMOUNT="false"
 
 # MOUNTPOINT is the address of the drive to be mounted.
 # Use the format afp://username:password@address/mountname
+# to be prompted to enter a password, change MOUNTPW to 'true'
+MOUTPW="false"
 MOUNTPOINT=""
 
 # REMOTEVOLUME is the directory that the drive should be mounted
@@ -164,7 +166,10 @@ TARGETDIRECTORY=""
 # more info: http://www.cis.upenn.edu/~bcpierce/unison/download/releases/stable/unison-manual.html
 #
 # If you wish to use a Unison profile change USERPROFILE to 'true'
-# and add the profile name to UNISONPROFILE
+# and add the profile name to UNISONPROFILE.
+#
+# Note: Roots should not be included in the UNISON prf.  They will be called here
+# using the SOURCE/TARGET variables
 USEPROFILE="false"
 UNISONPROFILE=""
 
@@ -241,7 +246,11 @@ function mainScript() {
     if is_not_dir "$REMOTEVOLUME"; then
       e_arrow "Mounting drive"
       mkdir "$REMOTEVOLUME"
-      mount_afp "$MOUNTPOINT" "$REMOTEVOLUME"
+      if [ "$MOUTPW" = "true" ]; then # if password prompt needed
+        mount_afp -i "$MOUNTPOINT" "$REMOTEVOLUME"
+      else
+        mount_afp "$MOUNTPOINT" "$REMOTEVOLUME"
+      fi
       sleep 10
       echo "$NOW - $REMOTEVOLUME Mounted" >> "$LOGFILE"
       e_success "$REMOTEVOLUME Mounted"
@@ -305,12 +314,12 @@ function mainScript() {
       fi
     fi
 
-    if [ "$USEPROFILE" != "true"]; then
+    if [ "$USEPROFILE" != "true" ]; then
       # Run Unison without a profile
       unison "$SOURCEDIRECTORY" "$TARGETDIRECTORY"
     else
       # Run unison with a profile
-      unison "$UNISONPROFILE"
+      unison "$UNISONPROFILE" "$SOURCEDIRECTORY" "$TARGETDIRECTORY"
     fi
   fi
 
