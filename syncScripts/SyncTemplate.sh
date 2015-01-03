@@ -120,12 +120,8 @@ function configFile() {
 # CONFIG FILE FOR $SCRIPTNAME
 # CREATED ON $NOW
 #
-# Created by version "$VERSION" of "$SCRIPTNAME"
+# Created by version "$VERSION" of "SyncTemplate.sh"
 # ##################################################
-
-# ---------------------------
-# BASE CONFIGURATION
-# ---------------------------
 
 # METHOD
 # ---------------------------
@@ -154,12 +150,14 @@ MOUNTPOINT=""
 REMOTEVOLUME=""
 
 
+# ---------------------------
 # Directories To Sync
 # ---------------------------
 # These are the COMPLETE paths two directories that will be synced.
 # Be sure to include trailing slashes on directories.
 SOURCEDIRECTORY=""
 TARGETDIRECTORY=""
+
 
 # ---------------------------
 # UNISON PREFERENCES
@@ -328,7 +326,7 @@ function mainScript() {
         die "We were missing the Unison Profile.  Could not sync."
       fi
       # Run unison with the profile
-      echo "$NOW - Beginning Unison Sync" >> "$LOGFILE"
+      echo "$NOW - Beginning Unison with command: unison $UNISONPROFILE" >> "$LOGFILE"
       unison "$UNISONPROFILE"
     else
       if [ "$USEPROFILE" = "true" ]; then
@@ -338,11 +336,11 @@ function mainScript() {
           die "We were missing the Unison Profile.  Could not sync."
         fi
         # Run unison with a profile
-        echo "$NOW - Beginning Unison Sync" >> "$LOGFILE"
+        echo "$NOW - Beginning Unison with command: unison $UNISONPROFILE $SOURCEDIRECTORY $TARGETDIRECTORY" >> "$LOGFILE"
         unison "$UNISONPROFILE" "$SOURCEDIRECTORY" "$TARGETDIRECTORY"
       else
         # Run Unison without a profile
-        echo "$NOW - Beginning Unison Sync" >> "$LOGFILE"
+        echo "$NOW - Beginning Unison with command: unison $SOURCEDIRECTORY $TARGETDIRECTORY" >> "$LOGFILE"
         unison "$SOURCEDIRECTORY" "$TARGETDIRECTORY"
       fi
     fi
@@ -351,6 +349,8 @@ function mainScript() {
   # Unmount the drive (if mounted)
   if [ "$NEEDMOUNT" = "true" ] || [ "$NEEDMOUNT" = "TRUE" ]; then
     unmountDrive "$REMOTEVOLUME"
+    echo "$NOW - $REMOTEVOLUME Unmounted" >> "$LOGFILE"
+    e_success "$REMOTEVOLUME UnMounted"
   fi
 
   # Time the script by logging the end time
