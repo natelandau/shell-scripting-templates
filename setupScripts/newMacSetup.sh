@@ -10,6 +10,7 @@
 #
 # ##################################################
 
+# Source global utilities
 if [ -f "../lib/utils.sh" ]; then
   source "../lib/utils.sh"
 else
@@ -19,7 +20,7 @@ fi
 
 seek_confirmation "Do you want to run the Dropbox script to install it first?"
 if is_confirmed; then
-	if [ -e ./dropbox.sh ]; then
+	if is_file "./dropbox.sh"; then
 		./dropbox.sh
 	else
 		e_error "Can't find dropbox.sh"
@@ -39,14 +40,13 @@ FILES="
 	./mackup.sh
 	./osx.sh
 	./ssh.sh
-	./ssd.sh
 "
 
 seek_confirmation "Do you want to run all the scripts at once?"
 if is_confirmed; then
 	for file in $FILES
 	do
-		if [ -e "$file" ]; then
+		if is_file "$file"; then
 			$file
 		else
 			e_error "$file does not exist. Exiting"
@@ -58,7 +58,7 @@ for file in $FILES
 	do
 		seek_confirmation "Do you want to run $file?"
 		if is_confirmed; then
-			if [ -e "$file" ]; then
+			if is_file "$file"; then
 				$file
 			else
 				e_error "$file does not exist."

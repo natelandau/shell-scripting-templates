@@ -32,7 +32,6 @@ fi
 seek_confirmation "Run General UI Tweaks?"
 if is_confirmed; then
 
-
 	e_success "Disabled Sound Effects on Boot"
 	sudo nvram SystemAudioVolume=" "
 
@@ -685,6 +684,24 @@ if is_confirmed; then
 fi
 
 
+###############################################################################
+# 14. SSD-specific tweaks                                                         #
+###############################################################################
+e_header "Running SSD Specific OSX Tweaks"
+
+seek_confirmation "Confirm that you have an SSD Hard Drive and want to "
+if is_confirmed; then
+
+	# e_success "Remove the sleep image file to save disk space"
+	# sudo rm /Private/var/vm/sleepimage
+	# e_success "Create a zero-byte file instead…"
+	# sudo touch /Private/var/vm/sleepimage
+	# e_success "…and make sure it can’t be rewritten"
+	# sudo chflags uchg /Private/var/vm/sleepimage
+
+	e_success "Disable the sudden motion sensor as it’s not useful for SSDs"
+	sudo pmset -a sms 0
+fi
 
 ########################## DONE #############################
 

@@ -84,9 +84,9 @@ function convertsecs() {
 # Credit: http://ryonsherman.blogspot.com/2012/10/shell-script-to-send-pushover.html
 # ------------------------------------------------------
 function pushover() {
-  # Check for config file
+  # Check for config file containing API Keys
   if [ ! -f "../etc/pushover.cfg" ]; then
-   e_error "Please locate the pushover.cfg to send notifications to Pushover"
+   e_error "Please locate the pushover.cfg to send notifications to Pushover."
   else
     # Grab variables from the config file
     source "../etc/pushover.cfg"

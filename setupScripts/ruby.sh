@@ -14,22 +14,24 @@ RUBYVERSION="2.1.2"
 
 
 # Check for RVM
-if [[ ! "$(type -P rvm)" ]]; then
+if type_not_exists "rvm"; then
   seek_confirmation_head "Install RVM?"
   if is_confirmed; then
     e_warning "Installing RVM (Ruby Version Manager) and Ruby  which becomes the default ..."
     curl -L https://get.rvm.io | bash -s stable
-    source ~/.rvm/scripts/rvm
+    source "~/.rvm/scripts/rvm"
   fi
 fi
 
 #Install Ruby
-if [[ "$(type -P rvm)" ]]; then
-  #e_warning "Checking for newer Ruby Version"
-  source $HOME/.bash_profile
-  #rvm get stable --autolibs=enable
-  rvm install $RUBYVERSION
-  rvm use $RUBYVERSION --default
+if type_exists "rvm"; then
+  seek_confirmation "You have RVM already.  Check for a newer version?"
+  if is_confirmed; then
+    source $HOME/.bash_profile
+    #rvm get stable --autolibs=enable
+    rvm install $RUBYVERSION
+    rvm use $RUBYVERSION --default
+  fi
 fi
 
 RECIPES=(

@@ -77,10 +77,10 @@ fi
 brew upgrade mackup >/dev/null 2>&1
 
 e_arrow "Checking for Mackup config files..."
-if [ ! -L ""$HOME"/.mackup" ]; then
+if is_not_symlink ""$HOME"/.mackup"; then
   ln -s "$MACKUPDIR"/.mackup "$HOME"/.mackup
 fi
-if [ ! -L ""$HOME"/.mackup.cfg" ]; then
+if is_not_symlink ""$HOME"/.mackup.cfg"; then
   ln -s "$MACKUPDIR"/.mackup.cfg "$HOME"/.mackup.cfg
 fi
 e_success "Mackup config files linked."
