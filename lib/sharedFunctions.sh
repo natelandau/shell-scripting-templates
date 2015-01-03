@@ -200,14 +200,14 @@ function is_not_empty() {
 # ------------------------------------------------------
 
 function type_exists() {
-  if [ $(type -P $1) ]; then
+  if [ $(type -P "$1") ]; then
     return 0
   fi
   return 1
 }
 
 function type_not_exists() {
-  if [ ! $(type -P $1) ]; then
+  if [ ! $(type -P "$1") ]; then
     return 0
   fi
   return 1
@@ -243,16 +243,18 @@ function is_os() {
 
 # Ask the question
 function seek_confirmation() {
-  printf "\n${bold}$@${reset}"
+  echo ""
+  e_bold "$@"
   read -p " (y/n) " -n 1
-  printf "\n"
+  echo ""
 }
 
 # same as above but underlined
 function seek_confirmation_head() {
-  printf "\n${underline}${bold}$@${reset}"
-  read -p "${underline}${bold} (y/n)${reset} " -n 1
-  printf "\n"
+  echo ""
+  e_underline "$@"
+  read -p " (y/n) " -n 1
+  echo ""
 }
 
 # Test whether the result of an 'ask' is a confirmation
