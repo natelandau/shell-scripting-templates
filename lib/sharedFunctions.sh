@@ -8,6 +8,17 @@
 #
 # ##################################################
 
+# scriptPath
+# ------------------------------------------------------
+# This function will populate the variable SOURCEPATH with the
+# full path of the script being run.
+# Note: The function must be run within the script before using
+# the variable
+# ------------------------------------------------------
+function scriptPath() {
+  SCRIPTPATH=$( cd "$( dirname "$0" )" && pwd )
+}
+
 # readFile
 # ------------------------------------------------------
 # Function to read a line from a file.

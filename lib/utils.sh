@@ -14,7 +14,7 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
   SOURCE="$(readlink "$SOURCE")"
   [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
 done
-SCRIPTPATH="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+SOURCEPATH="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 # Write the list of utility files to be sourced
 FILES="
@@ -26,8 +26,8 @@ FILES="
 # Source the Utility Files
 for file in $FILES
 do
-  if [ -f "$SCRIPTPATH/$file" ]; then
-    source "$SCRIPTPATH/$file"
+  if [ -f "$SOURCEPATH/$file" ]; then
+    source "$SOURCEPATH/$file"
   else
     e_error "$file does not exist.  Exiting"
     Exit 1

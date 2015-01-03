@@ -46,7 +46,7 @@ CONFIG="../etc/$SCRIPTNAME.cfg"
 # HELP
 # When -h is passed to the script, this will display inline help
 function HELP () {
-  echo -e "\nHelp for $SCRIPTNAME"
+  e_bold "\nHelp for $SCRIPTNAME"
   echo -e "This script will give you the option of using rsync"
   echo -e "or Unison.  Rsync is for one-way syncing, Unison is for"
   echo -e "two-way syncing.\n"
@@ -54,8 +54,9 @@ function HELP () {
   echo -e "what information is written in the config file, this script"
   echo -e "will perform different behavior.\n"
   echo -e "USAGE:"
-  echo -e "  1) IMPORTANT: Copy this script and rename it for your purpose before running."
-  echo -e "  2) Run the script.  This will create a blank config file for you and then exit."
+  echo -e "  1) Copy this script and rename it for your purpose before running."
+  echo -e "     The script will do this for you when run."
+  echo -e "  2) Run the new script.  This will create a blank config file for you and then exit."
   echo -e "  3) Enter your information within the config file"
   echo -e "  4) Run the script again.\n"
   echo -e "This script requires a config file located at: \"$CONFIG\""
@@ -68,16 +69,50 @@ function HELP () {
   exit 0
 }
 
-# Here we source the Config file or create a new one if none exists.
-if is_file "$CONFIG"; then
-  source "$CONFIG"
-else
-  seek_confirmation "Config file does not exist.  Would you like to create one?"
-  if is_not_confirmed; then
-    die "No config file.  Exiting"
+# READ OPTIONS
+# Reads the options passed to the script
+# from the command line
+# ------------------------
+while getopts "hnz" opt; do
+  case $opt in
+    h) # show help
+      HELP
+      ;;
+    n) # Show progress in terminal
+      DRYRUN="n"
+      ;;
+    z) # Compress Data
+      COMPRESS="z"
+      ;;
+    \?)
+      HELP
+      ;;
+  esac
+done
+
+# Create new copy of the script if template is being executed
+function newCopy() {
+  scriptPath
+  if [ "$SCRIPTNAME" = "SyncTemplate.sh" ]; then
+    e_bold "name your new script:"
+    read newname
+    cp "$SCRIPTPATH"/"$SCRIPTNAME" "$SCRIPTPATH"/"$newname"
+    e_success "$newname created."
+    exit 0
+  fi
+}
+
+function configFile() {
+  # Here we source the Config file or create a new one if none exists.
+  if is_file "$CONFIG"; then
+    source "$CONFIG"
   else
-    touch "$CONFIG"
-cat >"$CONFIG" <<EOL
+    seek_confirmation "Config file does not exist.  Would you like to create one?"
+    if is_not_confirmed; then
+      die "No config file.  Exiting"
+    else
+      touch "$CONFIG"
+  cat >"$CONFIG" <<EOL
 # ##################################################
 # CONFIG FILE FOR $SCRIPTNAME
 # CREATED ON $NOW
@@ -93,12 +128,6 @@ cat >"$CONFIG" <<EOL
 # Set the METHOD variable to either 'unison' or 'rsync'
 METHOD=""
 
-# Directories To Sync
-# ---------------------------
-# These are the COMPLETE paths two directories that will be synced.
-# Be sure to include trailing slashes on directories.
-SOURCEDIRECTORY=""
-TARGETDIRECTORY=""
 
 # ---------------------------
 # Network Volume Mounting
@@ -113,10 +142,17 @@ MOUNTPOINT=""
 
 # REMOTEVOLUME is the directory that the drive should be mounted
 # into on the local computer. Typically this is in the /Volumes/ dir.
-# and should be named the same as the mount name in the MOUNTPOINT.
-# Use the complete path, not a relative path
+# and should be named the same as the mountname in the MOUNTPOINT.
+# Use a complete path, not a relative path without a trailing slash.
 REMOTEVOLUME=""
 
+
+# Directories To Sync
+# ---------------------------
+# These are the COMPLETE paths two directories that will be synced.
+# Be sure to include trailing slashes on directories.
+SOURCEDIRECTORY=""
+TARGETDIRECTORY=""
 
 # ---------------------------
 # UNISON PREFERENCES
@@ -142,6 +178,8 @@ UNISONPROFILE=""
 # Anything listed within this file will be ignored during sync.
 EXCLUDE=""
 
+
+# ---------------------------
 # ADDITIONAL OPTIONS
 # ---------------------------
 
@@ -159,149 +197,146 @@ PUSHOVERNOTIFY="false"
 # Leave blank if not needed.
 CANONICALHOST=""
 EOL
-  e_success "Config file created. Edit the values before running this script again. Exiting."
+  e_success "Config file created. Edit the values before running this script again."
+  e_arrow "The file is located at: $CONFIG"
+  echo "Exiting."
   exit 0
   fi
 fi
+}
 
-
-# READ OPTIONS
-# Reads the options passed to the script
-# from the command line
-# ------------------------
-while getopts "hnz" opt; do
-  case $opt in
-    h) # show help
-      HELP
-      ;;
-    n) # Show progress in terminal
-      DRYRUN="n"
-      ;;
-    z) # Compress Data
-      COMPRESS="z"
-      ;;
-    \?)
-      HELP
-      ;;
-  esac
-done
 
 # HostCheck
 # Confirm we can run this script.  If a canonical host is set in
 # the config file we check it here.
-if [ "$THISHOST" = "$CANONICALHOST" ]; then
-  echo "$NOW - Script was not run since we were on the wrong host" >> "$LOGFILE"
-  die "We are currently on $THISHOST and can not proceed. Be sure to run this script on the non-canonical host."
-fi
+function hostCheck() {
+  if [ "$THISHOST" = "$CANONICALHOST" ]; then
+    echo "$NOW - Script was not run since we were on the wrong host" >> "$LOGFILE"
+    die "We are currently on $THISHOST and can not proceed. Be sure to run this script on the non-canonical host."
+  fi
+}
 
 # MethodCheck
 # Confirm we have either Unison or Rsync specified
 # in the config file. Exit if not
-if [ "$METHOD" != "rsync" ] && [ "$METHOD" != "unison" ]; then
-  echo "$NOW - Script aborted without a method specified in the config file." >> "$LOGFILE"
-  die "We can not continue.  Please specify a sync method in the config file."
-fi
-
-# Time the script by logging the start time
-STARTTIME=$(date +"%s")
-
-# Log Script Start to $LOGFILE
-echo -e "-----------------------------------------------------" >> "$LOGFILE"
-echo -e "$NOW - $SCRIPTNAME Begun" >> "$LOGFILE"
-echo -e "-----------------------------------------------------\n" >> "$LOGFILE"
-
-if [ "$NEEDMOUNT" = "true" ] || [ "$NEEDMOUNT" = "TRUE" ]; then
-  # Mount AFP volume
-  if is_not_dir "$REMOTEVOLUME"; then
-    e_arrow "Mounting drive"
-    mkdir "$REMOTEVOLUME"
-    mount_afp "$MOUNTPOINT" "$REMOTEVOLUME"
-    sleep 10
-    echo "$NOW - $REMOTEVOLUME Mounted" >> "$LOGFILE"
-    e_success "$REMOTEVOLUME Mounted"
-  else
-    e_success "$REMOTEVOLUME already mounted"
+function MethodCheck() {
+  if [ "$METHOD" != "rsync" ] && [ "$METHOD" != "unison" ]; then
+    echo "$NOW - Script aborted without a method specified in the config file." >> "$LOGFILE"
+    die "We can not continue.  Please specify a sync method in the config file."
   fi
-fi
+}
 
-# Test for source directories.
-# If the don't exist we can't continue
-if is_dir "$TARGETDIRECTORY"; then
-  e_success "$TARGETDIRECTORY exists"
-else
+function mainScript() {
+  # Time the script by logging the start time
+  STARTTIME=$(date +"%s")
+
+  # Log Script Start to $LOGFILE
+  echo -e "-----------------------------------------------------" >> "$LOGFILE"
+  echo -e "$NOW - $SCRIPTNAME Begun" >> "$LOGFILE"
+  echo -e "-----------------------------------------------------\n" >> "$LOGFILE"
+
+
   if [ "$NEEDMOUNT" = "true" ] || [ "$NEEDMOUNT" = "TRUE" ]; then
-    unmountDrive "$REMOTEVOLUME"
-    if is_dir "$REMOTEVOLUME"; then
-      rm -r "$REMOTEVOLUME"
-    fi
-  fi
-  echo -e "$NOW - Script aborted since $TARGETDIRECTORY was not found.  Exited.\n" >> "$LOGFILE"
-  die "$TARGETDIRECTORY does not exist. Exiting."
-fi
-
-# Test for local directory
-if is_dir "$SOURCEDIRECTORY"; then
-  e_success "$SOURCEDIRECTORY exists"
-else
-  if [ "$NEEDMOUNT" = "true" ] || [ "$NEEDMOUNT" = "TRUE" ]; then
-    unmountDrive "$REMOTEVOLUME"
-    if is_dir "$REMOTEVOLUME"; then
-      rm -r "$REMOTEVOLUME"
-    fi
-  fi
-  echo -e "$NOW - Script aborted since $SOURCEDIRECTORY was not found.  Exited.\n" >> "$LOGFILE"
-  die "$SOURCEDIRECTORY does not exist. Exiting."
-fi
-
-# Time to sync
-if [ "$METHOD" = "rsync" ]; then
-  /usr/bin/rsync -vahh"$DRYRUN""$COMPRESS" --progress --force --delete --exclude-from="$EXCLUDE" "$SOURCEDIRECTORY" "$TARGETDIRECTORY" --log-file="$LOGFILE"
-fi
-if [ "$METHOD" = "unison" ]; then
-
-  # Check if Unison is installed.  It is not a standard package
-  if type_not_exists 'unison'; then
-    seek_confirmation "Unison not installed, install it?"
-    if is_confirmed; then
-      hasHomebrew
-      brewMaintenance
-      brew install unison
+    # Mount AFP volume
+    if is_not_dir "$REMOTEVOLUME"; then
+      e_arrow "Mounting drive"
+      mkdir "$REMOTEVOLUME"
+      mount_afp "$MOUNTPOINT" "$REMOTEVOLUME"
+      sleep 10
+      echo "$NOW - $REMOTEVOLUME Mounted" >> "$LOGFILE"
+      e_success "$REMOTEVOLUME Mounted"
     else
-      if [ "$NEEDMOUNT" = "true" ] || [ "$NEEDMOUNT" = "TRUE" ]; then
-        unmountDrive "$REMOTEVOLUME"
-        if is_dir "$REMOTEVOLUME"; then
-          rm -r "$REMOTEVOLUME"
-        fi
-      fi
-      die "Can not continue without Unison."
+      e_success "$REMOTEVOLUME already mounted"
     fi
   fi
 
-  if [ "$USEPROFILE" != "true"]; then
-    # Run Unison without a profile
-    unison "$SOURCEDIRECTORY" "$TARGETDIRECTORY"
+  # Test for source directories.
+  # If they don't exist we can't continue
+
+  # test for target
+  if is_dir "$TARGETDIRECTORY"; then
+    e_success "$TARGETDIRECTORY exists"
   else
-    # Run unison with a profile
-    unison "$UNISONPROFILE"
+    if [ "$NEEDMOUNT" = "true" ] || [ "$NEEDMOUNT" = "TRUE" ]; then
+      unmountDrive "$REMOTEVOLUME"
+      if is_dir "$REMOTEVOLUME"; then
+        rm -r "$REMOTEVOLUME"
+      fi
+    fi
+    echo -e "$NOW - Script aborted since target dir: $TARGETDIRECTORY was not found.  Exited.\n" >> "$LOGFILE"
+    die "target directory: $TARGETDIRECTORY does not exist. Exiting."
   fi
-fi
 
-# Unmount the drive (if mounted)
-if [ "$NEEDMOUNT" = "true" ] || [ "$NEEDMOUNT" = "TRUE" ]; then
-  unmountDrive "$REMOTEVOLUME"
-fi
+  # Test for source directory
+  if is_dir "$SOURCEDIRECTORY"; then
+    e_success "$SOURCEDIRECTORY exists"
+  else
+    if [ "$NEEDMOUNT" = "true" ] || [ "$NEEDMOUNT" = "TRUE" ]; then
+      unmountDrive "$REMOTEVOLUME"
+      if is_dir "$REMOTEVOLUME"; then
+        rm -r "$REMOTEVOLUME"
+      fi
+    fi
+    echo -e "$NOW - Script aborted since source dir: $SOURCEDIRECTORY was not found.  Exited.\n" >> "$LOGFILE"
+    die "source directory: $SOURCEDIRECTORY does not exist. Exiting."
+  fi
 
-# Time the script by logging the end time
-ENDTIME=$(date +"%s")
-TOTALTIME=$(($ENDTIME-$STARTTIME-20))
+  # Time to sync
+  if [ "$METHOD" = "rsync" ]; then
+    /usr/bin/rsync -vahh"$DRYRUN""$COMPRESS" --progress --force --delete --exclude-from="$EXCLUDE" "$SOURCEDIRECTORY" "$TARGETDIRECTORY" --log-file="$LOGFILE"
+  fi
+  if [ "$METHOD" = "unison" ]; then
 
-# notify with pushover if requested
-if [ "$PUSHOVERNOTIFY" = "true" ]; then
-  pushover "$SCRIPTNAME Completed" "$SCRIPTNAME was run in $(convertsecs $TOTALTIME)"
-fi
+    # Check if Unison is installed.  It is not a standard package
+    if type_not_exists 'unison'; then
+      seek_confirmation "Unison not installed, install it?"
+      if is_confirmed; then
+        hasHomebrew
+        brewMaintenance
+        brew install unison
+      else
+        if [ "$NEEDMOUNT" = "true" ] || [ "$NEEDMOUNT" = "TRUE" ]; then
+          unmountDrive "$REMOTEVOLUME"
+          if is_dir "$REMOTEVOLUME"; then
+            rm -r "$REMOTEVOLUME"
+          fi
+        fi
+        die "Can not continue without Unison."
+      fi
+    fi
 
-echo -e "\n-----------------------------------------------------" >> "$LOGFILE"
-echo "$NOW - $SCRIPTNAME completed in $(convertsecs $TOTALTIME)" >> "$LOGFILE"
-echo -e "-----------------------------------------------------\n" >> "$LOGFILE"
+    if [ "$USEPROFILE" != "true"]; then
+      # Run Unison without a profile
+      unison "$SOURCEDIRECTORY" "$TARGETDIRECTORY"
+    else
+      # Run unison with a profile
+      unison "$UNISONPROFILE"
+    fi
+  fi
 
-e_success "$NOW - $SCRIPTNAME completed in $(convertsecs $TOTALTIME)"
+  # Unmount the drive (if mounted)
+  if [ "$NEEDMOUNT" = "true" ] || [ "$NEEDMOUNT" = "TRUE" ]; then
+    unmountDrive "$REMOTEVOLUME"
+  fi
+
+  # Time the script by logging the end time
+  ENDTIME=$(date +"%s")
+  TOTALTIME=$(($ENDTIME-$STARTTIME-20))
+
+  # notify with pushover if requested
+  if [ "$PUSHOVERNOTIFY" = "true" ]; then
+    pushover "$SCRIPTNAME Completed" "$SCRIPTNAME was run in $(convertsecs $TOTALTIME)"
+  fi
+
+  echo -e "\n-----------------------------------------------------" >> "$LOGFILE"
+  echo "$NOW - $SCRIPTNAME completed in $(convertsecs $TOTALTIME)" >> "$LOGFILE"
+  echo -e "-----------------------------------------------------\n" >> "$LOGFILE"
+
+  e_success "$NOW - $SCRIPTNAME completed in $(convertsecs $TOTALTIME)"
+}
+
+newCopy
+configFile
+hostCheck
+MethodCheck
+mainScript
