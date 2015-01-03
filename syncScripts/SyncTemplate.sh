@@ -1,5 +1,4 @@
-# Source my scripting utils
-# ------------------------
+#!/usr/bin/env bash
 
 # ##################################################
 # My Generic sync script.
@@ -25,8 +24,12 @@
 # destroys your data, crashes your car, or otherwise causes mayhem
 # and destruction.  USE AT YOUR OWN RISK.
 #
+VERSION="1.1"
+#
 # HISTORY
-# * 2015-01-02 - First Creation
+# * 2015-01-03 - v.1.1  - Added version number
+#                       - Added support for using roots in Unison .prf
+# * 2015-01-02 - v.1.0  - First Creation
 #
 # ##################################################
 
@@ -116,13 +119,15 @@ function configFile() {
 # ##################################################
 # CONFIG FILE FOR $SCRIPTNAME
 # CREATED ON $NOW
+#
+# Created by version "$VERSION" of "$SCRIPTNAME"
 # ##################################################
 
 # ---------------------------
 # BASE CONFIGURATION
 # ---------------------------
 
-# Method
+# METHOD
 # ---------------------------
 # This script will work with both Unison and rsync.
 # Set the METHOD variable to either 'unison' or 'rsync'
@@ -168,9 +173,10 @@ TARGETDIRECTORY=""
 # If you wish to use a Unison profile change USERPROFILE to 'true'
 # and add the profile name to UNISONPROFILE.
 #
-# Note: Roots should not be included in the UNISON prf.  They will be called here
-# using the SOURCE/TARGET variables
+# If your Unison profile contains the 'roots' to by synced, change PROFILEROOTS to 'true'.
+# If this remains 'false', the directories to by synced will be the ones specified above.
 USEPROFILE="false"
+PROFILEROOTS="false"
 UNISONPROFILE=""
 
 
@@ -314,12 +320,31 @@ function mainScript() {
       fi
     fi
 
-    if [ "$USEPROFILE" != "true" ]; then
-      # Run Unison without a profile
-      unison "$SOURCEDIRECTORY" "$TARGETDIRECTORY"
+    # Run Unison
+    if [ "$PROFILEROOTS" = "true" ]; then
+      # Throw error if we don't have enough information
+      if [ "$USEPROFILE" = "false" ] || [ "$UNISONPROFILE" = "" ]; then
+        echo "$NOW - We were missing the Unison Profile.  Could not sync." >> "$LOGFILE"
+        die "We were missing the Unison Profile.  Could not sync."
+      fi
+      # Run unison with the profile
+      echo "$NOW - Beginning Unison Sync" >> "$LOGFILE"
+      unison "$UNISONPROFILE"
     else
-      # Run unison with a profile
-      unison "$UNISONPROFILE" "$SOURCEDIRECTORY" "$TARGETDIRECTORY"
+      if [ "$USEPROFILE" = "true" ]; then
+        # Throw error if we can't find the profile
+        if [ "$UNISONPROFILE" = "" ]; then
+          echo "$NOW - We were missing the Unison Profile.  Could not sync." >> "$LOGFILE"
+          die "We were missing the Unison Profile.  Could not sync."
+        fi
+        # Run unison with a profile
+        echo "$NOW - Beginning Unison Sync" >> "$LOGFILE"
+        unison "$UNISONPROFILE" "$SOURCEDIRECTORY" "$TARGETDIRECTORY"
+      else
+        # Run Unison without a profile
+        echo "$NOW - Beginning Unison Sync" >> "$LOGFILE"
+        unison "$SOURCEDIRECTORY" "$TARGETDIRECTORY"
+      fi
     fi
   fi
 
