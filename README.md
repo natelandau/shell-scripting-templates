@@ -14,6 +14,7 @@ This is the centralized repository of all my personal shell scripts which I use 
 	* Syncing user preferences and files using [Mackup][3]
 	* Installing [RVM][4] and associated Gems
 	* Pushing a new SSH key to Github
+	
 More information is in the folder's `README`.
 * **syncScripts/** - I use [RSYNC][5] and [Unison][6] all the time to sync various computers, drives, and servers.  More information is in the folder's `README`.
 
