@@ -40,11 +40,10 @@ hasHomebrew () {
       ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
       brew tap homebrew/dupes
       brew tap homebrew/versions
-      brew tap phinze/homebrew-cask
     else
       e_error "Without Homebrew installed we won't get very far."
       e_error "Exiting"
-      exit 1
+      exit 0
     fi
   fi
 }
