@@ -46,7 +46,7 @@ RECIPES=(
     moom
     nvalt
     omnifocus
-    onepassword
+    1password
     plex-home-theater
     qlcolorcode
     qlmarkdown

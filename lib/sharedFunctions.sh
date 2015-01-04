@@ -27,10 +27,10 @@ function scriptPath() {
 # Outputs each line in a variable named $result
 # ------------------------------------------------------
 function readFile() {
-  unset $result
+  unset ${result}
   while read result
   do
-    echo $result
+    echo ${result}
   done < "$1"
 }
 
@@ -93,8 +93,8 @@ function pushover() {
 
     # Send to Pushover
     PUSHOVERURL="https://api.pushover.net/1/messages.json"
-    API_KEY="$PUSHOVER_API_KEY"
-    USER_KEY="$PUSHOVER_USER_KEY"
+    API_KEY="${PUSHOVER_API_KEY}"
+    USER_KEY="${PUSHOVER_USER_KEY}"
     DEVICE=""
     TITLE="${1}"
     MESSAGE="${2}"
@@ -298,4 +298,22 @@ function unmountDrive() {
   if [ -d "$1" ]; then
     diskutil unmount "$1"
   fi
+}
+
+# help
+# ------------------------------------------------------
+# Prints help for a script when invoked from the command
+# line.  Typically via '-h'.  If additional flags or help
+# text is available in the script they will be printed
+# in the '$usage' variable.
+# ------------------------------------------------------
+
+function help () {
+  echo "" 1>&2
+  e_bold "   ${@}" 1>&2
+  if [ -n "${usage}" ]; then # print usage information if available
+    echo "   ${usage}" 1>&2
+  fi
+  echo "" 1>&2
+  exit 1
 }
