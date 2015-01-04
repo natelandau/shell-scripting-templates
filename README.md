@@ -7,16 +7,13 @@ This is the centralized repository of all my personal shell scripts which I use 
 
 * **etc/** - This directory contains the various configuration files for the scripts contained elsewhere.  More information is in the folder's `README`.
 * **lib/** - Located in this folder are a number of shared scripting libraries that I use throughout my other scripts.  More information is in the folder's `README`.
-* **setupScripts/** - This directory contains my scripts that configure new computers from scratch.  Including:
+* **setupScripts/** - This directory contains my scripts that configure new computers from scratch.  Detailed information is in the folder's `README`.These scripts perform such tasks as:
 	* Insalling [Homebrew][1] & associated packages
 	* Installing mac applications using [Homebrew Cask][2]
 	* Configuring OSX
 	* Syncing user preferences and files using [Mackup][3]
 	* Installing [RVM][4] and associated Gems
 	* Pushing a new SSH key to Github
-	
-More information is in the folder's `README`.
-
 * **syncScripts/** - I use [RSYNC][5] and [Unison][6] all the time to sync various computers, drives, and servers.  More information is in the folder's `README`.
 
 ## Usage
