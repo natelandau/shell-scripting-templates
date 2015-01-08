@@ -89,11 +89,11 @@ function convertsecs() {
 # ------------------------------------------------------
 function pushover() {
   # Check for config file containing API Keys
-  if [ ! -f "../etc/pushover.cfg" ]; then
+  if [ ! -f "${SOURCEPATH}/../etc/pushover.cfg" ]; then
    error "Please locate the pushover.cfg to send notifications to Pushover."
   else
     # Grab variables from the config file
-    source "../etc/pushover.cfg"
+    source "${SOURCEPATH}/../etc/pushover.cfg"
 
     # Send to Pushover
     PUSHOVERURL="https://api.pushover.net/1/messages.json"

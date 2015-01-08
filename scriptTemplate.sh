@@ -5,10 +5,13 @@
 # ##################################################
 # My Generic sync script.
 #
-version="1.0.0"  # Sets variable
+version="1.0.0"  # Sets vesion variable
+scriptTemplateVersion="1.0.0" # Version of Template
 #
 # This is my bash script template.  Start all scripts
 # with this
+#
+
 #
 # HISTORY:
 #
