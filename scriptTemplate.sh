@@ -48,7 +48,7 @@ function trapCleanup() {
 # Default values are below
 # -----------------------------------
 quiet=0
-printLog=1
+printLog=0
 verbose=0
 force=0
 strict=0
@@ -80,6 +80,7 @@ thisHost=$(hostname)
 # -----------------------------------
 # Defaults to 'dev/null'. If you want a log,
 # place the path here.
+# "$HOME/Desktop/${scriptBasename}.log" is common
 # -----------------------------------
 logFile="/dev/null"
 
@@ -107,10 +108,10 @@ This is my script template.
 
  Options:
   -u, --username    Username for script
-  -p, --password    Input user password, it's recommended to insert
-                    this through the interactive option
+  -p, --password    User password
   -f, --force       Skip all user interaction.  Implied 'Yes' to all actions
   -q, --quiet       Quiet (no output)
+  -l, --log         Print log to file
   -s, --strict      Exit script with null variables.  'set -o nounset'
   -v, --verbose     Output more information. (Items echoed to 'verbose')
   -h, --help        Display this help and exit
@@ -165,6 +166,7 @@ while [[ $1 = -?* ]]; do
     -u|--username) shift; username=$1 ;;
     -p|--password) shift; password=$1 ;;
     -v|--verbose) verbose=1 ;;
+    -l|--log) printLog=1 ;;
     -q|--quiet) quiet=1 ;;
     -s|--strict) strict=1;;
     -f|--force) force=1 ;;
