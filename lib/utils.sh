@@ -84,7 +84,7 @@ function _alert() { #my function
   fi
   if [ "${1}" = "input" ]; then
     local color="${bold}"
-    _printLog="0" # Don't print to $logFile
+    printLog="0" # Don't print to $logFile
   fi
   if [ "${1}" = "info" ] || [ "${1}" = "notice" ]; then
     local color="" # Us terminal default color
@@ -95,7 +95,7 @@ function _alert() { #my function
   fi
 
   # Print to $logFile
-  if [[ "${printLog}" = "1" ]]; then
+  if [ "${printLog}" == "1" ]; then
     echo -e "$(date +"%m-%d-%Y %r") $(printf "[%9s]" ${1}) "${_message}"" >> $logFile;
   fi
 
