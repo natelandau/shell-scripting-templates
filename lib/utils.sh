@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
 
+# ##################################################
+# Bash scripting Utilities.
+#
+# VERSION 1.0.0
+#
+# This script sources my collection of scripting utilities making
+# it possible to source this one script and gain access to a
+# complete collection of functions, variables, and other options.
+#
+# HISTORY
+#
+# * 2015-01-02 - v1.0.0  - First Creation
+#
+# ##################################################
+
 
 # Source additional files
 # ------------------------------------------------------
@@ -26,18 +41,19 @@ FILES="
 # Source the Utility Files
 for file in $FILES
 do
-  if [ -f "${SOURCE}PATH/${file}" ]; then
-    source "${SOURCE}PATH/${file}"
+  if [ -f "${SOURCEPATH}/${file}" ]; then
+    source "${SOURCEPATH}/${file}"
   else
-    e_error "${file} does not exist.  Exiting"
+    error "${file} does not exist.  Exiting"
     Exit 1
   fi
 done
 
+
 # Logging and Colors
 # ------------------------------------------------------
 # Here we set the colors for our script feedback.
-# Example usage: e_success "sometext"
+# Example usage: success "sometext"
 #------------------------------------------------------
 
 # Set Colors
@@ -50,20 +66,60 @@ green=$(tput setaf 76)
 tan=$(tput setaf 3)
 blue=$(tput setaf 38)
 
-# Headers and  Logging
-e_header() { echo -e "\n${bold}${purple}==========  $@  ==========${reset}\n" ; }
-e_arrow() { echo -e "➜ $@" ; }
-e_success() { echo -e "${green}✔ $@${reset}" ; }
-e_error() { echo -e "${red}✖ $@${reset}" ; }
-e_warning() { echo -e "${tan}➜ $@${reset}" ; }
-e_underline() { echo -e "${underline}${bold}$@${reset}" ; }
-e_bold() { echo -e "${bold}$@${reset}" ; }
-e_note() { echo -e "${underline}${bold}${blue}Note:${reset}  ${blue}$@${reset}" ; }
+function _alert() { #my function
+  if [ "${1}" = "emergency" ]; then
+    local color="${bold}${red}"
+  fi
+  if [ "${1}" = "error" ] || [ "${1}" = "warning" ]; then
+    local color="${red}"
+  fi
+  if [ "${1}" = "success" ]; then
+    local color="${green}"
+  fi
+  if [ "${1}" = "debug" ]; then
+    local color="${purple}"
+  fi
+  if [ "${1}" = "header" ]; then
+    local color="${bold}""${purple}"
+  fi
+  if [ "${1}" = "input" ]; then
+    local color="${bold}"
+    _printLog="0" # Don't print to $logFile
+  fi
+  if [ "${1}" = "info" ] || [ "${1}" = "notice" ]; then
+    local color="" # Us terminal default color
+  fi
+  # Don't use colors on pipes or non-recognized terminals
+  if [[ "${TERM}" != "xterm"* ]] || [ -t 1 ]; then
+    color=""; reset=""
+  fi
+
+  # Print to $logFile
+  if [[ "${printLog}" = "1" ]]; then
+    echo -e "$(date +"%m-%d-%Y %r") $(printf "[%9s]" ${1}) "${_message}"" >> $logFile;
+  fi
+
+  # Print to console when script is not 'quiet'
+  ((quiet)) && return || echo -e "$(date +"%r") ${color}$(printf "[%9s]" ${1}) "${_message}"${reset}";
+
+}
+
+function die ()       { local _message="${@} Exiting."; echo "$(_alert emergency)"; exit 1;}
+function error ()     { local _message="${@}"; echo "$(_alert error)"; }
+function warning ()   { local _message="${@}"; echo "$(_alert warning)"; }
+function notice ()    { local _message="${@}"; echo "$(_alert notice)"; }
+function info ()      { local _message="${@}"; echo "$(_alert info)"; }
+function debug ()     { local _message="${@}"; echo "$(_alert debug)"; }
+function success ()   { local _message="${@}"; echo "$(_alert success)"; }
+function input()      { local _message="${@}"; echo "$(_alert input)"; }
+function header()     { local _message="========== ${@} ==========  "; echo "$(_alert header)"; }
+
+# Log messages when verbose is set to "1"
+verbose() { (($verbose)) && info "$@"; }
 
 
-
-
-# Note to self
+# Notes to self
+# ####################
 # This is how you create a variable with multiple lines
 # read -d '' String <<"EOF"
 #   one
@@ -72,3 +128,9 @@ e_note() { echo -e "${underline}${bold}${blue}Note:${reset}  ${blue}$@${reset}" 
 #   four
 # EOF
 # echo ${String}
+#
+#   # How to get a script name
+# scriptLocation="${0}"
+# scriptFile="${scriptLocation##*/}"
+# scriptName="${scriptFile%.*}"
+# echo "${scriptName}"

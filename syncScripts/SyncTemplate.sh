@@ -3,6 +3,8 @@
 # ##################################################
 # My Generic sync script.
 #
+# VERSION 1.1.0
+#
 # This script will give you the option of using rsync
 # or Unison.  Rsync is for one-way syncing, Unison is for
 # two-way syncing.
@@ -24,12 +26,11 @@
 # destroys your data, crashes your car, or otherwise causes mayhem
 # and destruction.  USE AT YOUR OWN RISK.
 #
-VERSION="1.1"
 #
-# HISTORY
-# * 2015-01-03 - v.1.1  - Added version number
+# HISTORY:
+# * 2015-01-03 - v1.1.0  - Added version number
 #                       - Added support for using roots in Unison .prf
-# * 2015-01-02 - v.1.0  - First Creation
+# * 2015-01-02 - v1.0.0  - First Creation
 #
 # ##################################################
 
@@ -49,7 +50,7 @@ CONFIG="../etc/${SCRIPTNAME}.cfg"
 # HELP
 # When -h is passed to the script, this will display inline help
 function HELP () {
-  e_bold "\nHelp for ${SCRIPTNAME}"
+  echo -e "\nHelp for ${SCRIPTNAME}"
   echo -e "This script will give you the option of using rsync"
   echo -e "or Unison.  Rsync is for one-way syncing, Unison is for"
   echo -e "two-way syncing.\n"
@@ -97,10 +98,10 @@ done
 function newCopy() {
   scriptPath
   if [ "${SCRIPTNAME}" = "SyncTemplate.sh" ]; then
-    e_bold "name your new script:"
+    input "name your new script:"
     read newname
     cp "${SCRIPTPATH}"/"${SCRIPTNAME}" "${SCRIPTPATH}"/"${newname}"
-    e_success "${newname} created."
+    success "${newname} created."
     exit 0
   fi
 }
@@ -206,8 +207,8 @@ PUSHOVERNOTIFY="false"
 # Leave blank if not needed.
 CANONICALHOST=""
 EOL
-  e_success "Config file created. Edit the values before running this script again."
-  e_arrow "The file is located at: ${CONFIG}"
+  success "Config file created. Edit the values before running this script again."
+  notice "The file is located at: ${CONFIG}"
   echo "Exiting."
   exit 0
   fi
@@ -248,7 +249,7 @@ function mainScript() {
   if [ "${NEEDMOUNT}" = "true" ] || [ "${NEEDMOUNT}" = "TRUE" ]; then
     # Mount AFP volume
     if is_not_dir "${REMOTEVOLUME}"; then
-      e_arrow "Mounting drive"
+      notice "Mounting drive"
       mkdir "${REMOTEVOLUME}"
       if [ "${MOUTPW}" = "true" ]; then # if password prompt needed
         mount_afp -i "${MOUNTPOINT}" "${REMOTEVOLUME}"
@@ -257,9 +258,9 @@ function mainScript() {
       fi
       sleep 10
       echo "${NOW} - ${REMOTEVOLUME} Mounted" >> "${LOGFILE}"
-      e_success "${REMOTEVOLUME} Mounted"
+      success "${REMOTEVOLUME} Mounted"
     else
-      e_success "${REMOTEVOLUME} already mounted"
+      success "${REMOTEVOLUME} already mounted"
     fi
   fi
 
@@ -268,7 +269,7 @@ function mainScript() {
 
   # test for target
   if is_dir "${TARGETDIRECTORY}"; then
-    e_success "${TARGETDIRECTORY} exists"
+    success "${TARGETDIRECTORY} exists"
   else
     if [ "${NEEDMOUNT}" = "true" ] || [ "${NEEDMOUNT}" = "TRUE" ]; then
       unmountDrive "${REMOTEVOLUME}"
@@ -282,7 +283,7 @@ function mainScript() {
 
   # Test for source directory
   if is_dir "${SOURCEDIRECTORY}"; then
-    e_success "${SOURCEDIRECTORY} exists"
+    success "${SOURCEDIRECTORY} exists"
   else
     if [ "${NEEDMOUNT}" = "true" ] || [ "${NEEDMOUNT}" = "TRUE" ]; then
       unmountDrive "${REMOTEVOLUME}"
@@ -350,7 +351,7 @@ function mainScript() {
   if [ "${NEEDMOUNT}" = "true" ] || [ "${NEEDMOUNT}" = "TRUE" ]; then
     unmountDrive "${REMOTEVOLUME}"
     echo "${NOW} - ${REMOTEVOLUME} Unmounted" >> "${LOGFILE}"
-    e_success "${REMOTEVOLUME} UnMounted"
+    success "${REMOTEVOLUME} UnMounted"
   fi
 
   # Time the script by logging the end time
@@ -366,7 +367,7 @@ function mainScript() {
   echo "${NOW} - ${SCRIPTNAME} completed in $(convertsecs $TOTALTIME)" >> "${LOGFILE}"
   echo -e "-----------------------------------------------------\n" >> "${LOGFILE}"
 
-  e_success "${NOW} - ${SCRIPTNAME} completed in $(convertsecs $TOTALTIME)"
+  success "${NOW} - ${SCRIPTNAME} completed in $(convertsecs $TOTALTIME)"
 }
 
 newCopy

@@ -3,20 +3,30 @@
 # ##################################################
 # Shared bash functions used by my bash scripts.
 #
+# VERSION 1.0.0
+#
 # HISTORY
-# * 2015-01-02 - Initial creation
+#
+# * 2015-01-02 - v1.0.0  - First Creation
 #
 # ##################################################
 
-# scriptPath
+# Traps
 # ------------------------------------------------------
-# This function will populate the variable SOURCEPATH with the
-# full path of the script being run.
-# Note: The function must be run within the script before using
-# the variable
+# These functions are for use with different trap scenarios
 # ------------------------------------------------------
-function scriptPath() {
-  SCRIPTPATH=$( cd "$( dirname "$0" )" && pwd )
+
+# Non destructive exit for when script exits naturally.
+# Usage: Add this function at the end of every script
+function safeExit() {
+  # Delete temp files, if any
+  if is_not_empty "${tmpDir}"; then
+    if is_dir "${tmpDir}"; then
+      rm -r "${tmpDir}"
+    fi
+  fi
+  trap - INT TERM EXIT
+  exit
 }
 
 # readFile
@@ -34,6 +44,10 @@ function readFile() {
   done < "$1"
 }
 
+# Escape a string
+# ------------------------------------------------------
+escape() { echo $@ | sed 's/\//\\\//g'; }
+
 # needSudo
 # ------------------------------------------------------
 # If a script needs sudo access, call this function which
@@ -43,16 +57,6 @@ function needSudo() {
   # Update existing sudo time stamp if set, otherwise do nothing.
   sudo -v
   while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
-}
-
-# die
-# ------------------------------------------------------
-# "die function" - used to denote a failed action in a script.
-# usage:  cd some/path || die "cd failed"
-# ------------------------------------------------------
-die() {
-  e_error "FATAL ERROR: $* (status $?)" 1>&2
-  exit 1
 }
 
 # convertsecs
@@ -86,7 +90,7 @@ function convertsecs() {
 function pushover() {
   # Check for config file containing API Keys
   if [ ! -f "../etc/pushover.cfg" ]; then
-   e_error "Please locate the pushover.cfg to send notifications to Pushover."
+   error "Please locate the pushover.cfg to send notifications to Pushover."
   else
     # Grab variables from the config file
     source "../etc/pushover.cfg"
@@ -243,22 +247,16 @@ function is_os() {
 
 # Ask the question
 function seek_confirmation() {
+force=0
   echo ""
-  e_bold "$@"
-  read -p " (y/n) " -n 1
-  echo ""
-}
-
-# same as above but underlined
-function seek_confirmation_head() {
-  echo ""
-  e_underline "$@"
+  input "$@"
   read -p " (y/n) " -n 1
   echo ""
 }
 
 # Test whether the result of an 'ask' is a confirmation
 function is_confirmed() {
+  (($force)) && return 0;
   if [[ "$REPLY" =~ ^[Yy]$ ]]; then
     return 0
   fi
@@ -310,7 +308,7 @@ function unmountDrive() {
 
 function help () {
   echo "" 1>&2
-  e_bold "   ${@}" 1>&2
+  input "   ${@}" 1>&2
   if [ -n "${usage}" ]; then # print usage information if available
     echo "   ${usage}" 1>&2
   fi

@@ -41,55 +41,50 @@ hasDropbox
 if is_not_file "$TESTFILE"; then
   die "Could not find $TESTFILE.  Exiting."
 else
-  e_arrow "Confirming that Dropbox has synced..."
+  notice "Confirming that Dropbox has synced..."
   while IFS= read -r file
   do
     while [ ! -e $HOME/"$file" ] ;
     do
-      e_warning "Waiting for Dropbox to Sync files."
+      notice "Waiting for Dropbox to Sync files."
       sleep 10
     done
   done < "$TESTFILE"
 fi
 
 #Add some additional time just to be sure....
-e_warning "Waiting for Dropbox to Sync files."
+notice "Waiting for Dropbox to Sync files."
 sleep 10
-e_warning "Waiting for Dropbox to Sync files."
+notice "Waiting for Dropbox to Sync files."
 sleep 10
-e_warning "Waiting for Dropbox to Sync files."
-sleep 10
-e_warning "Waiting for Dropbox to Sync files."
-sleep 10
-e_warning "Waiting for Dropbox to Sync files."
+notice "Waiting for Dropbox to Sync files."
 sleep 10
 
 # Sync Complete
-e_success "Hooray! Dropbox has synced the necessary files."
+success "Hooray! Dropbox has synced the necessary files."
 
 if type_not_exists 'mackup'; then
-  e_error "MACKUP NOT FOUND."
-  e_error "Run 'brew install mackup' or run the Homebrew setup script. Exiting."
-  exit 0
+  info "Run 'brew install mackup' or run the Homebrew setup script."
+  die "MACKUP NOT FOUND."
 fi
 
 # upgrade mackup.  Don't display in terminal
 brew upgrade mackup >/dev/null 2>&1
 
-e_arrow "Checking for Mackup config files..."
+notice "Checking for Mackup config files..."
 if is_not_symlink ""$HOME"/.mackup"; then
   ln -s "$MACKUPDIR"/.mackup "$HOME"/.mackup
 fi
 if is_not_symlink ""$HOME"/.mackup.cfg"; then
   ln -s "$MACKUPDIR"/.mackup.cfg "$HOME"/.mackup.cfg
 fi
-e_success "Mackup config files linked."
+success "Mackup config files linked."
 
 seek_confirmation "Run Mackup Restore?"
 if is_confirmed; then
   mackup restore
-  e_header "All Done."
+  header "All Done."
 else
-  e_arrow "Exiting"
+  notice "Exiting"
   exit 0
 fi

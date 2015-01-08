@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-
-
+##################################################
 # Parse commandline options
+#
+#  Version 1.0.0
 #
 #  Works in along  with the 'Command Line Options' and 'Set Switches' functions
 #  of many of my scripts

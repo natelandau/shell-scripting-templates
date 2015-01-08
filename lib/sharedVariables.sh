@@ -3,8 +3,11 @@
 # ##################################################
 # Shared bash functions used by my bash scripts.
 #
+# VERSION 1.0.0
+#
 # HISTORY
-# * 2015-01-02 - Initial creation
+#
+# * 2015-01-02 - v1.0.0  - First Creation
 #
 # ##################################################
 
@@ -12,18 +15,19 @@
 # ------------------------------------------------------
 # Will return the name of the script being run
 # ------------------------------------------------------
-SCRIPTNAME=`basename $0` #Set Script Name variable
+scriptName=`basename $0` #Set Script Name variable
+scriptBasename="$(basename ${scriptName} .sh)" # Strips '.sh' from scriptName
 
 # NOW
 # ------------------------------------------------------
 # Will print the current date and time in the format:
 # 01-02-2015 01:09:54 PM
 # ------------------------------------------------------
-NOW=$(date +"%m-%d-%Y %r") #Set Timestamp in variable
+now=$(date +"%m-%d-%Y %r") #Set Timestamp in variable
 
 # THISHOST
 # ------------------------------------------------------
 # Will print the current hostname of the computer the script
 # is being run on.
 # ------------------------------------------------------
-THISHOST=$(hostname)
+thisHost=$(hostname)

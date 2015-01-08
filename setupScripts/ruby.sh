@@ -15,9 +15,9 @@ RUBYVERSION="2.1.2"
 
 # Check for RVM
 if type_not_exists "rvm"; then
-  seek_confirmation_head "Install RVM?"
+  seek_confirmation "Install RVM?"
   if is_confirmed; then
-    e_warning "Installing RVM (Ruby Version Manager) and Ruby  which becomes the default ..."
+    warning "Installing RVM (Ruby Version Manager) and Ruby  which becomes the default ..."
     curl -L https://get.rvm.io | bash -s stable
     source "~/.rvm/scripts/rvm"
   fi

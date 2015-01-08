@@ -21,14 +21,14 @@ fi
 if is_not_file "$TESTFILE"; then
   die "Could not find $TESTFILE.  Exiting."
 else
-  e_arrow "Confirming that Dropbox has synced..."
+  notice "Confirming that Dropbox has synced..."
   while IFS= read -r file
   do
     while [ ! -e $HOME/"$file" ] ;
     do
-      e_warning "Waiting for Dropbox to Sync files."
+      notice "Waiting for Dropbox to Sync files."
       sleep 10
     done
-    e_success "Found $file"
+    success "Found $file"
   done < "$TESTFILE"
 fi

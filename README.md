@@ -19,9 +19,26 @@ This is the centralized repository of all my personal shell scripts which I use 
 ## Usage
 Each of the directories has its own README file which describes in more depth how to use the script(s) contained within.  Most of the scripts here won't work without the scripting utilities in `lib/`.
 
+## Versioning
+
+This project implements the Semantic Versioning guidelines.
+
+Releases will be numbered with the following format:
+
+`<major>.<minor>.<patch>`
+
+And constructed with the following guidelines:
+
+* Breaking backward compatibility bumps the major (and resets the minor and patch)
+* New additions without breaking backward compatibility bumps the minor (and resets the patch)
+* Bug fixes and misc changes bumps the patch
+
+For more information on SemVer, please visit [SemVer][7].
+
 [1]: http://brew.sh
 [2]: http://caskroom.io
 [3]: https://github.com/lra/mackup
 [4]: https://rvm.io
 [5]:http://en.wikipedia.org/wiki/Rsync
 [6]: http://www.cis.upenn.edu/~bcpierce/unison/
+[7]: http://semver.org

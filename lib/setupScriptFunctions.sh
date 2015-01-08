@@ -3,8 +3,11 @@
 # ##################################################
 # Shared bash functions used by my mac setup scripts.
 #
+# VERSION 1.0.0
+#
 # HISTORY
-# * 2015-01-02 - Initial creation
+#
+# * 2015-01-02 - v1.0.0  - First Creation
 #
 # ##################################################
 
@@ -17,33 +20,29 @@
 hasHomebrew () {
   # Check for Homebrew
   if type_not_exists 'brew'; then
-    e_error "No Homebrew. Gots to install it."
+    warning "No Homebrew. Gots to install it."
     seek_confirmation "Install Homebrew?"
     if is_confirmed; then
       #   Ensure that we can actually, like, compile anything.
       if [[ ! "$(type -P gcc)" && "$OSTYPE" =~ ^darwin ]]; then
-        e_error "XCode or the Command Line Tools for XCode must be installed first."
+        notice "XCode or the Command Line Tools for XCode must be installed first."
         seek_confirmation "Install Command Line Tools from here?"
         if is_confirmed; then
           xcode-select --install
         else
-          e_error "Please come back after Command Line Tools are installed.  Exiting"
-          exit 1
+          die "Please come back after Command Line Tools are installed."
         fi
       fi
       # Check for Git
       if type_not_exists 'git'; then
-        e_error "Git should be installed. It isn't. Aborting."
-        exit 1
+        die "Git should be installed. It isn't. Aborting."
       fi
       # Install Homebrew
       ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
       brew tap homebrew/dupes
       brew tap homebrew/versions
     else
-      e_error "Without Homebrew installed we won't get very far."
-      e_error "Exiting"
-      exit 0
+      die "Without Homebrew installed we won't get very far."
     fi
   fi
 }
@@ -141,7 +140,7 @@ function doInstall () {
       done
     fi
   else
-    e_success "Nothing to install. You've already got them all."
+    success "Nothing to install. You've already got them all."
   fi
 }
 
@@ -155,18 +154,18 @@ brewCleanup () {
 
   # htop
   if [[ "$(type -P $binroot/htop)" && "$(stat -L -f "%Su:%Sg" "$binroot/htop")" != "root:wheel" || ! "$(($(stat -L -f "%DMp" "$binroot/htop") & 4))" ]]; then
-    e_header "Updating htop permissions"
+    header "Updating htop permissions"
     sudo chown root:wheel "$binroot/htop"
     sudo chmod u+s "$binroot/htop"
   fi
   if [[ "$(type -P $binroot/bash)" && "$(cat /etc/shells | grep -q "$binroot/bash")" ]]; then
-    e_header "Adding $binroot/bash to the list of acceptable shells"
+    header "Adding $binroot/bash to the list of acceptable shells"
     echo "$binroot/bash" | sudo tee -a /etc/shells >/dev/null
   fi
   if [[ "$SHELL" != "$binroot/bash" ]]; then
-    e_header "Making $binroot/bash your default shell"
+    header "Making $binroot/bash your default shell"
     sudo chsh -s "$binroot/bash" "$USER" >/dev/null 2>&1
-    e_success "Please exit and restart all your shells."
+    success "Please exit and restart all your shells."
   fi
   brew cleanup
 }
@@ -178,9 +177,9 @@ brewCleanup () {
 # ------------------------------------------------------
 hasDropbox () {
   # Confirm we have Dropbox installed
-  e_arrow "Confirming that Dropbox is installed..."
+  notice "Confirming that Dropbox is installed..."
   if [ ! -e /Applications/Dropbox.app ]; then
-    e_error "We don't have Dropbox.  Let's get it installed."
+    notice "We don't have Dropbox.  Let's get it installed."
     seek_confirmation "Install Dropbox and all necessary prerequisites?"
     if is_confirmed; then
       # Run functions
@@ -196,10 +195,9 @@ hasDropbox () {
       Install
       open -a dropbox
     else
-      e_error "Can't run this script.  Install Dropbox manually.  Exiting."
-      exit 0
+      die "Can't run this script.  Install Dropbox manually."
     fi
   else
-    e_success "Dropbox is installed."
+    success "Dropbox is installed."
   fi
 }

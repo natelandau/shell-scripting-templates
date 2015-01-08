@@ -23,10 +23,10 @@ if is_confirmed; then
 	if is_file "./dropbox.sh"; then
 		./dropbox.sh
 	else
-		e_error "Can't find dropbox.sh"
+		error "Can't find dropbox.sh"
 		seek_confirmation "Continue running other scripts?"
 		if is_not_confirmed; then
-			e_error "Exiting"
+			warning "Exiting."
 			exit 0
 		fi
 	fi
@@ -49,8 +49,7 @@ if is_confirmed; then
 		if is_file "$file"; then
 			$file
 		else
-			e_error "$file does not exist. Exiting"
-			exit 0
+			die "$file does not exist. Exiting"
 		fi
 	done
 else
@@ -61,7 +60,7 @@ for file in $FILES
 			if is_file "$file"; then
 				$file
 			else
-				e_error "$file does not exist."
+				die "$file does not exist."
 			fi
 		fi
 	done
