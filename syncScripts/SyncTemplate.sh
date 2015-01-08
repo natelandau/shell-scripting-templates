@@ -356,7 +356,7 @@ function mainScript() {
 
   # Time the script by logging the end time
   ENDTIME=$(date +"%s")
-  TOTALTIME=$((${ENDTIME}-${STARTTIME}-20))
+  TOTALTIME=$((${ENDTIME}-${STARTTIME}))
 
   # notify with pushover if requested
   if [ "${PUSHOVERNOTIFY}" = "true" ]; then
