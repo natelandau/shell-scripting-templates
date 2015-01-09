@@ -37,10 +37,8 @@ fi
 # -----------------------------------
 function trapCleanup() {
   echo ""
-  if is_not_empty "${tmpDir}"; then
-    if is_dir "${tmpDir}"; then
-      rm -r "${tmpDir}"
-    fi
+  if is_dir "${tmpDir}"; then
+    rm -r "${tmpDir}"
   fi
   die "Exit trapped."  # Edit this if you like.
 }
