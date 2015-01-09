@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
+
 # ##################################################
 # My Generic sync script.
 #
-# VERSION 1.1.0
+version="1.1.0"  # Sets vesion variable
+scriptTemplateVersion="1.0.0" # Version of Script Template
 #
 # This script will give you the option of using rsync
 # or Unison.  Rsync is for one-way syncing, Unison is for
@@ -20,6 +22,9 @@
 # 3) Enter your information within the config file
 # 4) Run the script again.
 #
+# TO DO:
+#   * Add SSH functionality
+#
 # DISCLAIMER:
 # I am a novice programmer and I bear no responsibility whatsoever
 # if this (or any other) script that I write wipes your computer,
@@ -28,13 +33,15 @@
 #
 #
 # HISTORY:
-# * 2015-01-03 - v1.1.0  - Added version number
-#                       - Added support for using roots in Unison .prf
+# * 2015-01-03 - v1.1.0  - Added support for using roots in Unison .prf
 # * 2015-01-02 - v1.0.0  - First Creation
 #
 # ##################################################
 
 # Source Scripting Utilities
+# -----------------------------------
+# If these can't be found, update the path to the file
+# -----------------------------------
 if [ -f "../lib/utils.sh" ]; then
   source "../lib/utils.sh"
 else
@@ -42,65 +49,68 @@ else
   exit 1
 fi
 
-# This script calls for a configuration file.
-# This is its location
-CONFIG="../etc/${SCRIPTNAME}.cfg"
-
-
-# HELP
-# When -h is passed to the script, this will display inline help
-function HELP () {
-  echo -e "\nHelp for ${SCRIPTNAME}"
-  echo -e "This script will give you the option of using rsync"
-  echo -e "or Unison.  Rsync is for one-way syncing, Unison is for"
-  echo -e "two-way syncing.\n"
-  echo -e "Depending on what flags are passed to the script and"
-  echo -e "what information is written in the config file, this script"
-  echo -e "will perform different behavior.\n"
-  echo -e "USAGE:"
-  echo -e "  1) Copy this script and rename it for your purpose before running."
-  echo -e "     The script will do this for you when run."
-  echo -e "  2) Run the new script.  This will create a blank config file for you and then exit."
-  echo -e "  3) Enter your information within the config file"
-  echo -e "  4) Run the script again.\n"
-  echo -e "This script requires a config file located at: \"$CONFIG\""
-  echo -e "Ensure that the config file is correct before running."
-  echo -e "If the config file is not found at all, the script will create a new one for you.\n"
-  echo -e "MODIFIERS:"
-  echo -e "-n: Dry Run. This will show what would have been transferred.  Works in rsync only."
-  echo -e "-z: Compresses data during the transfer. Good for low bandwidth. Works in rsync only."
-  echo -e "-h: View help"
-  exit 0
+# trapCleanup Function
+# -----------------------------------
+# Any actions that should be taken if the script is prematurely
+# exited.  Always call this function at the top of your script.
+# -----------------------------------
+function trapCleanup() {
+  echo ""
+  if is_dir "${tmpDir}"; then
+    rm -r "${tmpDir}"
+  fi
+  die "Exit trapped."  # Edit this if you like.
 }
 
-# READ OPTIONS
-# Reads the options passed to the script
-# from the command line
-# ------------------------
-while getopts "hnz" opt; do
-  case $opt in
-    h) # show help
-      HELP
-      ;;
-    n) # Show progress in terminal
-      DRYRUN="n"
-      ;;
-    z) # Compress Data
-      COMPRESS="z"
-      ;;
-    \?)
-      HELP
-      ;;
-  esac
-done
+# Set Flags
+# -----------------------------------
+# Flags which can be overridden by user input.
+# Default values are below
+# -----------------------------------
+quiet=0
+printLog=0
+verbose=0
+force=0
+strict=0
+debug=0
+
+# Set Local Variables
+# -----------------------------------
+# A set of variables used by many scripts
+# -----------------------------------
+
+# Set Script name and location variables
+scriptName=`basename ${0}`  # Full name
+scriptBasename="$(basename ${scriptName} .sh)" # Strips '.sh' from name
+scriptPath="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Set time stamp
+now=$(date +"%m-%d-%Y %r")
+# Set hostname
+thisHost=$(hostname)
+
+# Create temp directory with three random numbers and the process ID
+# in the name.  This directory is removed automatically at exit.
+  tmpDir="/tmp/${scriptName}.$RANDOM.$RANDOM.$RANDOM.$$"
+  (umask 077 && mkdir "${tmpDir}") || {
+    die "Could not create temporary directory! Exiting."
+  }
+
+# Configuration file
+# -----------------------------------
+# This script calls for a configuration file.
+# This is its location.  Default is the location
+# where it will be automatically created.`
+# -----------------------------------
+CONFIG="../etc/${scriptName}.cfg"
+
 
 # Create new copy of the script if template is being executed
 function newCopy() {
-  scriptPath
-  if [ "${SCRIPTNAME}" = "SyncTemplate.sh" ]; then
+  if [ "${scriptName}" = "SyncTemplate.sh" ]; then
     input "name your new script:"
     read newname
-    cp "${SCRIPTPATH}"/"${SCRIPTNAME}" "${SCRIPTPATH}"/"${newname}"
+    cp "${scriptPath}"/"${scriptName}" "${scriptPath}"/"${newname}" && verbose "cp ${scriptPath}/${scriptName} ${scriptPath}/${newname}"
     success "${newname} created."
     exit 0
   fi
@@ -110,18 +120,19 @@ function configFile() {
   # Here we source the Config file or create a new one if none exists.
   if is_file "${CONFIG}"; then
     source "${CONFIG}"
+    verbose "source ${CONFIG}"
   else
     seek_confirmation "Config file does not exist.  Would you like to create one?"
     if is_not_confirmed; then
       die "No config file.  Exiting"
     else
-      touch "${CONFIG}"
+      touch "${CONFIG}" && verbose "touch ${CONFIG}"
   cat >"${CONFIG}" <<EOL
 # ##################################################
-# CONFIG FILE FOR ${SCRIPTNAME}
-# CREATED ON ${NOW}
+# CONFIG FILE FOR ${scriptName}
+# CREATED ON ${now}
 #
-# Created by version "$VERSION" of "SyncTemplate.sh"
+# Created by version "$version" of "SyncTemplate.sh"
 # ##################################################
 
 # METHOD
@@ -196,126 +207,135 @@ EXCLUDE=""
 # LOGFILE is a text file to log all script activity to.
 # Use the format /some/directory/file.txt
 # If you don't want a log of the activity leave this as /dev/null
-LOGFILE="/dev/null"
+logFile="/dev/null"
 
 # PUSHOVER is an online notification tool.
 # If you want to receive notifications upon completion
 # set the following value to "true"
-PUSHOVERNOTIFY="false"
+PUSHOVERnotice="false"
 
 # CANONICALHOST is used to denote a sync hub which should never initiate a sync.
 # Leave blank if not needed.
 CANONICALHOST=""
 EOL
   success "Config file created. Edit the values before running this script again."
-  notice "The file is located at: ${CONFIG}"
-  echo "Exiting."
+  notice "The file is located at: ${CONFIG}.  Exiting."
   exit 0
   fi
 fi
 }
 
 
+
+############## Begin Script Functions Here ###################
+
+
 # HostCheck
 # Confirm we can run this script.  If a canonical host is set in
 # the config file we check it here.
 function hostCheck() {
-  if [ "${THISHOST}" = "${CANONICALHOST}" ]; then
-    echo "${NOW} - Script was not run since we were on the wrong host" >> "${LOGFILE}"
+  if [ "${thisHost}" = "${CANONICALHOST}" ]; then
     die "We are currently on ${THISHOST} and can not proceed. Be sure to run this script on the non-canonical host."
   fi
 }
 
 # MethodCheck
 # Confirm we have either Unison or Rsync specified
-# in the config file. Exit if not
+# in the config file. Exit if not.
 function MethodCheck() {
   if [ "${METHOD}" != "rsync" ] && [ "${METHOD}" != "unison" ]; then
-    echo "${NOW} - Script aborted without a method specified in the config file." >> "${LOGFILE}"
-    die "We can not continue.  Please specify a sync method in the config file."
+    die "Script aborted without a method specified in the config file."
   fi
 }
 
-function mainScript() {
-  # Time the script by logging the start time
-  STARTTIME=$(date +"%s")
-
-  # Log Script Start to ${LOGFILE}
-  echo -e "-----------------------------------------------------" >> "${LOGFILE}"
-  echo -e "${NOW} - ${SCRIPTNAME} Begun" >> "${LOGFILE}"
-  echo -e "-----------------------------------------------------\n" >> "${LOGFILE}"
-
-
-  if [ "${NEEDMOUNT}" = "true" ] || [ "${NEEDMOUNT}" = "TRUE" ]; then
+function moutDrives() {
+  if [ "${NEEDMOUNT}" = "true" ] || [ "${NEEDMOUNT}" = "TRUE" ] || [ "${NEEDMOUNT}" = "True" ]; then
     # Mount AFP volume
     if is_not_dir "${REMOTEVOLUME}"; then
       notice "Mounting drive"
-      mkdir "${REMOTEVOLUME}"
+      mkdir "${REMOTEVOLUME}" && verbose "mkdir ${REMOTEVOLUME}"
       if [ "${MOUTPW}" = "true" ]; then # if password prompt needed
-        mount_afp -i "${MOUNTPOINT}" "${REMOTEVOLUME}"
+        mount_afp -i "${MOUNTPOINT}" "${REMOTEVOLUME}" && verbose "mount_afp -i ${MOUNTPOINT} ${REMOTEVOLUME}"
       else
-        mount_afp "${MOUNTPOINT}" "${REMOTEVOLUME}"
+        mount_afp "${MOUNTPOINT}" "${REMOTEVOLUME}" && verbose "mount_afp ${MOUNTPOINT} ${REMOTEVOLUME}"
       fi
-      sleep 10
-      echo "${NOW} - ${REMOTEVOLUME} Mounted" >> "${LOGFILE}"
-      success "${REMOTEVOLUME} Mounted"
+      sleep 5
+      notice "${REMOTEVOLUME} Mounted"
     else
-      success "${REMOTEVOLUME} already mounted"
+      notice "${REMOTEVOLUME} was already mounted."
     fi
   fi
+}
 
+function unmountDrives() {
+  # Unmount the drive (if mounted)
+  if [ "${NEEDMOUNT}" = "true" ] || [ "${NEEDMOUNT}" = "TRUE" ]; then
+    unmountDrive "${REMOTEVOLUME}"
+    notice "${REMOTEVOLUME} UnMounted"
+  fi
+}
+
+function testSources() {
   # Test for source directories.
   # If they don't exist we can't continue
 
   # test for target
   if is_dir "${TARGETDIRECTORY}"; then
-    success "${TARGETDIRECTORY} exists"
+    verbose "${TARGETDIRECTORY} exists"
   else
     if [ "${NEEDMOUNT}" = "true" ] || [ "${NEEDMOUNT}" = "TRUE" ]; then
-      unmountDrive "${REMOTEVOLUME}"
+      unmountDrive "${REMOTEVOLUME}" && verbose "Unmounting ${REMOTEVOLUME}"
       if is_dir "${REMOTEVOLUME}"; then
-        rm -r "${REMOTEVOLUME}"
+        rm -r "${REMOTEVOLUME}" && verbose "rm -r ${REMOTEVOLUME}"
       fi
     fi
-    echo -e "${NOW} - Script aborted since target dir: ${TARGETDIRECTORY} was not found.  Exited.\n" >> "${LOGFILE}"
-    die "target directory: ${TARGETDIRECTORY} does not exist. Exiting."
+    die "Target directory: ${TARGETDIRECTORY} does not exist."
   fi
 
   # Test for source directory
   if is_dir "${SOURCEDIRECTORY}"; then
-    success "${SOURCEDIRECTORY} exists"
+    verbose "${SOURCEDIRECTORY} exists"
   else
     if [ "${NEEDMOUNT}" = "true" ] || [ "${NEEDMOUNT}" = "TRUE" ]; then
-      unmountDrive "${REMOTEVOLUME}"
+      unmountDrive "${REMOTEVOLUME}" && verbose "Unmounting ${REMOTEVOLUME}"
       if is_dir "${REMOTEVOLUME}"; then
-        rm -r "${REMOTEVOLUME}"
+        rm -r "${REMOTEVOLUME}" && verbose "rm -r ${REMOTEVOLUME}"
       fi
     fi
-    echo -e "${NOW} - Script aborted since source dir: ${SOURCEDIRECTORY} was not found.  Exited.\n" >> "${LOGFILE}"
-    die "source directory: ${SOURCEDIRECTORY} does not exist. Exiting."
+    die "Source directory: ${SOURCEDIRECTORY} does not exist."
   fi
+  notice "Source directories passed filesystem check.  Continuing."
+}
 
-  # Time to sync
+function runRsync() {
   if [ "${METHOD}" = "rsync" ]; then
-    /usr/bin/rsync -vahh"$DRYRUN""$COMPRESS" --progress --force --delete --exclude-from="$EXCLUDE" "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}" --log-file="${LOGFILE}"
+    if [ "${debug}" = "1" ]; then
+      debug "/usr/bin/rsync -vahh${DRYRUN}${COMPRESS} --progress --force --delete --exclude-from=${EXCLUDE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY} --log-file=${logFile}"
+    else
+      notice "Commencing rsync"
+      /usr/bin/rsync -vahh"${DRYRUN}""${COMPRESS}" --progress --force --delete --exclude-from="${EXCLUDE}" "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}" --log-file="${logFile}"
+    fi
   fi
-  if [ "${METHOD}" = "unison" ]; then
+}
 
+
+function runUnison() {
+  if [ "${METHOD}" = "unison" ]; then
     # Check if Unison is installed.  It is not a standard package
     if type_not_exists 'unison'; then
-      seek_confirmation "Unison not installed, install it?"
+      seek_confirmation "Unison not installed, try to install it with Homebrew?"
       if is_confirmed; then
+        notice "Attempting to install Unison."
         hasHomebrew
-        brewMaintenance
         brew install unison
       else
         if [ "${NEEDMOUNT}" = "true" ] || [ "${NEEDMOUNT}" = "TRUE" ]; then
-          unmountDrive "${REMOTEVOLUME}"
+          unmountDrive "${REMOTEVOLUME}" && verbose "unmountDrive ${REMOTEVOLUME}"
           if is_dir "${REMOTEVOLUME}"; then
-            rm -r "${REMOTEVOLUME}"
+            rm -r "${REMOTEVOLUME}" && verbose "rm -r ${REMOTEVOLUME}"
           fi
         fi
-        die "Can not continue without Unison."
+        die "Can not continue without having Unison installed."
       fi
     fi
 
@@ -323,55 +343,209 @@ function mainScript() {
     if [ "${PROFILEROOTS}" = "true" ]; then
       # Throw error if we don't have enough information
       if [ "${USEPROFILE}" = "false" ] || [ "${UNISONPROFILE}" = "" ]; then
-        echo "${NOW} - We were missing the Unison Profile.  Could not sync." >> "${LOGFILE}"
         die "We were missing the Unison Profile.  Could not sync."
       fi
-      # Run unison with the profile
-      echo "${NOW} - Beginning Unison with command: unison ${UNISONPROFILE}" >> "${LOGFILE}"
-      unison "${UNISONPROFILE}"
+      # Run unison with a profile and no sources
+      if [ "${debug}" = "1" ]; then
+        debug "unison ${UNISONPROFILE}"
+      else
+        notice "Commencing Unison"
+        unison "${UNISONPROFILE}"
+      fi
     else
       if [ "${USEPROFILE}" = "true" ]; then
         # Throw error if we can't find the profile
         if [ "${UNISONPROFILE}" = "" ]; then
-          echo "${NOW} - We were missing the Unison Profile.  Could not sync." >> "${LOGFILE}"
           die "We were missing the Unison Profile.  Could not sync."
         fi
-        # Run unison with a profile
-        echo "${NOW} - Beginning Unison with command: unison ${UNISONPROFILE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY}" >> "${LOGFILE}"
-        unison "${UNISONPROFILE}" "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}"
+        # Run unison with a profile and specified sources
+        if [ "${debug}" = "1" ]; then
+          debug "unison ${UNISONPROFILE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY}"
+        else
+          notice "Commencing Unison"
+          unison "${UNISONPROFILE}" "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}"
+        fi
       else
         # Run Unison without a profile
-        echo "${NOW} - Beginning Unison with command: unison ${SOURCEDIRECTORY} ${TARGETDIRECTORY}" >> "${LOGFILE}"
-        unison "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}"
+        if [ "${debug}" = "1" ]; then
+          debug "unison ${SOURCEDIRECTORY} ${TARGETDIRECTORY}"
+        else
+          notice "Commencing Unison"
+          unison "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}"
+        fi
       fi
     fi
   fi
-
-  # Unmount the drive (if mounted)
-  if [ "${NEEDMOUNT}" = "true" ] || [ "${NEEDMOUNT}" = "TRUE" ]; then
-    unmountDrive "${REMOTEVOLUME}"
-    echo "${NOW} - ${REMOTEVOLUME} Unmounted" >> "${LOGFILE}"
-    success "${REMOTEVOLUME} UnMounted"
-  fi
-
-  # Time the script by logging the end time
-  ENDTIME=$(date +"%s")
-  TOTALTIME=$((${ENDTIME}-${STARTTIME}))
-
-  # notify with pushover if requested
-  if [ "${PUSHOVERNOTIFY}" = "true" ]; then
-    pushover "${SCRIPTNAME} Completed" "${SCRIPTNAME} was run in $(convertsecs $TOTALTIME)"
-  fi
-
-  echo -e "\n-----------------------------------------------------" >> "${LOGFILE}"
-  echo "${NOW} - ${SCRIPTNAME} completed in $(convertsecs $TOTALTIME)" >> "${LOGFILE}"
-  echo -e "-----------------------------------------------------\n" >> "${LOGFILE}"
-
-  success "${NOW} - ${SCRIPTNAME} completed in $(convertsecs $TOTALTIME)"
 }
+
+function notifyPushover() {
+  if [ "${PUSHOVERNOTIFY}" = "true" ]; then
+    if [ "${debug}" = "1" ]; then
+      debug "\"pushover ${SCRIPTNAME} Completed\" \"${SCRIPTNAME} was run in $(convertsecs $TOTALTIME)\""
+    else
+      pushover "${SCRIPTNAME} Completed" "${SCRIPTNAME} was run in $(convertsecs $TOTALTIME)"
+    fi
+  fi
+}
+
+############## End Script Functions Here ###################
+
+
+############## Begin Options and Usage ###################
+
+
+# Print usage
+usage() {
+  echo -n "${scriptName} [OPTION]... [FILE]...
+
+  This script will give you the option of using rsync
+  or Unison.  Rsync is for one-way syncing, Unison is for
+  two-way syncing.
+
+  Depending on what flags are passed to the script and
+  what information is written in the config file, this script
+  will perform different behavior.
+
+  USAGE:
+    1) Copy this script and rename it for your purpose before running.
+       The script will do this for you when run.
+    2) Run the new script.  This will create a blank config file
+       for you and then exit.
+    3) Enter your information within the config file
+    4) Run the script again.
+
+  This script requires a config file located at: ${CONFIG}
+  Ensure that the config file is correct before running.
+  If the config file is not found at all, the script will
+  create a new one for you.
+
+  TO DO:
+    * Add SSH functionality
+
+ Options:
+  -d, --debug       Prints commands to console. Runs no syncs.
+  -f, --force       Skip all user interaction.  Implied 'Yes' to all actions
+  -h, --help        Display this help and exit
+  -l, --log         Print log to file
+  -n, --dryrun      Dry run.  If using rsync, will run everything
+                    without making any changes
+  -q, --quiet       Quiet (no output)
+  -s, --strict      Exit script with null variables.  'set -o nounset'
+  -v, --verbose     Output more information. (Items echoed to 'verbose')
+  -z, --compress    Comress.  If using rsync, this will compress date before
+                    transferring.  Good for slow internet connections.
+      --version     Output version information and exit
+"
+}
+
+# Iterate over options breaking -ab into -a -b when needed and --foo=bar into
+# --foo bar
+optstring=h
+unset options
+while (($#)); do
+  case $1 in
+    # If option is of type -ab
+    -[!-]?*)
+      # Loop over each character starting with the second
+      for ((i=1; i < ${#1}; i++)); do
+        c=${1:i:1}
+
+        # Add current char to options
+        options+=("-$c")
+
+        # If option takes a required argument, and it's not the last char make
+        # the rest of the string its argument
+        if [[ $optstring = *"$c:"* && ${1:i+1} ]]; then
+          options+=("${1:i+1}")
+          break
+        fi
+      done
+      ;;
+    # If option is of type --foo=bar
+    --?*=*) options+=("${1%%=*}" "${1#*=}") ;;
+    # add --endopts for --
+    --) options+=(--endopts) ;;
+    # Otherwise, nothing special
+    *) options+=("$1") ;;
+  esac
+  shift
+done
+set -- "${options[@]}"
+unset options
+
+# Print help if no arguments were passed.
+# Uncomment to force arguments when invoking the script
+# [[ $# -eq 0 ]] && set -- "--help"
+
+# Read the options and set stuff
+while [[ $1 = -?* ]]; do
+  case $1 in
+    -h|--help) usage >&2; safeExit ;;
+    --version) echo "$(basename $0) $version"; safeExit ;;
+    -v|--verbose) verbose=1 ;;
+    -l|--log) printLog=1 ;;
+    -d|--debug) debug=1 ;;
+    -q|--quiet) quiet=1 ;;
+    -s|--strict) strict=1;;
+    -f|--force) force=1 ;;
+    -n|--dryrun) DRYRUN=n ;;
+    -z|--compress) COMPRESS=z ;;
+    --endopts) shift; break ;;
+     *) warning "invalid option: $1.\n"; usage >&2; safeExit ;;
+#     *) die "invalid option: '$1'." ;;
+  esac
+  shift
+done
+
+
+############## End Options and Usage ###################
+
+
+
+
+# ############# ############# #############
+# ##       TIME TO RUN THE SCRIPT        ##
+# ##                                     ##
+# ## You shouldn't need to edit anything ##
+# ## beneath this line                   ##
+# ##                                     ##
+# ############# ############# #############
+
+# Trap bad exits with your cleanup function
+trap trapCleanup INT TERM
+
+# Exit on error. Append ||true if you expect an error.
+set -o errexit
+
+# Exit on empty variable
+if [ "${strict}" == "1" ]; then
+  set -o nounset
+fi
+
+# Bash will remember & return the highest exitcode in a chain of pipes.
+# This way you can catch the error in case mysqldump fails in `mysqldump |gzip`
+set -o pipefail
+
+# Set timer for script to start
+STARTTIME=$(date +"%s")
+
+header "${scriptName} Begun"
 
 newCopy
 configFile
 hostCheck
 MethodCheck
-mainScript
+moutDrives
+testSources
+runRsync
+runUnison
+unmountDrives
+
+# Time the script by logging the end time
+ENDTIME=$(date +"%s")
+TOTALTIME=$(($ENDTIME-$STARTTIME))
+
+notifyPushover
+header "${scriptName} completed in $(convertsecs $TOTALTIME)"
+
+safeExit # Exit cleanly

@@ -80,7 +80,7 @@ function _alert() { #my function
     local color="${purple}"
   fi
   if [ "${1}" = "header" ]; then
-    local color="${bold}""${purple}"
+    local color="${bold}""${tan}"
   fi
   if [ "${1}" = "input" ]; then
     local color="${bold}"
@@ -115,8 +115,11 @@ function input()      { local _message="${@}"; echo "$(_alert input)"; }
 function header()     { local _message="========== ${@} ==========  "; echo "$(_alert header)"; }
 
 # Log messages when verbose is set to "1"
-verbose() { (($verbose)) && info "$@"; }
-
+verbose() {
+  if [ "${verbose}" == "1" ]; then
+    info "$@"
+  fi
+}
 
 # Notes to self
 # ####################
