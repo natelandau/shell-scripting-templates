@@ -3,7 +3,7 @@
 
 
 # ##################################################
-# My Generic sync script.
+# My Generic BASH script template
 #
 version="1.0.0"  # Sets vesion variable
 scriptTemplateVersion="1.0.0" # Version of Template
@@ -55,7 +55,7 @@ printLog=0
 verbose=0
 force=0
 strict=0
-args=()
+
 
 # Set Local Variables
 # -----------------------------------
