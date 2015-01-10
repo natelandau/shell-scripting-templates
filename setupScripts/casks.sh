@@ -56,6 +56,7 @@ RECIPES=(
     quicklook-json
     skitch
     spillo
+    sublime-text3
     suspicious-package
     textexpander
     tower
