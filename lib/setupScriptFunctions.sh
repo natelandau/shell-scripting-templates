@@ -20,7 +20,7 @@
 hasHomebrew () {
   # Check for Homebrew
   if type_not_exists 'brew'; then
-    warning "No Homebrew. Gots to install it."
+    warning "No Homebrew. Gots to install it..."
     seek_confirmation "Install Homebrew?"
     if is_confirmed; then
       #   Ensure that we can actually, like, compile anything.
@@ -35,7 +35,7 @@ hasHomebrew () {
       fi
       # Check for Git
       if type_not_exists 'git'; then
-        die "Git should be installed. It isn't. Aborting."
+        die "Git should be installed. It isn't."
       fi
       # Install Homebrew
       ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -69,6 +69,7 @@ hasCasks () {
   if ! $(brew cask > /dev/null); then
     brew install caskroom/cask/brew-cask
     brew tap caskroom/fonts
+    brew tap caskroom/versions
   fi
 }
 
@@ -130,13 +131,13 @@ function doInstall () {
       do
         seek_confirmation "Install $item?"
         if is_confirmed; then
-          $INSTALLCOMMAND $item
+          ${INSTALLCOMMAND} $item
         fi
       done
     else
       for item in ${list[@]}
       do
-        $INSTALLCOMMAND $item
+        ${INSTALLCOMMAND} $item
       done
     fi
   else
