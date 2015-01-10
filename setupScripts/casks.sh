@@ -55,6 +55,7 @@ RECIPES=(
     quicklook-csv
     quicklook-json
     skitch
+    spillo
     suspicious-package
     textexpander
     tower
