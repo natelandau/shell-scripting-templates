@@ -5,7 +5,7 @@
 # ##################################################
 # My Generic BASH script template
 #
-version="1.0.0"  # Sets vesion variable
+version="1.0.0"  # Sets version variable
 scriptTemplateVersion="1.0.0" # Version of Template
 #
 # This is my bash script template.  Start all scripts
