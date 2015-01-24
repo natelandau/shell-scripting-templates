@@ -61,6 +61,7 @@ RECIPES=(
     textexpander
     tower
     vlc
+    vyprvpn
     webp-quicklook
     xld
 )
