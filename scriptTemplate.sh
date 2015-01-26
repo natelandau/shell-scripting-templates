@@ -143,6 +143,7 @@ while (($#)); do
         fi
       done
       ;;
+
     # If option is of type --foo=bar
     --?*=*) options+=("${1%%=*}" "${1#*=}") ;;
     # add --endopts for --
