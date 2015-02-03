@@ -9,8 +9,7 @@
 #  of many of my scripts
 #
 # All of this taken whole-cloth from: https://github.com/kvz/bash3boilerplate
-#####################################################################
-
+#####################################################################q
 
   # Translate usage string -> getopts arguments, and set $arg_<flag> defaults
   while read line; do

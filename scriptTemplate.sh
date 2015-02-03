@@ -29,7 +29,6 @@ else
   echo "Please find the file util.sh and add a reference to it in this script. Exiting."
   exit 1
 fi
-
 # trapCleanup Function
 # -----------------------------------
 # Any actions that should be taken if the script is prematurely
