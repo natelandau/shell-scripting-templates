@@ -62,7 +62,7 @@ RECIPES=(
     tower
     vlc
     vyprvpn
-    webp-quicklook
+    webpquicklook
     xld
 )
 
