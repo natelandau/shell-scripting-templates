@@ -1,21 +1,32 @@
 #!/usr/bin/env bash
 
-
-
 # ##################################################
 # My Generic BASH script template
 #
-version="1.0.0"  # Sets version variable
-scriptTemplateVersion="1.0.0" # Version of Template
+version="1.0.1"               # Sets version variable for this script
 #
-# This is my bash script template.  Start all scripts
-# with this
+scriptTemplateVersion="1.0.0" # Version of scriptTemplate.sh
+#                               that this script is based on
 #
-
+# A Bash script boilerplate.  Allows for common functions, logging, tmp
+# file creation, CL option passing, and more.
+#
+# For logging levels use the following functions:
+#   - header:   Prints a script header
+#   - input:    Ask for user input
+#   - success:  Print script success
+#   - info:     Print information to the user
+#   - notice:   Notify the user of something
+#   - warning:  Warn the user of something
+#   - error:    Print a non-fatal error
+#   - die:      A fatal error.  Will exit the script
+#   - debug:    Debug information
+#   - verbose:  Debug info only printed when 'verbose' flag is set to 'true'.
 #
 # HISTORY:
 #
 # * 2015-01-04 - v1.0.0  - First Creation
+# * 2015-02-07 - v1.0.1  - Changed default log location to ~/Library/Logs/
 #
 # ##################################################
 
@@ -78,11 +89,13 @@ thisHost=$(hostname)
 
 # Logging
 # -----------------------------------
-# Defaults to 'dev/null'. If you want a log,
-# place the path here.
-# "$HOME/Desktop/${scriptBasename}.log" is common
+# Log is only used when the '-l' flag is set.
+#
+# To never save a logfile change variable to '/dev/null'
+# Save to Desktop use: $HOME/Desktop/${scriptBasename}.log
+# Save to standard user log location use: $HOME/Library/Logs/${scriptBasename}.log
 # -----------------------------------
-logFile="/dev/null"
+logFile="$HOME/Library/Logs/${scriptBasename}.log"
 
 
 function mainScript() {
@@ -112,7 +125,7 @@ This is my script template.
   -f, --force       Skip all user interaction.  Implied 'Yes' to all actions
   -q, --quiet       Quiet (no output)
   -l, --log         Print log to file
-  -s, --strict      Exit script with null variables.  'set -o nounset'
+  -s, --strict      Exit script with null variables.  i.e 'set -o nounset'
   -v, --verbose     Output more information. (Items echoed to 'verbose')
   -h, --help        Display this help and exit
       --version     Output version information and exit
