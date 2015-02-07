@@ -117,7 +117,7 @@ function header()     { local _message="========== ${@} ==========  "; echo "$(_
 # Log messages when verbose is set to "1"
 verbose() {
   if [ "${verbose}" == "1" ]; then
-    info "$@"
+    debug "$@"
   fi
 }
 
