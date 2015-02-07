@@ -99,8 +99,8 @@ hasCasks () {
 # of uninstalled items.
 # Credit: https://github.com/cowboy/dotfiles
 function to_install() {
-  local debug desired installed i desired_s installed_s remain
-  if [[ "$1" == 1 ]]; then debug=1; shift; fi
+  local debugger desired installed i desired_s installed_s remain
+  if [[ "$1" == 1 ]]; then debugger=1; shift; fi
     # Convert args to arrays, handling both space- and newline-separated lists.
     read -ra desired < <(echo "$1" | tr '\n' ' ')
     read -ra installed < <(echo "$2" | tr '\n' ' ')
@@ -115,7 +115,7 @@ function to_install() {
     unset i; while read -r; do remain[i++]=$REPLY; done < <(
       comm -13 <(printf "%s\n" "${installed_s[@]}") <(printf "%s\n" "${desired_s[@]}")
   )
-  [[ "$debug" ]] && for v in desired desired_s installed installed_s remain; do
+  [[ "$debugger" ]] && for v in desired desired_s installed installed_s remain; do
     echo "$v ($(eval echo "\${#$v[*]}")) $(eval echo "\${$v[*]}")"
   done
   echo "${remain[@]}"
