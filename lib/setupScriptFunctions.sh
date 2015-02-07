@@ -131,12 +131,14 @@ function doInstall () {
       do
         seek_confirmation "Install ${item}?"
         if is_confirmed; then
-          ${INSTALLCOMMAND} $item
+          notice "Installing ${item}"
+          ${INSTALLCOMMAND} ${item}
         fi
       done
     else
       for item in ${list[@]}
       do
+        notice "Installing ${item}"
         ${INSTALLCOMMAND} ${item}
       done
     fi
@@ -162,7 +164,12 @@ brewCleanup () {
     sudo chsh -s "${binroot}/bash" "$USER" >/dev/null 2>&1
     success "Please exit and restart all your shells."
   fi
+
   brew cleanup
+
+  if $(brew cask > /dev/null); then
+    brew cask cleanup
+  fi
 }
 
 # hasDropbox
