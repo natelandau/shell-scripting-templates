@@ -210,7 +210,7 @@ trap trapCleanup INT TERM
 set -o errexit
 
 # Exit on empty variable
-if [ "${strict}"="1" ]; then
+if [ "${strict}" = "1" ]; then
   set -o nounset
 fi
 
