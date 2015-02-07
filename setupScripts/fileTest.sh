@@ -138,11 +138,10 @@ header "Completed ${scriptBasename}"
 usage() {
   echo -n "${scriptName} [OPTION]... [FILE]...
 
-This is my script template.
+A Script to test if certain files from Dropbox are synced to the local hard drive.
+This script relies on a text file containing paths to documents.
 
  Options:
-  -u, --username    Username for script
-  -p, --password    User password
   -f, --force       Skip all user interaction.  Implied 'Yes' to all actions
   -q, --quiet       Quiet (no output)
   -l, --log         Print log to file

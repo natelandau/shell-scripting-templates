@@ -8,8 +8,7 @@ version="1.0.0"               # Sets version variable for this script
 scriptTemplateVersion="1.0.1" # Version of scriptTemplate.sh
 #                               that this script is based on
 #
-# A Bash script boilerplate.  Allows for common functions, logging, tmp
-# file creation, CL option passing, and more.
+# Installs Homebrew and all its prerequisites, then installs a number of packages.
 #
 # For logging levels use the following functions:
 #   - header:   Prints a script header
@@ -184,11 +183,9 @@ header "Ending ${scriptName}"
 usage() {
   echo -n "${scriptName} [OPTION]... [FILE]...
 
-This is my script template.
+Installs Homebrew and all its prerequisites, then installs a number of packages.
 
  Options:
-  -u, --username    Username for script
-  -p, --password    User password
   -f, --force       Skip all user interaction.  Implied 'Yes' to all actions
   -q, --quiet       Quiet (no output)
   -l, --log         Print log to file

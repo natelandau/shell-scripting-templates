@@ -8,8 +8,7 @@ version="1.0.0"               # Sets version variable for this script
 scriptTemplateVersion="1.1.0" # Version of scriptTemplate.sh that this script is based on
 #                               v.1.1.0 - Added 'debug' option
 #
-# A Bash script boilerplate.  Allows for common functions, logging, tmp
-# file creation, CL option passing, and more.
+# This script configures a MacOS environment.
 #
 # For logging levels use the following functions:
 #   - header:   Prints a script header
@@ -174,7 +173,7 @@ if is_confirmed; then
   success "Automatically quit printer app once the print jobs complete"
   defaults write com.apple.print.PrintingPrefs "Quit When Finished" -bool true
 
-  success "Disable the Are you sure you want to open this application? dialog"
+  success "Disable the 'Are you sure you want to open this application?' dialog"
   defaults write com.apple.LaunchServices LSQuarantine -bool false
 
   success "General:Display ASCII control characters using caret notation in standard text views"
@@ -212,7 +211,7 @@ if is_confirmed; then
   defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
 
   success "Removing duplicates in the 'Open With' menu"
-  /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
+  #/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
 
   #success "Disable hibernation? (speeds up entering sleep mode)"
   #sudo pmset -a hibernatemode 0
@@ -823,12 +822,10 @@ header "Completed ${scriptBasename}"
 usage() {
   echo -n "${scriptName} [OPTION]... [FILE]...
 
-This is my script template.
+This script configures a macOSX environment.
 
  Options:
-  -u, --username    Username for script
-  -p, --password    User password
-  -f, --force       Skip all user interaction.  Implied 'Yes' to all actions
+  -f, --force       Skip all user interaction.  Implied 'Yes' to all actions.
   -q, --quiet       Quiet (no output)
   -l, --log         Print log to file
   -s, --strict      Exit script with null variables.  i.e 'set -o nounset'

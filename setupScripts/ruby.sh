@@ -8,8 +8,7 @@ version="1.0.0"               # Sets version variable for this script
 scriptTemplateVersion="1.1.0" # Version of scriptTemplate.sh that this script is based on
 #                               v.1.1.0 - Added 'debug' option
 #
-# A Bash script boilerplate.  Allows for common functions, logging, tmp
-# file creation, CL option passing, and more.
+# This script will install Ruby and RVM via Homebrew
 #
 # For logging levels use the following functions:
 #   - header:   Prints a script header
@@ -171,11 +170,9 @@ header "Ending ${scriptBasename}"
 usage() {
   echo -n "${scriptName} [OPTION]... [FILE]...
 
-This is my script template.
+This script installs Ruby and RVM via Homebrew as well as a number of Gems.
 
  Options:
-  -u, --username    Username for script
-  -p, --password    User password
   -f, --force       Skip all user interaction.  Implied 'Yes' to all actions
   -q, --quiet       Quiet (no output)
   -l, --log         Print log to file
