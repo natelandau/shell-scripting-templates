@@ -102,8 +102,6 @@ function mainScript() {
 
 header "Beginning ${scriptName}"
 
-notify "test"
-
 # Set Variables
 LISTINSTALLED="brew list"
 INSTALLCOMMAND="brew install"
