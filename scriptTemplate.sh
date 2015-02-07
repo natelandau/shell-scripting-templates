@@ -3,9 +3,9 @@
 # ##################################################
 # My Generic BASH script template
 #
-version="1.0.1"               # Sets version variable for this script
+version="1.0.0"               # Sets version variable for this script
 #
-scriptTemplateVersion="1.0.0" # Version of scriptTemplate.sh
+scriptTemplateVersion="1.0.1" # Version of scriptTemplate.sh
 #                               that this script is based on
 #
 # A Bash script boilerplate.  Allows for common functions, logging, tmp
@@ -25,8 +25,7 @@ scriptTemplateVersion="1.0.0" # Version of scriptTemplate.sh
 #
 # HISTORY:
 #
-# * 2015-01-04 - v1.0.0  - First Creation
-# * 2015-02-07 - v1.0.1  - Changed default log location to ~/Library/Logs/
+# * DATE - v1.0.0  - First Creation
 #
 # ##################################################
 
