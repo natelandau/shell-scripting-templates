@@ -100,6 +100,10 @@ logFile="$HOME/Library/Logs/${scriptBasename}.log"
 function mainScript() {
 ############## Begin Script Here ###################
 
+header "Beginning ${scriptName}"
+
+notify "test"
+
 # Set Variables
 LISTINSTALLED="brew list"
 INSTALLCOMMAND="brew install"
@@ -163,7 +167,6 @@ htopPermissions() {
 }
 
 # Run Functions
-
 hasHomebrew
 brewMaintenance
 doInstall
@@ -171,7 +174,7 @@ install-ffmpeg
 htopPermissions
 brewCleanup
 
-
+header "Ending ${scriptName}"
 
 ############## End Script Here ###################
 }
@@ -271,7 +274,7 @@ done
 # ############# ############# #############
 
 # Trap bad exits with your cleanup function
-trap trapCleanup INT TERM
+trap trapCleanup EXIT INT TERM
 
 # Exit on error. Append ||true if you expect an error.
 set -o errexit
