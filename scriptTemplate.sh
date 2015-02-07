@@ -204,7 +204,7 @@ done
 # ############# ############# #############
 
 # Trap bad exits with your cleanup function
-trap trapCleanup INT TERM
+trap trapCleanup EXIT INT TERM
 
 # Exit on error. Append ||true if you expect an error.
 set -o errexit
