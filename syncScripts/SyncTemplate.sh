@@ -4,7 +4,8 @@
 # ##################################################
 # My Generic sync script.
 #
-version="1.1.0"  # Sets vesion variable
+version="1.1.0"  # Sets version variable
+#
 scriptTemplateVersion="1.0.0" # Version of Script Template
 #
 # This script will give you the option of using rsync
