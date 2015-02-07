@@ -5,8 +5,8 @@
 #
 version="1.0.0"               # Sets version variable for this script
 #
-scriptTemplateVersion="1.0.1" # Version of scriptTemplate.sh
-#                               that this script is based on
+scriptTemplateVersion="1.1.0" # Version of scriptTemplate.sh that this script is based on
+#                               v.1.1.0 - Added 'debug' option
 #
 # A Bash script boilerplate.  Allows for common functions, logging, tmp
 # file creation, CL option passing, and more.
@@ -62,6 +62,7 @@ printLog=0
 verbose=0
 force=0
 strict=0
+debug=0
 
 
 # Set Local Variables
@@ -126,6 +127,7 @@ This is my script template.
   -l, --log         Print log to file
   -s, --strict      Exit script with null variables.  i.e 'set -o nounset'
   -v, --verbose     Output more information. (Items echoed to 'verbose')
+  -d, --debug       Runs script in BASH debug mode (set -x)
   -h, --help        Display this help and exit
       --version     Output version information and exit
 "
@@ -182,6 +184,7 @@ while [[ $1 = -?* ]]; do
     -l|--log) printLog=1 ;;
     -q|--quiet) quiet=1 ;;
     -s|--strict) strict=1;;
+    -d|--debug) debug=1;;
     -f|--force) force=1 ;;
     --endopts) shift; break ;;
     *) die "invalid option: '$1'." ;;
@@ -209,8 +212,13 @@ trap trapCleanup EXIT INT TERM
 # Exit on error. Append ||true if you expect an error.
 set -o errexit
 
+# Run in debug mode, if set
+if [ "${debug}" == "1" ]; then
+  set -x
+fi
+
 # Exit on empty variable
-if [ "${strict}" = "1" ]; then
+if [ "${strict}" == "1" ]; then
   set -o nounset
 fi
 
