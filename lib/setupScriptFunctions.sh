@@ -124,12 +124,12 @@ function to_install() {
 # Install the desired items that are not already installed.
 function doInstall () {
   list="$(to_install "${RECIPES[*]}" "$($LISTINSTALLED)")"
-  if [[ "$list" ]]; then
+  if [[ "${list}" ]]; then
     seek_confirmation "Confirm each install before running?"
     if is_confirmed; then
       for item in ${list[@]}
       do
-        seek_confirmation "Install $item?"
+        seek_confirmation "Install ${item}?"
         if is_confirmed; then
           ${INSTALLCOMMAND} $item
         fi
@@ -137,11 +137,11 @@ function doInstall () {
     else
       for item in ${list[@]}
       do
-        ${INSTALLCOMMAND} $item
+        ${INSTALLCOMMAND} ${item}
       done
     fi
   else
-    success "Nothing to install. You've already got them all."
+    notice "Nothing to install. You've already installed all your recipes."
   fi
 }
 
@@ -173,7 +173,7 @@ brewCleanup () {
 hasDropbox () {
   # Confirm we have Dropbox installed
   notice "Confirming that Dropbox is installed..."
-  if [ ! -e /Applications/Dropbox.app ]; then
+  if [ ! -e "/Applications/Dropbox.app" ]; then
     notice "We don't have Dropbox.  Let's get it installed."
     seek_confirmation "Install Dropbox and all necessary prerequisites?"
     if is_confirmed; then
