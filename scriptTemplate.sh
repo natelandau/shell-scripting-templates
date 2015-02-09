@@ -209,7 +209,7 @@ done
 # Trap bad exits with your cleanup function
 trap trapCleanup EXIT INT TERM
 
-# Exit on error. Append ||true if you expect an error.
+# Exit on error. Append '||true' when you run the script if you expect an error.
 set -o errexit
 
 # Run in debug mode, if set
@@ -223,9 +223,8 @@ if [ "${strict}" == "1" ]; then
 fi
 
 # Bash will remember & return the highest exitcode in a chain of pipes.
-# This way you can catch the error in case mysqldump fails in `mysqldump |gzip`
+# This way you can catch the error in case mysqldump fails in `mysqldump |gzip`, for example.
 set -o pipefail
-
 
 mainScript # Run your script
 

@@ -277,10 +277,10 @@ function skip() {
   REPLY=noskip
   read -t 5 -n 1 -s -p "${bold}To skip, press ${underline}X${reset}${bold} within 5 seconds.${reset}"
   if [[ "$REPLY" =~ ^[Xx]$ ]]; then
-    echo "  Skipping!"
+    notice "  Skipping!"
     return 0
   else
-    echo "  Continuing..."
+    notice "  Continuing..."
     return 1
   fi
 }
