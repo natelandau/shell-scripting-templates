@@ -7,6 +7,7 @@ This is the centralized repository of all my personal shell scripts which I use 
 
 * **etc/** - This directory contains the various configuration files for the scripts contained elsewhere.  More information is in the folder's `README`.
 * **lib/** - Located in this folder are a number of shared scripting libraries that I use throughout my other scripts.  More information is in the folder's `README`.
+* **macControl/** - A collection of Scripts used by Mac applications.  For example: Allow [ControlPlane][8] to run a key command.
 * **setupScripts/** - This directory contains my scripts that configure new computers from scratch.  Detailed information is in the folder's `README`.These scripts perform such tasks as:
 	* Insalling [Homebrew][1] & associated packages
 	* Installing mac applications using [Homebrew Cask][2]
@@ -39,6 +40,7 @@ For more information on SemVer, please visit [SemVer][7].
 [2]: http://caskroom.io
 [3]: https://github.com/lra/mackup
 [4]: https://rvm.io
-[5]:http://en.wikipedia.org/wiki/Rsync
+[5]: http://en.wikipedia.org/wiki/Rsync
 [6]: http://www.cis.upenn.edu/~bcpierce/unison/
 [7]: http://semver.org
+[8]: http://www.controlplaneapp.com/
