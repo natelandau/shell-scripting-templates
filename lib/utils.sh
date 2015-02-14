@@ -15,41 +15,6 @@
 #
 # ##################################################
 
-
-# Source additional files
-# ------------------------------------------------------
-# The list of additional utility files to be sourced
-# ------------------------------------------------------
-
-# First we locate this script and populate the $SCRIPTPATH variable
-# Doing so allows us to source additional files from this utils file.
-SOURCE="${BASH_SOURCE[0]}"
-while [ -h "${SOURCE}" ]; do # resolve ${SOURCE} until the file is no longer a symlink
-  DIR="$( cd -P "$( dirname "${SOURCE}" )" && pwd )"
-  SOURCE="$(readlink "${SOURCE}")"
-  [[ ${SOURCE} != /* ]] && SOURCE="${DIR}/${SOURCE}" # if ${SOURCE} was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-done
-SOURCEPATH="$( cd -P "$( dirname "${SOURCE}" )" && pwd )"
-
-# Write the list of utility files to be sourced
-FILES="
-  sharedVariables.sh
-  sharedFunctions.sh
-  setupScriptFunctions.sh
-"
-
-# Source the Utility Files
-for file in $FILES
-do
-  if [ -f "${SOURCEPATH}/${file}" ]; then
-    source "${SOURCEPATH}/${file}"
-  else
-    error "${file} does not exist.  Exiting"
-    Exit 1
-  fi
-done
-
-
 # Logging and Colors
 # ------------------------------------------------------
 # Here we set the colors for our script feedback.
@@ -120,6 +85,40 @@ verbose() {
     debug "$@"
   fi
 }
+
+
+# Source additional files
+# ------------------------------------------------------
+# The list of additional utility files to be sourced
+# ------------------------------------------------------
+
+# First we locate this script and populate the $SCRIPTPATH variable
+# Doing so allows us to source additional files from this utils file.
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "${SOURCE}" ]; do # resolve ${SOURCE} until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "${SOURCE}" )" && pwd )"
+  SOURCE="$(readlink "${SOURCE}")"
+  [[ ${SOURCE} != /* ]] && SOURCE="${DIR}/${SOURCE}" # if ${SOURCE} was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+SOURCEPATH="$( cd -P "$( dirname "${SOURCE}" )" && pwd )"
+
+# Write the list of utility files to be sourced
+FILES="
+  sharedVariables.sh
+  sharedFunctions.sh
+  setupScriptFunctions.sh
+"
+
+# Source the Utility Files
+for file in $FILES
+do
+  if [ -f "${SOURCEPATH}/${file}" ]; then
+    source "${SOURCEPATH}/${file}"
+  else
+    die "${file} does not exist."
+  fi
+done
+
 
 # Notes to self
 # ####################

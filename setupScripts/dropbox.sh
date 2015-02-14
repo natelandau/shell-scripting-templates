@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
-if [ -f "../lib/utils.sh" ]; then
-  source "../lib/utils.sh"
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [ -f "${SCRIPTDIR}/../lib/utils.sh" ]; then
+  source "${SCRIPTDIR}/../lib/utils.sh"
 else
-  echo "You must have utils.sh to run.  Exiting."
-  exit 0
+  echo "Please find the file util.sh and add a reference to it in this script. Exiting."
+  exit 1
 fi
+
 
 # Confirm we have Dropbox
 hasDropbox

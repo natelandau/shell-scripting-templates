@@ -11,12 +11,14 @@
 # ##################################################
 
 # Source global utilities
-if [ -f "../lib/utils.sh" ]; then
-  source "../lib/utils.sh"
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [ -f "${SCRIPTDIR}/../lib/utils.sh" ]; then
+  source "${SCRIPTDIR}/../lib/utils.sh"
 else
-  echo "You must have utils.sh to run. Exiting."
-  exit
+  echo "Please find the file util.sh and add a reference to it in this script. Exiting."
+  exit 1
 fi
+
 
 seek_confirmation "Do you want to run the Dropbox script to install it first?"
 if is_confirmed; then

@@ -32,12 +32,14 @@ scriptTemplateVersion="1.0.1" # Version of scriptTemplate.sh
 # -----------------------------------
 # If these can't be found, update the path to the file
 # -----------------------------------
-if [ -f "../lib/utils.sh" ]; then
-  source "../lib/utils.sh"
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [ -f "${SCRIPTDIR}/../lib/utils.sh" ]; then
+  source "${SCRIPTDIR}/../lib/utils.sh"
 else
   echo "Please find the file util.sh and add a reference to it in this script. Exiting."
   exit 1
 fi
+
 # trapCleanup Function
 # -----------------------------------
 # Any actions that should be taken if the script is prematurely
