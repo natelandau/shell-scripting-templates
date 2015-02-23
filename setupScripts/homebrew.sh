@@ -140,6 +140,7 @@ RECIPES=(
   source-highlight
   ssh-copy-id
   sqlite
+  tag
   tree
   unison
   z
