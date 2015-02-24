@@ -138,6 +138,7 @@ RECIPES=(
     joinme
     kaleidoscope
     launchbar
+    licecap
     mamp
     marked
     mailplane
