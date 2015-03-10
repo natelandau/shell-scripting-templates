@@ -6,7 +6,9 @@
 #
 version="1.1.0"  # Sets version variable
 #
-scriptTemplateVersion="1.0.0" # Version of Script Template
+scriptTemplateVersion="1.1.1" # Version of scriptTemplate.sh that this script is based on
+#                               v.1.1.0 - Added 'debug' option
+#                               v.1.1.1 - Moved all shared variables to Utils
 #
 # This script will give you the option of using rsync
 # or Unison.  Rsync is for one-way syncing, Unison is for
@@ -34,23 +36,25 @@ scriptTemplateVersion="1.0.0" # Version of Script Template
 #
 #
 # HISTORY:
-# * 2015-01-03 - v1.1.0  - Added support for using roots in Unison .prf
-# * 2015-01-02 - v1.0.0  - First Creation
+# * 2015-01-02 - v1.0.0 - First Creation
+# * 2015-01-03 - v1.1.0 - Added support for using roots in Unison .prf
+# * 2015-03-10 - v1.1.1 - Updated script template version
+#                       - Removed $logFile from config.  Default is now '~/library/logs/'
 #
 # ##################################################
 
 # Source Scripting Utilities
+# Source Scripting Utilities
 # -----------------------------------
 # If these can't be found, update the path to the file
 # -----------------------------------
-SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-if [ -f "${SCRIPTDIR}/../lib/utils.sh" ]; then
-  source "${SCRIPTDIR}/../lib/utils.sh"
+scriptPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [ -f "${scriptPath}/../lib/utils.sh" ]; then
+  source "${scriptPath}/../lib/utils.sh"
 else
   echo "Please find the file util.sh and add a reference to it in this script. Exiting."
   exit 1
 fi
-
 
 # trapCleanup Function
 # -----------------------------------
@@ -77,27 +81,26 @@ force=0
 strict=0
 debug=0
 
-# Set Local Variables
+# Set Temp Directory
 # -----------------------------------
-# A set of variables used by many scripts
-# -----------------------------------
-
-# Set Script name and location variables
-scriptName=`basename ${0}`  # Full name
-scriptBasename="$(basename ${scriptName} .sh)" # Strips '.sh' from name
-scriptPath="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# Set time stamp
-now=$(date +"%m-%d-%Y %r")
-# Set hostname
-thisHost=$(hostname)
-
 # Create temp directory with three random numbers and the process ID
 # in the name.  This directory is removed automatically at exit.
-  tmpDir="/tmp/${scriptName}.$RANDOM.$RANDOM.$RANDOM.$$"
-  (umask 077 && mkdir "${tmpDir}") || {
-    die "Could not create temporary directory! Exiting."
-  }
+# -----------------------------------
+tmpDir="/tmp/${scriptName}.$RANDOM.$RANDOM.$RANDOM.$$"
+(umask 077 && mkdir "${tmpDir}") || {
+  die "Could not create temporary directory! Exiting."
+}
+
+# Logging
+# -----------------------------------
+# Log is only used when the '-l' flag is set.
+#
+# To never save a logfile change variable to '/dev/null'
+# Save to Desktop use: $HOME/Desktop/${scriptBasename}.log
+# Save to standard user log location use: $HOME/Library/Logs/${scriptBasename}.log
+# -----------------------------------
+logFile="$HOME/Library/Logs/${scriptBasename}.log"
+
 
 # Configuration file
 # -----------------------------------
@@ -113,9 +116,10 @@ function newCopy() {
   if [ "${scriptName}" = "SyncTemplate.sh" ]; then
     input "name your new script:"
     read newname
+    debug "Copying SyncTemplate.sh to ${newname}"
     cp "${scriptPath}"/"${scriptName}" "${scriptPath}"/"${newname}" && verbose "cp ${scriptPath}/${scriptName} ${scriptPath}/${newname}"
     success "${newname} created."
-    exit 0
+    safeExit
   fi
 }
 
@@ -207,11 +211,6 @@ EXCLUDE=""
 # ADDITIONAL OPTIONS
 # ---------------------------
 
-# LOGFILE is a text file to log all script activity to.
-# Use the format /some/directory/file.txt
-# If you don't want a log of the activity leave this as /dev/null
-logFile="/dev/null"
-
 # PUSHOVER is an online notification tool.
 # If you want to receive notifications upon completion
 # set the following value to "true"
@@ -223,7 +222,7 @@ CANONICALHOST=""
 EOL
   success "Config file created. Edit the values before running this script again."
   notice "The file is located at: ${CONFIG}.  Exiting."
-  exit 0
+  safeExit
   fi
 fi
 }
