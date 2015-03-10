@@ -116,7 +116,7 @@ function newCopy() {
   if [ "${scriptName}" = "SyncTemplate.sh" ]; then
     input "name your new script:"
     read newname
-    debug "Copying SyncTemplate.sh to ${newname}"
+    verbose "Copying SyncTemplate.sh to ${newname}"
     cp "${scriptPath}"/"${scriptName}" "${scriptPath}"/"${newname}" && verbose "cp ${scriptPath}/${scriptName} ${scriptPath}/${newname}"
     success "${newname} created."
     safeExit
