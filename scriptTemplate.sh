@@ -5,8 +5,9 @@
 #
 version="1.0.0"               # Sets version variable for this script
 #
-scriptTemplateVersion="1.1.0" # Version of scriptTemplate.sh that this script is based on
+scriptTemplateVersion="1.1.1" # Version of scriptTemplate.sh that this script is based on
 #                               v.1.1.0 - Added 'debug' option
+#                               v.1.1.1 - Moved all shared variables to Utils
 #
 # A Bash script boilerplate.  Allows for common functions, logging, tmp
 # file creation, CL option passing, and more.
@@ -33,9 +34,9 @@ scriptTemplateVersion="1.1.0" # Version of scriptTemplate.sh that this script is
 # -----------------------------------
 # If these can't be found, update the path to the file
 # -----------------------------------
-SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-if [ -f "${SCRIPTDIR}/lib/utils.sh" ]; then
-  source "${SCRIPTDIR}/lib/utils.sh"
+scriptPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [ -f "${scriptPath}/lib/utils.sh" ]; then
+  source "${scriptPath}/lib/utils.sh"
 else
   echo "Please find the file util.sh and add a reference to it in this script. Exiting."
   exit 1
@@ -66,28 +67,15 @@ force=0
 strict=0
 debug=0
 
-
-# Set Local Variables
+# Set Temp Directory
 # -----------------------------------
-# A set of variables used by many scripts
-# -----------------------------------
-
-# Set Script name and location variables
-scriptName=`basename ${0}`  # Full name
-scriptBasename="$(basename ${scriptName} .sh)" # Strips '.sh' from name
-scriptPath="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# Set time stamp
-now=$(date +"%m-%d-%Y %r")
-# Set hostname
-thisHost=$(hostname)
-
 # Create temp directory with three random numbers and the process ID
 # in the name.  This directory is removed automatically at exit.
-  tmpDir="/tmp/${scriptName}.$RANDOM.$RANDOM.$RANDOM.$$"
-  (umask 077 && mkdir "${tmpDir}") || {
-    die "Could not create temporary directory! Exiting."
-  }
+# -----------------------------------
+tmpDir="/tmp/${scriptName}.$RANDOM.$RANDOM.$RANDOM.$$"
+(umask 077 && mkdir "${tmpDir}") || {
+  die "Could not create temporary directory! Exiting."
+}
 
 # Logging
 # -----------------------------------
@@ -102,14 +90,12 @@ logFile="$HOME/Library/Logs/${scriptBasename}.log"
 
 function mainScript() {
 ############## Begin Script Here ###################
-
-
+####################################################
 
 echo -n
 
-
-
-############## End Script Here ###################
+####################################################
+############### End Script Here ####################
 }
 
 ############## Begin Options and Usage ###################
