@@ -8,6 +8,7 @@ version="1.0.0"               # Sets version variable for this script
 scriptTemplateVersion="1.1.1" # Version of scriptTemplate.sh that this script is based on
 #                               v.1.1.0 - Added 'debug' option
 #                               v.1.1.1 - Moved all shared variables to Utils
+#                                       - Added $PASS variable when -p is passed
 #
 # A Bash script boilerplate.  Allows for common functions, logging, tmp
 # file creation, CL option passing, and more.
@@ -167,7 +168,8 @@ while [[ $1 = -?* ]]; do
     -h|--help) usage >&2; safeExit ;;
     --version) echo "$(basename $0) $version"; safeExit ;;
     -u|--username) shift; username=$1 ;;
-    -p|--password) shift; password=$1 ;;
+    -p|--password) shift; echo "Enter Pass: "; stty -echo; read PASS; stty echo;
+      echo ;;
     -v|--verbose) verbose=1 ;;
     -l|--log) printLog=1 ;;
     -q|--quiet) quiet=1 ;;
