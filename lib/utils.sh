@@ -69,7 +69,7 @@ function _alert() { #my function
 
 }
 
-function die ()       { local _message="${@} Exiting."; echo "$(_alert emergency)"; exit 1;}
+function die ()       { local _message="${@} Exiting."; echo "$(_alert emergency)"; safeExit;}
 function error ()     { local _message="${@}"; echo "$(_alert error)"; }
 function warning ()   { local _message="${@}"; echo "$(_alert warning)"; }
 function notice ()    { local _message="${@}"; echo "$(_alert notice)"; }
