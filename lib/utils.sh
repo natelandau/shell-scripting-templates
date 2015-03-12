@@ -49,8 +49,7 @@ function _alert() { #my function
   fi
   if [ "${1}" = "input" ]; then
     local color="${bold}"
-    # Don't print user questions to $logFile
-    savedvar="${printLog}"
+    savedvar="${printLog}" # Don't print user questions to $logFile
     printLog="0"
   fi
   if [ "${1}" = "info" ] || [ "${1}" = "notice" ]; then
@@ -77,8 +76,8 @@ function warning ()   { local _message="${@}"; echo "$(_alert warning)"; }
 function notice ()    { local _message="${@}"; echo "$(_alert notice)"; }
 function info ()      { local _message="${@}"; echo "$(_alert info)"; }
 function debug ()     { local _message="${@}"; echo "$(_alert debug)"; }
-function success ()   { local _message="${@}"; echo "$(_alert success)"; printLog="${savedvar}"; }
-function input()      { local _message="${@}"; echo "$(_alert input)"; }
+function success ()   { local _message="${@}"; echo "$(_alert success)"; }
+function input()      { local _message="${@}"; echo "$(_alert input)"; printLog="${savedvar}"; }
 function header()     { local _message="========== ${@} ==========  "; echo "$(_alert header)"; }
 
 # Log messages when verbose is set to "1"
