@@ -4,7 +4,7 @@
 # ##################################################
 # My Generic sync script.
 #
-version="1.1.0"  # Sets version variable
+version="2.0.0"  # Sets version variable
 #
 scriptTemplateVersion="1.1.1" # Version of scriptTemplate.sh that this script is based on
 #                               v.1.1.0 - Added 'debug' option
@@ -40,6 +40,7 @@ scriptTemplateVersion="1.1.1" # Version of scriptTemplate.sh that this script is
 # * 2015-01-03 - v1.1.0 - Added support for using roots in Unison .prf
 # * 2015-03-10 - v1.1.1 - Updated script template version
 #                       - Removed $logFile from config.  Default is now '~/library/logs/'
+# * 2015-03-15 - v2.0.0 - Added support for encrypted config files.
 #
 # ##################################################
 
@@ -80,6 +81,7 @@ verbose=0
 force=0
 strict=0
 debug=0
+editConfig=0
 
 # Set Temp Directory
 # -----------------------------------
@@ -102,18 +104,21 @@ tmpDir="/tmp/${scriptName}.$RANDOM.$RANDOM.$RANDOM.$$"
 logFile="$HOME/Library/Logs/${scriptBasename}.log"
 
 
-# Configuration file
+# Configuration file(s)
 # -----------------------------------
 # This script calls for a configuration file.
 # This is its location.  Default is the location
 # where it will be automatically created.`
 # -----------------------------------
-CONFIG="../etc/${scriptName}.cfg"
+tmpConfig="${tmpDir}/${scriptName}.cfg"
+newConfig="./${scriptName}.cfg"
+encConfig="../etc/${scriptName}.cfg.enc"
 
+############## Begin Script Functions Here ###################
 
 # Create new copy of the script if template is being executed
 function newCopy() {
-  if [ "${scriptName}" = "SyncTemplate.sh" ]; then
+  if [ "${scriptName}" = "syncTemplate.sh" ]; then
     input "name your new script:"
     read newname
     verbose "Copying SyncTemplate.sh to ${newname}"
@@ -123,18 +128,56 @@ function newCopy() {
   fi
 }
 
-function configFile() {
+function encryptConfig() {
+# If a non-encrypted config file exists (ie - it was being edited) we encrypt it
+  if is_file "${newConfig}"; then
+    verbose "${newConfig} exists"
+    seek_confirmation "Are you ready to encrypt your config file?"
+    if is_confirmed; then
+      if is_file "${encConfig}"; then
+        rm "${encConfig}" && verbose "Existing encoded config file exists. Running: rm ${encConfig}"
+      fi
+      if is_empty ${PASS}; then # Look for password from CLI
+        verbose "openssl enc -aes-256-cbc -salt -in ${newConfig} -out ${encConfig}"
+        openssl enc -aes-256-cbc -salt -in "${newConfig}" -out "${encConfig}"
+      else
+        verbose "openssl enc -aes-256-cbc -salt -in ${newConfig} -out ${encConfig} -k [PASSWORD]"
+        openssl enc -aes-256-cbc -salt -in "${newConfig}" -out "${encConfig}" -k ${PASS}
+      fi
+      rm "${newConfig}" && verbose "rm ${newConfig}"
+      success "Encoded the config file."
+      safeExit
+    else
+      warning "You need to encrypt your config file before proceeding"
+      safeExit
+    fi
+  fi
+}
+
+function createTempConfig() {
+  # If we find the encoded config file, we decrypt it to the temp location
+  if is_file "${encConfig}"; then
+    if is_empty ${PASS}; then # Look for password from CLI
+      verbose "openssl enc -aes-256-cbc -d -in ${encConfig} -out ${tmpConfig}"
+      openssl enc -aes-256-cbc -d -in "${encConfig}" -out "${tmpConfig}"
+    else
+      verbose "openssl enc -aes-256-cbc -d -in ${encConfig} -out ${tmpConfig} -k [PASSWORD]"
+      openssl enc -aes-256-cbc -d -in "${encConfig}" -out "${tmpConfig}" -k ${PASS}
+    fi
+  fi
+}
+
+function sourceConfiguration() {
   # Here we source the Config file or create a new one if none exists.
-  if is_file "${CONFIG}"; then
-    source "${CONFIG}"
-    verbose "source ${CONFIG}"
+  if is_file "${tmpConfig}"; then
+    source "${tmpConfig}" && verbose "source ${tmpConfig}"
   else
     seek_confirmation "Config file does not exist.  Would you like to create one?"
     if is_not_confirmed; then
-      die "No config file.  Exiting"
+      die "No config file."
     else
-      touch "${CONFIG}" && verbose "touch ${CONFIG}"
-  cat >"${CONFIG}" <<EOL
+      touch "${newConfig}" && verbose "touch ${newConfig}"
+  cat >"${newConfig}" <<EOL
 # ##################################################
 # CONFIG FILE FOR ${scriptName}
 # CREATED ON ${now}
@@ -147,7 +190,6 @@ function configFile() {
 # This script will work with both Unison and rsync.
 # Set the METHOD variable to either 'unison' or 'rsync'
 METHOD=""
-
 
 # ---------------------------
 # Network Volume Mounting
@@ -168,7 +210,6 @@ MOUNTPOINT=""
 # Use a complete path, not a relative path without a trailing slash.
 REMOTEVOLUME=""
 
-
 # ---------------------------
 # Directories To Sync
 # ---------------------------
@@ -176,7 +217,6 @@ REMOTEVOLUME=""
 # Be sure to include trailing slashes on directories.
 SOURCEDIRECTORY=""
 TARGETDIRECTORY=""
-
 
 # ---------------------------
 # UNISON PREFERENCES
@@ -196,7 +236,6 @@ USEPROFILE="false"
 PROFILEROOTS="false"
 UNISONPROFILE=""
 
-
 # ---------------------------
 # RSYNC PREFENCES
 # ---------------------------
@@ -205,7 +244,6 @@ UNISONPROFILE=""
 # EXCLUDE is a text file that contains all the rsync excludes.
 # Anything listed within this file will be ignored during sync.
 EXCLUDE=""
-
 
 # ---------------------------
 # ADDITIONAL OPTIONS
@@ -221,15 +259,32 @@ PUSHOVERnotice="false"
 CANONICALHOST=""
 EOL
   success "Config file created. Edit the values before running this script again."
-  notice "The file is located at: ${CONFIG}.  Exiting."
+  notice "The file is located at: ${newConfig}.  Exiting."
   safeExit
   fi
 fi
 }
 
 
-
-############## Begin Script Functions Here ###################
+function editConfiguration() {
+# If the '--config' is set to true, we create an editable config file for re-encryption
+  if [ "${editConfig}" == "1" ]; then
+    verbose "editConfig is true"
+    seek_confirmation "Would you like to edit your config file?"
+    if is_confirmed; then
+      if is_file "${tmpConfig}"; then
+        cp "${tmpConfig}" "${newConfig}" && verbose "cp ${tmpConfig} ${newConfig}"
+        success "Config file has been decrypted to ${newConfig}.  Edit the file and rerun the script."
+        safeExit
+      else
+        die "Couldn't find ${tmpConfig}."
+      fi
+    else
+      notice "Exiting."
+      safeExit
+    fi
+  fi
+}
 
 
 # HostCheck
@@ -237,7 +292,8 @@ fi
 # the config file we check it here.
 function hostCheck() {
   if [ "${thisHost}" = "${CANONICALHOST}" ]; then
-    die "We are currently on ${THISHOST} and can not proceed. Be sure to run this script on the non-canonical host."
+    notice "We are currently on ${THISHOST} and can not proceed. Be sure to run this script on the non-canonical host. Exiting"
+    safeExit
   fi
 }
 
@@ -272,7 +328,7 @@ function moutDrives() {
 function unmountDrives() {
   # Unmount the drive (if mounted)
   if [ "${NEEDMOUNT}" = "true" ] || [ "${NEEDMOUNT}" = "TRUE" ]; then
-    unmountDrive "${REMOTEVOLUME}"
+    unmountDrive "${REMOTEVOLUME}" && verbose "unmountDrive ${REMOTEVOLUME}"
     notice "${REMOTEVOLUME} UnMounted"
   fi
 }
@@ -316,6 +372,7 @@ function runRsync() {
     else
       notice "Commencing rsync"
       /usr/bin/rsync -vahh"${DRYRUN}""${COMPRESS}" --progress --force --delete --exclude-from="${EXCLUDE}" "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}" --log-file="${logFile}"
+      verbose "/usr/bin/rsync -vahh${DRYRUN}${COMPRESS} --progress --force --delete --exclude-from=${EXCLUDE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY} --log-file=${logFile}"
     fi
   fi
 }
@@ -352,6 +409,7 @@ function runUnison() {
         debug "unison ${UNISONPROFILE}"
       else
         notice "Commencing Unison"
+        verbose "unison ${UNISONPROFILE}"
         unison "${UNISONPROFILE}"
       fi
     else
@@ -365,6 +423,7 @@ function runUnison() {
           debug "unison ${UNISONPROFILE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY}"
         else
           notice "Commencing Unison"
+          verbose "unision ${UNISONPROFILE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY}"
           unison "${UNISONPROFILE}" "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}"
         fi
       else
@@ -373,6 +432,7 @@ function runUnison() {
           debug "unison ${SOURCEDIRECTORY} ${TARGETDIRECTORY}"
         else
           notice "Commencing Unison"
+          verbose "unison ${SOURCEDIRECTORY} ${TARGETDIRECTORY}"
           unison "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}"
         fi
       fi
@@ -385,6 +445,7 @@ function notifyPushover() {
     if [ "${debug}" = "1" ]; then
       debug "\"pushover ${SCRIPTNAME} Completed\" \"${SCRIPTNAME} was run in $(convertsecs $TOTALTIME)\""
     else
+      verbose "\"pushover ${SCRIPTNAME} Completed\" \"${SCRIPTNAME} was run in $(convertsecs $TOTALTIME)\""
       pushover "${SCRIPTNAME} Completed" "${SCRIPTNAME} was run in $(convertsecs $TOTALTIME)"
     fi
   fi
@@ -416,21 +477,22 @@ usage() {
     3) Enter your information within the config file
     4) Run the script again.
 
-  This script requires a config file located at: ${CONFIG}
+  This script requires an encoded config file located at: ${encConfig}
   Ensure that the config file is correct before running.
   If the config file is not found at all, the script will
   create a new one for you.
 
-  TO DO:
-    * Add SSH functionality
+  To edit the configuration file, run the script with the '-c' flag.
 
  Options:
+  -c, --config      Decrypts the configuration file to allow it to be edited.
   -d, --debug       Prints commands to console. Runs no syncs.
   -f, --force       Skip all user interaction.  Implied 'Yes' to all actions
   -h, --help        Display this help and exit
   -l, --log         Print log to file
   -n, --dryrun      Dry run.  If using rsync, will run everything
                     without making any changes
+  -p, --password    Prompts for the password which decrypts the configuration file
   -q, --quiet       Quiet (no output)
   -s, --strict      Exit script with null variables.  'set -o nounset'
   -v, --verbose     Output more information. (Items echoed to 'verbose')
@@ -484,8 +546,11 @@ while [[ $1 = -?* ]]; do
   case $1 in
     -h|--help) usage >&2; safeExit ;;
     --version) echo "$(basename $0) $version"; safeExit ;;
+    -p|--password) shift; echo "Enter Pass: "; stty -echo; read PASS; stty echo;
+      echo ;;
     -v|--verbose) verbose=1 ;;
     -l|--log) printLog=1 ;;
+    -c|--config) editConfig=1 ;;
     -d|--debug) debug=1 ;;
     -q|--quiet) quiet=1 ;;
     -s|--strict) strict=1;;
@@ -534,7 +599,10 @@ STARTTIME=$(date +"%s")
 header "${scriptName} Begun"
 
 newCopy
-configFile
+encryptConfig
+createTempConfig
+editConfiguration
+sourceConfiguration
 hostCheck
 MethodCheck
 moutDrives
