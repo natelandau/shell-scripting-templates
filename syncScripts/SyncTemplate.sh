@@ -200,8 +200,6 @@ NEEDMOUNT="false"
 
 # MOUNTPOINT is the address of the drive to be mounted.
 # Use the format afp://username:password@address/mountname
-# to be prompted to enter a password, change MOUNTPW to 'true'
-MOUTPW="false"
 MOUNTPOINT=""
 
 # REMOTEVOLUME is the directory that the drive should be mounted
