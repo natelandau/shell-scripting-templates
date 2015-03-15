@@ -3,7 +3,7 @@
 # ##################################################
 # My Generic BASH script template
 #
-version="1.0.0"               # Sets version variable for this script
+version="1.1.1"               # Sets version variable for this script
 #
 scriptTemplateVersion="1.1.1" # Version of scriptTemplate.sh that this script is based on
 #                               v.1.1.0 - Added 'debug' option
