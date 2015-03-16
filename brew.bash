@@ -1,30 +1,30 @@
 #! /dev/null/bash
 
-function brew ()
-{
-
-    #
-    # Clean run of Homebrew
-    #
-
-    # Obtain Homebrew prefix.
-    declare prefix="$( command brew --prefix )"
-
-    # Only change PATHs for this function and any sub-procs
-    declare -x PATH MANPATH
-
-    # Reset PATHs
-    eval "$( PATH= MANPATH= /usr/libexec/path_helper -s )"
-
-    # Add Homebrew PATHs
-    PATH="${prefix}/bin:${prefix}/sbin:${PATH}"
-    MANPATH="${prefix}/man:${MANPATH}"
-
-    # Run Homebrew
-    hash -r
-    command brew "${@}"
-
-}
+#function brew ()
+#{
+#
+#    #
+#    # Clean run of Homebrew
+#    #
+#
+#    # Obtain Homebrew prefix.
+#    declare prefix="$( command brew --prefix )"
+#
+#    # Only change PATHs for this function and any sub-procs
+#    declare -x PATH MANPATH
+#
+#    # Reset PATHs
+#    eval "$( PATH= MANPATH= /usr/libexec/path_helper -s )"
+#
+#    # Add Homebrew PATHs
+#    PATH="${prefix}/bin:${prefix}/sbin:${PATH}"
+#    MANPATH="${prefix}/man:${MANPATH}"
+#
+#    # Run Homebrew
+#    hash -r
+#    command brew "${@}"
+#
+#}
 
 function brew_actioner ()
 {
