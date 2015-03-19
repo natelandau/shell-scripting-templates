@@ -114,6 +114,7 @@ RECIPES=(
   bash-completion
   colordiff
   coreutils
+  gifsicle
   git
   git-extras
   git-flow
