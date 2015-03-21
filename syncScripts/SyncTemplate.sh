@@ -366,7 +366,7 @@ function testSources() {
 function runRsync() {
   if [ "${METHOD}" = "rsync" ]; then
     if [ "${debug}" = "1" ]; then
-      debug "/usr/bin/rsync -vahh${DRYRUN}${COMPRESS} --progress --force --delete --exclude-from=${EXCLUDE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY} --log-file=${logFile}"
+      verbose "/usr/bin/rsync -vahh${DRYRUN}${COMPRESS} --progress --force --delete --exclude-from=${EXCLUDE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY} --log-file=${logFile}"
     else
       notice "Commencing rsync"
       /usr/bin/rsync -vahh"${DRYRUN}""${COMPRESS}" --progress --force --delete --exclude-from="${EXCLUDE}" "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}" --log-file="${logFile}"
@@ -404,7 +404,7 @@ function runUnison() {
       fi
       # Run unison with a profile and no sources
       if [ "${debug}" = "1" ]; then
-        debug "unison ${UNISONPROFILE}"
+        verbose "unison ${UNISONPROFILE}"
       else
         notice "Commencing Unison"
         verbose "unison ${UNISONPROFILE}"
@@ -418,7 +418,7 @@ function runUnison() {
         fi
         # Run unison with a profile and specified sources
         if [ "${debug}" = "1" ]; then
-          debug "unison ${UNISONPROFILE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY}"
+          verbose "unison ${UNISONPROFILE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY}"
         else
           notice "Commencing Unison"
           verbose "unision ${UNISONPROFILE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY}"
@@ -427,7 +427,7 @@ function runUnison() {
       else
         # Run Unison without a profile
         if [ "${debug}" = "1" ]; then
-          debug "unison ${SOURCEDIRECTORY} ${TARGETDIRECTORY}"
+          verbose "unison ${SOURCEDIRECTORY} ${TARGETDIRECTORY}"
         else
           notice "Commencing Unison"
           verbose "unison ${SOURCEDIRECTORY} ${TARGETDIRECTORY}"
@@ -441,7 +441,7 @@ function runUnison() {
 function notifyPushover() {
   if [ "${PUSHOVERNOTIFY}" = "true" ]; then
     if [ "${debug}" = "1" ]; then
-      debug "\"pushover ${SCRIPTNAME} Completed\" \"${SCRIPTNAME} was run in $(convertsecs $TOTALTIME)\""
+      verbose "\"pushover ${SCRIPTNAME} Completed\" \"${SCRIPTNAME} was run in $(convertsecs $TOTALTIME)\""
     else
       verbose "\"pushover ${SCRIPTNAME} Completed\" \"${SCRIPTNAME} was run in $(convertsecs $TOTALTIME)\""
       pushover "${SCRIPTNAME} Completed" "${SCRIPTNAME} was run in $(convertsecs $TOTALTIME)"
@@ -494,7 +494,7 @@ usage() {
   -q, --quiet       Quiet (no output)
   -s, --strict      Exit script with null variables.  'set -o nounset'
   -v, --verbose     Output more information. (Items echoed to 'verbose')
-  -z, --compress    Comress.  If using rsync, this will compress date before
+  -z, --compress    Compress.  If using rsync, this will compress data before
                     transferring.  Good for slow internet connections.
       --version     Output version information and exit
 "
