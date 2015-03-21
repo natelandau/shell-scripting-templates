@@ -243,6 +243,11 @@ UNISONPROFILE=""
 # Anything listed within this file will be ignored during sync.
 EXCLUDE=""
 
+# DELETE sets the variable to delete files in the target directory that are deleted from
+# the source directory.  Defaults to equal "--delete" which sets that flag.  Set to null
+# to ensure all files on the target remain when deleted from the source.
+DELETE="--delete"
+
 # ---------------------------
 # ADDITIONAL OPTIONS
 # ---------------------------
@@ -366,11 +371,11 @@ function testSources() {
 function runRsync() {
   if [ "${METHOD}" = "rsync" ]; then
     if [ "${debug}" = "1" ]; then
-      verbose "/usr/bin/rsync -vahh${DRYRUN}${COMPRESS} --progress --force --delete --exclude-from=${EXCLUDE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY} --log-file=${logFile}"
+      verbose "/usr/bin/rsync -vahh${DRYRUN}${COMPRESS} --progress --force ${DELETE} --exclude-from=${EXCLUDE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY} --log-file=${logFile}"
     else
       notice "Commencing rsync"
-      /usr/bin/rsync -vahh"${DRYRUN}""${COMPRESS}" --progress --force --delete --exclude-from="${EXCLUDE}" "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}" --log-file="${logFile}"
-      verbose "/usr/bin/rsync -vahh${DRYRUN}${COMPRESS} --progress --force --delete --exclude-from=${EXCLUDE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY} --log-file=${logFile}"
+      /usr/bin/rsync -vahh"${DRYRUN}""${COMPRESS}" --progress --force ${DELETE} --exclude-from="${EXCLUDE}" "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}" --log-file="${logFile}"
+      verbose "/usr/bin/rsync -vahh${DRYRUN}${COMPRESS} --progress --force ${DELETE} --exclude-from=${EXCLUDE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY} --log-file=${logFile}"
     fi
   fi
 }
