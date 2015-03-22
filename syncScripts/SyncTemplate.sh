@@ -4,7 +4,7 @@
 # ##################################################
 # My Generic sync script.
 #
-version="2.0.0"  # Sets version variable
+version="2.1.0"  # Sets version variable
 #
 scriptTemplateVersion="1.1.1" # Version of scriptTemplate.sh that this script is based on
 #                               v.1.1.0 - Added 'debug' option
@@ -41,6 +41,7 @@ scriptTemplateVersion="1.1.1" # Version of scriptTemplate.sh that this script is
 # * 2015-03-10 - v1.1.1 - Updated script template version
 #                       - Removed $logFile from config.  Default is now '~/library/logs/'
 # * 2015-03-15 - v2.0.0 - Added support for encrypted config files.
+# * 2015-03-21 - v2.1.0 - Added support for extended RSYNC configurations.
 #
 # ##################################################
 
@@ -239,9 +240,16 @@ UNISONPROFILE=""
 # ---------------------------
 # If you are using rsync, complete this section
 
-# EXCLUDE is a text file that contains all the rsync excludes.
-# Anything listed within this file will be ignored during sync.
+# EXCLUDE sets rsync to exclude files from syncing based on a pattern.
+# Defaults to null.
+# If needed, add individual excludes in the format of "--exclude file1.txt --exclude file2.txt".
 EXCLUDE=""
+
+# EXCLUDELIST is a text file that contains all the rsync excludes.
+# Anything listed within this file will be ignored during sync.
+# Default is null.
+# Set value to "--exclude-from=/some/file/location" if needed
+EXCLUDELIST=""
 
 # DELETE sets the variable to delete files in the target directory that are deleted from
 # the source directory.  Defaults to equal "--delete" which sets that flag.  Set to null
@@ -369,13 +377,20 @@ function testSources() {
 }
 
 function runRsync() {
+  # Populate logfile variable if "printlog=1"
+  if [ "printLog" = 1 ]; then
+    RSYNCLOG="--log-file=${logFile}"
+  else
+    RSYNCLOG=""
+  fi
+
   if [ "${METHOD}" = "rsync" ]; then
     if [ "${debug}" = "1" ]; then
-      verbose "/usr/bin/rsync -vahh${DRYRUN}${COMPRESS} --progress --force ${DELETE} --exclude-from=${EXCLUDE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY} --log-file=${logFile}"
+      verbose "/usr/bin/rsync -vahh${DRYRUN}${COMPRESS} --progress --force ${DELETE} ${EXCLUDE} ${EXCLUDELIST} ${SOURCEDIRECTORY} ${TARGETDIRECTORY} ${RSYNCLOG}"
     else
       notice "Commencing rsync"
-      /usr/bin/rsync -vahh"${DRYRUN}""${COMPRESS}" --progress --force ${DELETE} --exclude-from="${EXCLUDE}" "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}" --log-file="${logFile}"
-      verbose "/usr/bin/rsync -vahh${DRYRUN}${COMPRESS} --progress --force ${DELETE} --exclude-from=${EXCLUDE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY} --log-file=${logFile}"
+      /usr/bin/rsync -vahh"${DRYRUN}""${COMPRESS}" --progress --force "${DELETE}" "${EXCLUDE}" "${EXCLUDELIST}" "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}" "${RSYNCLOG}"
+      verbose "/usr/bin/rsync -vahh${DRYRUN}${COMPRESS} --progress --force ${DELETE} ${EXCLUDE} ${EXCLUDELIST} ${SOURCEDIRECTORY} ${TARGETDIRECTORY} ${RSYNCLOG}"
     fi
   fi
 }
