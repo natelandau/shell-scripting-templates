@@ -394,6 +394,7 @@ function runRsync() {
   fi
   if [ "${METHOD}" = "rsync" ]; then
       notice "Commencing rsync"
+      verbose "rsync -vahh${DRYRUN}${COMPRESS} --progress --force ${DELETE} ${EXCLUDE} ${EXCLUDELIST} ${SOURCEDIRECTORY} ${TARGETDIRECTORY} ${RSYNCLOG}"
       rsync -vahh${DRYRUN}${COMPRESS} --progress --force ${DELETE} ${EXCLUDE} ${EXCLUDELIST} "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}" ${RSYNCLOG}
   fi
 }
