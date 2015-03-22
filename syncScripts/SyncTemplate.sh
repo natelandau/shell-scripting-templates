@@ -83,6 +83,7 @@ force=0
 strict=0
 debug=0
 editConfig=0
+mountTest=0
 
 # Set Temp Directory
 # -----------------------------------
@@ -276,7 +277,6 @@ EOL
 fi
 }
 
-
 function editConfiguration() {
 # If the '--config' is set to true, we create an editable config file for re-encryption
   if [ "${editConfig}" == "1" ]; then
@@ -333,6 +333,15 @@ function moutDrives() {
     else
       notice "${REMOTEVOLUME} was already mounted."
     fi
+
+    #Allow for debugging with only the mount function
+    if [ ${mountTest} = 1 ]; then
+      seek_confirmation "Are you ready to unmount the drive"
+      if is_confirmed; then
+        unmountDrives
+        safeExit
+      fi
+    fi
   fi
 }
 
@@ -378,20 +387,14 @@ function testSources() {
 
 function runRsync() {
   # Populate logfile variable if "printlog=1"
-  if [ "printLog" = 1 ]; then
+  if [ "${printLog}" = 1 ]; then
     RSYNCLOG="--log-file=${logFile}"
   else
     RSYNCLOG=""
   fi
-
   if [ "${METHOD}" = "rsync" ]; then
-    if [ "${debug}" = "1" ]; then
-      verbose "/usr/bin/rsync -vahh${DRYRUN}${COMPRESS} --progress --force ${DELETE} ${EXCLUDE} ${EXCLUDELIST} ${SOURCEDIRECTORY} ${TARGETDIRECTORY} ${RSYNCLOG}"
-    else
       notice "Commencing rsync"
-      /usr/bin/rsync -vahh"${DRYRUN}""${COMPRESS}" --progress --force "${DELETE}" "${EXCLUDE}" "${EXCLUDELIST}" "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}" "${RSYNCLOG}"
-      verbose "/usr/bin/rsync -vahh${DRYRUN}${COMPRESS} --progress --force ${DELETE} ${EXCLUDE} ${EXCLUDELIST} ${SOURCEDIRECTORY} ${TARGETDIRECTORY} ${RSYNCLOG}"
-    fi
+      rsync -vahh${DRYRUN}${COMPRESS} --progress --force ${DELETE} ${EXCLUDE} ${EXCLUDELIST} "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}" ${RSYNCLOG}
   fi
 }
 
@@ -510,6 +513,7 @@ usage() {
   -l, --log         Print log to file
   -n, --dryrun      Dry run.  If using rsync, will run everything
                     without making any changes
+  -m, --mounttest   Will run the mount/unmount drive portion of the script and bypass all syncing.
   -p, --password    Prompts for the password which decrypts the configuration file
   -q, --quiet       Quiet (no output)
   -s, --strict      Exit script with null variables.  'set -o nounset'
@@ -574,6 +578,7 @@ while [[ $1 = -?* ]]; do
     -s|--strict) strict=1;;
     -f|--force) force=1 ;;
     -n|--dryrun) DRYRUN=n ;;
+    -m|--mounttest) mountTest=1 ;;
     -z|--compress) COMPRESS=z ;;
     --endopts) shift; break ;;
      *) warning "invalid option: $1.\n"; usage >&2; safeExit ;;
@@ -605,6 +610,11 @@ set -o errexit
 # Exit on empty variable
 if [ "${strict}" == "1" ]; then
   set -o nounset
+fi
+
+# Run in debug mode, if set
+if [ "${debug}" == "1" ]; then
+  set -x
 fi
 
 # Bash will remember & return the highest exitcode in a chain of pipes.
