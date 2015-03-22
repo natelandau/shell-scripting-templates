@@ -263,7 +263,7 @@ DELETE="--delete"
 # PUSHOVER is an online notification tool.
 # If you want to receive notifications upon completion
 # set the following value to "true"
-PUSHOVERnotice="false"
+PUSHOVERNOTIFY="false"
 
 # CANONICALHOST is used to denote a sync hub which should never initiate a sync.
 # Leave blank if not needed.
