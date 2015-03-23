@@ -249,12 +249,13 @@ EXCLUDE=""
 # EXCLUDELIST is a text file that contains all the rsync excludes.
 # Anything listed within this file will be ignored during sync.
 # Default is null.
-# Set value to "--exclude-from=/some/file/location" if needed
+# Set value to "--exclude-from=/some/file/location.txt" if needed
 EXCLUDELIST=""
 
 # DELETE sets the variable to delete files in the target directory that are deleted from
-# the source directory.  Defaults to equal "--delete" which sets that flag.  Set to null
-# to ensure all files on the target remain when deleted from the source.
+# the source directory.  In effect, keeping them 'in-sync'. Defaults to equal "--delete"
+# which sets that flag.  Set to null to ensure all files on the target remain when deleted
+# from the source.
 DELETE="--delete"
 
 # ---------------------------
@@ -399,7 +400,6 @@ function runRsync() {
   fi
 }
 
-
 function runUnison() {
   if [ "${METHOD}" = "unison" ]; then
     # Check if Unison is installed.  It is not a standard package
@@ -427,13 +427,8 @@ function runUnison() {
         die "We were missing the Unison Profile.  Could not sync."
       fi
       # Run unison with a profile and no sources
-      if [ "${debug}" = "1" ]; then
-        verbose "unison ${UNISONPROFILE}"
-      else
-        notice "Commencing Unison"
-        verbose "unison ${UNISONPROFILE}"
-        unison "${UNISONPROFILE}"
-      fi
+      notice "Commencing Unison"
+      verbose "unison ${UNISONPROFILE}" && unison "${UNISONPROFILE}"
     else
       if [ "${USEPROFILE}" = "true" ]; then
         # Throw error if we can't find the profile
@@ -441,22 +436,12 @@ function runUnison() {
           die "We were missing the Unison Profile.  Could not sync."
         fi
         # Run unison with a profile and specified sources
-        if [ "${debug}" = "1" ]; then
-          verbose "unison ${UNISONPROFILE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY}"
-        else
-          notice "Commencing Unison"
-          verbose "unision ${UNISONPROFILE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY}"
-          unison "${UNISONPROFILE}" "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}"
-        fi
+        notice "Commencing Unison"
+        verbose "unision ${UNISONPROFILE} ${SOURCEDIRECTORY} ${TARGETDIRECTORY}" && unison "${UNISONPROFILE}" "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}"
       else
         # Run Unison without a profile
-        if [ "${debug}" = "1" ]; then
-          verbose "unison ${SOURCEDIRECTORY} ${TARGETDIRECTORY}"
-        else
-          notice "Commencing Unison"
-          verbose "unison ${SOURCEDIRECTORY} ${TARGETDIRECTORY}"
-          unison "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}"
-        fi
+        notice "Commencing Unison"
+        verbose "unison ${SOURCEDIRECTORY} ${TARGETDIRECTORY}" && unison "${SOURCEDIRECTORY}" "${TARGETDIRECTORY}"
       fi
     fi
   fi
@@ -464,12 +449,8 @@ function runUnison() {
 
 function notifyPushover() {
   if [ "${PUSHOVERNOTIFY}" = "true" ]; then
-    if [ "${debug}" = "1" ]; then
-      verbose "\"pushover ${SCRIPTNAME} Completed\" \"${SCRIPTNAME} was run in $(convertsecs $TOTALTIME)\""
-    else
-      verbose "\"pushover ${SCRIPTNAME} Completed\" \"${SCRIPTNAME} was run in $(convertsecs $TOTALTIME)\""
-      pushover "${SCRIPTNAME} Completed" "${SCRIPTNAME} was run in $(convertsecs $TOTALTIME)"
-    fi
+    verbose "\"pushover ${SCRIPTNAME} Completed\" \"${SCRIPTNAME} was run in $(convertsecs $TOTALTIME)\""
+    pushover "${SCRIPTNAME} Completed" "${SCRIPTNAME} was run in $(convertsecs $TOTALTIME)"
   fi
 }
 
@@ -509,18 +490,17 @@ usage() {
  Options:
   -c, --config      Decrypts the configuration file to allow it to be edited.
   -d, --debug       Prints commands to console. Runs no syncs.
-  -f, --force       Skip all user interaction.  Implied 'Yes' to all actions
-  -h, --help        Display this help and exit
-  -l, --log         Print log to file
-  -n, --dryrun      Dry run.  If using rsync, will run everything
-                    without making any changes
+  -f, --force       Rsync only. Skip all user interaction. Implied 'Yes' to all actions.
+  -h, --help        Display this help and exit.
+  -l, --log         Print log to file.
+  -n, --dryrun      Rsync only. Dry run - will run everything without making any changes.
   -m, --mounttest   Will run the mount/unmount drive portion of the script and bypass all syncing.
-  -p, --password    Prompts for the password which decrypts the configuration file
+  -p, --password    Prompts for the password which decrypts the configuration file.
   -q, --quiet       Quiet (no output)
   -s, --strict      Exit script with null variables.  'set -o nounset'
   -v, --verbose     Output more information. (Items echoed to 'verbose')
-  -z, --compress    Compress.  If using rsync, this will compress data before
-                    transferring.  Good for slow internet connections.
+  -z, --compress    Rsync only. This will compress data before transferring.
+                    Good for slow internet connections.
       --version     Output version information and exit
 "
 }
