@@ -6,9 +6,6 @@
 version="1.0.0"               # Sets version variable for this script
 #
 scriptTemplateVersion="1.1.1" # Version of scriptTemplate.sh that this script is based on
-#                               v.1.1.0 - Added 'debug' option
-#                               v.1.1.1 - Moved all shared variables to Utils
-#                                       - Added $PASS variable when -p is passed
 #
 #
 # HISTORY:
@@ -53,6 +50,7 @@ verbose=0
 force=0
 strict=0
 debug=0
+safeRun=0
 downsize720=0
 deleteOriginal=0
 
@@ -92,7 +90,7 @@ dependencies=(ffmpeg gifsicle jq)
 videoTypes=(mp4 mov avi mkv wmv flv ogg m4p m4v 3gp divx h264)
 
 function checkDependencies() {
-  for i in ${dependencies[@]}; do
+  for i in "${dependencies[@]}"; do
     if type_not_exists "${i}"; then
       die "Can not proceed without '${i}'. Please install it before rerunning this script."
     fi
@@ -186,6 +184,7 @@ convert() {
       verbose "audioCodecLong="$audioCodecLong""
       verbose "audioSampleRate="${audioSampleRate}""
       verbose "audioBitRate="${audioBitRate}""
+
 
 
        # SET OUTPUT FORMAT
@@ -353,12 +352,18 @@ convert() {
 
       # CONVERT THE FILE
       # ################################
-      info "ffmpeg -i ""${f}"" "${videoCommand}" "${audioCommand}" ""${output}"""
-      ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${audioCommand} "${output}"
 
-      # delete original if requested
-      if [[ "${deleteOriginal}" = "1" ]]; then
-        rm -f "${f}" && verbose "Deleting "${f}""
+      # Respect --safe flag.
+      if [[ "${safeRun}" == "1" ]]; then
+        notice "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${audioCommand} "${output}""
+      else
+        verbose "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${audioCommand} "${output}""
+        ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${audioCommand} "${output}"
+
+        # delete original if requested
+        if [[ "${deleteOriginal}" = "1" ]]; then
+          rm -f "${f}" && verbose "Deleting "${f}""
+        fi
       fi
 
       # Unset variables
@@ -396,7 +401,7 @@ convert
 
 # Print usage
 usage() {
-  echo -n "${scriptName} [OPTION]... [ARGUMENT]...
+  echo -n "${scriptName} ${version} [OPTION]... [ARGUMENT]...
 
 This is my master FFMPEG media conversion script.  It will convert audio and video
 into many different formats.  I wrote it to eliminate the need to remember archaic
@@ -412,6 +417,8 @@ General Options:
   -l, --log         Print log to file
   -q, --quiet       Quiet (no output)
   -v, --verbose     Output more information. (Items echoed to 'verbose')
+      --safe        Runs the script without actually invoking FFMPEG.  Will simply print
+                    the FFMPEG commands to the terminal
       --version     Output version information and exit
 
 File Options:
@@ -471,7 +478,7 @@ unset options
 
 # Print help if no arguments were passed.
 # Uncomment to force arguments when invoking the script
-# [[ $# -eq 0 ]] && set -- "--help"
+[[ $# -eq 0 ]] && set -- "--help"
 
 # Read the options and set stuff
 while [[ $1 = -?* ]]; do
@@ -479,6 +486,7 @@ while [[ $1 = -?* ]]; do
     -f|--file) shift; userFile=$1 ;;
     -i|--input) shift; MEDIATYPE=$1 ;;
     -o|--output) shift; userOutput=$1 ;;
+    --safe) safeRun=1 ;;
     --size) shift; videoSize=$1 ;;
     --height) shift; height=$1 ;;
     --width) shift; width=$1 ;;
