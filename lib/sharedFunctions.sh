@@ -116,7 +116,7 @@ function pushover() {
 # use in if/then statements.
 #
 # Usage:
-#    if is_file; then
+#    if is_file "file"; then
 #       ...
 #    fi
 # ------------------------------------------------------
