@@ -10,24 +10,10 @@ scriptTemplateVersion="1.1.1" # Version of scriptTemplate.sh that this script is
 #                               v.1.1.1 - Moved all shared variables to Utils
 #                                       - Added $PASS variable when -p is passed
 #
-# A Bash script boilerplate.  Allows for common functions, logging, tmp
-# file creation, CL option passing, and more.
-#
-# For logging levels use the following functions:
-#   - header:   Prints a script header
-#   - input:    Ask for user input
-#   - success:  Print script success
-#   - info:     Print information to the user
-#   - notice:   Notify the user of something
-#   - warning:  Warn the user of something
-#   - error:    Print a non-fatal error
-#   - die:      A fatal error.  Will exit the script
-#   - debug:    Debug information
-#   - verbose:  Debug info only printed when 'verbose' flag is set to 'true'.
 #
 # HISTORY:
 #
-# * DATE - v1.0.0  - First Creation
+# * 2015-03-31 - v1.0.0  - First Creation
 #
 # ##################################################
 
@@ -188,7 +174,6 @@ convert() {
       fi
 
       # Confirm variables in verbose mode
-      verbose "_"
       verbose "file="$f""
       verbose "videoCodec="$videoCodec""
       verbose "videoCodecLong="$videoCodecLong""
@@ -201,20 +186,21 @@ convert() {
       verbose "audioCodecLong="$audioCodecLong""
       verbose "audioSampleRate="${audioSampleRate}""
       verbose "audioBitRate="${audioBitRate}""
-      #pauseScript
 
-      # SET OUTPUT FORMAT
-      # Default to 'mkv' for everything except for 'mkv' files.
+
+       # SET OUTPUT FORMAT
+      # Default to 'mp4' for everything.
+      # TODO - think through additional defaults
       ##########################################################
       case "${format}" in
         'Matroska / WebM') outputFormat='mp4' ;;
-        *) outputFormat='mkv' ;;
+        *) outputFormat='mp4' ;;
       esac
       # Override with CLI
       if [[ -n "$userOutput" ]]; then
-        outputFormat="$userOutput"
+        outputFormat="${userOutput}"
       fi
-      verbose "outputFormat=$outputFormat"
+      verbose "outputFormat=${outputFormat}"
 
       # Set output filename
       output="$(basename "${f%.*}").$outputFormat"
@@ -273,6 +259,7 @@ convert() {
         if [[ "${videoPreset}" == "1080p" ]]; then
           videoSize="hd720"
         else
+          breakLoop
           continue
         fi
       fi
@@ -296,23 +283,23 @@ convert() {
         fi
 
         # Confirm if user wants to upscale their video
-        # if [[ "${videoSize}" == "hd1080" || "${videoSize}" == "1080" ]]; then
-        #   userWidth="1920"
-        #   userHeight="1080"
-        # elif [[ "${videoSize}" == "hd720" ]] || [[ "${videoSize}" == "720" ]]; then
-        #   userWidth="1280"
-        #   userHeight="720"
-        # else
-        #   userWidth=$(echo ${videoSize} | cut -f1 -dx)
-        #   userHeight=$(echo ${videoSize} | cut -f2 -dx)
-        #   if [ "${userWidth}" -gt "${videoWidth}" ] || [ "${userHeight}" -gt "${videoHeight}" ]; then
-        #     seek_confirmation "Upscale "${f}" to "${videoSize}"? It is already "${videoWidth}"x"${videoHeight}"."
-        #     if is_not_confirmed; then
-        #       breakLoop
-        #       continue
-        #     fi
-        #   fi
-        # fi
+        if [[ "${videoSize}" == "hd1080" || "${videoSize}" == "1080" ]]; then
+          userWidth="1920"
+          userHeight="1080"
+        elif [[ "${videoSize}" == "hd720" ]] || [[ "${videoSize}" == "720" ]]; then
+          userWidth="1280"
+          userHeight="720"
+        else
+          userWidth=$(echo ${videoSize} | cut -f1 -dx)
+          userHeight=$(echo ${videoSize} | cut -f2 -dx)
+          if [ "${userWidth}" -gt "${videoWidth}" ] || [ "${userHeight}" -gt "${videoHeight}" ]; then
+            seek_confirmation "Upscale "${f}" to "${videoSize}"? It is already "${videoWidth}"x"${videoHeight}"."
+            if is_not_confirmed; then
+              breakLoop
+              continue
+            fi
+          fi
+        fi
 
         # Finally, set the resize variable
         videoResize="-vf scale=${videoSize}"
@@ -358,6 +345,7 @@ convert() {
           output="$(basename "${f%.*}").new."${outputFormat}""
         else
         notice "Skipping...."
+        breakLoop
         continue
         fi
       fi
@@ -408,17 +396,40 @@ convert
 
 # Print usage
 usage() {
-  echo -n "${scriptName} [OPTION]... [FILE]...
+  echo -n "${scriptName} [OPTION]... [ARGUMENT]...
 
-This is my script template.
+This is my master FFMPEG media conversion script.  It will convert audio and video
+into many different formats.  I wrote it to eliminate the need to remember archaic
+FFMPEG commands.
 
- Options:
-  -q, --quiet       Quiet (no output)
-  -l, --log         Print log to file
-  -v, --verbose     Output more information. (Items echoed to 'verbose')
-  -d, --debug       Runs script in BASH debug mode (set -x)
+Default behavior is to parse through directories of files and take actions on multiple
+files at a time.  You can easily specify a specific file to act on if needed.
+
+General Options:
   -h, --help        Display this help and exit
+  -d, --debug       Runs script in BASH debug mode ('set -x')
+      --force       Skip all user interaction.  Implied 'Yes' to all actions.
+  -l, --log         Print log to file
+  -q, --quiet       Quiet (no output)
+  -v, --verbose     Output more information. (Items echoed to 'verbose')
       --version     Output version information and exit
+
+File Options:
+  -f, --file        Specify a specific file to take actions on.
+  -i, --input       Specify the specific media type to search for and take action
+                    on. ('mov', 'mp4', 'mp3')
+  -o, --output      Specify the output format for the file(s) to be converted to.
+                    ('mkv', 'mp4', 'm4a')
+      --delete      Delete the original file after conversion.
+
+Video Specific Options:
+      --size        Set the size of the target file.  Can be one of 'hd1080', 'hd720',
+                    or 'HeightxWidth' (ie. 1920x1080)
+      --height      Set a height in pixels to scale the target file.
+      --width       Set a width in pixels to scale the target file.
+      --downsize720 Searches for 1080p videos and downsizes them to 720p. No need
+                    for other scaling options.
+
 "
 }
 
@@ -468,7 +479,7 @@ while [[ $1 = -?* ]]; do
     -f|--file) shift; userFile=$1 ;;
     -i|--input) shift; MEDIATYPE=$1 ;;
     -o|--output) shift; userOutput=$1 ;;
-    -s|--size) shift; videoSize=$1 ;;
+    --size) shift; videoSize=$1 ;;
     --height) shift; height=$1 ;;
     --width) shift; width=$1 ;;
     --downsize720) downsize720=1 ;;
@@ -477,6 +488,7 @@ while [[ $1 = -?* ]]; do
 
 
     -h|--help) usage >&2; safeExit ;;
+    --force) force=1 ;;
     --version) echo "$(basename $0) $version"; safeExit ;;
     -v|--verbose) verbose=1 ;;
     -l|--log) printLog=1 ;;
