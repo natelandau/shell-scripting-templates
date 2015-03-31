@@ -53,6 +53,7 @@ debug=0
 safeRun=0
 downsize720=0
 deleteOriginal=0
+args=()
 
 # Set Temp Directory
 # -----------------------------------
@@ -536,6 +537,8 @@ while [[ $1 = -?* ]]; do
   shift
 done
 
+# Store the remaining part as arguments.
+args+=("$@")
 
 ############## End Options and Usage ###################
 
