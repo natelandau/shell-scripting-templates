@@ -1,0 +1,527 @@
+#!/usr/bin/env bash
+
+# ##################################################
+# My Generic BASH script template
+#
+version="1.0.0"               # Sets version variable for this script
+#
+scriptTemplateVersion="1.1.1" # Version of scriptTemplate.sh that this script is based on
+#                               v.1.1.0 - Added 'debug' option
+#                               v.1.1.1 - Moved all shared variables to Utils
+#                                       - Added $PASS variable when -p is passed
+#
+# A Bash script boilerplate.  Allows for common functions, logging, tmp
+# file creation, CL option passing, and more.
+#
+# For logging levels use the following functions:
+#   - header:   Prints a script header
+#   - input:    Ask for user input
+#   - success:  Print script success
+#   - info:     Print information to the user
+#   - notice:   Notify the user of something
+#   - warning:  Warn the user of something
+#   - error:    Print a non-fatal error
+#   - die:      A fatal error.  Will exit the script
+#   - debug:    Debug information
+#   - verbose:  Debug info only printed when 'verbose' flag is set to 'true'.
+#
+# HISTORY:
+#
+# * DATE - v1.0.0  - First Creation
+#
+# ##################################################
+
+# Source Scripting Utilities
+# -----------------------------------
+# If these can't be found, update the path to the file
+# -----------------------------------
+scriptPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [ -f "${scriptPath}/../lib/utils.sh" ]; then
+  source "${scriptPath}/../lib/utils.sh"
+else
+  echo "Please find the file util.sh and add a reference to it in this script. Exiting."
+  exit 1
+fi
+
+# trapCleanup Function
+# -----------------------------------
+# Any actions that should be taken if the script is prematurely
+# exited.  Always call this function at the top of your script.
+# -----------------------------------
+function trapCleanup() {
+  echo ""
+  if is_dir "${tmpDir}"; then
+    rm -r "${tmpDir}"
+  fi
+  die "Exit trapped."  # Edit this if you like.
+}
+
+# Set Flags
+# -----------------------------------
+# Flags which can be overridden by user input.
+# Default values are below
+# -----------------------------------
+quiet=0
+printLog=0
+verbose=0
+force=0
+strict=0
+debug=0
+downsize720=0
+deleteOriginal=0
+
+# Set Temp Directory
+# -----------------------------------
+# Create temp directory with three random numbers and the process ID
+# in the name.  This directory is removed automatically at exit.
+# -----------------------------------
+tmpDir="/tmp/${scriptName}.$RANDOM.$RANDOM.$RANDOM.$$"
+(umask 077 && mkdir "${tmpDir}") || {
+  die "Could not create temporary directory! Exiting."
+}
+
+# Logging
+# -----------------------------------
+# Log is only used when the '-l' flag is set.
+#
+# To never save a logfile change variable to '/dev/null'
+# Save to Desktop use: $HOME/Desktop/${scriptBasename}.log
+# Save to standard user log location use: $HOME/Library/Logs/${scriptBasename}.log
+# -----------------------------------
+logFile="$HOME/Library/Logs/${scriptBasename}.log"
+
+function pauseScript() {
+  seek_confirmation "Ready to continue?"
+  if is_confirmed; then
+    info "Continuing"
+  fi
+}
+
+function mainScript() {
+############## Begin Script Here ###################
+####################################################
+
+# Constants
+dependencies=(ffmpeg gifsicle jq)
+videoTypes=(mp4 mov avi mkv wmv flv ogg m4p m4v 3gp divx h264)
+
+function checkDependencies() {
+  for i in ${dependencies[@]}; do
+    if type_not_exists "${i}"; then
+      die "Can not proceed without '${i}'. Please install it before rerunning this script."
+    fi
+  done
+}
+
+function breakLoop() {
+  # Break the for loop when a user specifies a file from the CLI
+  if [[ -n "${userFile}" ]]; then
+   break
+  fi
+}
+
+convert() {
+  if [ -n "${MEDIATYPE}" ]; then
+    videoTypes=($MEDIATYPE) # Reset the video type array to user-input, if specified
+  fi
+  for vt in "${videoTypes[@]}"; do
+    for f in *."${vt}"; do
+      if [[ -n "${userFile}" ]]; then
+        # Override the file search if user specifies a specific file from CLI.
+        verbose "User specified file: "${userFile}""
+        f="${userFile}"
+      fi
+      test -f "${f}" || continue # Ensure that what we've found is a file
+      informationFile="${tmpDir}/${f}.json"
+
+      # JSON METADATA FOR EACH ASSET
+      ######################################################################
+
+      # Output a JSON file for each video asset being parsed.
+      ffprobe -v quiet -print_format json -show_format -show_streams "${f}" >> "${informationFile}"
+
+      # Read the necessary information from the JSON
+      format="$(jq -r ".format.format_long_name" "${informationFile}")"
+      formatName="$(jq -r ".format.format_name" "${informationFile}")"
+
+      if [ $(jq -r ".streams[0].codec_type" "${informationFile}") == "video" ]; then
+        videoHeight="$(jq -r ".streams[0].height" "${informationFile}")"
+        videoWidth="$(jq -r ".streams[0].width" "${informationFile}")"
+        videoCodec="$(jq -r '.streams[0].codec_name' "${informationFile}")"
+        videoCodecLong="$(jq -r ".streams[0].codec_long_name" "${informationFile}")"
+      elif [ $(jq -r ".streams[1].codec_type" "${informationFile}") == "video" ]; then
+        videoHeight="$(jq -r ".streams[1].height" "${informationFile}")"
+        videoWidth="$(jq -r ".streams[1].width" "${informationFile}")"
+        videoCodec="$(jq -r '.streams[1].codec_name' "${informationFile}")"
+        videoCodecLong="$(jq -r ".streams[1].codec_long_name" "${informationFile}")"
+      else
+        warning "Missing video information for '"$f"'.  Inspect with 'ffprobe'."
+        ffprobe -v quiet -print_format json -show_format -show_streams "${f}"
+        safeExit
+      fi
+      if [ $(jq -r ".streams[0].codec_type" "${informationFile}") == "audio" ]; then
+        audioCodec="$(jq -r '.streams[0].codec_name' "${informationFile}")"
+        audioCodecLong="$(jq -r ".streams[0].codec_long_name" "${informationFile}")"
+        audioSampleRate="$(jq -r ".streams[0].sample_rate" "${informationFile}")"
+        audioBitRate="$(jq -r ".streams[0].bit_rate" "${informationFile}")"
+      elif [ $(jq -r ".streams[1].codec_type" "${informationFile}") == "audio" ]; then
+        audioCodec="$(jq -r '.streams[1].codec_name' "${informationFile}")"
+        audioCodecLong="$(jq -r ".streams[1].codec_long_name" "${informationFile}")"
+        audioSampleRate="$(jq -r ".streams[1].sample_rate" "${informationFile}")"
+        audioBitRate="$(jq -r ".streams[1].bit_rate" "${informationFile}")"
+      else
+        warning "Missing audio information for '"$f"'.  Inspect with 'ffprobe'."
+        ffprobe -v quiet -print_format json -show_format -show_streams "${f}"
+        safeExit
+      fi
+
+
+      # Is input video a known preset size?
+      if [[ "$videoWidth" == "1920" && "$videoHeight" == "1080" ]] || [[ "$videoWidth" == "1920" && "$videoHeight" == "816" ]]; then
+        videoPreset="1080p"
+      fi
+      if [[ "$videoWidth" == "1280" && "$videoHeight" == "720" ]] || [[ "$videoWidth" == "1280" && "$videoHeight" == "544" ]]; then
+        videoPreset="720p"
+      fi
+      if [[ "$videoWidth" == "720" && "$videoHeight" == "576" ]]; then
+        videoPreset="DVPAL"
+      fi
+
+      # Confirm variables in verbose mode
+      verbose "_"
+      verbose "file="$f""
+      verbose "videoCodec="$videoCodec""
+      verbose "videoCodecLong="$videoCodecLong""
+      verbose "format="$format""
+      verbose "formatName="$formatName""
+      verbose "videoWidth="$videoWidth""
+      verbose "videoHeight="$videoHeight""
+      verbose "videoPreset="${videoPreset}""
+      verbose "audioCodec="$audioCodec""
+      verbose "audioCodecLong="$audioCodecLong""
+      verbose "audioSampleRate="${audioSampleRate}""
+      verbose "audioBitRate="${audioBitRate}""
+      #pauseScript
+
+      # SET OUTPUT FORMAT
+      # Default to 'mkv' for everything except for 'mkv' files.
+      ##########################################################
+      case "${format}" in
+        'Matroska / WebM') outputFormat='mp4' ;;
+        *) outputFormat='mkv' ;;
+      esac
+      # Override with CLI
+      if [[ -n "$userOutput" ]]; then
+        outputFormat="$userOutput"
+      fi
+      verbose "outputFormat=$outputFormat"
+
+      # Set output filename
+      output="$(basename "${f%.*}").$outputFormat"
+      verbose "output="${output}""
+
+      extension="${f##*.}" # Grab file extension of input file
+
+      # Don't convert to self if no other options set
+      if [[ -z $height && -z $width && -z $videoSize && $downsize720 == "0" && "$outputFormat" == "$extension" ]]; then
+        warning "Can't convert a '"${extension}"' to itself. Skipping all '"${extension}"' files."
+        break
+      fi
+
+      # SET AUDIO INFORMATION
+      # Copy audio in compatible formats.  Re-encode audio when needed
+      ################################################################
+
+      # Pick the best aac audio encoder
+      if $(ffmpeg -version | grep enable-libfdk-aac >/dev/null); then
+        aacEncoder='libfdk_aac'
+      else
+        aacencoder='libfaac'
+      fi
+
+      supportedAudioCodecs=(aac ac3 eac3)
+      if [[ "${supportedAudioCodecs[*]}" =~ "${audioCodec}" ]]; then
+        audioCommand="-c:a copy"
+      else
+        audioCommand="-c:a "${aacEncoder}" -b:a 160k"
+      fi
+
+      # SET VIDEO INFORMATION
+      # Copy video in compatible formats.  Re-encode audio when needed.
+      # Set resizing options
+      ################################################################
+
+
+      # Enable resizing of videos
+      # #############################
+
+      # Fail if user sets more than one value
+      if [[ -n "${videoSize}" ]] && [[ -n "${height}" || -n "${width}" ]]; then
+        die "We can't set a 'height', 'width', and a 'size' at the same time."
+      fi
+
+      # if user sets both a height and width, run that as a videoSize variable
+      if [[ -n "${width}" ]] && [[ -n "${height}" ]]; then
+        videoSize="${width}x${height}"
+        unset width
+        unset height
+      fi
+
+      # downsize720
+      # Commonly used function to downsize 1080p to 720p
+      if [[ "${downsize720}" == "1" ]]; then
+        if [[ "${videoPreset}" == "1080p" ]]; then
+          videoSize="hd720"
+        else
+          continue
+        fi
+      fi
+
+      # Do something when a user specifies a size
+      if [[ -n "${videoSize}" ]]; then
+
+        # Don't resize videos to their same size
+        if [[ "${videoSize}" == "hd720" ]] || [[ "${videoSize}" == "720" || "${videoSize}" == "1280x720" ]]; then
+          if [[ "$videoPreset" == "720p" ]]; then
+            notice ""${f}" is already 720p. Skipping...."
+            breakLoop
+            continue
+          fi
+        elif [[ "${videoSize}" == "hd1080" || "${videoSize}" == "1080" || "${videoSize}" == "1920x1080" ]]; then
+          if [[ "$videoPreset" == "1080p" ]]; then
+            notice ""${f}" is already 1080p. Skipping...."
+            breakLoop
+            continue
+          fi
+        fi
+
+        # Confirm if user wants to upscale their video
+        # if [[ "${videoSize}" == "hd1080" || "${videoSize}" == "1080" ]]; then
+        #   userWidth="1920"
+        #   userHeight="1080"
+        # elif [[ "${videoSize}" == "hd720" ]] || [[ "${videoSize}" == "720" ]]; then
+        #   userWidth="1280"
+        #   userHeight="720"
+        # else
+        #   userWidth=$(echo ${videoSize} | cut -f1 -dx)
+        #   userHeight=$(echo ${videoSize} | cut -f2 -dx)
+        #   if [ "${userWidth}" -gt "${videoWidth}" ] || [ "${userHeight}" -gt "${videoHeight}" ]; then
+        #     seek_confirmation "Upscale "${f}" to "${videoSize}"? It is already "${videoWidth}"x"${videoHeight}"."
+        #     if is_not_confirmed; then
+        #       breakLoop
+        #       continue
+        #     fi
+        #   fi
+        # fi
+
+        # Finally, set the resize variable
+        videoResize="-vf scale=${videoSize}"
+      fi
+
+      # Scaling variables
+      # ####################################
+      if is_not_empty "$height"; then
+        if [ "${height}" -gt "${videoHeight}" ]; then
+          seek_confirmation "Upscale "${f}" to height "${height}"? It is already "${videoWidth}"x"${videoHeight}"."
+          if is_not_confirmed; then
+            breakLoop
+            continue
+          fi
+        fi
+        videoResize="-vf scale=-1:${height}"
+      fi
+      if is_not_empty "$width"; then
+        if [ "${width}" -gt "${videoWidth}" ]; then
+          seek_confirmation "Upscale "${f}" to width "${width}"? It is already "${videoWidth}"x"${videoHeight}"."
+          if is_not_confirmed; then
+            breakLoop
+            continue
+          fi
+        fi
+        videoResize="-vf scale=${width}:-1"
+      fi
+
+
+      # Copy when possible
+      # Save precious time by not re-encoding files that are already H264.
+      # ###########################
+      if [[ "${videoCodec}" == "h264" ]] && [[ -z "${videoResize}" ]]; then
+        videoCommand="-c:v copy"
+      else
+        videoCommand="-c:v libx264 -crf 18 -preset slow"
+      fi
+
+      # Confirm we're not overwriting an existing file
+      if [ -e "$output" ]; then
+        seek_confirmation ""${output}" file already exists. Rename to '.new'?"
+        if is_confirmed; then
+          output="$(basename "${f%.*}").new."${outputFormat}""
+        else
+        notice "Skipping...."
+        continue
+        fi
+      fi
+
+
+      # CONVERT THE FILE
+      # ################################
+      info "ffmpeg -i ""${f}"" "${videoCommand}" "${audioCommand}" ""${output}"""
+      ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${audioCommand} "${output}"
+
+      # delete original if requested
+      if [[ "${deleteOriginal}" = "1" ]]; then
+        rm -f "${f}" && verbose "Deleting "${f}""
+      fi
+
+      # Unset variables
+      unset videoCodec
+      unset videoCodecLong
+      unset format
+      unset formatName
+      unset videoHeight
+      unset videoWidth
+      unset videoPreset
+      unset audioCodec
+      unset audioCodecLong
+      unset audioSampleRate
+      unset audioBitRate
+
+      breakLoop
+    done
+  breakLoop
+  done
+
+}
+
+
+
+# Run the functions
+checkDependencies
+convert
+
+####################################################
+############### End Script Here ####################
+}
+
+############## Begin Options and Usage ###################
+
+
+# Print usage
+usage() {
+  echo -n "${scriptName} [OPTION]... [FILE]...
+
+This is my script template.
+
+ Options:
+  -q, --quiet       Quiet (no output)
+  -l, --log         Print log to file
+  -v, --verbose     Output more information. (Items echoed to 'verbose')
+  -d, --debug       Runs script in BASH debug mode (set -x)
+  -h, --help        Display this help and exit
+      --version     Output version information and exit
+"
+}
+
+# Iterate over options breaking -ab into -a -b when needed and --foo=bar into
+# --foo bar
+optstring=h
+unset options
+while (($#)); do
+  case $1 in
+    # If option is of type -ab
+    -[!-]?*)
+      # Loop over each character starting with the second
+      for ((i=1; i < ${#1}; i++)); do
+        c=${1:i:1}
+
+        # Add current char to options
+        options+=("-$c")
+
+        # If option takes a required argument, and it's not the last char make
+        # the rest of the string its argument
+        if [[ $optstring = *"$c:"* && ${1:i+1} ]]; then
+          options+=("${1:i+1}")
+          break
+        fi
+      done
+      ;;
+
+    # If option is of type --foo=bar
+    --?*=*) options+=("${1%%=*}" "${1#*=}") ;;
+    # add --endopts for --
+    --) options+=(--endopts) ;;
+    # Otherwise, nothing special
+    *) options+=("$1") ;;
+  esac
+  shift
+done
+set -- "${options[@]}"
+unset options
+
+# Print help if no arguments were passed.
+# Uncomment to force arguments when invoking the script
+# [[ $# -eq 0 ]] && set -- "--help"
+
+# Read the options and set stuff
+while [[ $1 = -?* ]]; do
+  case $1 in
+    -f|--file) shift; userFile=$1 ;;
+    -i|--input) shift; MEDIATYPE=$1 ;;
+    -o|--output) shift; userOutput=$1 ;;
+    -s|--size) shift; videoSize=$1 ;;
+    --height) shift; height=$1 ;;
+    --width) shift; width=$1 ;;
+    --downsize720) downsize720=1 ;;
+    --delete) deleteOriginal=1 ;;
+
+
+
+    -h|--help) usage >&2; safeExit ;;
+    --version) echo "$(basename $0) $version"; safeExit ;;
+    -v|--verbose) verbose=1 ;;
+    -l|--log) printLog=1 ;;
+    -q|--quiet) quiet=1 ;;
+    -d|--debug) debug=1;;
+    --endopts) shift; break ;;
+    *) die "invalid option: '$1'." ;;
+  esac
+  shift
+done
+
+
+############## End Options and Usage ###################
+
+
+
+
+# ############# ############# #############
+# ##       TIME TO RUN THE SCRIPT        ##
+# ##                                     ##
+# ## You shouldn't need to edit anything ##
+# ## beneath this line                   ##
+# ##                                     ##
+# ############# ############# #############
+
+# Trap bad exits with your cleanup function
+trap trapCleanup EXIT INT TERM
+
+# Exit on error. Append '||true' when you run the script if you expect an error.
+set -o errexit
+
+# Run in debug mode, if set
+if [ "${debug}" == "1" ]; then
+  set -x
+fi
+
+# Exit on empty variable
+if [ "${strict}" == "1" ]; then
+  set -o nounset
+fi
+
+# Bash will remember & return the highest exitcode in a chain of pipes.
+# This way you can catch the error in case mysqldump fails in `mysqldump |gzip`, for example.
+set -o pipefail
+
+mainScript # Run your script
+
+safeExit # Exit cleanly
