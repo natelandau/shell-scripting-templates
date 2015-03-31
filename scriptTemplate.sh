@@ -111,7 +111,7 @@ This is my script template.
  Options:
   -u, --username    Username for script
   -p, --password    User password
-  -f, --force       Skip all user interaction.  Implied 'Yes' to all actions
+  --force       Skip all user interaction.  Implied 'Yes' to all actions.
   -q, --quiet       Quiet (no output)
   -l, --log         Print log to file
   -s, --strict      Exit script with null variables.  i.e 'set -o nounset'
@@ -175,7 +175,7 @@ while [[ $1 = -?* ]]; do
     -q|--quiet) quiet=1 ;;
     -s|--strict) strict=1;;
     -d|--debug) debug=1;;
-    -f|--force) force=1 ;;
+    --force) force=1 ;;
     --endopts) shift; break ;;
     *) die "invalid option: '$1'." ;;
   esac
