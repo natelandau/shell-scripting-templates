@@ -260,7 +260,7 @@ function is_confirmed() {
   if [[ "${force}" == "1" ]]; then
     return 0
   else
-    if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+    if [[ "${REPLY}" =~ ^[Yy]$ ]]; then
       return 0
     fi
     return 1
@@ -268,10 +268,14 @@ function is_confirmed() {
 }
 
 function is_not_confirmed() {
-  if [[ "$REPLY" =~ ^[Nn]$ ]]; then
-    return 0
+  if [[ "${force}" == "1" ]]; then
+    return 1
+  else
+    if [[ "${REPLY}" =~ ^[Nn]$ ]]; then
+      return 0
+    fi
+    return 1
   fi
-  return 1
 }
 
 # Skip something
