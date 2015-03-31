@@ -104,6 +104,23 @@ function breakLoop() {
   fi
 }
 
+function outputDir() {
+  if [[ -n "${saveDir}" ]]; then
+    if [[ -e "${saveDir}" && ! -d "${saveDir}" ]]; then
+      die "${saveDir} exists but is not a directory"
+    fi
+    if [[ ! -d "${saveDir}" ]]; then
+      seek_confirmation "${saveDir} does not exist.  Create?"
+      if is_confirmed; then
+        mkdir "${saveDir}" && verbose "mkdir ${saveDir}"
+      else
+        die "Can't run without a place to save the files."
+      fi
+    fi
+    outputDir="${saveDir%/}/" # remove trailing slash if included. Add back to ensure it's always there.
+  fi
+}
+
 convert() {
   if [ -n "${MEDIATYPE}" ]; then
     videoTypes=($MEDIATYPE) # Reset the video type array to user-input, if specified
@@ -116,6 +133,7 @@ convert() {
         f="${userFile}"
       fi
       test -f "${f}" || continue # Ensure that what we've found is a file
+      extension="${f##*.}" # Grab file extension of input file
       informationFile="${tmpDir}/${f}.json"
 
       # JSON METADATA FOR EACH ASSET
@@ -187,7 +205,7 @@ convert() {
 
 
 
-       # SET OUTPUT FORMAT
+      # SET OUTPUT FORMAT
       # Default to 'mp4' for everything.
       # TODO - think through additional defaults
       ##########################################################
@@ -204,8 +222,6 @@ convert() {
       # Set output filename
       output="$(basename "${f%.*}").$outputFormat"
       verbose "output="${output}""
-
-      extension="${f##*.}" # Grab file extension of input file
 
       # Don't convert to self if no other options set
       if [[ -z $height && -z $width && -z $videoSize && $downsize720 == "0" && "$outputFormat" == "$extension" ]]; then
@@ -337,21 +353,29 @@ convert() {
         videoCommand="-c:v libx264 -crf 18 -preset slow"
       fi
 
+
+      # CONVERT THE FILE
+      # ################################
+
+      # Add users output save directory if used
+      if [[ -n "${outputDir}" ]]; then
+        output="${outputDir}${output}"
+      fi
+
       # Confirm we're not overwriting an existing file
       if [ -e "$output" ]; then
         seek_confirmation ""${output}" file already exists. Rename to '.new'?"
         if is_confirmed; then
           output="$(basename "${f%.*}").new."${outputFormat}""
+          if [[ -n "${outputDir}" ]]; then
+            output="${outputDir}${output}"
+          fi
         else
         notice "Skipping...."
         breakLoop
         continue
         fi
       fi
-
-
-      # CONVERT THE FILE
-      # ################################
 
       # Respect --safe flag.
       if [[ "${safeRun}" == "1" ]]; then
@@ -390,6 +414,7 @@ convert() {
 
 # Run the functions
 checkDependencies
+outputDir
 convert
 
 ####################################################
@@ -428,6 +453,8 @@ File Options:
   -o, --output      Specify the output format for the file(s) to be converted to.
                     ('mkv', 'mp4', 'm4a')
       --delete      Delete the original file after conversion.
+      --saveDir     Specify a folder for the converted files to be saved to.  Defaults to
+                    the directory the script is invoked in.
 
 Video Specific Options:
       --size        Set the size of the target file.  Can be one of 'hd1080', 'hd720',
@@ -483,15 +510,16 @@ unset options
 # Read the options and set stuff
 while [[ $1 = -?* ]]; do
   case $1 in
-    -f|--file) shift; userFile=$1 ;;
-    -i|--input) shift; MEDIATYPE=$1 ;;
-    -o|--output) shift; userOutput=$1 ;;
+    -f|--file) shift; userFile="$1" ;;
+    -i|--input) shift; MEDIATYPE="$1" ;;
+    -o|--output) shift; userOutput="$1" ;;
     --safe) safeRun=1 ;;
-    --size) shift; videoSize=$1 ;;
-    --height) shift; height=$1 ;;
-    --width) shift; width=$1 ;;
+    --size) shift; videoSize="$1" ;;
+    --height) shift; height="$1" ;;
+    --width) shift; width="$1" ;;
     --downsize720) downsize720=1 ;;
     --delete) deleteOriginal=1 ;;
+    --saveDir) shift; saveDir="$1" ;;
 
 
 
