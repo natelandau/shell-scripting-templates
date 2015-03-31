@@ -245,20 +245,26 @@ function is_os() {
 
 # Ask the question
 function seek_confirmation() {
-force=0
   echo ""
   input "$@"
-  read -p " (y/n) " -n 1
-  echo ""
+  if [[ "${force}" == "1" ]]; then
+    notice "Forcing confirmation with '--force' flag set"
+  else
+    read -p " (y/n) " -n 1
+    echo ""
+  fi
 }
 
 # Test whether the result of an 'ask' is a confirmation
 function is_confirmed() {
-  (($force)) && return 0;
-  if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+  if [[ "${force}" == "1" ]]; then
     return 0
+  else
+    if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+      return 0
+    fi
+    return 1
   fi
-  return 1
 }
 
 function is_not_confirmed() {
