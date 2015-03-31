@@ -124,6 +124,7 @@ RECIPES=(
   id3tool
   imagemagick
   jpegoptim
+  jq
   lesspipe
   libksba
   libtool
