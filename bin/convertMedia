@@ -123,16 +123,29 @@ function outputDir() {
   fi
 }
 
+function identifyUserFile() {
+  if [[ -n "${userFile}" ]]; then
+    #test -f "${f}" # Ensure that what we've found is a file
+    extension="${userFile##*.}" # Grab file extension of input file
+    success "We have ${userFile} with extension: $extension"
+    if [[ "${videoTypes[*]}" =~ "${extension}" ]]; then
+      userVideoFile="${userFile}"
+    fi
+    if [[ "${audioTypes[*]}" =~ "${extension}" ]]; then
+      userAudioFile="${userFile}"
+    fi
+  fi
+}
+
 convertVideo() {
   if [ -n "${MEDIATYPE}" ]; then
     videoTypes=($MEDIATYPE) # Reset the video type array to user-input, if specified
   fi
   for vt in "${videoTypes[@]}"; do
     for f in *."${vt}"; do
-      if [[ -n "${userFile}" ]]; then
+      if [[ -n "${userVideoFile}" ]]; then
         # Override the file search if user specifies a specific file from CLI.
-        verbose "User specified file: "${userFile}""
-        f="${userFile}"
+        f="${userVideoFile}"
       fi
       test -f "${f}" || continue # Ensure that what we've found is a file
       extension="${f##*.}" # Grab file extension of input file
@@ -418,10 +431,9 @@ convertMusic() {
   fi
   for mt in "${musicTypes[@]}"; do
     for f in *."${mt}"; do
-      if [[ -n "${userMusicFile}" ]]; then # TODO: Rewrite user video files and write function to detect user video or music
+      if [[ -n "${userAudioFile}" ]]; then # TODO: Rewrite user video files and write function to detect user video or music
         # Override the file search if user specifies a specific file from CLI.
-        verbose "User specified file: "${userMusicFile}""
-        f="${userFile}"
+        f="${userAudioFile}"
       fi
       test -f "${f}" || continue # Ensure that what we've found is a file
       extension="${f##*.}" # Grab file extension of input file
@@ -503,10 +515,10 @@ convertMusic() {
       verbose "output="${output}""
 
       # Don't convert to self if no other options set
-      if [[ -z $height && -z $width && -z $videoSize && $downsize720 == "0" && "$outputFormat" == "$extension" ]]; then
-        warning "Can't convert a '"${extension}"' to itself. Skipping all '"${extension}"' files."
-        break
-      fi
+      # if [[ -z $height && -z $width && -z $videoSize && $downsize720 == "0" && "$outputFormat" == "$extension" ]]; then
+      #   warning "Can't convert a '"${extension}"' to itself. Skipping all '"${extension}"' files."
+      #   break
+      # fi
 
       # SET AUDIO INFORMATION
       # Copy audio in compatible formats.  Re-encode audio when needed
@@ -595,6 +607,7 @@ convertMusic() {
 
 # Run the functions
 checkDependencies
+identifyUserFile
 outputDir
 convertVideo
 
