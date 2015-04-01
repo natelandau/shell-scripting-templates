@@ -429,8 +429,8 @@ convert
 usage() {
   echo -n "${scriptName} ${version} [OPTION]... [ARGUMENT]...
 
-This is my master FFMPEG media conversion script.  It will convert audio and video
-into many different formats.  I wrote it to eliminate the need to remember archaic
+This is a master FFMPEG media conversion script.  It will convert audio and video
+into many different formats.  It was written to eliminate the need to remember archaic
 FFMPEG commands.
 
 Default behavior is to parse through directories of files and take actions on multiple
@@ -463,7 +463,8 @@ Video Specific Options:
       --height      Set a height in pixels to scale the target file.
       --width       Set a width in pixels to scale the target file.
       --downsize720 Searches for 1080p videos and downsizes them to 720p. No need
-                    for other scaling options.
+                    for other scaling options. Used to reduce the size of video collections
+                    when quality is not the primary need.
 
 "
 }
