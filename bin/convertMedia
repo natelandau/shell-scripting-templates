@@ -89,7 +89,17 @@ function mainScript() {
 # Constants
 dependencies=(ffmpeg gifsicle jq)
 videoTypes=(mp4 mov avi mkv wmv flv ogg m4p m4v 3gp divx h264)
-musicTypes=(mp3 avi m4a aiff aac m4p wav wma)
+audioTypes=(mp3 avi m4a aiff aac m4p wav wma flac)
+
+# If a user specifies a single file type extension, respect it.
+if [ -n "${MEDIATYPE}" ]; then
+  if [[ "${videoTypes[*]}" =~ "${MEDIATYPE}" ]]; then
+    videoTypes=($MEDIATYPE) # Reset the video type array to user-input, if specified
+  fi
+  if [[ "${audioTypes[*]}" =~ "${MEDIATYPE}" ]]; then
+    audioTypes=($MEDIATYPE) # Reset the audio type array to user-input, if specified
+  fi
+fi
 
 function checkDependencies() {
   for i in "${dependencies[@]}"; do
@@ -100,7 +110,8 @@ function checkDependencies() {
 }
 
 function breakLoop() {
-  # Break the for loop when a user specifies a file from the CLI
+  # Break the for loop when a user specifies a file from the CLI.
+  # Basically, this ensures that we only run the loop once for a single file.
   if [[ -n "${userFile}" ]]; then
    break
   fi
@@ -127,7 +138,6 @@ function identifyUserFile() {
   if [[ -n "${userFile}" ]]; then
     #test -f "${f}" # Ensure that what we've found is a file
     extension="${userFile##*.}" # Grab file extension of input file
-    success "We have ${userFile} with extension: $extension"
     if [[ "${videoTypes[*]}" =~ "${extension}" ]]; then
       userVideoFile="${userFile}"
     fi
@@ -137,10 +147,63 @@ function identifyUserFile() {
   fi
 }
 
-convertVideo() {
-  if [ -n "${MEDIATYPE}" ]; then
-    videoTypes=($MEDIATYPE) # Reset the video type array to user-input, if specified
+function ffmpegCommand() {
+
+  # Set the output name, format, and directory
+  # ###############################################
+
+  # Override defaults with CLI
+  if [[ -n "$userOutput" ]]; then
+    outputFormat="${userOutput}"
   fi
+  verbose "outputFormat=${outputFormat}"
+
+  # Set output filename
+  output="$(basename "${f%.*}").$outputFormat"
+  verbose "output="${output}""
+
+  # Don't convert to self if no other options set
+  if [[ -z $height && -z $width && -z $videoSize && $downsize720 == "0" && "$outputFormat" == "$extension" ]]; then
+    warning "Can't convert a '"${extension}"' to itself. Skipping all '"${extension}"' files."
+    break
+  fi
+
+  # Add users output save directory if used
+  if [[ -n "${outputDir}" ]]; then
+    output="${outputDir}${output}"
+  fi
+
+  # Confirm we're not overwriting an existing file
+  if [[ "${safeRun}" -ne "1" ]]; then
+    if [ -e "${output}" ]; then
+      # Rename and move the existing file
+      oldFile=""$(basename "${output%.*}").old."${outputFormat}"""
+      mv "${output}" "${oldFile}"
+      # rename the new file to '.new'
+      output="$(basename "${f%.*}").new."${outputFormat}""
+      if [[ -n "${outputDir}" ]]; then
+        output="${outputDir}${output}"
+      fi
+      notice "Renamed existing file to '.old'"
+    fi
+  fi
+
+  # Respect --safe flag.
+  if [[ "${safeRun}" == "1" ]]; then
+    notice "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}""
+  else
+    verbose "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}""
+    ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} $audioConvertCommand "${output}"
+
+    # delete original if requested
+    if [[ "${deleteOriginal}" == "1" ]]; then
+      rm -f "${f}" && verbose "Deleting "${f}""
+    fi
+  fi
+}
+
+
+convertVideo() {
   for vt in "${videoTypes[@]}"; do
     for f in *."${vt}"; do
       if [[ -n "${userVideoFile}" ]]; then
@@ -192,7 +255,6 @@ convertVideo() {
         safeExit
       fi
 
-
       # Is input video a known preset size?
       if [[ "$videoWidth" == "1920" && "$videoHeight" == "1080" ]] || [[ "$videoWidth" == "1920" && "$videoHeight" == "816" ]]; then
         videoPreset="1080p"
@@ -204,45 +266,18 @@ convertVideo() {
         videoPreset="DVPAL"
       fi
 
-      # Confirm variables in verbose mode
-      verbose "file="$f""
-      verbose "videoCodec="$videoCodec""
-      verbose "videoCodecLong="$videoCodecLong""
-      verbose "format="$format""
-      verbose "formatName="$formatName""
-      verbose "videoWidth="$videoWidth""
-      verbose "videoHeight="$videoHeight""
-      verbose "videoPreset="${videoPreset}""
-      verbose "audioCodec="$audioCodec""
-      verbose "audioCodecLong="$audioCodecLong""
-      verbose "audioSampleRate="${audioSampleRate}""
-      verbose "audioBitRate="${audioBitRate}""
-
-
-
       # SET OUTPUT FORMAT
       # Default to 'mp4' for everything.
       # TODO - think through additional defaults
       ##########################################################
+
+      # if you wanted a default target format for a specific input format,
+      # you would put it here.
       case "${format}" in
         'Matroska / WebM') outputFormat='mp4' ;;
         *) outputFormat='mp4' ;;
       esac
-      # Override with CLI
-      if [[ -n "$userOutput" ]]; then
-        outputFormat="${userOutput}"
-      fi
-      verbose "outputFormat=${outputFormat}"
 
-      # Set output filename
-      output="$(basename "${f%.*}").$outputFormat"
-      verbose "output="${output}""
-
-      # Don't convert to self if no other options set
-      if [[ -z $height && -z $width && -z $videoSize && $downsize720 == "0" && "$outputFormat" == "$extension" ]]; then
-        warning "Can't convert a '"${extension}"' to itself. Skipping all '"${extension}"' files."
-        break
-      fi
 
       # SET AUDIO INFORMATION
       # Copy audio in compatible formats.  Re-encode audio when needed
@@ -257,16 +292,15 @@ convertVideo() {
 
       supportedAudioCodecs=(aac ac3 eac3)
       if [[ "${supportedAudioCodecs[*]}" =~ "${audioCodec}" ]]; then
-        audioCommand="-c:a copy"
+        videoAudioCommand="-c:a copy"
       else
-        audioCommand="-c:a "${aacEncoder}" -b:a 160k"
+        videoAudioCommand="-c:a "${aacEncoder}" -b:a 160k"
       fi
 
       # SET VIDEO INFORMATION
       # Copy video in compatible formats.  Re-encode audio when needed.
       # Set resizing options
       ################################################################
-
 
       # Enable resizing of videos
       # #############################
@@ -320,6 +354,7 @@ convertVideo() {
           userWidth="1280"
           userHeight="720"
         else
+          # break user's video size into a height and width
           userWidth=$(echo ${videoSize} | cut -f1 -dx)
           userHeight=$(echo ${videoSize} | cut -f2 -dx)
           if [ "${userWidth}" -gt "${videoWidth}" ] || [ "${userHeight}" -gt "${videoHeight}" ]; then
@@ -358,8 +393,7 @@ convertVideo() {
         videoResize="-vf scale=${width}:-1"
       fi
 
-
-      # Copy when possible
+      # Copy h264 when possible
       # Save precious time by not re-encoding files that are already H264.
       # ###########################
       if [[ "${videoCodec}" == "h264" ]] && [[ -z "${videoResize}" ]]; then
@@ -368,42 +402,7 @@ convertVideo() {
         videoCommand="-c:v libx264 -crf 18 -preset slow"
       fi
 
-
-      # CONVERT THE FILE
-      # ################################
-
-      # Add users output save directory if used
-      if [[ -n "${outputDir}" ]]; then
-        output="${outputDir}${output}"
-      fi
-
-      # Confirm we're not overwriting an existing file
-      if [ -e "$output" ]; then
-        seek_confirmation ""${output}" file already exists. Rename to '.new'?"
-        if is_confirmed; then
-          output="$(basename "${f%.*}").new."${outputFormat}""
-          if [[ -n "${outputDir}" ]]; then
-            output="${outputDir}${output}"
-          fi
-        else
-        notice "Skipping...."
-        breakLoop
-        continue
-        fi
-      fi
-
-      # Respect --safe flag.
-      if [[ "${safeRun}" == "1" ]]; then
-        notice "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${audioCommand} "${output}""
-      else
-        verbose "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${audioCommand} "${output}""
-        ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${audioCommand} "${output}"
-
-        # delete original if requested
-        if [[ "${deleteOriginal}" = "1" ]]; then
-          rm -f "${f}" && verbose "Deleting "${f}""
-        fi
-      fi
+      ffmpegCommand # Invoke FFMpeg
 
       # Unset variables
       unset videoCodec
@@ -426,10 +425,7 @@ convertVideo() {
 }
 
 convertMusic() {
-  if [ -n "${MEDIATYPE}" ]; then
-    videoTypes=($MEDIATYPE) # Reset the video type array to user-input, if specified
-  fi
-  for mt in "${musicTypes[@]}"; do
+  for mt in "${audioTypes[@]}"; do
     for f in *."${mt}"; do
       if [[ -n "${userAudioFile}" ]]; then # TODO: Rewrite user video files and write function to detect user video or music
         # Override the file search if user specifies a specific file from CLI.
@@ -437,6 +433,7 @@ convertMusic() {
       fi
       test -f "${f}" || continue # Ensure that what we've found is a file
       extension="${f##*.}" # Grab file extension of input file
+      success "format: $extension"
       informationFile="${tmpDir}/${f}.json"
 
       # JSON METADATA FOR EACH ASSET
@@ -444,26 +441,13 @@ convertMusic() {
 
       # Output a JSON file for each video asset being parsed.
       ffprobe -v quiet -print_format json -show_format -show_streams "${f}" >> "${informationFile}"
+      ffprobe -v quiet -print_format json -show_format -show_streams "${f}" >> "${f}.json"
 
       # Read the necessary information from the JSON
       format="$(jq -r ".format.format_long_name" "${informationFile}")"
       formatName="$(jq -r ".format.format_name" "${informationFile}")"
+      formatBit_Rate="$(jq -r ".format.bit_rate" "${informationFile}")"
 
-      if [ $(jq -r ".streams[0].codec_type" "${informationFile}") == "video" ]; then
-        videoHeight="$(jq -r ".streams[0].height" "${informationFile}")"
-        videoWidth="$(jq -r ".streams[0].width" "${informationFile}")"
-        videoCodec="$(jq -r '.streams[0].codec_name' "${informationFile}")"
-        videoCodecLong="$(jq -r ".streams[0].codec_long_name" "${informationFile}")"
-      elif [ $(jq -r ".streams[1].codec_type" "${informationFile}") == "video" ]; then
-        videoHeight="$(jq -r ".streams[1].height" "${informationFile}")"
-        videoWidth="$(jq -r ".streams[1].width" "${informationFile}")"
-        videoCodec="$(jq -r '.streams[1].codec_name' "${informationFile}")"
-        videoCodecLong="$(jq -r ".streams[1].codec_long_name" "${informationFile}")"
-      else
-        warning "Missing video information for '"$f"'.  Inspect with 'ffprobe'."
-        ffprobe -v quiet -print_format json -show_format -show_streams "${f}"
-        safeExit
-      fi
       if [ $(jq -r ".streams[0].codec_type" "${informationFile}") == "audio" ]; then
         audioCodec="$(jq -r '.streams[0].codec_name' "${informationFile}")"
         audioCodecLong="$(jq -r ".streams[0].codec_long_name" "${informationFile}")"
@@ -474,51 +458,29 @@ convertMusic() {
         audioCodecLong="$(jq -r ".streams[1].codec_long_name" "${informationFile}")"
         audioSampleRate="$(jq -r ".streams[1].sample_rate" "${informationFile}")"
         audioBitRate="$(jq -r ".streams[1].bit_rate" "${informationFile}")"
+      elif [ $(jq -r ".streams[2].codec_type" "${informationFile}") == "audio" ]; then
+        audioCodec="$(jq -r '.streams[2].codec_name' "${informationFile}")"
+        audioCodecLong="$(jq -r ".streams[2].codec_long_name" "${informationFile}")"
+        audioSampleRate="$(jq -r ".streams[2].sample_rate" "${informationFile}")"
+        audioBitRate="$(jq -r ".streams[2].bit_rate" "${informationFile}")"
       else
         warning "Missing audio information for '"$f"'.  Inspect with 'ffprobe'."
         ffprobe -v quiet -print_format json -show_format -show_streams "${f}"
         safeExit
       fi
 
-      # Confirm variables in verbose mode
-      verbose "file="$f""
-      verbose "videoCodec="$videoCodec""
-      verbose "videoCodecLong="$videoCodecLong""
-      verbose "format="$format""
-      verbose "formatName="$formatName""
-      verbose "videoWidth="$videoWidth""
-      verbose "videoHeight="$videoHeight""
-      verbose "videoPreset="${videoPreset}""
-      verbose "audioCodec="$audioCodec""
-      verbose "audioCodecLong="$audioCodecLong""
-      verbose "audioSampleRate="${audioSampleRate}""
-      verbose "audioBitRate="${audioBitRate}""
-
-
 
       # SET OUTPUT FORMAT
       # Default to 'mp4' for everything.
       # TODO - think through additional defaults
       ##########################################################
+
+      # if you wanted a default target format for a specific input format,
+      # you would put it here.
       case "${format}" in
-        'Matroska / WebM') outputFormat='mp4' ;;
-        *) outputFormat='mp4' ;;
+        'QuickTime / MOV') outputFormat='m4a' ;; # Convert Apple formats to ....
+        *) outputFormat='m4a' ;;
       esac
-      # Override with CLI
-      if [[ -n "$userOutput" ]]; then
-        outputFormat="${userOutput}"
-      fi
-      verbose "outputFormat=${outputFormat}"
-
-      # Set output filename
-      output="$(basename "${f%.*}").$outputFormat"
-      verbose "output="${output}""
-
-      # Don't convert to self if no other options set
-      # if [[ -z $height && -z $width && -z $videoSize && $downsize720 == "0" && "$outputFormat" == "$extension" ]]; then
-      #   warning "Can't convert a '"${extension}"' to itself. Skipping all '"${extension}"' files."
-      #   break
-      # fi
 
       # SET AUDIO INFORMATION
       # Copy audio in compatible formats.  Re-encode audio when needed
@@ -531,68 +493,18 @@ convertMusic() {
         aacencoder='libfaac'
       fi
 
-      supportedAudioCodecs=(aac ac3 eac3)
-      if [[ "${supportedAudioCodecs[*]}" =~ "${audioCodec}" ]]; then
-        audioCommand="-c:a copy"
-      else
-        audioCommand="-c:a "${aacEncoder}" -b:a 160k"
+      # LOSSLESS CONVERSIONS
+
+      # FLAC TO ALAC
+      if [[ "${formatName}" == "flac" ]] && [[ "${formatBit_Rate}" -gt "320000" ]]; then
+        audioConvertCommand="-acodec alac"
       fi
 
-
-      # Copy when possible
-      # Save precious time by not re-encoding files that are already H264.
-      # ###########################
-      if [[ "${videoCodec}" == "h264" ]] && [[ -z "${videoResize}" ]]; then
-        videoCommand="-c:v copy"
-      else
-        videoCommand="-c:v libx264 -crf 18 -preset slow"
-      fi
-
-
-      # CONVERT THE FILE
-      # ################################
-
-      # Add users output save directory if used
-      if [[ -n "${outputDir}" ]]; then
-        output="${outputDir}${output}"
-      fi
-
-      # Confirm we're not overwriting an existing file
-      if [ -e "$output" ]; then
-        seek_confirmation ""${output}" file already exists. Rename to '.new'?"
-        if is_confirmed; then
-          output="$(basename "${f%.*}").new."${outputFormat}""
-          if [[ -n "${outputDir}" ]]; then
-            output="${outputDir}${output}"
-          fi
-        else
-        notice "Skipping...."
-        breakLoop
-        continue
-        fi
-      fi
-
-      # Respect --safe flag.
-      if [[ "${safeRun}" == "1" ]]; then
-        notice "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${audioCommand} "${output}""
-      else
-        verbose "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${audioCommand} "${output}""
-        ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${audioCommand} "${output}"
-
-        # delete original if requested
-        if [[ "${deleteOriginal}" = "1" ]]; then
-          rm -f "${f}" && verbose "Deleting "${f}""
-        fi
-      fi
+      ffmpegCommand # Run the conversion function
 
       # Unset variables
-      unset videoCodec
-      unset videoCodecLong
       unset format
       unset formatName
-      unset videoHeight
-      unset videoWidth
-      unset videoPreset
       unset audioCodec
       unset audioCodecLong
       unset audioSampleRate
@@ -610,6 +522,7 @@ checkDependencies
 identifyUserFile
 outputDir
 convertVideo
+convertMusic
 
 ####################################################
 ############### End Script Here ####################
@@ -658,6 +571,9 @@ Video Specific Options:
       --downsize720 Searches for 1080p videos and downsizes them to 720p. No need
                     for other scaling options. Used to reduce the size of video collections
                     when quality is not the primary need.
+
+Audio Specific Options:
+      --bitrate     Set a bit rate for audio conversions.
 
 "
 }
