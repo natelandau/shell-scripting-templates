@@ -53,6 +53,7 @@ debug=0
 safeRun=0
 downsize720=0
 deleteOriginal=0
+XLD=0
 args=()
 
 # Set Temp Directory
@@ -147,7 +148,7 @@ function identifyUserFile() {
   fi
 }
 
-function ffmpegCommand() {
+function doConvert() {
 
   # Set the output name, format, and directory
   # ###############################################
@@ -188,16 +189,30 @@ function ffmpegCommand() {
     fi
   fi
 
-  # Respect --safe flag.
-  if [[ "${safeRun}" == "1" ]]; then
-    notice "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}""
-  else
-    verbose "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}""
-    ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} $audioConvertCommand "${output}"
+  # Invoke the conversion
+  # ##################################
 
-    # delete original if requested
-    if [[ "${deleteOriginal}" == "1" ]]; then
-      rm -f "${f}" && verbose "Deleting "${f}""
+  # Use XLD for audio file conversion if available
+  if [[ "$XLD" ==  "1" ]]; then
+    # Respect --safe flag.
+    if [[ "${safeRun}" == "1" ]]; then
+      notice "xld -o "${output}" ${audioConvertCommand} "${f}""
+    else
+      verbose "xld -o "${output}" ${audioConvertCommand} "${f}""
+      xld -o "${output}" ${audioConvertCommand} "${f}"
+    fi
+  else # Use ffmpeg when XLD is set to 0
+    # Respect --safe flag.
+    if [[ "${safeRun}" == "1" ]]; then
+      notice "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}""
+    else
+      verbose "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}""
+      ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}"
+
+      # delete original if requested
+      if [[ "${deleteOriginal}" == "1" ]]; then
+        rm -f "${f}" && verbose "Deleting "${f}""
+      fi
     fi
   fi
 }
@@ -219,6 +234,8 @@ convertVideo() {
 
       # Output a JSON file for each video asset being parsed.
       ffprobe -v quiet -print_format json -show_format -show_streams "${f}" >> "${informationFile}"
+      # uncomment the line below for debugging.  It will write a json file for each file in the source directory
+      # ffprobe -v quiet -print_format json -show_format -show_streams "${f}" >> "${f}.json"
 
       # Read the necessary information from the JSON
       format="$(jq -r ".format.format_long_name" "${informationFile}")"
@@ -235,7 +252,7 @@ convertVideo() {
         videoCodec="$(jq -r '.streams[1].codec_name' "${informationFile}")"
         videoCodecLong="$(jq -r ".streams[1].codec_long_name" "${informationFile}")"
       else
-        warning "Missing video information for '"$f"'.  Inspect with 'ffprobe'."
+        warning "Missing video information for '"$f"'.  Inspecting with 'ffprobe'."
         ffprobe -v quiet -print_format json -show_format -show_streams "${f}"
         safeExit
       fi
@@ -250,7 +267,7 @@ convertVideo() {
         audioSampleRate="$(jq -r ".streams[1].sample_rate" "${informationFile}")"
         audioBitRate="$(jq -r ".streams[1].bit_rate" "${informationFile}")"
       else
-        warning "Missing audio information for '"$f"'.  Inspect with 'ffprobe'."
+        warning "Missing audio information for '"$f"'.  Inspecting with 'ffprobe'."
         ffprobe -v quiet -print_format json -show_format -show_streams "${f}"
         safeExit
       fi
@@ -402,7 +419,9 @@ convertVideo() {
         videoCommand="-c:v libx264 -crf 18 -preset slow"
       fi
 
-      ffmpegCommand # Invoke FFMpeg
+      # Do the conversion
+      # ##########################
+      doConvert # Invoke FFMpeg
 
       # Unset variables
       unset videoCodec
@@ -433,7 +452,6 @@ convertMusic() {
       fi
       test -f "${f}" || continue # Ensure that what we've found is a file
       extension="${f##*.}" # Grab file extension of input file
-      success "format: $extension"
       informationFile="${tmpDir}/${f}.json"
 
       # JSON METADATA FOR EACH ASSET
@@ -441,7 +459,8 @@ convertMusic() {
 
       # Output a JSON file for each video asset being parsed.
       ffprobe -v quiet -print_format json -show_format -show_streams "${f}" >> "${informationFile}"
-      ffprobe -v quiet -print_format json -show_format -show_streams "${f}" >> "${f}.json"
+      # uncomment the line below for debugging.  It will write a json file for each file in the source directory
+      # ffprobe -v quiet -print_format json -show_format -show_streams "${f}" >> "${f}.json"
 
       # Read the necessary information from the JSON
       format="$(jq -r ".format.format_long_name" "${informationFile}")"
@@ -473,18 +492,20 @@ convertMusic() {
       # SET OUTPUT FORMAT
       # Default to 'mp4' for everything.
       # TODO - think through additional defaults
-      ##########################################################
+      # #########################################################
 
       # if you wanted a default target format for a specific input format,
-      # you would put it here.
-      case "${format}" in
-        'QuickTime / MOV') outputFormat='m4a' ;; # Convert Apple formats to ....
+      # you would put it here. Defaults to m4a for everything except ALAC files which
+      # default to FLAC.
+      case "${audioCodec}" in
+        'flac') outputFormat='m4a' ;; # Convert Apple formats to ....
+        'alac') outputFormat='flac' ;; # Convert Apple formats to ...
         *) outputFormat='m4a' ;;
       esac
 
-      # SET AUDIO INFORMATION
+      # SET AUDIO CODECS
       # Copy audio in compatible formats.  Re-encode audio when needed
-      ################################################################
+      # ###############################################################
 
       # Pick the best aac audio encoder
       if $(ffmpeg -version | grep enable-libfdk-aac >/dev/null); then
@@ -494,13 +515,82 @@ convertMusic() {
       fi
 
       # LOSSLESS CONVERSIONS
+      # Performed on any files over 320k
+      #
+      # note on XLD:  If you have XLD installed and configured, lossless audio conversion
+      #               will be run using built-in XLD profiles.  You can disable this by
+      #               changing ensuring that XLD=0 in sections below.
+      # #############################################################
 
-      # FLAC TO ALAC
-      if [[ "${formatName}" == "flac" ]] && [[ "${formatBit_Rate}" -gt "320000" ]]; then
-        audioConvertCommand="-acodec alac"
+      # ffmpeg:   FLAC TO ALAC
+      if [[ "${audioCodec}" == "flac" ]] && [[ "${formatBit_Rate}" -gt "320000" ]]; then
+        if type_exists "xld"; then
+          XLD=1
+          # audioConvertCommand="--profile FLACtoALAC"
+          audioConvertCommand="-f alac"
+        else
+          audioConvertCommand="-acodec alac"
+        fi
       fi
 
-      ffmpegCommand # Run the conversion function
+      # ffmpeg:   ALAC TO FLAC
+      if [[ "${audioCodec}" == "alac" ]] && [[ "${formatBit_Rate}" -gt "320000" ]]; then
+        if type_exists "xld"; then
+          XLD=1
+          audioConvertCommand="-f flac"
+        else
+          audioConvertCommand="-c:a flac"
+        fi
+      fi
+
+      # NON-LOSSLESS CONVERSIONS
+      # ##############################################
+
+      # Define the codec to be used
+      case "${audioCodec}" in
+        'flac') conversionAudioCodec='aac' ;; # Convert Apple formats to ....
+        'mp3') conversionAudioCodec='aac' ;; # Convert Apple formats to ....
+        'alac') conversionAudioCodec='flac' ;; # Convert Apple formats to ...
+        'aac') conversionAudioCodec='aac' ;; # Convert Apple formats to ....
+        *) conversionAudioCodec='aac' ;;
+      esac
+
+      # Take user specified bitrate
+      if [ -n "$bitrate"]; then
+        bitrate="${bitrate%k}/" # Ensure 'k' is at the end of any bitrate sent to ffmpeg
+        ffmpefBitrate="-b:a $bitrate"
+      fi
+
+
+      # Convert to aac
+      if [[ "$conversionAudioCodec" == "aac" ]]; then
+        if type_exists "xld"; then
+          XLD=1
+          audioConvertCommand="-f aac"
+        else
+          audioConvertCommand="-acodec ${aacencoder}"
+        fi
+      fi
+
+      # Convert to mp3
+      # Can we convert to mp3
+      if $(ffmpeg -version | grep enable-libmp3lame >/dev/null); then
+        mp3Encoder='libmp3lame'
+      else
+        warning "No workable ffmpeg mp3 encoder. Skipping ${f}..."
+        breakLoop
+        continue
+      fi
+      if [[ "$conversionAudioCodec" == "mp3" ]]; then
+        audioConvertCommand="-acodec ${mp3Encoder} ${ffmpefBitrate}"
+      fi
+
+
+
+
+      # Do the conversion
+      # ##########################
+      doConvert # Run the conversion function
 
       # Unset variables
       unset format
@@ -631,6 +721,7 @@ while [[ $1 = -?* ]]; do
     --downsize720) downsize720=1 ;;
     --delete) deleteOriginal=1 ;;
     --saveDir) shift; saveDir="$1" ;;
+    --bitrate) shift; bitrate="$1" ;;
 
 
 
