@@ -10,8 +10,8 @@ scriptTemplateVersion="1.1.1" # Version of scriptTemplate.sh that this script is
 #
 # HISTORY:
 #
-# * 2015-03-31 - v1.0.0  - First Creation
-#
+# * 2015-03-31 - v1.0.0  - First creation
+# * 2015-04-07 - v1.1.0  - Added support for music files
 # ##################################################
 
 # Source Scripting Utilities
