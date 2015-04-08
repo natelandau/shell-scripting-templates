@@ -149,25 +149,22 @@ function identifyUserFile() {
   fi
 }
 
+function userFormat() {
+  # Reads user input for format (-o, --output)
+  # Override defaults with CLI
+  if [ -n "$userOutput" ]; then
+    outputFormat="${userOutput,,}"
+  fi
+  verbose "outputFormat=${outputFormat}"
+}
+
 function doConvert() {
 
   # Set the output name, format, and directory
   # ###############################################
 
-  # Override defaults with CLI
-  if [[ -n "$userOutput" ]]; then
-    outputFormat="${userOutput}"
-  fi
-  verbose "outputFormat=${outputFormat}"
-
   # Set output filename
   output="$(basename "${f%.*}").$outputFormat" && verbose "output="${output}""
-
-  # Don't convert to self if no other options set
-  if [[ -z $height && -z $width && -z $videoSize && $downsize720 == "0" && "$outputFormat" == "$extension" ]]; then
-    warning "Can't convert a '"${extension}"' to itself. Skipping all '"${extension}"' files."
-    break
-  fi
 
   # Add users output save directory if used
   if [[ -n "${outputDir}" ]]; then
@@ -185,6 +182,16 @@ function doConvert() {
     fi
   fi
 
+  # Respect the 'Quiet' flag
+  if [[ "${quiet}" == "1" ]]; then
+    ffquiet="-loglevel quiet"
+  fi
+
+  # # Respect the 'logfile' flag
+  # if [[ "${printLog}" ==  "1" ]]; then
+  #   ffmpegLog=">> ${logFile}"
+  # fi
+
   # Invoke the conversion
   # ##################################
 
@@ -201,10 +208,10 @@ function doConvert() {
   else # Use ffmpeg when XLD is set to 0
     # Respect --safe flag.
     if [[ "${safeRun}" == "1" ]]; then
-      notice "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}""
+      notice "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}" ${ffquiet}"
     else
-      verbose "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}""
-      ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}"
+      verbose "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}" ${ffquiet}"
+       ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}" ${ffquiet}
 
       # delete original if requested
       if [[ "${deleteOriginal}" == "1" ]]; then
@@ -421,6 +428,13 @@ convertVideo() {
 
       # Do the conversion
       # ##########################
+
+      # Don't convert to self if no other options set
+      if [[ -z $height && -z $width && -z $videoSize && $downsize720 == "0" && "$outputFormat" == "$extension" ]]; then
+        warning "Can't convert a '"${extension}"' to itself. Skipping all '"${extension}"' files."
+        break
+      fi
+
       doConvert # Invoke FFMpeg
 
       # Unset variables
@@ -453,6 +467,11 @@ convertMusic() {
       test -f "${f}" || continue # Ensure that what we've found is a file
       extension="${f##*.}" # Grab file extension of input file
       informationFile="${tmpDir}/${f}.json"
+
+      # For audio files, ensure that the user specifies an output format
+      if [[ -z ${userOutput} ]]; then
+        die "Please specify an output audio format using '-o, --output'"
+      fi
 
       # JSON METADATA FOR EACH ASSET
       ######################################################################
@@ -490,107 +509,71 @@ convertMusic() {
       fi
 
 
-      # SET OUTPUT FORMAT
-      # Default to 'mp4' for everything.
-      # TODO - think through additional defaults
-      # #########################################################
-
-      # if you wanted a default target format for a specific input format,
-      # you would put it here. Defaults to m4a for everything except ALAC files which
-      # default to FLAC.
-      case "${audioCodec}" in
-        'flac') outputFormat='m4a' ;; # Convert Apple formats to ....
-        'alac') outputFormat='flac' ;; # Convert Apple formats to ...
-        *) outputFormat='m4a' ;;
-      esac
-
-      # SET AUDIO CODECS
-      # Copy audio in compatible formats.  Re-encode audio when needed
-      # ###############################################################
-
-      # Pick the best aac audio encoder
-      if $(ffmpeg -version | grep enable-libfdk-aac >/dev/null); then
-        aacEncoder='libfdk_aac'
-      else
-        aacencoder='libfaac'
-      fi
-
-      # LOSSLESS CONVERSIONS
-      # Performed on any files over 320k
-      #
       # note on XLD:  If you have XLD installed and configured, lossless audio conversion
       #               will be run using built-in XLD profiles.  You can disable this by
       #               changing ensuring that XLD=0 in sections below.
+      #
       # #############################################################
 
-      # ffmpeg:   FLAC TO ALAC
-      if [[ "${audioCodec}" == "flac" ]] && [[ "${formatBit_Rate}" -gt "320000" ]]; then
-        if type_exists "xld"; then
+      # Build the Conversion Command
+      # ########################################
+
+      # FLAC TO ALAC
+      if [[ "${userOutput,,}" == "alac" ]]; then
+        if type_exists "xlds"; then
           XLD=1
           # audioConvertCommand="--profile FLACtoALAC"
-          audioConvertCommand="-f alac"
+          audioConvertCommand="-f alac" && verbose "Using XLD. audioConvertCommand = -f alac"
         else
-          audioConvertCommand="-acodec alac"
+          audioConvertCommand="-acodec alac" && verbose "Using ffmpeg. audioConvertCommand = -acodec alac"
+          outputFormat="m4a"
         fi
-      fi
-
-      # ffmpeg:   ALAC TO FLAC
-      if [[ "${audioCodec}" == "alac" ]] && [[ "${formatBit_Rate}" -gt "320000" ]]; then
-        if type_exists "xld"; then
+      elif [[ "${userOutput,,}" == "flac" ]]; then
+        if type_exists "xlds"; then
           XLD=1
-          audioConvertCommand="-f flac"
+          audioConvertCommand="-f flac" && verbose "Using XLD. audioConvertCommand = -f flac"
         else
-          audioConvertCommand="-c:a flac"
+          audioConvertCommand="-c:a flac" && verbose "Using ffmpeg. audioConvertCommand = -c:a flac"
         fi
-      fi
-
-      # NON-LOSSLESS CONVERSIONS
-      # ##############################################
-
-      # Define the codec to be used
-      case "${audioCodec}" in
-        'flac') conversionAudioCodec='aac' ;; # Convert Apple formats to ....
-        'mp3') conversionAudioCodec='aac' ;; # Convert Apple formats to ....
-        'alac') conversionAudioCodec='flac' ;; # Convert Apple formats to ...
-        'aac') conversionAudioCodec='aac' ;; # Convert Apple formats to ....
-        *) conversionAudioCodec='aac' ;;
-      esac
-
-      # Take user specified bitrate
-      if [ -n "$bitrate"]; then
-        bitrate="${bitrate%k}/" # Ensure 'k' is at the end of any bitrate sent to ffmpeg
-        ffmpefBitrate="-b:a $bitrate"
-      fi
-
-
-      # Convert to aac
-      if [[ "$conversionAudioCodec" == "aac" ]]; then
-        if type_exists "xld"; then
+      elif [[ "${userOutput,,}" == "aac" || "${userOutput,,}" == "m4a" ]]; then
+        # Pick the best aac audio encoder
+        if $(ffmpeg -version | grep enable-libfdk-aac >/dev/null); then
+          # set variable bit rate to '5', the highest
+          aacEncoder='libfdk_aac -vbr 5' && verbose "aacEncoder = libfdk_aac -vbr 5"
+        else
+          aacEncoder='libfaac -q:a 400' && verbose "aacEncoder = libfaac -q:a 400"
+        fi
+        if type_exists "xlds"; then
           XLD=1
-          audioConvertCommand="-f aac"
+          audioConvertCommand="-f aac" && verbose "using xld. audioConvertCommand = -f aac "
         else
-          audioConvertCommand="-acodec ${aacencoder}"
+          audioConvertCommand="-acodec ${aacEncoder}" && verbose "using ffmpeg. audioConvertCommand = -acodec ${aacEncoder}"
         fi
-      fi
-
-      # Convert to mp3
-      # Can we convert to mp3
-      if $(ffmpeg -version | grep enable-libmp3lame >/dev/null); then
-        mp3Encoder='libmp3lame'
+      elif [[ "${userOutput,,}" == "mp3" ]]; then
+        # Can we convert to mp3? Do we have an ffmpeg encoder?
+        if $(ffmpeg -version | grep enable-libmp3lame >/dev/null); then
+          mp3Encoder='libmp3lame' && verbose "mp3Encoder = libmp3lame"
+        else
+          warning "No workable ffmpeg mp3 encoder. Skipping ${f}..."
+          breakLoop
+          continue
+        fi
+        # Take user specified bitrate
+        if [ -n "$bitrate" ]; then
+          bitrate="${bitrate%k}k" # Ensure 'k' is at the end of any bitrate sent to ffmpeg
+          ffmpegBitrate="-b:a $bitrate" && verbose "bitrate = ${bitrate}"
+          audioConvertCommand="-acodec ${mp3Encoder} ${ffmpegBitrate}" && verbose "audioConvertCommand = -acodec ${mp3Encoder} ${ffmpegBitrate}"
+        else
+          audioConvertCommand="-acodec ${mp3Encoder} -qscale:a 0" && verbose "audioConvertCommand = -acodec ${mp3Encoder} -qscale:a 0"
+        fi
       else
-        warning "No workable ffmpeg mp3 encoder. Skipping ${f}..."
-        breakLoop
-        continue
+        die "Unknown audio conversion format: ${outputFormat}"
       fi
-      if [[ "$conversionAudioCodec" == "mp3" ]]; then
-        audioConvertCommand="-acodec ${mp3Encoder} ${ffmpefBitrate}"
-      fi
-
-
 
 
       # Do the conversion
       # ##########################
+
       doConvert # Run the conversion function
 
       # Unset variables
@@ -611,6 +594,7 @@ convertMusic() {
 # Run the functions
 checkDependencies
 identifyUserFile
+userFormat
 outputDir
 convertVideo
 convertMusic
