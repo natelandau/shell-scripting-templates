@@ -137,6 +137,10 @@ function outputDir() {
 }
 
 function identifyUserFile() {
+  if [[ -n "${args}" ]]; then
+    userFile="${args}"
+  fi
+
   if [[ -n "${userFile}" ]]; then
     #test -f "${f}" # Ensure that what we've found is a file
     extension="${userFile##*.}" # Grab file extension of input file
@@ -153,9 +157,8 @@ function userFormat() {
   # Reads user input for format (-o, --output)
   # Override defaults with CLI
   if [ -n "$userOutput" ]; then
-    outputFormat="${userOutput,,}"
+    outputFormat="${userOutput,,}" && verbose "outputFormat=${outputFormat}"
   fi
-  verbose "outputFormat=${outputFormat}"
 }
 
 function doConvert() {
