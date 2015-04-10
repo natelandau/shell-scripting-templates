@@ -130,10 +130,10 @@ RECIPES=(
     github
     google-chrome
     hazel
-    istat-menus
     iterm2
     imagealpha
     imageoptim
+    istat-menus
     java
     joinme
     kaleidoscope
