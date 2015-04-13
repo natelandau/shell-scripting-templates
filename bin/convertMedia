@@ -613,45 +613,64 @@ convertMusic
 usage() {
   echo -n "${scriptName} ${version} [OPTION]... [ARGUMENT]...
 
-This is a master FFMPEG media conversion script.  It will convert audio and video
-into many different formats.  It was written to eliminate the need to remember archaic
-FFMPEG commands.
+${bold}DESCRIPTION${reset}
+This is a media conversion script which converts audio and video into many
+different formats.  It was written to eliminate the need to remember specific
+FFMPEG commands.  All conversions can be performed with ffmpeg.  XLD on a mac
+is used for audio conversions when available.
 
-Default behavior is to parse through directories of files and take actions on multiple
-files at a time.  You can easily specify a specific file to act on if needed.
 
-General Options:
-  -h, --help        Display this help and exit
-  -d, --debug       Runs script in BASH debug mode ('set -x')
-      --force       Skip all user interaction.  Implied 'Yes' to all actions.
-  -l, --log         Print log to file
-  -q, --quiet       Quiet (no output)
-  -v, --verbose     Output more information. (Items echoed to 'verbose')
-      --safe        Runs the script without actually invoking FFMPEG.  Will simply print
+${bold}General Options:${reset}
+  ${bold}-h, --help${reset}        Display this help and exit
+  ${bold}-d, --debug${reset}       Runs script in BASH debug mode ('set -x')
+      ${bold}--force${reset}       Skip all user interaction.  Implied 'Yes' to all actions.
+  ${bold}-l, --log${reset}         Print log to file
+  ${bold}-q, --quiet${reset}       Quiet (no output)
+  ${bold}-v, --verbose${reset}     Output more information. (Items echoed to 'verbose')
+     ${bold} --safe${reset}        Runs the script without actually invoking FFMPEG.  Will simply print
                     the FFMPEG commands to the terminal
-      --version     Output version information and exit
+      ${bold}--version${reset}     Output version information and exit
 
-File Options:
-  -f, --file        Specify a specific file to take actions on.
-  -i, --input       Specify the specific media type to search for and take action
+${bold}File Options:${reset}
+  ${bold}-f, --file${reset}        Specify a specific file to take actions on.
+  ${bold}-i, --input${reset}       Specify the specific media type to search for and take action
                     on. ('mov', 'mp4', 'mp3')
-  -o, --output      Specify the output format for the file(s) to be converted to.
+  ${bold}-o, --output${reset}      Specify the output format for the file(s) to be converted to.
                     ('mkv', 'mp4', 'm4a')
-      --delete      Delete the original file after conversion.
-      --saveDir     Specify a folder for the converted files to be saved to.  Defaults to
+      ${bold}--delete ${reset}     Delete the original file after conversion.
+      ${bold}--saveDir${reset}     Specify a folder for the converted files to be saved to.  Defaults to
                     the directory the script is invoked in.
 
-Video Specific Options:
-      --size        Set the size of the target file.  Can be one of 'hd1080', 'hd720',
+${bold}Video Specific Options:${reset}
+For video files, if no output format is specified, the script will attempt to convert every
+video file it finds in the directory into h264 .mp4 format.
+
+      ${bold}--size${reset}        Set the size of the target file.  Can be one of 'hd1080', 'hd720',
                     or 'HeightxWidth' (ie. 1920x1080)
-      --height      Set a height in pixels to scale the target file.
-      --width       Set a width in pixels to scale the target file.
-      --downsize720 Searches for 1080p videos and downsizes them to 720p. No need
+      ${bold}--height${reset}      Set a height in pixels to scale the target file.
+      ${bold}--width${reset}       Set a width in pixels to scale the target file.
+      ${bold}--downsize720${reset} Searches for 1080p videos and downsizes them to 720p. No need
                     for other scaling options. Used to reduce the size of video collections
                     when quality is not the primary need.
 
-Audio Specific Options:
-      --bitrate     Set a bit rate for audio conversions.
+${bold}Audio Specific Options:${reset}
+      ${bold}--bitrate${reset}     Set a bit rate for audio conversions.
+
+
+${bold}EXAMPLES:${reset}
+Search for all *.flac files in a directory and convert them to
+Apple Lossless (alac).  Once the conversion is complete, original files
+will be deleted.
+
+    $ convertMedia -i flac -o alac --delete
+
+Convert all 1080p mkv files in a directory to 720p.
+
+    $ convertMedia -i mkv --downsize720
+
+Convert a Windows Media file (WMV) to H264 (mp4).
+
+    $ convertMedia -f file.wmv -o mp4
 
 "
 }
