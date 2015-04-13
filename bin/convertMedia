@@ -88,7 +88,7 @@ function mainScript() {
 ####################################################
 
 # Constants
-dependencies=(ffmpeg gifsicle jq)
+dependencies=(ffmpeg jq)
 videoTypes=(mp4 mov avi mkv wmv flv ogg m4p m4v 3gp divx h264)
 audioTypes=(mp3 avi m4a aiff aac m4p wav wma flac)
 
@@ -105,8 +105,18 @@ fi
 function checkDependencies() {
   for i in "${dependencies[@]}"; do
     if type_not_exists "${i}"; then
-      die "Can not proceed without '${i}'. Please install it before rerunning this script."
-    fi
+      # Attempt to install necessary packages via Homebrew if invoked on a Mac
+      if [[ "${OSTYPE}" =~ ^darwin ]]; then
+        hasHomebrew  # Installs Homebrew and all dependencies if needed.
+        if [[ "${i}" == "ffmpeg" ]]; then # install ffmpeg with all packages
+          brew install ffmpeg --with-fdk-aac --with-ffplay --with-freetype --with-libcaca --with-libass --with-frei0r --with-libquvi --with-libvidstab --with-libvo-aacenc --with-libvorbis --with-libvpx --with-opencore-amr --with-openjpeg --with-openssl --with-opus --with-rtmpdump --with-schroedinger --with-speex --with-theora --with-tools --with-x265
+        else
+          brew install ${i}  #install anything else needed
+        fi
+      else
+        die "Can not proceed without '${i}'. Please install it before running this script."
+      fi # /OStype
+    fi # not type $i
   done
 }
 
@@ -223,7 +233,6 @@ function doConvert() {
     fi
   fi
 }
-
 
 convertVideo() {
   for vt in "${videoTypes[@]}"; do
@@ -619,6 +628,13 @@ different formats.  It was written to eliminate the need to remember specific
 FFMPEG commands.  All conversions can be performed with ffmpeg.  XLD on a mac
 is used for audio conversions when available.
 
+${BOLD}DEPENDENCIES${reset}
+This script makes heavy use of shared functions contained in ${bold}lib/utils.sh${reset} which are
+available as part of the same Github repository.  It will fail if these are not found.
+
+This script relies on ${bold}ffmpeg${reset} for video and audio conversion as well as ${bold}jq${reset}
+for parsing JSON files.  These must be installed prior to usage. If run on a
+mac, the script will attempt to help you install these packages using ${bold}Homebrew${reset}.
 
 ${bold}General Options:${reset}
   ${bold}-h, --help${reset}        Display this help and exit
@@ -634,7 +650,7 @@ ${bold}General Options:${reset}
 ${bold}File Options:${reset}
   ${bold}-f, --file${reset}        Specify a specific file to take actions on.
   ${bold}-i, --input${reset}       Specify the specific media type to search for and take action
-                    on. ('mov', 'mp4', 'mp3')
+                    on. (mov', 'mp4', 'mp3')
   ${bold}-o, --output${reset}      Specify the output format for the file(s) to be converted to.
                     ('mkv', 'mp4', 'm4a')
       ${bold}--delete ${reset}     Delete the original file after conversion.
