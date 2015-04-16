@@ -3,27 +3,14 @@
 # ##################################################
 # My Generic BASH script template
 #
-version="1.1.1"               # Sets version variable for this script
+version="1.0.0"               # Sets version variable for this script
 #
-scriptTemplateVersion="1.1.1" # Version of scriptTemplate.sh that this script is based on
+scriptTemplateVersion="1.2.0" # Version of scriptTemplate.sh that this script is based on
 #                               v.1.1.0 - Added 'debug' option
 #                               v.1.1.1 - Moved all shared variables to Utils
 #                                       - Added $PASS variable when -p is passed
-#
-# A Bash script boilerplate.  Allows for common functions, logging, tmp
-# file creation, CL option passing, and more.
-#
-# For logging levels use the following functions:
-#   - header:   Prints a script header
-#   - input:    Ask for user input
-#   - success:  Print script success
-#   - info:     Print information to the user
-#   - notice:   Notify the user of something
-#   - warning:  Warn the user of something
-#   - error:    Print a non-fatal error
-#   - die:      A fatal error.  Will exit the script
-#   - debug:    Debug information
-#   - verbose:  Debug info only printed when 'verbose' flag is set to 'true'.
+#                               v.1.2.0 - Added 'checkDependencies' function to ensure needed
+#                                         Bash packages are installed prior to execution
 #
 # HISTORY:
 #
@@ -88,6 +75,14 @@ tmpDir="/tmp/${scriptName}.$RANDOM.$RANDOM.$RANDOM.$$"
 # -----------------------------------
 logFile="$HOME/Library/Logs/${scriptBasename}.log"
 
+# Check for Dependencies
+# -----------------------------------
+# Arrays containing package dependencies needed to execute this script.
+# The script will fail if dependencies are not installed.  For Mac users,
+# most dependencies can be installed automatically using the package
+# manager 'Homebrew'.
+# -----------------------------------
+bashDependencies=()
 
 function mainScript() {
 ############## Begin Script Here ###################
@@ -111,7 +106,7 @@ This is my script template.
  Options:
   -u, --username    Username for script
   -p, --password    User password
-  --force       Skip all user interaction.  Implied 'Yes' to all actions.
+  --force           Skip all user interaction.  Implied 'Yes' to all actions.
   -q, --quiet       Quiet (no output)
   -l, --log         Print log to file
   -s, --strict      Exit script with null variables.  i.e 'set -o nounset'
@@ -166,8 +161,8 @@ unset options
 while [[ $1 = -?* ]]; do
   case $1 in
     -h|--help) usage >&2; safeExit ;;
-    --version) echo "$(basename $0) $version"; safeExit ;;
-    -u|--username) shift; username=$1 ;;
+    --version) echo "$(basename $0) ${version}"; safeExit ;;
+    -u|--username) shift; username=${1} ;;
     -p|--password) shift; echo "Enter Pass: "; stty -echo; read PASS; stty echo;
       echo ;;
     -v|--verbose) verbose=1 ;;
@@ -215,6 +210,8 @@ fi
 # Bash will remember & return the highest exitcode in a chain of pipes.
 # This way you can catch the error in case mysqldump fails in `mysqldump |gzip`, for example.
 set -o pipefail
+
+checkDependencies # Invoke the checkDependenices function to test for Bash packages
 
 mainScript # Run your script
 
