@@ -7,7 +7,8 @@
 #
 # HISTORY
 #
-# * 2015-01-02 - v1.0.0  - First Creation
+# * 2015-01-02 - v1.0.0   - First Creation
+# * 2015-04-16 - v1.2.0   - Added 'checkDependencies' and 'pauseScript'
 #
 # ##################################################
 
@@ -323,3 +324,64 @@ function help () {
   echo "" 1>&2
   exit 1
 }
+
+# Dependencies
+# -----------------------------------
+# Arrays containing package dependencies needed to execute this script.
+# The script will fail if dependencies are not installed.  For Mac users,
+# most dependencies can be installed automatically using the package
+# manager 'Homebrew'.
+# Usage in script:  $ bashDependencies=(package1 package2)
+# -----------------------------------
+
+function checkDependencies() {
+  # Check bashDependencies
+  for dependency in "${bashDependencies[@]}"; do
+    if type_not_exists "${dependency}"; then
+      # Attempt to install necessary packages via Homebrew if invoked on a Mac
+      if [[ "${OSTYPE}" =~ ^darwin ]]; then
+        seek_confirmation "We can not proceed without '${dependency}'. Would you like to install it via Homebrew?"
+        if is_confirmed; then
+          hasHomebrew  # Installs Homebrew and all dependencies if needed.
+          if [[ "${dependency}" == "ffmpeg" ]]; then # install ffmpeg with all packages
+            brew install ffmpeg --with-fdk-aac --with-ffplay --with-freetype --with-libcaca --with-libass --with-frei0r --with-libquvi --with-libvidstab --with-libvo-aacenc --with-libvorbis --with-libvpx --with-opencore-amr --with-openjpeg --with-openssl --with-opus --with-rtmpdump --with-schroedinger --with-speex --with-theora --with-tools --with-x265
+          else
+            brew install "${dependency}"  #install anything else needed
+          fi
+        else
+          die "Can not proceed without '${dependency}'. Please install it before running this script."
+        fi
+      else
+        die "Can not proceed without '${dependency}'. Please install it before running this script."
+      fi # /OStype
+    fi # not type $dependency
+  done
+}
+
+# pauseScript
+# -----------------------------------
+# A simple function used to pause a script at any point and
+# only continue on user input
+# -----------------------------------
+
+function pauseScript() {
+  seek_confirmation "Ready to continue?"
+  if is_confirmed; then
+    info "Continuing"
+  fi
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
