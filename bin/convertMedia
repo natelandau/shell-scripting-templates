@@ -3,9 +3,9 @@
 # ##################################################
 # My Generic BASH script template
 #
-version="1.0.0"               # Sets version variable for this script
+version="1.1.0"               # Sets version variable for this script
 #
-scriptTemplateVersion="1.1.1" # Version of scriptTemplate.sh that this script is based on
+scriptTemplateVersion="1.2.0" # Version of scriptTemplate.sh that this script is based on
 #
 #
 # HISTORY:
@@ -76,49 +76,22 @@ tmpDir="/tmp/${scriptName}.$RANDOM.$RANDOM.$RANDOM.$$"
 # -----------------------------------
 logFile="$HOME/Library/Logs/${scriptBasename}.log"
 
-function pauseScript() {
-  seek_confirmation "Ready to continue?"
-  if is_confirmed; then
-    info "Continuing"
-  fi
-}
+# Check for Dependencies
+# -----------------------------------
+# Arrays containing package dependencies needed to execute this script.
+# The script will fail if dependencies are not installed.  For Mac users,
+# most dependencies can be installed automatically using the package
+# manager 'Homebrew'.
+# -----------------------------------
+bashDependencies=(ffmpeg jq)
 
 function mainScript() {
 ############## Begin Script Here ###################
 ####################################################
 
-# Constants
-dependencies=(ffmpeg jq)
+# file extension mappings - ie - are we working with a video or music file....
 videoTypes=(mp4 mov avi mkv wmv flv ogg m4p m4v 3gp divx h264)
 audioTypes=(mp3 avi m4a aiff aac m4p wav wma flac)
-
-# If a user specifies a single file type extension, respect it.
-if [ -n "${MEDIATYPE}" ]; then
-  if [[ "${videoTypes[*]}" =~ "${MEDIATYPE}" ]]; then
-    videoTypes=($MEDIATYPE) # Reset the video type array to user-input, if specified
-  fi
-  if [[ "${audioTypes[*]}" =~ "${MEDIATYPE}" ]]; then
-    audioTypes=($MEDIATYPE) # Reset the audio type array to user-input, if specified
-  fi
-fi
-
-function checkDependencies() {
-  for i in "${dependencies[@]}"; do
-    if type_not_exists "${i}"; then
-      # Attempt to install necessary packages via Homebrew if invoked on a Mac
-      if [[ "${OSTYPE}" =~ ^darwin ]]; then
-        hasHomebrew  # Installs Homebrew and all dependencies if needed.
-        if [[ "${i}" == "ffmpeg" ]]; then # install ffmpeg with all packages
-          brew install ffmpeg --with-fdk-aac --with-ffplay --with-freetype --with-libcaca --with-libass --with-frei0r --with-libquvi --with-libvidstab --with-libvo-aacenc --with-libvorbis --with-libvpx --with-opencore-amr --with-openjpeg --with-openssl --with-opus --with-rtmpdump --with-schroedinger --with-speex --with-theora --with-tools --with-x265
-        else
-          brew install ${i}  #install anything else needed
-        fi
-      else
-        die "Can not proceed without '${i}'. Please install it before running this script."
-      fi # /OStype
-    fi # not type $i
-  done
-}
 
 function breakLoop() {
   # Break the for loop when a user specifies a file from the CLI.
@@ -147,6 +120,16 @@ function outputDir() {
 }
 
 function identifyUserFile() {
+  # If a user specifies a single file type extension, respect it.
+  if [ -n "${MEDIATYPE}" ]; then
+    if [[ "${videoTypes[*]}" =~ "${MEDIATYPE}" ]]; then
+      videoTypes=($MEDIATYPE) # Reset the video type array to user-input, if specified
+    fi
+    if [[ "${audioTypes[*]}" =~ "${MEDIATYPE}" ]]; then
+      audioTypes=($MEDIATYPE) # Reset the audio type array to user-input, if specified
+    fi
+  fi
+
   if [[ -n "${args}" ]]; then
     userFile="${args}"
   fi
@@ -604,7 +587,6 @@ convertMusic() {
 }
 
 # Run the functions
-checkDependencies
 identifyUserFile
 userFormat
 outputDir
@@ -796,6 +778,8 @@ fi
 # Bash will remember & return the highest exitcode in a chain of pipes.
 # This way you can catch the error in case mysqldump fails in `mysqldump |gzip`, for example.
 set -o pipefail
+
+checkDependencies # Invoke the checkDependenices function to test for Bash packages
 
 mainScript # Run your script
 
