@@ -130,6 +130,7 @@ RECIPES=(
     github
     google-chrome
     hazel
+    houdahgeo
     iterm2
     imagealpha
     imageoptim
