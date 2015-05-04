@@ -143,6 +143,7 @@ RECIPES=(
   ssh-copy-id
   sqlite
   tag
+  terminal-notifier
   tree
   unison
   z
