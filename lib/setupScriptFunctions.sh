@@ -56,7 +56,7 @@ brewMaintenance () {
   if is_confirmed; then
     brew doctor
     brew update
-    brew upgrade
+    brew upgrade --all
   fi
 }
 
