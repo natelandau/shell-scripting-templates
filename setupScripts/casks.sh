@@ -146,6 +146,7 @@ RECIPES=(
     moom
     nvalt
     omnifocus
+    omnifocus-clip-o-tron
     1password
     plex-home-theater
     qlcolorcode
