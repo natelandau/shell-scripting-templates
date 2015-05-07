@@ -226,7 +226,7 @@ convertVideo() {
       fi
       test -f "${f}" || continue # Ensure that what we've found is a file
       extension="${f##*.}" # Grab file extension of input file
-      informationFile="${tmpDir}/${f}.json"
+      informationFile="${tmpDir}/${f////.}.json"
 
       # JSON METADATA FOR EACH ASSET
       ######################################################################
@@ -252,6 +252,11 @@ convertVideo() {
         videoWidth="$(jq -r ".streams[1].width" "${informationFile}")"
         videoCodec="$(jq -r '.streams[1].codec_name' "${informationFile}")"
         videoCodecLong="$(jq -r ".streams[1].codec_long_name" "${informationFile}")"
+      elif [ $(jq -r ".streams[2].codec_type" "${informationFile}") == "video" ]; then
+        videoHeight="$(jq -r ".streams[2].height" "${informationFile}")"
+        videoWidth="$(jq -r ".streams[2].width" "${informationFile}")"
+        videoCodec="$(jq -r '.streams[2].codec_name' "${informationFile}")"
+        videoCodecLong="$(jq -r ".streams[2].codec_long_name" "${informationFile}")"
       else
         warning "Missing video information for '"$f"'.  Inspecting with 'ffprobe'."
         ffprobe -v quiet -print_format json -show_format -show_streams "${f}"
@@ -267,6 +272,11 @@ convertVideo() {
         audioCodecLong="$(jq -r ".streams[1].codec_long_name" "${informationFile}")"
         audioSampleRate="$(jq -r ".streams[1].sample_rate" "${informationFile}")"
         audioBitRate="$(jq -r ".streams[1].bit_rate" "${informationFile}")"
+      elif [ $(jq -r ".streams[2].codec_type" "${informationFile}") == "audio" ]; then
+        audioCodec="$(jq -r '.streams[2].codec_name' "${informationFile}")"
+        audioCodecLong="$(jq -r ".streams[2].codec_long_name" "${informationFile}")"
+        audioSampleRate="$(jq -r ".streams[2].sample_rate" "${informationFile}")"
+        audioBitRate="$(jq -r ".streams[2].bit_rate" "${informationFile}")"
       else
         warning "Missing audio information for '"$f"'.  Inspecting with 'ffprobe'."
         ffprobe -v quiet -print_format json -show_format -show_streams "${f}"
@@ -461,7 +471,7 @@ convertMusic() {
       fi
       test -f "${f}" || continue # Ensure that what we've found is a file
       extension="${f##*.}" # Grab file extension of input file
-      informationFile="${tmpDir}/${f}.json"
+      informationFile="${tmpDir}/${f////.}.json"
 
       # For audio files, ensure that the user specifies an output format
       if [[ -z ${userOutput} ]]; then
@@ -652,8 +662,8 @@ video file it finds in the directory into h264 .mp4 format.
                     when quality is not the primary need.
 
 ${bold}Audio Specific Options:${reset}
-      ${bold}--bitrate${reset}     Set a bit rate for audio conversions.
-
+      ${bold}--bitrate${reset}     Set a bit rate for audio conversions.  Note, this does not
+                    effect video conversions.
 
 ${bold}EXAMPLES:${reset}
 Search for all *.flac files in a directory and convert them to
@@ -727,9 +737,6 @@ while [[ $1 = -?* ]]; do
     --delete) deleteOriginal=1 ;;
     --saveDir) shift; saveDir="$1" ;;
     --bitrate) shift; bitrate="$1" ;;
-
-
-
     -h|--help) usage >&2; safeExit ;;
     --force) force=1 ;;
     --version) echo "$(basename $0) $version"; safeExit ;;
