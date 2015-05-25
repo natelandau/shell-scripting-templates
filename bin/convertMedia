@@ -83,7 +83,7 @@ logFile="$HOME/Library/Logs/${scriptBasename}.log"
 # most dependencies can be installed automatically using the package
 # manager 'Homebrew'.
 # -----------------------------------
-bashDependencies=(ffmpeg jq)
+homebrewDependencies=(ffmpeg jq)
 
 function mainScript() {
 ############## Begin Script Here ###################
@@ -91,7 +91,7 @@ function mainScript() {
 
 # file extension mappings - ie - are we working with a video or music file....
 videoTypes=(mp4 mov avi mkv wmv flv ogg m4p m4v 3gp divx h264)
-audioTypes=(mp3 avi m4a aiff aac m4p wav wma flac)
+audioTypes=(mp3 m4a aiff aac m4p wav wma flac)
 
 function breakLoop() {
   # Break the for loop when a user specifies a file from the CLI.
@@ -242,17 +242,17 @@ convertVideo() {
       format="$(jq -r ".format.format_long_name" "${informationFile}")"
       formatName="$(jq -r ".format.format_name" "${informationFile}")"
 
-      if [ $(jq -r ".streams[0].codec_type" "${informationFile}") == "video" ]; then
+      if [[ $(jq -r ".streams[0].codec_type" "${informationFile}") == "video" ]]; then
         videoHeight="$(jq -r ".streams[0].height" "${informationFile}")"
         videoWidth="$(jq -r ".streams[0].width" "${informationFile}")"
         videoCodec="$(jq -r '.streams[0].codec_name' "${informationFile}")"
         videoCodecLong="$(jq -r ".streams[0].codec_long_name" "${informationFile}")"
-      elif [ $(jq -r ".streams[1].codec_type" "${informationFile}") == "video" ]; then
+      elif [[ $(jq -r ".streams[1].codec_type" "${informationFile}") == "video" ]]; then
         videoHeight="$(jq -r ".streams[1].height" "${informationFile}")"
         videoWidth="$(jq -r ".streams[1].width" "${informationFile}")"
         videoCodec="$(jq -r '.streams[1].codec_name' "${informationFile}")"
         videoCodecLong="$(jq -r ".streams[1].codec_long_name" "${informationFile}")"
-      elif [ $(jq -r ".streams[2].codec_type" "${informationFile}") == "video" ]; then
+      elif [[ $(jq -r ".streams[2].codec_type" "${informationFile}") == "video" ]]; then
         videoHeight="$(jq -r ".streams[2].height" "${informationFile}")"
         videoWidth="$(jq -r ".streams[2].width" "${informationFile}")"
         videoCodec="$(jq -r '.streams[2].codec_name' "${informationFile}")"
@@ -492,17 +492,17 @@ convertMusic() {
       formatName="$(jq -r ".format.format_name" "${informationFile}")"
       formatBit_Rate="$(jq -r ".format.bit_rate" "${informationFile}")"
 
-      if [ $(jq -r ".streams[0].codec_type" "${informationFile}") == "audio" ]; then
+      if [[ $(jq -r ".streams[0].codec_type" "${informationFile}") == "audio" ]]; then
         audioCodec="$(jq -r '.streams[0].codec_name' "${informationFile}")"
         audioCodecLong="$(jq -r ".streams[0].codec_long_name" "${informationFile}")"
         audioSampleRate="$(jq -r ".streams[0].sample_rate" "${informationFile}")"
         audioBitRate="$(jq -r ".streams[0].bit_rate" "${informationFile}")"
-      elif [ $(jq -r ".streams[1].codec_type" "${informationFile}") == "audio" ]; then
+      elif [[ $(jq -r ".streams[1].codec_type" "${informationFile}") == "audio" ]]; then
         audioCodec="$(jq -r '.streams[1].codec_name' "${informationFile}")"
         audioCodecLong="$(jq -r ".streams[1].codec_long_name" "${informationFile}")"
         audioSampleRate="$(jq -r ".streams[1].sample_rate" "${informationFile}")"
         audioBitRate="$(jq -r ".streams[1].bit_rate" "${informationFile}")"
-      elif [ $(jq -r ".streams[2].codec_type" "${informationFile}") == "audio" ]; then
+      elif [[ $(jq -r ".streams[2].codec_type" "${informationFile}") == "audio" ]]; then
         audioCodec="$(jq -r '.streams[2].codec_name' "${informationFile}")"
         audioCodecLong="$(jq -r ".streams[2].codec_long_name" "${informationFile}")"
         audioSampleRate="$(jq -r ".streams[2].sample_rate" "${informationFile}")"

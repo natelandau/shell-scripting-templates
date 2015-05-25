@@ -331,12 +331,12 @@ function help () {
 # The script will fail if dependencies are not installed.  For Mac users,
 # most dependencies can be installed automatically using the package
 # manager 'Homebrew'.
-# Usage in script:  $ bashDependencies=(package1 package2)
+# Usage in script:  $ homebrewDependencies=(package1 package2)
 # -----------------------------------
 
 function checkDependencies() {
   # Check bashDependencies
-  for dependency in "${bashDependencies[@]}"; do
+  for dependency in "${homebrewDependencies[@]}"; do
     if type_not_exists "${dependency}"; then
       # Attempt to install necessary packages via Homebrew if invoked on a Mac
       if [[ "${OSTYPE}" =~ ^darwin ]]; then
