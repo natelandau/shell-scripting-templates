@@ -36,7 +36,7 @@ And constructed with the following guidelines:
 For more information on SemVer, please visit [SemVer][7].
 
 ## A Note on Code Reuse
-The scripts herein were created by me over many years without ever having the intention to make them public.  As a novice programmer, I have Googled, GitHubbed, and StackExchanged a path to solve my own scripting needs.  Quite often I would lift a function whole-cloth from a GitHub repo and not keep track of it's original location.  I have done my best within the scripts to recreate my footsteps and give credit to the original creators of the code when possible.  Unfortunately, I fear that I missed as many as I found.  My goal of making these scripts public is not to take credit for the wonderful code written by others.
+The scripts herein were created by me over many years without ever having the intention to make them public.  As a novice programmer, I have Googled, GitHubbed, and StackExchanged a path to solve my own scripting needs.  Quite often I would lift a function whole-cloth from a GitHub repo and not keep track of it's original location.  I have done my best within the scripts to recreate my footsteps and give credit to the original creators of the code when possible.  Unfortunately, I fear that I missed as many as I found.  My goal of making these scripts public is not to take credit for the wonderful code written by others.  If you recognize or wrote something here that I didn't credit, please let me know.
 
 [1]: http://brew.sh
 [2]: http://caskroom.io
