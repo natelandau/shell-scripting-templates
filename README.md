@@ -5,24 +5,23 @@ This is the centralized repository of all the shell scripts which I use for a nu
 
 ## What's here
 
-* **etc/** - Many of my scripts and shared functions call for configuration files.  These configs are saved here. More information is in the folder's `README`.
-* **lib/** - My shared scripting libraries that are used throughout my other scripts.  More information is in the folder's `README`.
-* **macControl/** - A collection of Scripts used by Mac applications.  For example: Allow [ControlPlane][8] to run a key command.
-* **setupScripts/** - This directory contains my scripts that configure new computers from scratch.  Detailed information is in the folder's `README`.These scripts perform such tasks as:
+* **etc/** - Many of my scripts and shared functions call for configuration files.  These configs are saved here.
+* **lib/** - Shared functions and libraries that are used throughout the scripts.
+* **setupScripts/** - Scripts that configure new Mac computers from scratch.  These scripts perform such tasks as:
 	* Insalling [Homebrew][1] & associated packages
 	* Installing mac applications using [Homebrew Cask][2]
-	* Configuring OSX
+	* Configuring OSX to my liking
 	* Syncing user preferences and files using [Mackup][3]
 	* Installing [RVM][4] and associated Gems
 	* Pushing a new SSH key to Github
-* **syncScripts/** - I use [RSYNC][5] and [Unison][6] all the time to sync various computers, drives, and servers.  More information is in the folder's `README`.
+* **syncScripts/** - Scripts which use [RSYNC][5] and [Unison][6] to keep different directories and computers in sync. 
 
 ## Usage
-Each of the directories has its own README file which describes in more depth how to use the script(s) contained within.  Most of the scripts here won't work without the scripting utilities in `lib/`.
+Each of the directories has its own `README` describing in more depth how to use the files contained within.  Most of the scripts here won't work without the scripting utilities in `lib/`.
 
 ## Versioning
 
-This project implements the Semantic Versioning guidelines.
+This project implements the [Semantic Versioning][7] guidelines.
 
 Releases will be numbered with the following format:
 
@@ -35,6 +34,9 @@ And constructed with the following guidelines:
 * Bug fixes and misc changes bumps the patch
 
 For more information on SemVer, please visit [SemVer][7].
+
+## A Note on Code Reuse
+The scripts herein were created by me over many years without ever having the intention to make them public.  As a novice programmer, I have Googled, GitHubbed, and StackExchanged a path to solve my own scripting needs.  Quite often I would lift a function whole-cloth from a GitHub repo and not keep track of it's original location.  I have done my best within the scripts to recreate my footsteps and give credit to the original creators of the code when possible.  Unfortunately, I fear that I missed as many as I found.  My goal of making these scripts public is not to take credit for the wonderful code written by others.
 
 [1]: http://brew.sh
 [2]: http://caskroom.io
