@@ -9,7 +9,7 @@ scriptTemplateVersion="1.3.0" # Version of scriptTemplate.sh that this script is
 #                               v.1.1.0 - Added 'debug' option
 #                               v.1.1.1 - Moved all shared variables to Utils
 #                                       - Added $PASS variable when -p is passed
-#                               v.1.2.0 - Added 'homebrewDependencies' function to ensure needed
+#                               v.1.2.0 - Added 'checkDependencies' function to ensure needed
 #                                         Bash packages are installed prior to execution
 #                               v.1.3.0 - Can now pass CLI without an option to $args
 #
