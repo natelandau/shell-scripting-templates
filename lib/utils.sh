@@ -118,21 +118,3 @@ do
     die "${file} does not exist."
   fi
 done
-
-
-# Notes to self
-# ####################
-# This is how you create a variable with multiple lines
-# read -d '' String <<"EOF"
-#   one
-#   two
-#   three
-#   four
-# EOF
-# echo ${String}
-#
-#   # How to get a script name
-# scriptLocation="${0}"
-# scriptFile="${scriptLocation##*/}"
-# scriptName="${scriptFile%.*}"
-# echo "${scriptName}"
