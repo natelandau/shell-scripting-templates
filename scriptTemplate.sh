@@ -19,13 +19,20 @@ scriptTemplateVersion="1.3.0" # Version of scriptTemplate.sh that this script is
 #
 # ##################################################
 
+# Provide a variable with the location of this script.
+scriptPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 # Source Scripting Utilities
 # -----------------------------------
-# If these can't be found, update the path to the file
+# These shared utilities provide many functions which are needed to provide
+# the functionality in this boilerplate. This script will fail if they can
+# not be found.
 # -----------------------------------
-scriptPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-if [ -f "${scriptPath}/lib/utils.sh" ]; then
-  source "${scriptPath}/lib/utils.sh"
+
+utilsLocation="${scriptPath}/lib/utils.sh" # Update this path to find the utilities.
+
+if [ -f "${utilsLocation}" ]; then
+  source "${utilsLocation}"
 else
   echo "Please find the file util.sh and add a reference to it in this script. Exiting."
   exit 1
