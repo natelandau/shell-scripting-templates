@@ -10,9 +10,9 @@ This script must be sourced from all my additional scripts.  Contained within th
 	* **notice** - prints a notice to the user
 	* **info** - prints information to the user
 	* **debug** - prints debug information.  This output hidden unless scripts are run with the verbose (`-v`) flag
-	* success - prints success to a user
-	* input - Asks the user for input
-	* header - Prints a header to help format logs
+	* **success** - prints success to a user
+	* **input** - Asks the user for input
+	* **header** - Prints a header to help format logs
 2. **Sourcing Additional Files** - This script reads a list of additional files and sources them.
 
 # setupScriptFunctions.sh
