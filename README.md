@@ -45,7 +45,7 @@ This is a bash script boilerplate template that I use to create all my scripts. 
 * Writing logs
 * Checking for dependecies (i.e. - ffmpeg or rsync)
 * Passing options from the command line
-* Printing usage information when '-h' is passed
+* Printing usage information when `-h` is passed
 
 ## Usage
 To use the bash boilerplate for your own script follow these steps.
