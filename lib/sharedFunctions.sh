@@ -299,7 +299,7 @@ function skip() {
 # unmountDrive
 # ------------------------------------------------------
 # If an AFP drive is mounted as part of a script, this
-# will unmount the volume.
+# will unmount the volume.  This will only work on Macs.
 # ------------------------------------------------------
 function unmountDrive() {
   if [ -d "$1" ]; then
@@ -344,7 +344,7 @@ function checkDependencies() {
         if is_confirmed; then
           hasHomebrew  # Installs Homebrew and all dependencies if needed.
           if [[ "${dependency}" == "ffmpeg" ]]; then # install ffmpeg with all packages
-            brew install ffmpeg --with-fdk-aac --with-ffplay --with-freetype --with-libcaca --with-libass --with-frei0r --with-libquvi --with-libvidstab --with-libvo-aacenc --with-libvorbis --with-libvpx --with-opencore-amr --with-openjpeg --with-openssl --with-opus --with-rtmpdump --with-schroedinger --with-speex --with-theora --with-tools --with-x265
+            brew install ffmpeg --with-faac --with-fdk-aac --with-ffplay --with-fontconfig --with-freetype --with-libcaca --with-libass --with-frei0r --with-libass --with-libbluray --with-libcaca --with-libquvi --with-libvidstab --with-libsoxr --with-libssh --with-libvo-aacenc --with-libvidstab --with-libvorbis --with-libvpx --with-opencore-amr --with-openjpeg --with-openssl --with-opus --with-rtmpdump --with-schroedinger --with-speex --with-theora --with-tools --with-webp --with-x265
           else
             brew install "${dependency}"  #install anything else needed
           fi
