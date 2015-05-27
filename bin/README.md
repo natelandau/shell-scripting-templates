@@ -1,4 +1,3 @@
-# Executables
 This directory contains executable scripts which are run on a day to day basis. To invoke these scripts from anywhere be sure to [add this directory to your PATH][1]
 
 # convertMedia Script
