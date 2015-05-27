@@ -3,14 +3,15 @@
 # ##################################################
 # My Generic BASH script template
 #
-version="1.0.0"               # Sets version variable for this script
+version="1.0.0"               # Sets version variable
 #
-scriptTemplateVersion="1.2.0" # Version of scriptTemplate.sh that this script is based on
+scriptTemplateVersion="1.3.0" # Version of scriptTemplate.sh that this script is based on
 #                               v.1.1.0 - Added 'debug' option
 #                               v.1.1.1 - Moved all shared variables to Utils
 #                                       - Added $PASS variable when -p is passed
-#                               v.1.2.0 - Added 'checkDependencies' function to ensure needed
+#                               v.1.2.0 - Added 'homebrewDependencies' function to ensure needed
 #                                         Bash packages are installed prior to execution
+#                               v.1.3.0 - Can now pass CLI without an option to $args
 #
 # HISTORY:
 #
@@ -54,6 +55,7 @@ verbose=0
 force=0
 strict=0
 debug=0
+args=()
 
 # Set Temp Directory
 # -----------------------------------
@@ -82,7 +84,7 @@ logFile="$HOME/Library/Logs/${scriptBasename}.log"
 # most dependencies can be installed automatically using the package
 # manager 'Homebrew'.
 # -----------------------------------
-bashDependencies=()
+homebrewDependencies=()
 
 function mainScript() {
 ############## Begin Script Here ###################
@@ -177,6 +179,8 @@ while [[ $1 = -?* ]]; do
   shift
 done
 
+# Store the remaining part as arguments.
+args+=("$@")
 
 ############## End Options and Usage ###################
 
@@ -211,8 +215,10 @@ fi
 # This way you can catch the error in case mysqldump fails in `mysqldump |gzip`, for example.
 set -o pipefail
 
-checkDependencies # Invoke the checkDependenices function to test for Bash packages
+# Invoke the checkDependenices function to test for Bash packages
+checkDependencies
 
-mainScript # Run your script
+# Run your script
+mainScript
 
 safeExit # Exit cleanly
