@@ -133,7 +133,7 @@ function doInstall () {
   if [[ "${list}" ]]; then
     seek_confirmation "Confirm each package before installing?"
     if is_confirmed; then
-      for item in ${list[@]}
+      for item in "${list[@]}"
       do
         seek_confirmation "Install ${item}?"
         if is_confirmed; then
@@ -147,7 +147,7 @@ function doInstall () {
         fi
       done
     else
-      for item in ${list[@]}
+      for item in "${list[@]}"
       do
         notice "Installing ${item}"
         # FFMPEG takes additional flags
