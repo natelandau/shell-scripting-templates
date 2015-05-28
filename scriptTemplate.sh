@@ -5,13 +5,15 @@
 #
 version="1.0.0"               # Sets version variable
 #
-scriptTemplateVersion="1.3.0" # Version of scriptTemplate.sh that this script is based on
-#                               v.1.1.0 - Added 'debug' option
-#                               v.1.1.1 - Moved all shared variables to Utils
-#                                       - Added $PASS variable when -p is passed
-#                               v.1.2.0 - Added 'checkDependencies' function to ensure needed
+scriptTemplateVersion="1.4.0" # Version of scriptTemplate.sh that this script is based on
+#                               v1.1.0 -  Added 'debug' option
+#                               v1.1.1 -  Moved all shared variables to Utils
+#                                      -  Added $PASS variable when -p is passed
+#                               v1.2.0 -  Added 'checkDependencies' function to ensure needed
 #                                         Bash packages are installed prior to execution
-#                               v.1.3.0 - Can now pass CLI without an option to $args
+#                               v1.3.0 -  Can now pass CLI without an option to $args
+#                               v1.4.0 -  checkDependencies now checks gems and mac apps via
+#                                         Homebrew cask
 #
 # HISTORY:
 #
@@ -89,9 +91,12 @@ logFile="$HOME/Library/Logs/${scriptBasename}.log"
 # Arrays containing package dependencies needed to execute this script.
 # The script will fail if dependencies are not installed.  For Mac users,
 # most dependencies can be installed automatically using the package
-# manager 'Homebrew'.
+# manager 'Homebrew'.  Mac applications will be installed using
+# Homebrew Casks. Ruby and gems via RVM.
 # -----------------------------------
 homebrewDependencies=()
+caskDependencies=()
+gemDependencies=()
 
 function mainScript() {
 ############## Begin Script Here ###################

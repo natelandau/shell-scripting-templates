@@ -73,6 +73,12 @@ hasCasks () {
   fi
 }
 
+# My preferred installation of FFMPEG
+install-ffmpeg () {
+  if [ ! $(type -P "ffmpeg") ]; then
+    brew install ffmpeg --with-faac --with-fdk-aac --with-ffplay --with-fontconfig --with-freetype --with-libcaca --with-libass --with-frei0r --with-libass --with-libbluray --with-libcaca --with-libquvi --with-libvidstab --with-libsoxr --with-libssh --with-libvo-aacenc --with-libvidstab --with-libvorbis --with-libvpx --with-opencore-amr --with-openjpeg --with-openssl --with-opus --with-rtmpdump --with-schroedinger --with-speex --with-theora --with-tools --with-webp --with-x265
+  fi
+}
 
 # doInstall
 # ------------------------------------------------------
@@ -125,25 +131,39 @@ function to_install() {
 function doInstall () {
   list="$(to_install "${RECIPES[*]}" "$($LISTINSTALLED)")"
   if [[ "${list}" ]]; then
-    seek_confirmation "Confirm each install before running?"
+    seek_confirmation "Confirm each package before installing?"
     if is_confirmed; then
       for item in ${list[@]}
       do
         seek_confirmation "Install ${item}?"
         if is_confirmed; then
           notice "Installing ${item}"
-          ${INSTALLCOMMAND} ${item}
+          # FFMPEG takes additional flags
+          if [[ "${item}" = "ffmpeg" ]]; then
+            install-ffmpeg
+          else
+            ${INSTALLCOMMAND} ${item}
+          fi
         fi
       done
     else
       for item in ${list[@]}
       do
         notice "Installing ${item}"
-        ${INSTALLCOMMAND} ${item}
+        # FFMPEG takes additional flags
+        if [[ "${item}" = "ffmpeg" ]]; then
+          install-ffmpeg
+        else
+          ${INSTALLCOMMAND} ${item}
+        fi
       done
     fi
   else
-    notice "Nothing to install. You've already installed all your recipes."
+    # only print notice when not checking dependencies via another script
+    if [ -z "$homebrewDependencies" ] && [ -z "$caskDependencies" ] && [ -z "$gemDependencies" ]; then
+      notice "Nothing to install.  You've already installed all your recipes."
+    fi
+
   fi
 }
 

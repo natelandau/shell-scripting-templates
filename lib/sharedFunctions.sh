@@ -335,27 +335,32 @@ function help () {
 # -----------------------------------
 
 function checkDependencies() {
-  # Check bashDependencies
-  for dependency in "${homebrewDependencies[@]}"; do
-    if type_not_exists "${dependency}"; then
-      # Attempt to install necessary packages via Homebrew if invoked on a Mac
-      if [[ "${OSTYPE}" =~ ^darwin ]]; then
-        seek_confirmation "We can not proceed without '${dependency}'. Would you like to install it via Homebrew?"
-        if is_confirmed; then
-          hasHomebrew  # Installs Homebrew and all dependencies if needed.
-          if [[ "${dependency}" == "ffmpeg" ]]; then # install ffmpeg with all packages
-            brew install ffmpeg --with-faac --with-fdk-aac --with-ffplay --with-fontconfig --with-freetype --with-libcaca --with-libass --with-frei0r --with-libass --with-libbluray --with-libcaca --with-libquvi --with-libvidstab --with-libsoxr --with-libssh --with-libvo-aacenc --with-libvidstab --with-libvorbis --with-libvpx --with-opencore-amr --with-openjpeg --with-openssl --with-opus --with-rtmpdump --with-schroedinger --with-speex --with-theora --with-tools --with-webp --with-x265
-          else
-            brew install "${dependency}"  #install anything else needed
-          fi
-        else
-          die "Can not proceed without '${dependency}'. Please install it before running this script."
-        fi
-      else
-        die "Can not proceed without '${dependency}'. Please install it before running this script."
-      fi # /OStype
-    fi # not type $dependency
-  done
+  if [ -n "$homebrewDependencies" ]; then
+    LISTINSTALLED="brew list"
+    INSTALLCOMMAND="brew install"
+    RECIPES="${homebrewDependencies}"
+
+    # Invoke functions from setupScriptFunctions.sh
+    hasHomebrew
+    doInstall
+  fi
+  if [ -n "$caskDependencies" ]; then
+    LISTINSTALLED="brew cask list"
+    INSTALLCOMMAND="brew cask install --appdir=/Applications"
+    RECIPES="${caskDependencies}"
+
+    # Invoke functions from setupScriptFunctions.sh
+    hasHomebrew
+    hasCasks
+    doInstall
+  fi
+  if [ -n "$gemDependencies" ]; then
+    LISTINSTALLED="gem list | awk '{print $1}'"
+    INSTALLCOMMAND="gem install"
+    RECIPES="${gemDependencies}"
+    # Invoke functions from setupScriptFunctions.sh
+    doInstall
+  fi
 }
 
 # pauseScript

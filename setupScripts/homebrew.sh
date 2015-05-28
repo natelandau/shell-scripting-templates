@@ -149,15 +149,6 @@ RECIPES=(
   z
 )
 
-install-ffmpeg () {
-  if type_not_exists 'ffmpeg'; then
-    seek_confirmation "Install ffmpeg?"
-    if is_confirmed; then
-      brew install ffmpeg --with-faac --with-fdk-aac --with-ffplay --with-fontconfig --with-freetype --with-libcaca --with-libass --with-frei0r --with-libass --with-libbluray --with-libcaca --with-libquvi --with-libvidstab --with-libsoxr --with-libssh --with-libvo-aacenc --with-libvidstab --with-libvorbis --with-libvpx --with-opencore-amr --with-openjpeg --with-openssl --with-opus --with-rtmpdump --with-schroedinger --with-speex --with-theora --with-tools --with-webp --with-x265
-    fi
-  fi
-}
-
 htopPermissions() {
   seek_confirmation "Set HTOP permissions?"
   if is_confirmed; then
@@ -173,7 +164,6 @@ htopPermissions() {
 hasHomebrew
 brewMaintenance
 doInstall
-install-ffmpeg
 htopPermissions
 brewCleanup
 
