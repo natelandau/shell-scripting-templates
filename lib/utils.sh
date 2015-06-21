@@ -60,7 +60,7 @@ function _alert() { #my function
   fi
 
   # Print to $logFile
-  if [ "${printLog}" == "1" ]; then
+  if [ ${printLog} = "true" ] || [ "${printLog}" == "1" ]; then
     echo -e "$(date +"%m-%d-%Y %r") $(printf "[%9s]" ${1}) "${_message}"" >> $logFile;
   fi
 
@@ -79,9 +79,9 @@ function success ()   { local _message="${@}"; echo "$(_alert success)"; }
 function input()      { local _message="${@}"; echo "$(_alert input)"; }
 function header()     { local _message="========== ${@} ==========  "; echo "$(_alert header)"; }
 
-# Log messages when verbose is set to "1"
+# Log messages when verbose is set to "true"
 verbose() {
-  if [ "${verbose}" -eq "1" ]; then
+  if [ "${verbose}" = "true" ] || [ ${verbose} == "1" ]; then
     debug "$@"
   fi
 }
