@@ -55,7 +55,7 @@ function trapCleanup() {
 # -----------------------------------
 quiet=0
 printLog=0
-verbose=0
+verbose=false
 force=0
 strict=0
 debug=0
@@ -92,7 +92,7 @@ logFile="$HOME/Library/Logs/${scriptBasename}.log"
 # most dependencies can be installed automatically using the package
 # manager 'Homebrew'.
 # -----------------------------------
-homebrewDependencies=(ffmpeg jq)
+homebrewDependencies=(ffmpeg jq rename)
 
 function mainScript() {
 ############## Begin Script Here ###################
@@ -111,6 +111,8 @@ function breakLoop() {
 }
 
 function outputDir() {
+  if $verbose; then v="-v" ; fi
+
   if [[ -n "${saveDir}" ]]; then
     if [[ -e "${saveDir}" && ! -d "${saveDir}" ]]; then
       die "${saveDir} exists but is not a directory"
@@ -118,7 +120,7 @@ function outputDir() {
     if [[ ! -d "${saveDir}" ]]; then
       seek_confirmation "${saveDir} does not exist.  Create?"
       if is_confirmed; then
-        mkdir "${saveDir}" && verbose "mkdir ${saveDir}"
+        mkdir $v "${saveDir}"
       else
         die "Can't run without a place to save the files."
       fi
@@ -167,6 +169,8 @@ function doConvert() {
 
   # Set the output name, format, and directory
   # ###############################################
+
+  if $verbose; then v="-v" ; fi
 
   # Set output filename
   output="$(basename "${f%.*}").$outputFormat" && verbose "output="${output}""
@@ -218,9 +222,13 @@ function doConvert() {
       verbose "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}" ${ffquiet}"
        ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}" ${ffquiet}
 
-      # delete original if requested
+      # delete original if requested and remove '.new' from new file
       if [[ "${deleteOriginal}" == "1" ]]; then
-        rm -f "${f}" && verbose "Deleting "${f}""
+        rm -f $v "${f}"
+        #remove '.new' from filename
+        for file in *.new.*; do
+          rename $v 's/.new//g' "${file}"
+        done
       fi
     fi
   fi
@@ -749,7 +757,7 @@ while [[ $1 = -?* ]]; do
     -h|--help) usage >&2; safeExit ;;
     --force) force=1 ;;
     --version) echo "$(basename $0) $version"; safeExit ;;
-    -v|--verbose) verbose=1 ;;
+    -v|--verbose) verbose=true ;;
     -l|--log) printLog=1 ;;
     -q|--quiet) quiet=1 ;;
     -d|--debug) debug=1;;
