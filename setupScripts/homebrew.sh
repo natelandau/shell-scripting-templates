@@ -137,6 +137,7 @@ RECIPES=(
   pkg-config
   pngcrush
   readline
+  rename
   shellcheck
   sl
   source-highlight
