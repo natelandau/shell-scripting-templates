@@ -58,7 +58,7 @@ function trapCleanup() {
 # -----------------------------------
 quiet=0
 printLog=0
-verbose=true
+verbose=0
 force=0
 strict=0
 debug=0
@@ -178,7 +178,6 @@ function realpath() {
 function listTrash() {
   num_volumes=0
   total_blocks=0
-  verbose "listing trash contents"
 
   # list file contents & calculate size for user's .Trash folder
   if find "/Users/${user}/.Trash" -depth 1 ! -depth 0; then
