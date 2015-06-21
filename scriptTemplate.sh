@@ -5,7 +5,7 @@
 #
 version="1.0.0"               # Sets version variable
 #
-scriptTemplateVersion="1.4.0" # Version of scriptTemplate.sh that this script is based on
+scriptTemplateVersion="1.5.0" # Version of scriptTemplate.sh that this script is based on
 #                               v1.1.0 -  Added 'debug' option
 #                               v1.1.1 -  Moved all shared variables to Utils
 #                                      -  Added $PASS variable when -p is passed
@@ -14,6 +14,10 @@ scriptTemplateVersion="1.4.0" # Version of scriptTemplate.sh that this script is
 #                               v1.3.0 -  Can now pass CLI without an option to $args
 #                               v1.4.0 -  checkDependencies now checks gems and mac apps via
 #                                         Homebrew cask
+#                               v1.5.0 - Now has preferred IFS setting
+#                                      - Preset flags now respect true/false
+#                                      - Moved 'safeExit' function into template where it should
+#                                        have been all along.
 #
 # HISTORY:
 #
@@ -47,10 +51,25 @@ fi
 # -----------------------------------
 function trapCleanup() {
   echo ""
+  # Delete temp files, if any
   if is_dir "${tmpDir}"; then
     rm -r "${tmpDir}"
   fi
   die "Exit trapped."  # Edit this if you like.
+}
+
+# safeExit
+# -----------------------------------
+# Non destructive exit for when script exits naturally.
+# Usage: Add this function at the end of every script.
+# -----------------------------------
+function safeExit() {
+  # Delete temp files, if any
+  if is_dir "${tmpDir}"; then
+    rm -r "${tmpDir}"
+  fi
+  trap - INT TERM EXIT
+  exit
 }
 
 # Set Flags
@@ -58,12 +77,12 @@ function trapCleanup() {
 # Flags which can be overridden by user input.
 # Default values are below
 # -----------------------------------
-quiet=0
-printLog=0
-verbose=0
-force=0
-strict=0
-debug=0
+quiet=false
+printLog=false
+verbose=false
+force=false
+strict=false
+debug=false
 args=()
 
 # Set Temp Directory
@@ -115,9 +134,9 @@ echo -n
 usage() {
   echo -n "${scriptName} [OPTION]... [FILE]...
 
-This is my script template.
+This is a script template.  Edit this description to print help to users.
 
- Options:
+ ${bold}Options:${reset}
   -u, --username    Username for script
   -p, --password    User password
   --force           Skip all user interaction.  Implied 'Yes' to all actions.
@@ -179,12 +198,12 @@ while [[ $1 = -?* ]]; do
     -u|--username) shift; username=${1} ;;
     -p|--password) shift; echo "Enter Pass: "; stty -echo; read PASS; stty echo;
       echo ;;
-    -v|--verbose) verbose=1 ;;
-    -l|--log) printLog=1 ;;
-    -q|--quiet) quiet=1 ;;
-    -s|--strict) strict=1;;
-    -d|--debug) debug=1;;
-    --force) force=1 ;;
+    -v|--verbose) verbose=true ;;
+    -l|--log) printLog=true ;;
+    -q|--quiet) quiet=true ;;
+    -s|--strict) strict=true;;
+    -d|--debug) debug=true;;
+    --force) force=true ;;
     --endopts) shift; break ;;
     *) die "invalid option: '$1'." ;;
   esac
@@ -210,25 +229,24 @@ args+=("$@")
 # Trap bad exits with your cleanup function
 trap trapCleanup EXIT INT TERM
 
+# Set IFS to preferred implementation
+IFS=$'\n\t'
+
 # Exit on error. Append '||true' when you run the script if you expect an error.
 set -o errexit
 
 # Run in debug mode, if set
-if [ "${debug}" == "1" ]; then
-  set -x
-fi
+if ${debug}; then set -x ; fi
 
 # Exit on empty variable
-if [ "${strict}" == "1" ]; then
-  set -o nounset
-fi
+if ${strict}; then set -o nounset ; fi
 
 # Bash will remember & return the highest exitcode in a chain of pipes.
 # This way you can catch the error in case mysqldump fails in `mysqldump |gzip`, for example.
 set -o pipefail
 
-# Invoke the checkDependenices function to test for Bash packages
-checkDependencies
+# Invoke the checkDependenices function to test for Bash packages.  Uncomment if needed.
+# checkDependencies
 
 # Run your script
 mainScript
