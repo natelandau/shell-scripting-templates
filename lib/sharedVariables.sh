@@ -18,12 +18,14 @@
 scriptName=`basename $0` #Set Script Name variable
 scriptBasename="$(basename ${scriptName} .sh)" # Strips '.sh' from scriptName
 
-# NOW
+# TIMESTAMPS
 # ------------------------------------------------------
-# Will print the current date and time in the format:
-# 01-02-2015 01:09:54 PM
+# Prints the current date and time in a variety of formats:
+#
 # ------------------------------------------------------
-now=$(date +"%m-%d-%Y %r") #Set Timestamp in variable
+now=$(date +"%m-%d-%Y %r")        # Returns: 06-14-2015 10:34:40 PM
+datestamp=$(date +%Y-%m-%d)       # Returns: 2015-06-14
+timestamp=$(date +%Y%m%d_%H%M%S)   # Returns: 20150614_223440
 
 # THISHOST
 # ------------------------------------------------------
