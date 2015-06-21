@@ -1,19 +1,30 @@
 #!/usr/bin/env bash
 
 # ##################################################
-# This script cycles through all my setup scripts.  Run
-# this script when you are starting fresh on a computer and
-# it will take care of everything.
+# This script cycles through all my setup scripts to bootstrap a
+# new computer.  Run this script when you are starting fresh on
+# a computer and it will take care of everything.
 #
 # HISTORY
 # * 2015-01-02 - Initial creation
+# * 2015-06-21 - Added Flash and XCode command line tools
 #
 # ##################################################
 
-# Source global utilities
-SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-if [ -f "${SCRIPTDIR}/../lib/utils.sh" ]; then
-  source "${SCRIPTDIR}/../lib/utils.sh"
+# Provide a variable with the location of this script.
+scriptPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Source Scripting Utilities
+# -----------------------------------
+# These shared utilities provide many functions which are needed to provide
+# the functionality in this boilerplate. This script will fail if they can
+# not be found.
+# -----------------------------------
+
+utilsLocation="${scriptPath}/../lib/utils.sh" # Update this path to find the utilities.
+
+if [ -f "${utilsLocation}" ]; then
+  source "${utilsLocation}"
 else
   echo "Please find the file util.sh and add a reference to it in this script. Exiting."
   exit 1
@@ -36,17 +47,19 @@ fi
 
 #List of Scripts to be run
 FILES="
+	./install_command_line_tools.sh
 	./homebrew.sh
 	./casks.sh
 	./ruby.sh
 	./mackup.sh
 	./osx.sh
 	./ssh.sh
+	./install_latest_adobe_flash_player.sh
 "
 
 seek_confirmation "Do you want to run all the scripts at once?"
 if is_confirmed; then
-	for file in $FILES
+	for file in "$FILES"
 	do
 		if is_file "$file"; then
 			$file
@@ -55,7 +68,7 @@ if is_confirmed; then
 		fi
 	done
 else
-for file in $FILES
+for file in "$FILES"
 	do
 		seek_confirmation "Do you want to run $file?"
 		if is_confirmed; then
