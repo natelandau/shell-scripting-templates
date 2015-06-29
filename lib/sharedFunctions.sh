@@ -336,19 +336,24 @@ function help () {
 # -----------------------------------
 
 function checkDependencies() {
-  if [ -n "$homebrewDependencies" ]; then
+  saveIFS=$IFS
+  IFS=$' \n\t'
+  if [ -n "${homebrewDependencies}" ]; then
+    warning "You are missing dependencies.  We will now install them."
+
     LISTINSTALLED="brew list"
     INSTALLCOMMAND="brew install"
-    RECIPES="${homebrewDependencies}"
+    RECIPES=("${homebrewDependencies[@]}")
 
     # Invoke functions from setupScriptFunctions.sh
     hasHomebrew
     doInstall
   fi
   if [ -n "$caskDependencies" ]; then
+    warning "You are missing dependencies.  We will now install them."
     LISTINSTALLED="brew cask list"
     INSTALLCOMMAND="brew cask install --appdir=/Applications"
-    RECIPES="${caskDependencies}"
+    RECIPES=("${caskDependencies[@]}")
 
     # Invoke functions from setupScriptFunctions.sh
     hasHomebrew
@@ -356,12 +361,14 @@ function checkDependencies() {
     doInstall
   fi
   if [ -n "$gemDependencies" ]; then
+    warning "You are missing dependencies.  We will now install them."
     LISTINSTALLED="gem list | awk '{print $1}'"
     INSTALLCOMMAND="gem install"
-    RECIPES="${gemDependencies}"
+    RECIPES=("${gemDependencies[@]}")
     # Invoke functions from setupScriptFunctions.sh
     doInstall
   fi
+  IFS=$saveIFS
 }
 
 # pauseScript
