@@ -19,6 +19,7 @@
 # ------------------------------------------------------
 hasHomebrew () {
   # Check for Homebrew
+  #verbose "Checking homebrew install"
   if type_not_exists 'brew'; then
     warning "No Homebrew. Gots to install it..."
     seek_confirmation "Install Homebrew?"
@@ -129,11 +130,11 @@ function to_install() {
 
 # Install the desired items that are not already installed.
 function doInstall () {
-  list="$(to_install "${RECIPES[*]}" "$($LISTINSTALLED)")"
+  list=$(to_install "${RECIPES[*]}" "$(${LISTINSTALLED})")
   if [[ "${list}" ]]; then
     seek_confirmation "Confirm each package before installing?"
     if is_confirmed; then
-      for item in "${list[@]}"
+      for item in ${list[@]}
       do
         seek_confirmation "Install ${item}?"
         if is_confirmed; then
@@ -147,7 +148,7 @@ function doInstall () {
         fi
       done
     else
-      for item in "${list[@]}"
+      for item in ${list[@]}
       do
         notice "Installing ${item}"
         # FFMPEG takes additional flags
