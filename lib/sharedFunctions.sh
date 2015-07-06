@@ -339,18 +339,14 @@ function checkDependencies() {
   saveIFS=$IFS
   IFS=$' \n\t'
   if [ -n "${homebrewDependencies}" ]; then
-    warning "You are missing dependencies.  We will now install them."
-
     LISTINSTALLED="brew list"
     INSTALLCOMMAND="brew install"
     RECIPES=("${homebrewDependencies[@]}")
-
     # Invoke functions from setupScriptFunctions.sh
     hasHomebrew
     doInstall
   fi
   if [ -n "$caskDependencies" ]; then
-    warning "You are missing dependencies.  We will now install them."
     LISTINSTALLED="brew cask list"
     INSTALLCOMMAND="brew cask install --appdir=/Applications"
     RECIPES=("${caskDependencies[@]}")
@@ -361,7 +357,6 @@ function checkDependencies() {
     doInstall
   fi
   if [ -n "$gemDependencies" ]; then
-    warning "You are missing dependencies.  We will now install them."
     LISTINSTALLED="gem list | awk '{print $1}'"
     INSTALLCOMMAND="gem install"
     RECIPES=("${gemDependencies[@]}")
@@ -455,7 +450,63 @@ squeeze_lines() {
     sed '/^[[:space:]]\+$/s/.*//g' | cat -s | trim_lines
 }
 
+# progressBar
+# -----------------------------------
+# Prints a progress bar within a for/while loop.
+# To use this function you must pass the total number of
+# times the loop will run to the function.
+#
+# usage:
+#   for number in $(seq 0 100); do
+#     sleep 1
+#     progressBar 100
+#   done
+# -----------------------------------
 
+progressBar() {
+  local width
+  width=30
+  bar_char="#"
+
+  # Don't run this function when scripts are running in verbose mode
+  if $verbose; then return; fi
+
+  # Reset the count
+  if [ -z $progressBarProgress ]; then
+    progressBarProgress=0
+  fi
+
+  # Do nothing if the output is not a terminal
+  if [ ! -t 1 ]; then
+      echo "Output is not a terminal" 1>&2
+      return
+  fi
+  # Hide the cursor
+    tput civis
+    trap 'tput cnorm; exit 1' SIGINT
+
+  if [ ! $progressBarProgress -eq $(( $1 - 1 )) ]; then
+    # Compute the percentage.
+    perc=$(( $progressBarProgress * 100 / $1 ))
+    # Compute the number of blocks to represent the percentage.
+    num=$(( $progressBarProgress * $width / $1 ))
+    # Create the progress bar string.
+    bar=
+    if [ $num -gt 0 ]; then
+        bar=$(printf "%0.s${bar_char}" $(seq 1 $num))
+    fi
+    # Print the progress bar.
+    line=$(printf "%s [%-${width}s] (%d%%)" "Running Process" "$bar" "${perc}")
+    echo -en "${line}\r"
+    progressBarProgress=$[$progressBarProgress+1]
+  else
+    # Clear the progress bar when complete
+    echo -ne "${width}%\033[0K\r"
+    unset progressBarProgress
+  fi
+
+  tput cnorm
+}
 
 
 
