@@ -60,7 +60,7 @@ function _alert() { #my function
   fi
 
   # Print to $logFile
-  if [ ${printLog} = "true" ] || [ "${printLog}" == "1" ]; then
+  if [[ ${printLog} = "true" ]] || [ "${printLog}" == "1" ]; then
     echo -e "$(date +"%m-%d-%Y %r") $(printf "[%9s]" ${1}) "${_message}"" >> $logFile;
   fi
 
@@ -87,9 +87,7 @@ verbose() {
 }
 
 
-# Source additional files
-# ------------------------------------------------------
-# The list of additional utility files to be sourced
+# Source additional /lib files
 # ------------------------------------------------------
 
 # First we locate this script and populate the $SCRIPTPATH variable
@@ -102,19 +100,18 @@ while [ -h "${SOURCE}" ]; do # resolve ${SOURCE} until the file is no longer a s
 done
 SOURCEPATH="$( cd -P "$( dirname "${SOURCE}" )" && pwd )"
 
-# Write the list of utility files to be sourced
-FILES="
-  sharedVariables.sh
-  sharedFunctions.sh
-  setupScriptFunctions.sh
-"
-
-# Source the Utility Files
-for file in $FILES
+if [ ! -d "${SOURCEPATH}" ]
+then
+  die "Failed to find library files expected in: ${SOURCEPATH}"
+fi
+for utility_file in "${SOURCEPATH}"/*.sh
 do
-  if [ -f "${SOURCEPATH}/${file}" ]; then
-    source "${SOURCEPATH}/${file}"
-  else
-    die "${file} does not exist."
+  if [ -e "${utility_file}" ]; then
+    # Don't source self
+    if [[ "${utility_file}" == *"utils.sh"* ]]; then
+      continue
+    fi
+    echo "Attempting to source: $utility_file"
+    source "$utility_file"
   fi
 done
