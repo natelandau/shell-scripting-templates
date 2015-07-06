@@ -464,6 +464,10 @@ squeeze_lines() {
 # -----------------------------------
 
 progressBar() {
+  if [[ ${quiet} = "true" ]] || [ ${quiet} == "1" ]; then
+    return
+  fi
+
   local width
   width=30
   bar_char="#"
@@ -507,10 +511,3 @@ progressBar() {
 
   tput cnorm
 }
-
-
-
-
-
-
-

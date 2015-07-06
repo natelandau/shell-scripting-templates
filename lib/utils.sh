@@ -81,7 +81,7 @@ function header()     { local _message="========== ${@} ==========  "; echo "$(_
 
 # Log messages when verbose is set to "true"
 verbose() {
-  if [ "${verbose}" = "true" ] || [ ${verbose} == "1" ]; then
+  if [[ "${verbose}" = "true" ]] || [ ${verbose} == "1" ]; then
     debug "$@"
   fi
 }
@@ -111,7 +111,6 @@ do
     if [[ "${utility_file}" == *"utils.sh"* ]]; then
       continue
     fi
-    echo "Attempting to source: $utility_file"
     source "$utility_file"
   fi
 done
