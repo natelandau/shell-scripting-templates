@@ -1,6 +1,9 @@
+#! /dev/null/bash
 
-function whoish ()
-{
+whoish() {
+    #
+    # Thanks to xenoxaos for the inspiration! =]
+    # https://github.com/xenoxaos
     #
     declare addr curl_cmd json jq_flt urls url
     #
