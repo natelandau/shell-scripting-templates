@@ -7,7 +7,8 @@
 #
 # HISTORY
 #
-# * 2015-01-02 - v1.0.0  - First Creation
+# * 2015-01-02 - v1.0.0 - First Creation
+# * 2015-08-05 - v1.0.1 - Now has $hourstamp (10:34:40 PM)
 #
 # ##################################################
 
@@ -25,7 +26,8 @@ scriptBasename="$(basename ${scriptName} .sh)" # Strips '.sh' from scriptName
 # ------------------------------------------------------
 now=$(date +"%m-%d-%Y %r")        # Returns: 06-14-2015 10:34:40 PM
 datestamp=$(date +%Y-%m-%d)       # Returns: 2015-06-14
-timestamp=$(date +%Y%m%d_%H%M%S)   # Returns: 20150614_223440
+hourstamp=$(date +%r)             # Returns: 10:34:40 PM
+timestamp=$(date +%Y%m%d_%H%M%S)  # Returns: 20150614_223440
 
 # THISHOST
 # ------------------------------------------------------
