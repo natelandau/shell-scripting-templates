@@ -3,9 +3,9 @@
 # ##################################################
 # My Generic BASH script template
 #
-version="1.1.1"               # Sets version variable for this script
+version="1.2.0"               # Sets version variable for this script
 #
-scriptTemplateVersion="1.3.0" # Version of scriptTemplate.sh that this script is based on
+scriptTemplateVersion="1.5.0" # Version of scriptTemplate.sh that this script is based on
 #
 #
 # HISTORY:
@@ -13,6 +13,7 @@ scriptTemplateVersion="1.3.0" # Version of scriptTemplate.sh that this script is
 # * 2015-03-31 - v1.0.0  - First creation
 # * 2015-04-07 - v1.1.0  - Added support for music files
 # * 2015-05-26 - v1.1.1  - Fixed log level on downsize720
+# * 2015-08-30 - v1.2.0  - Support for recursive directory conversions
 #
 # ##################################################
 
@@ -53,15 +54,16 @@ function trapCleanup() {
 # Flags which can be overridden by user input.
 # Default values are below
 # -----------------------------------
-quiet=0
-printLog=0
+quiet=false
+printLog=false
 verbose=false
-force=0
-strict=0
-debug=0
+recursive=false
+force=false
+strict=false
+debug=false
 safeRun=0
 downsize720=0
-deleteOriginal=0
+deleteOriginal=false
 XLD=0
 args=()
 
@@ -90,9 +92,12 @@ logFile="$HOME/Library/Logs/${scriptBasename}.log"
 # Arrays containing package dependencies needed to execute this script.
 # The script will fail if dependencies are not installed.  For Mac users,
 # most dependencies can be installed automatically using the package
-# manager 'Homebrew'.
+# manager 'Homebrew'.  Mac applications will be installed using
+# Homebrew Casks. Ruby and gems via RVM.
 # -----------------------------------
 homebrewDependencies=(ffmpeg jq rename)
+caskDependencies=()
+gemDependencies=()
 
 function mainScript() {
 ############## Begin Script Here ###################
@@ -118,7 +123,7 @@ function outputDir() {
       die "${saveDir} exists but is not a directory"
     fi
     if [[ ! -d "${saveDir}" ]]; then
-      seek_confirmation "${saveDir} does not exist.  Create?"
+      seek_confirmation "${saveDir} does not exist. Create?"
       if is_confirmed; then
         mkdir $v "${saveDir}"
       else
@@ -157,80 +162,28 @@ function identifyUserFile() {
   fi
 }
 
+function recursiveSearch() {
+
+  # Add matching items to array
+  while read item; do
+      recursiveFiles+=("${item}")
+  done < <(find . -name "*.${MEDIATYPE}" -type f -maxdepth 4)
+
+  for i in "${recursiveFiles[@]}"; do
+    userFile="${i}"
+    verbose "found item: ${userFile}"
+    recursiveDirectory=$(dirname "${userFile}")
+    recursiveDirectory="${recursiveDirectory#*/}"
+    saveDir="${recursiveDirectory}/"
+    runScript
+  done
+}
+
 function userFormat() {
   # Reads user input for format (-o, --output)
   # Override defaults with CLI
   if [ -n "$userOutput" ]; then
-    outputFormat="${userOutput,,}" && verbose "outputFormat=${outputFormat}"
-  fi
-}
-
-function doConvert() {
-
-  # Set the output name, format, and directory
-  # ###############################################
-
-  if $verbose; then v="-v" ; fi
-
-  # Set output filename
-  output="$(basename "${f%.*}").$outputFormat" && verbose "output="${output}""
-
-  # Add users output save directory if used
-  if [[ -n "${outputDir}" ]]; then
-    output="${outputDir}${output}" && verbose "output=${outputDir}${output}"
-  fi
-
-  # Confirm we're not overwriting an existing file
-  if [[ "${safeRun}" -ne "1" ]]; then
-    if [ -e "${output}" ]; then
-      # rename the new file to '.new'
-      output="$(basename "${f%.*}").new."${outputFormat}"" && verbose "Adding '.new' to the new file name"
-      if [[ -n "${outputDir}" ]]; then
-        output="${outputDir}${output}" && verbose "output=${outputDir}${output}"
-      fi
-    fi
-  fi
-
-  # Respect the 'Quiet' flag
-  if [[ "${quiet}" == "1" ]]; then
-    ffquiet="-loglevel quiet"
-  fi
-
-  # # Respect the 'logfile' flag
-  # if [[ "${printLog}" ==  "1" ]]; then
-  #   ffmpegLog=">> ${logFile}"
-  # fi
-
-  # Invoke the conversion
-  # ##################################
-
-  # Use XLD for audio file conversion if available
-  if [[ "$XLD" ==  "1" ]]; then
-    verbose "Running XLD commands for audio.  No FFMPEG"
-    # Respect --safe flag.
-    if [[ "${safeRun}" == "1" ]]; then
-      notice "xld -o "${output}" ${audioConvertCommand} "${f}""
-    else
-      verbose "xld -o "${output}" ${audioConvertCommand} "${f}""
-      xld -o "${output}" ${audioConvertCommand} "${f}"
-    fi
-  else # Use ffmpeg when XLD is set to 0
-    # Respect --safe flag.
-    if [[ "${safeRun}" == "1" ]]; then
-      notice "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}" ${ffquiet}"
-    else
-      verbose "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}" ${ffquiet}"
-       ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}" ${ffquiet}
-
-      # delete original if requested and remove '.new' from new file
-      if [[ "${deleteOriginal}" == "1" ]]; then
-        rm -f $v "${f}"
-        #remove '.new' from filename
-        for file in *.new.*; do
-          rename $v 's/.new//g' "${file}"
-        done
-      fi
-    fi
+    outputFormat="${userOutput,,}" #&& verbose "outputFormat=${outputFormat}"
   fi
 }
 
@@ -248,7 +201,6 @@ convertVideo() {
       # JSON METADATA FOR EACH ASSET
       ######################################################################
       verbose "Reading JSON and writing to TMP"
-
 
       # Output a JSON file for each video asset being parsed.
       ffprobe -v quiet -print_format json -show_format -show_streams "${f}" >> "${informationFile}"
@@ -476,7 +428,6 @@ convertVideo() {
     done
   breakLoop
   done
-
 }
 
 convertMusic() {
@@ -610,15 +561,100 @@ convertMusic() {
     done
   breakLoop
   done
+}
 
+function doConvert() {
+
+  # Set the output name, format, and directory
+  # ###############################################
+
+  if $verbose; then v="-v" ; fi
+
+    # Set output filename
+    output="$(basename "${f%.*}").$outputFormat" && verbose "output="${output}""
+
+  # Add user's output save directory if used
+  if [[ -n "${outputDir}" ]]; then
+    verbose "outputDir=${outputDir}"
+    output="${outputDir}${output}" && verbose "output=${outputDir}${output}"
+  fi
+
+  # Confirm we're not overwriting an existing file
+  if [[ "${safeRun}" -ne "1" ]]; then
+    if [ -e "${output}" ]; then
+      # rename the new file to '.new'
+      output="$(basename "${f%.*}").new."${outputFormat}"" && verbose "Adding '.new' to the new file name"
+      if [[ -n "${outputDir}" ]]; then
+        output="${outputDir}${output}" && verbose "output=${outputDir}${output}"
+      fi
+    fi
+  fi
+
+  # Respect the 'Quiet' flag
+  if "${quiet}"; then
+    verbose "running in quiet mode"
+    ffquiet="-loglevel quiet"
+  fi
+
+  # Respect the 'logfile' flag
+  if ${printLog}; then
+    ffmpegLog=">> ${logFile}"
+  fi
+
+  # Invoke the conversion
+  # ##################################
+
+  # Use XLD for audio file conversion if available
+  if [[ "$XLD" ==  "1" ]]; then
+    verbose "Running XLD commands for audio.  No FFMPEG"
+    # Respect --safe flag.
+    if [[ "${safeRun}" == "1" ]]; then
+      notice "xld -o "${output}" ${audioConvertCommand} "${f}""
+    else
+      verbose "xld -o "${output}" ${audioConvertCommand} "${f}""
+      xld -o "${output}" ${audioConvertCommand} "${f}"
+    fi
+  else # Use ffmpeg when XLD is set to 0
+    # Respect --safe flag.
+    if [[ "${safeRun}" == "1" ]]; then
+      notice "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}" ${ffquiet}"
+    else
+      verbose "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}" ${ffquiet}"
+       ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}" ${ffquiet}
+
+      # delete original if requested and remove '.new' from new file
+      if ${deleteOriginal}; then
+        rm -f $v "${f}"
+        #remove '.new' from filename
+        if [[ -n "${outputDir}" ]]; then
+          for file in "${outputDir}*.new.*"; do
+            rename $v 's/.new//g' "${file}"
+          done
+        else
+          for file in *.new.*; do
+            rename $v 's/.new//g' "${file}"
+          done
+        fi
+      fi
+    fi
+  fi
+}
+
+runScript() {
+  # All functions within the script are here
+  identifyUserFile
+  userFormat
+  outputDir
+  convertVideo
+  convertMusic
 }
 
 # Run the functions
-identifyUserFile
-userFormat
-outputDir
-convertVideo
-convertMusic
+if ${recursive}; then
+  recursiveSearch # Run the recursive search function
+else
+  runScript
+fi
 
 ####################################################
 ############### End Script Here ####################
@@ -634,7 +670,7 @@ usage() {
 ${bold}DESCRIPTION${reset}
 This is a media conversion script which converts audio and video into many
 different formats.  It was written to eliminate the need to remember specific
-FFMPEG commands.  All conversions can be performed with ffmpeg.  XLD on a mac
+FFMPEG commands.  All conversions can be performed with ffmpeg. XLD on a mac
 is used for audio conversions when available.
 
 ${BOLD}DEPENDENCIES${reset}
@@ -655,6 +691,7 @@ ${bold}General Options:${reset}
      ${bold} --safe${reset}        Runs the script without actually invoking FFMPEG.  Will simply print
                     the FFMPEG commands to the terminal
       ${bold}--version${reset}     Output version information and exit
+      ${bold}--recursive${reset}   Will search recursively through directories
 
 ${bold}File Options:${reset}
   ${bold}-f, --file${reset}        Specify a specific file to take actions on.
@@ -696,6 +733,10 @@ Search for all 1080p files in a directory and downsize them to 720p.
 Convert a Windows Media file (file.wmv) to h264 (mp4).
 
     $ convertMedia -o mp4 file.wmv
+
+Do a recursive search for all directories beneath the current one. In each
+directory, search for .avi iles and convert them to .mp4
+    $ convertMedia --recursive -o mp4 -i avi
 
 "
 }
@@ -751,16 +792,17 @@ while [[ $1 = -?* ]]; do
     --height) shift; height="$1" ;;
     --width) shift; width="$1" ;;
     --downsize720) downsize720=1 ;;
-    --delete) deleteOriginal=1 ;;
+    --recursive) recursive=true ;;
+    --delete) deleteOriginal=true ;;
     --saveDir) shift; saveDir="$1" ;;
     --bitrate) shift; bitrate="$1" ;;
     -h|--help) usage >&2; safeExit ;;
-    --force) force=1 ;;
+    --force) force=true ;;
     --version) echo "$(basename $0) $version"; safeExit ;;
     -v|--verbose) verbose=true ;;
-    -l|--log) printLog=1 ;;
-    -q|--quiet) quiet=1 ;;
-    -d|--debug) debug=1;;
+    -l|--log) printLog=true ;;
+    -q|--quiet) quiet=true ;;
+    -d|--debug) debug=true;;
     --endopts) shift; break ;;
     *) die "invalid option: '$1'." ;;
   esac
@@ -786,18 +828,17 @@ args+=("$@")
 # Trap bad exits with your cleanup function
 trap trapCleanup EXIT INT TERM
 
+# Set IFS to preferred implementation
+#IFS=$'\n\t'
+
 # Exit on error. Append '||true' when you run the script if you expect an error.
 set -o errexit
 
 # Run in debug mode, if set
-if [ "${debug}" == "1" ]; then
-  set -x
-fi
+if ${debug}; then set -x ; fi
 
 # Exit on empty variable
-if [ "${strict}" == "1" ]; then
-  set -o nounset
-fi
+if ${strict}; then set -o nounset ; fi
 
 # Bash will remember & return the highest exitcode in a chain of pipes.
 # This way you can catch the error in case mysqldump fails in `mysqldump |gzip`, for example.
