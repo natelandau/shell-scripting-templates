@@ -112,13 +112,10 @@ INSTALLCOMMAND="brew cask install --appdir=/Applications"
 RECIPES=(
     alfred
     arq
-    authy-bluetooth
     bartender
     betterzipql
     capo
     carbon-copy-cloner
-    cheatsheet
-    codekit
     controlplane
     default-folder-x
     dropbox
@@ -127,20 +124,13 @@ RECIPES=(
     firefox
     flux
     fluid
-    github
     google-chrome
     hazel
     houdahgeo
     iterm2
-    imagealpha
-    imageoptim
     istat-menus
     java
     joinme
-    kaleidoscope
-    launchbar
-    licecap
-    mamp
     marked
     mailplane
     moom
@@ -158,9 +148,7 @@ RECIPES=(
     skitch
     spillo
     sublime-text3
-    suspicious-package
     textexpander
-    tower
     vlc
     vyprvpn
     webpquicklook

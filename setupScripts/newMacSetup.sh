@@ -49,7 +49,8 @@ fi
 FILES="
 	./install_command_line_tools.sh
 	./homebrew.sh
-	./casks.sh
+	./macApps.sh
+	./devApps.sh
 	./ruby.sh
 	./mackup.sh
 	./osx.sh
@@ -59,23 +60,23 @@ FILES="
 
 seek_confirmation "Do you want to run all the scripts at once?"
 if is_confirmed; then
-	for file in "$FILES"
+	for file in "${FILES}"
 	do
-		if is_file "$file"; then
-			$file
+		if is_file "${file}"; then
+			${file}
 		else
-			die "$file does not exist. Exiting"
+			die "${file} does not exist. Exiting"
 		fi
 	done
 else
-for file in "$FILES"
+for file in "${FILES}"
 	do
-		seek_confirmation "Do you want to run $file?"
+		seek_confirmation "Do you want to run ${file}?"
 		if is_confirmed; then
-			if is_file "$file"; then
-				$file
+			if is_file "${file}"; then
+				${file}
 			else
-				die "$file does not exist."
+				die "${file} does not exist."
 			fi
 		fi
 	done
