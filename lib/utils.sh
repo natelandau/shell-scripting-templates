@@ -31,7 +31,7 @@ green=$(tput setaf 76)
 tan=$(tput setaf 3)
 blue=$(tput setaf 38)
 
-function _alert() { #my function
+function _alert() {
   if [ "${1}" = "emergency" ]; then
     local color="${bold}${red}"
   fi
@@ -61,11 +61,15 @@ function _alert() { #my function
 
   # Print to $logFile
   if [[ ${printLog} = "true" ]] || [ "${printLog}" == "1" ]; then
-    echo -e "$(date +"%m-%d-%Y %r") $(printf "[%9s]" ${1}) "${_message}"" >> $logFile;
+    echo -e "$(date +"%m-%d-%Y %r") $(printf "[%9s]" ${1}) "${_message}"" >> "${logFile}";
   fi
 
   # Print to console when script is not 'quiet'
-  ((quiet)) && return || echo -e "$(date +"%r") ${color}$(printf "[%9s]" ${1}) "${_message}"${reset}";
+  if ${quiet}; then
+    return
+  else
+    echo -e "$(date +"%r") ${color}$(printf "[%9s]" ${1}) "${_message}"${reset}";
+  fi
 
 }
 
