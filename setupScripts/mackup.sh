@@ -107,8 +107,8 @@ header "Beginning ${scriptName}"
 # Variables from config file
 if is_file "../etc/mackup.cfg"; then
   source "../etc/mackup.cfg"
-  MACKUPDIR="$DIRCFG"
-  TESTFILE="$TESTCFG"
+  MACKUPDIR="${DIRCFG}"
+  TESTFILE="${TESTCFG}"
 else
   die "Can not run without config file.  Please find mackup.cfg"
 fi
@@ -127,7 +127,7 @@ if [ "${force}" = "0" ]; then  #Bypass the Dropbox test when script is forced
     notice "Confirming that Dropbox has synced..."
     while IFS= read -r file
     do
-      while [ ! -e $HOME/"${file}" ] ;
+      while [ ! -e ${HOME}/"${file}" ] ;
       do
         info "...Waiting for Dropbox to Sync files."
         sleep 10

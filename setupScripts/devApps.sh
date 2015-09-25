@@ -97,7 +97,7 @@ thisHost=$(hostname)
 # Save to Desktop use: $HOME/Desktop/${scriptBasename}.log
 # Save to standard user log location use: $HOME/Library/Logs/${scriptBasename}.log
 # -----------------------------------
-logFile="$HOME/Library/Logs/${scriptBasename}.log"
+logFile="${HOME}/Library/Logs/${scriptBasename}.log"
 
 
 function mainScript() {
