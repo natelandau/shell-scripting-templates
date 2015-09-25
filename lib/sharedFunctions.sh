@@ -475,10 +475,10 @@ progressBar() {
   bar_char="#"
 
   # Don't run this function when scripts are running in verbose mode
-  if $verbose; then return; fi
+  if ${verbose}; then return; fi
 
   # Reset the count
-  if [ -z $progressBarProgress ]; then
+  if [ -z ${progressBarProgress} ]; then
     progressBarProgress=0
   fi
 
@@ -491,20 +491,20 @@ progressBar() {
     tput civis
     trap 'tput cnorm; exit 1' SIGINT
 
-  if [ ! $progressBarProgress -eq $(( $1 - 1 )) ]; then
+  if [ ! ${progressBarProgress} -eq $(( $1 - 1 )) ]; then
     # Compute the percentage.
-    perc=$(( $progressBarProgress * 100 / $1 ))
+    perc=$(( ${progressBarProgress} * 100 / $1 ))
     # Compute the number of blocks to represent the percentage.
-    num=$(( $progressBarProgress * $width / $1 ))
+    num=$(( ${progressBarProgress} * $width / $1 ))
     # Create the progress bar string.
     bar=
-    if [ $num -gt 0 ]; then
-        bar=$(printf "%0.s${bar_char}" $(seq 1 $num))
+    if [ ${num} -gt 0 ]; then
+        bar=$(printf "%0.s${bar_char}" $(seq 1 ${num}))
     fi
     # Print the progress bar.
-    line=$(printf "%s [%-${width}s] (%d%%)" "Running Process" "$bar" "${perc}")
+    line=$(printf "%s [%-${width}s] (%d%%)" "Running Process" "${bar}" "${perc}")
     echo -en "${line}\r"
-    progressBarProgress=$[$progressBarProgress+1]
+    progressBarProgress=$[${progressBarProgress}+1]
   else
     # Clear the progress bar when complete
     echo -ne "${width}%\033[0K\r"
