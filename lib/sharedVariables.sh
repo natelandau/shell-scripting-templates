@@ -28,6 +28,7 @@ now=$(date +"%m-%d-%Y %r")        # Returns: 06-14-2015 10:34:40 PM
 datestamp=$(date +%Y-%m-%d)       # Returns: 2015-06-14
 hourstamp=$(date +%r)             # Returns: 10:34:40 PM
 timestamp=$(date +%Y%m%d_%H%M%S)  # Returns: 20150614_223440
+today=$(date +"%m-%d-%Y")         # Returns: 06-14-2015
 
 # THISHOST
 # ------------------------------------------------------
