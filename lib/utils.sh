@@ -80,7 +80,7 @@ function notice ()    { local _message="${@}"; echo "$(_alert notice)"; }
 function info ()      { local _message="${@}"; echo "$(_alert info)"; }
 function debug ()     { local _message="${@}"; echo "$(_alert debug)"; }
 function success ()   { local _message="${@}"; echo "$(_alert success)"; }
-function input()      { local _message="${@}"; echo "$(_alert input)"; }
+function input()      { local _message="${@}"; echo -n "$(_alert input)"; }
 function header()     { local _message="========== ${@} ==========  "; echo "$(_alert header)"; }
 
 # Log messages when verbose is set to "true"
