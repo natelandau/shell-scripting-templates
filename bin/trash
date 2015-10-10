@@ -56,12 +56,12 @@ function trapCleanup() {
 # Flags which can be overridden by user input.
 # Default values are below
 # -----------------------------------
-quiet=0
-printLog=0
-verbose=0
-force=0
-strict=0
-debug=0
+quiet=false
+printLog=false
+verbose=false
+force=false
+strict=false
+debug=false
 list=false
 emptyTrash=false
 secureEmpty=false
@@ -146,13 +146,13 @@ function realpath() {
     fi
 
     # attempt to change to the directory
-    if ! cd "$directory" &>/dev/null ; then
+    if ! cd "${directory}" &>/dev/null ; then
       success=false
     fi
 
-    if $success; then
+    if ${success}; then
       # does the filename exist?
-      if [[ ( -n "$file_basename" ) && ( ! -e "$file_basename" ) ]]; then
+      if [[ ( -n "${file_basename}" ) && ( ! -e "${file_basename}" ) ]]; then
         success=false
       fi
 
@@ -168,11 +168,11 @@ function realpath() {
       fi
 
       # output the absolute path
-      echo "$abs_path"
+      echo "${abs_path}"
     fi
   fi
 
-  $success
+  ${success}
 }
 
 function listTrash() {
@@ -287,7 +287,7 @@ function trashAFile() {
   # Iterate over all files passed by user
   for userFile in "${args[@]}"; do
     if [ ! -e "${userFile}" ]; then
-      warning "$userFile: No such file or directory."
+      warning "${userFile}: No such file or directory."
       continue
     fi
     # determine if we'll tell Finder to trash the file via AppleScript (very easy, plus free undo
@@ -295,36 +295,37 @@ function trashAFile() {
   if have_scriptable_finder; then
     # determine whether we have an absolute path name to the file or not
     if [ "${userFile:0:1}" = "/" ]; then
-      file="$userFile"
+      file="${userFile}"
     else
       # expand relative to absolute path
-      verbose "Determining absolute path for '$userFile'... "
-      file="$(realpath "$userFile")"
+      verbose "Determining absolute path for '${userFile}'... "
+      file="$(realpath "${userFile}")"
       if [ $? -ne 0 ]; then
-        warning "Could not determine absolute path for '$userFile'!"
+        warning "Could not determine absolute path for '${userFile}'!"
       fi
     fi
-    verbose "Telling Finder to trash '$file'..."
+    verbose "Telling Finder to trash '${file}'..."
     if /usr/bin/osascript -e "tell application \"Finder\" to delete POSIX file \"$file\"" &>/dev/null; then
-      success "'$userFile' moved to trash"
+    #if osascript -e "tell app \"Finder\" to delete POSIX file \"${file}\"" &>/dev/null; then
+      success "'${userFile}' moved to trash"
     else
-      warning "'$userFile' not moved to trash"
+      warning "'${userFile}' not moved to trash"
       safeExit
     fi
   # Finder isn't available for this user, so don't rely on it (we'll do all the dirty work ourselves)
   else
     trash="/Users/${user}/.Trash/"
     # create the trash folder if necessary
-    if [ ! -d "$trash" ]; then
-      mkdir $v "$trash"
+    if [ ! -d "${trash}" ]; then
+      mkdir $v "${trash}"
     fi
     # move the file to the trash
     if [ ! -e "${trash}${userFile}" ]; then
-      mv $v "$userFile" "$trash"
+      mv $v "${userFile}" "${trash}"
     else
       # determine if the filename has an extension
       ext=false
-      case "$userFile" in
+      case "${ }" in
         *.*) ext=true ;;
       esac
 
@@ -436,10 +437,10 @@ while [[ $1 = -?* ]]; do
     -l|--list) list=true ;;
     -s|--secure) secureEmpty=true ;;
     -e|--empty) emptyTrash=true ;;
-    -v|--verbose) verbose=1 ;;
-    -q|--quiet) quiet=1 ;;
-    -d|--debug) debug=1;;
-    --force) force=1 ;;
+    -v|--verbose) verbose=true ;;
+    -q|--quiet) quiet=true ;;
+    -d|--debug) debug=true;;
+    --force) force=true ;;
     --endopts) shift; break ;;
     *) die "invalid option: '$1'." ;;
   esac
@@ -472,12 +473,12 @@ IFS=$'\n\t'
 set -o errexit
 
 # Run in debug mode, if set
-if [ "${debug}" == "1" ]; then
+if ${debug}; then
   set -x
 fi
 
 # Exit on empty variable
-if [ "${strict}" == "1" ]; then
+if ${strict}; then
   set -o nounset
 fi
 
