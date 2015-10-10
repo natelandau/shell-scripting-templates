@@ -48,7 +48,7 @@ function readFile() {
 # ------------------------------------------------------
 # usage: var=$(escape "String")
 # ------------------------------------------------------
-escape() { echo $@ | sed 's/[]\.|$(){}?+*^]/\\&/g'; }
+escape() { echo "${@}" | sed 's/[]\.|$(){}?+*^]/\\&/g'; }
 
 # needSudo
 # ------------------------------------------------------
@@ -518,6 +518,12 @@ htmlDecode() {
   # Decode HTML characters with sed
   # Usage: htmlDecode <string>
   echo "${1}" | sed -f "${SOURCEPATH}/htmlDecode.sed"
+}
+
+htmlEncode() {
+  # Encode HTML characters with sed
+  # Usage: htmlEncode <string>
+  echo "${1}" | sed -f "${SOURCEPATH}/htmlEncode.sed"
 }
 
 
