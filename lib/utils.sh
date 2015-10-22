@@ -65,10 +65,10 @@ function _alert() {
   fi
 
   # Print to console when script is not 'quiet'
-  if ${quiet}; then
-    return
+  if [[ "${quiet}" = "true" ]] || [ ${quiet} == "1" ]; then
+   return
   else
-    echo -e "$(date +"%r") ${color}$(printf "[%9s]" ${1}) "${_message}"${reset}";
+   echo -e "$(date +"%r") ${color}$(printf "[%9s]" ${1}) "${_message}"${reset}";
   fi
 
 }
