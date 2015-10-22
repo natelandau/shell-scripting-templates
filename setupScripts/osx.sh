@@ -110,7 +110,7 @@ needSudo
 header  "Beginning osx.sh"
 info "This script runs a series of commands to pre-configure OSX."
 
-seek_confirmation "Would you like to set your computer name (as done via System Preferences >> Sharing)?  (y/n)"
+seek_confirmation "Would you like to set your computer name (as done via System Preferences >> Sharing)?"
 if is_confirmed; then
   input "What would you like the name to be?"
   read COMPUTER_NAME
@@ -164,6 +164,7 @@ if is_confirmed; then
 
   success "Expand save panel by default"
   defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+  defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
 
   success "Expand print panel by default"
   defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
@@ -262,7 +263,7 @@ if is_confirmed; then
   defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
   success "Set a blazingly fast keyboard repeat rate"
-  defaults write NSGlobalDomain KeyRepeat -int 0
+  defaults write NSGlobalDomain KeyRepeat -int 0.02
 
   success "Automatically illuminate built-in MacBook keyboard in low light"
   defaults write com.apple.BezelServices kDim -bool true
@@ -372,6 +373,7 @@ if is_confirmed; then
 
   success "Avoid creating .DS_Store files on network volumes"
   defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+  defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 
   success "Disable disk image verification"
   defaults write com.apple.frameworks.diskimages skip-verify -bool true
@@ -417,7 +419,7 @@ if is_confirmed; then
   # defaults write com.apple.finder EmptyTrashSecurely -bool true
 
   success "Show the ~/Library folder"
-  chflags nohidden ~/Library
+  chflags nohidden ${HOME}/Library
 
   #success "Remove Dropbox’s green checkmark icons in Finder"
   #file=/Applications/Dropbox.app/Contents/Resources/emblem-dropbox-uptodate.icns
