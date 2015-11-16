@@ -149,6 +149,7 @@ RECIPES=(
     spillo
     sublime-text3
     textexpander
+    trickster
     vlc
     vyprvpn
     webpquicklook
