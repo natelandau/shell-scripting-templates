@@ -378,6 +378,9 @@ function pauseScript() {
   seek_confirmation "Ready to continue?"
   if is_confirmed; then
     info "Continuing"
+  else
+    warning "Exiting Script."
+    safeExit
   fi
 }
 
