@@ -719,8 +719,13 @@ if is_confirmed; then
 fi
 
 ###############################################################################
-# 12. Address Book, Dashboard, iCal, TextEdit, Chrome, and Disk Utility
+# 12. Address Book, Dashboard, iCal, TextEdit, Chrome, Photos, and Disk Utility
 ###############################################################################
+
+seek_confirmation "Stop Photos from opening whenever a camera is connected?"
+if is_confirmed; then
+  defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool YES
+fi
 
 seek_confirmation "Configure Google Chrome?"
 if is_confirmed; then
