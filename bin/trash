@@ -94,9 +94,9 @@ function mainScript() {
 ####################################################
 
 # global variables
-user=$(whoami)
-uid=$(id -u "$user")
-finder_pid=$(ps -u "$user" | grep /System/Library/CoreServices/Finder.app | grep -v grep | awk '{print $1}')
+local user=$(whoami)
+local uid=$(id -u "$user")
+local finder_pid=$(ps -u "$user" | grep /System/Library/CoreServices/Finder.app | grep -v grep | awk '{print $1}')
 v=''
 
 # determine whether we can script the Finder or not
@@ -190,27 +190,27 @@ function listTrash() {
     if [ -d "$file" ]; then
       folder="${file}/.Trashes/${uid}"
       if [ -d "${folder}" ]; then
-        if find "$folder" -depth 1 ! -depth 0; then
-          num_volumes=$(( $num_volumes + 1 ))
-          blocks=$(du -cs "$folder" | tail -n 1 | cut -f 1)
-          total_blocks=$(( $total_blocks + $blocks ))
+        if find "${folder}" -depth 1 ! -depth 0; then
+          num_volumes=$(( ${num_volumes} + 1 ))
+          blocks=$(du -cs "${folder}" | tail -n 1 | cut -f 1)
+          total_blocks=$(( ${total_blocks} + ${blocks} ))
         fi
       fi
     fi
   done
   # convert blocks to human readable size
   size=0
-  if (( $total_blocks >= 2097152 )); then
-    size=$(bc <<< "scale=2; $total_blocks / 2097152")
+  if (( ${total_blocks} >= 2097152 )); then
+    size=$(bc <<< "scale=2; ${total_blocks} / 2097152")
     size="${size}GB"
-  elif (( $total_blocks >= 2048 )); then
-    size=$(bc <<< "scale=2; $total_blocks / 2048")
+  elif (( ${total_blocks} >= 2048 )); then
+    size=$(bc <<< "scale=2; ${total_blocks} / 2048")
     size="${size}MB"
   else
-    size=$(bc <<< "scale=2; $total_blocks / 2")
+    size=$(bc <<< "scale=2; ${total_blocks} / 2")
     size="${size}K"
   fi
-  info "$size across $num_volumes volume(s)."
+  info "${size} across ${num_volumes} volume(s)."
   safeExit
 }
 
@@ -231,14 +231,14 @@ function emptyTheTrash() {
     if is_confirmed; then
       notice "Emptying trash..."
       # delete the contents of user's .Trash folder
-      if [[ $verbose == "1" ]]; then v="-v"; fi
+      if [[ ${verbose} == "1" ]]; then v="-v"; fi
       find "/Users/${user}/.Trash" -depth 1 ! -depth 0 -print0 | xargs -0 rm $v -r
       # delete the contents of the volume-specific .Trashes folders
       for file in /Volumes/*; do
-        if [ -d "$file" ]; then
+        if [ -d "${file}" ]; then
           folder="${file}/.Trashes/${uid}"
-          if [ -d "$folder" ]; then
-            find "$folder" -depth 1 ! -depth 0 -print0 | xargs -0 rm $v -r
+          if [ -d "${folder}" ]; then
+            find "${folder}" -depth 1 ! -depth 0 -print0 | xargs -0 rm $v -r
           fi
         fi
       done
@@ -260,7 +260,7 @@ function secureEmptyTheTrash() {
     fi
   # if Finder isn't scriptable, we'll manually empty the trash ourselves
   else
-    if [[ $verbose == "1" ]]; then v="-v"; fi
+    if [[ ${verbose} == "1" ]]; then v="-v"; fi
     # confirm that the user wants to securely empty the trash
     seek_confirmation "Are you sure you want to securely empty the trash (this REALLY cannot be undone)?"
     if is_confirmed; then
@@ -270,8 +270,8 @@ function secureEmptyTheTrash() {
       for file in /Volumes/*; do
         if [ -d "$file" ]; then
           folder="${file}/.Trashes/${uid}"
-          if [ -d "$folder" ]; then
-            find "$folder" -depth 1 ! -depth 0 -print0 | xargs -0 srm $v -r
+          if [ -d "${folder}" ]; then
+            find "${folder}" -depth 1 ! -depth 0 -print0 | xargs -0 srm $v -r
           fi
         fi
       done
@@ -282,7 +282,7 @@ function secureEmptyTheTrash() {
 }
 
 function trashAFile() {
-  if [[ $verbose == "1" ]]; then v="-v"; fi
+  if [[ ${verbose} == "1" ]]; then v="-v"; fi
 
   # Iterate over all files passed by user
   for userFile in "${args[@]}"; do
@@ -295,7 +295,7 @@ function trashAFile() {
   if have_scriptable_finder; then
     # determine whether we have an absolute path name to the file or not
     if [ "${userFile:0:1}" = "/" ]; then
-      file="${userFile}"
+      local file="${userFile}"
     else
       # expand relative to absolute path
       verbose "Determining absolute path for '${userFile}'... "
@@ -314,14 +314,14 @@ function trashAFile() {
     fi
   # Finder isn't available for this user, so don't rely on it (we'll do all the dirty work ourselves)
   else
-    trash="/Users/${user}/.Trash/"
+    local trash="/Users/${user}/.Trash/"
     # create the trash folder if necessary
     if [ ! -d "${trash}" ]; then
-      mkdir $v "${trash}"
+      mkdir ${v} "${trash}"
     fi
     # move the file to the trash
     if [ ! -e "${trash}${userFile}" ]; then
-      mv $v "${userFile}" "${trash}"
+      mv ${v} "${userFile}" "${trash}"
     else
       # determine if the filename has an extension
       ext=false
@@ -330,32 +330,32 @@ function trashAFile() {
       esac
 
       # keep incrementing a number to append to the filename to mimic Finder
-      i=1
+      local i=1
       if $ext; then
         new="${trash}${userFile%%.*} ${i}.${userFile##*.}"
       else
-        new="${trash}$userFile $i"
+        new="${trash}${userFile} ${i}"
       fi
-      while [ -e "$new" ]; do
+      while [ -e "${new}" ]; do
         ((i=$i + 1))
-        if $ext; then
+        if ${ext}; then
           new="${trash}${userFile%%.*} ${i}.${userFile##*.}"
         else
-          new="${trash}${userFile} $i"
+          new="${trash}${userFile} ${i}"
         fi
       done
 
       #move the file to the trash with the new name
-      mv $v "${userFile}" "$new"
+      mv ${v} "${userFile}" "${new}"
     fi
   fi
   done
 }
 
 # run functions
-if $list; then listTrash; fi
-if $emptyTrash; then emptyTheTrash; fi
-if $secureEmpty; then secureEmptyTheTrash; fi
+if ${list}; then listTrash; fi
+if ${emptyTrash}; then emptyTheTrash; fi
+if ${secureEmpty}; then secureEmptyTheTrash; fi
 trashAFile
 
 ####################################################
@@ -367,25 +367,30 @@ trashAFile
 
 # Print usage
 usage() {
-  echo -n "${scriptName} [OPTION]... [FILE]...
+  echo -n "
+ ${scriptName} [OPTION]... [FILE]...
 
- ${bold}Trash${reset} allows trashing of files instead of tempting fate with ${bold}rm${reset}. Correctly handles
- trashing files on other volumes, uses the same filename renaming scheme as Finder
- for duplicate file names, can list trash contents w/disk usage summary, and empty
-trash (including securely) w/confirmation. Does not require Finder to be running.
+ ${bold}Trash${reset} allows MacOS trashing of files instead of tempting fate with ${bold}rm${reset}.
+ Anything deleted with Trash will be moved to the native MacOS trash folder.
+
+ This script:
+
+  - Correctly handles ${bold}trashing files on other volumes${reset}
+  - Uses the ${bold}same filename renaming scheme as Finder${reset} for duplicate file names
+  - Can ${bold}list trash contents${reset} w/disk usage summary
+  - ${bold}Empty trash${reset} (including securely) w/confirmation.
+  - Does not require Finder to be running.
 
  ${bold}Options:${reset}
--l , --list           list trash contents
- -e, --empty            empty trash contents
- -s, --secure    secure empty trash contents
-
-
-  --force           Skip all user interaction.  Implied 'Yes' to all actions.
-  -q, --quiet       Quiet (no output)
-  -v, --verbose     Output more information. (Items echoed to 'verbose')
-  -d, --debug       Runs script in BASH debug mode (set -x)
-  -h, --help        Display this help and exit
-      --version     Output version information and exit
+  -l , --list         List trash contents
+  -e, --empty         Empty trash contents
+  -s, --secure        Secure empty trash contents
+  --force             Skip all user interaction.  Implied 'Yes' to all actions.
+  -q, --quiet         Quiet (no output)
+  -v, --verbose       Output more information. (Items echoed to 'verbose')
+  -d, --debug         Runs script in BASH debug mode (set -x)
+  -h, --help          Display this help and exit
+      --version       Output version information and exit
 "
 }
 

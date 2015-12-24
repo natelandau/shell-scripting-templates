@@ -251,4 +251,5 @@ set -o pipefail
 # Run your script
 mainScript
 
-safeExit # Exit cleanly
+# Exit cleanlyd
+safeExit
