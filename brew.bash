@@ -26,6 +26,42 @@
 #
 #}
 
+# brew install
+function brewI ()
+{ brew_actioner "${@}"; }
+
+# brew uninstall
+function brewU ()
+{ brew_actioner "${@}"; }
+
+# brew update
+function brewu ()
+{ brew_actioner "${@}"; }
+
+# brew upgrade
+function brewUp ()
+{ brew_actioner "${@}"; }
+
+# brew uninstall/install (actual-reinstall)
+function brewR ()
+{ brew_actioner "${@}"; }
+
+# brew home
+function brewh ()
+{ brew_actioner "${@}"; }
+
+# brew search
+function brews ()
+{ brew_actioner "${@}"; }
+
+# brew list
+function brewl ()
+{ brew_actioner "${@}"; }
+
+# brew info
+function brewi ()
+{ brew_actioner "${@}"; }
+
 function brew_actioner ()
 {
     #
@@ -84,6 +120,11 @@ function brew_actioner ()
 
     ( "Up" ) brew upgrade    "${args[@]}";;
 
+    ( "R"  ) {
+             brew uninstall  "${args[@]}"
+             brew install    "${args[@]}"
+             };;
+
     ( "h"  ) brew home       "${args[@]}";;
 
     # Actions where results are stored for further manipulation.
@@ -129,7 +170,7 @@ function brew_actioner ()
 
     # Print results, using a pager if result count is greater than height of our terminal.
     printf '%s\n' "${results[@]}" |
-        { [ "${#results[@]}" -lt ${LINES:-0} ] && cat - || eval "${PAGER:-less -isR}"; }
+        { [ "${#results[@]}" -lt ${LINES:-0} ] && cat - || less -isR; }
 
 }
 
@@ -190,9 +231,9 @@ function brew_upup ()
             printf "\nUpgrade? [y/N] "
             read -n1
             printf "\n"
-            [[ "${REPLY}" != [Yy] ]] || brew upgrade
+            [[ "${REPLY}" != [Yy] ]] || brew upgrade --all
         } || {
-            printf "No outdated brews..\n"
+            printf "No outdated brews.\n"
         }
 
         # Any cleanup needed?
@@ -204,42 +245,285 @@ function brew_upup ()
             printf "\n"
             [[ "${REPLY}" != [Yy] ]] || brew cleanup
         } || {
-            printf "No brews to cleanup..\n"
+            printf "No brews to cleanup.\n"
         }
 
     } 1>&2
 
 }
 
-# brew install
-function brewI ()
-{ brew_actioner "${@}"; }
+function brew_via_proxy ()
+{ proxychains4 -q brew "${@}"; }
 
-# brew uninstall
-function brewU ()
-{ brew_actioner "${@}"; }
+function brew_linkapps_fix ()
+{
+    declare IFS apps app applnk lnk
+    printf -v IFS '\t'
+    printf '\n# Generating Apps List and Updating Links ..\n'
+    apps=($( brew linkapps 2>&1 | grep -o '[^/]*\.app' | sort -u | tr '\n' '\t' ))
+    printf -v IFS ' \t\n'
+    apps=("${apps[@]/#//Applications/}")
+    printf '\n'
+    for app in "${apps[@]}"
+    do
+        [[ -z "${app}" || ! -e "${app}" ]] || {
+            printf '# Removing .. %s\n' "${app}"
+            rm -i -rf "${app}"
+        }
+    done
+    printf '\n# Generating Apps Links ..\n'
+    brew linkapps
+    for app in "${apps[@]}"
+    do
+        printf '\n'
+        applnk="${app}.linkapps_fix"
+        printf '# Moving link .. %s\n' "${applnk}"
+        rm -i -f "${applnk}"
+        mv -i -vf "${app}" "${applnk}"
+        lnk="$( ls -lond "${applnk}" | sed -n 's=.* -> ==p' )"
+        printf '# Generating Fixed Links .. %s .. %s\n' "${app}" "${lnk}"
+        mkdir "${app}"
+        ln -vnfs "${lnk}"/* "${app}"/
+        chmod -R a+rx "${app}"
+        printf '# Removing .. %s\n' "${applnk}"
+        rm -i -vf "${applnk}"
+    done
+}
 
-# brew update
-function brewu ()
-{ brew_actioner "${@}"; }
+function brew_UNINSTALL ()
+{
 
-# brew upgrade
-function brewUp ()
-{ brew_actioner "${@}"; }
+    declare fnc ents ent
+    fnc="${FUNCNAME}"
+    ents=(
+        Library/Aliases
+        Library/Contributions
+        Library/Formula
+        Library/Homebrew
+        Library/LinkedKegs
+        Library/Taps
+        .git
+        '~/Library/*/Homebrew'
+        '/Library/Caches/Homebrew/*'
+    )
 
-# brew home
-function brewh ()
-{ brew_actioner "${@}"; }
+    hash -r
+    export HOMEBREW_PREFIX
+    HOMEBREW_PREFIX="${HOMEBREW_PREFIX:-$( brew --prefix )}"
 
-# brew search
-function brews ()
-{ brew_actioner "${@}"; }
+    {
 
-# brew list
-function brewl ()
-{ brew_actioner "${@}"; }
+        if [[ -n "${HOMEBREW_PREFIX}" ]]; then
+            cd "${HOMEBREW_PREFIX}"/. >/dev/null 2>&1
+            if [[ "${?}" -ne 0 ]]; then
+                printf "${fnc}: %s\n" \
+                    "ERROR: Could not change directory { ${HOMEBREW_PREFIX} }"
+            fi
+        else
+            printf "${fnc}: %s\n" \
+                "ERROR: Could not determine HOMEBREW_PREFIX"
+        fi
 
-# brew info
-function brewi ()
-{ brew_actioner "${@}"; }
+        if [[ -e Cellar/. ]]; then
+        printf "${fnc}: %s\n" \
+            "Removing Cellar"
+        command rm -rf Cellar || return 255
+        fi
 
+        if [[ -x bin/brew ]]; then
+            printf "${fnc}: %s\n" \
+                "Brew Pruning"
+            bin/brew prune || return 254
+        fi
+
+        if [[ -d .git/. ]]; then
+            printf "${fnc}: %s\n" \
+                "Removing GIT Data"
+            git checkout -q master || return 253
+            { git ls-files | tr '\n' '\0' | xargs -0 rm -f; } || return 252
+        fi
+
+        for ent in "${ents[@]}"
+        do
+            [[ -n "${ent}" ]] || continue
+            if [[ $( eval ls -1d "${ent}" >/dev/null 2>&1 ) ]]; then
+            printf "${fnc}: %s\n" \
+                "Removing { ${ent} }"
+            eval command rm -rf "${ent}"
+            fi
+        done
+
+            printf "${fnc}: %s\n" \
+                "Removing Broken SymLinks"
+        find -L . -type l -exec rm -- {} +
+            printf "${fnc}: %s\n" \
+                "Removing Empty Dirs"
+        find . -depth -type d -empty -exec rmdir -- '{}' \; 2>/dev/null
+
+    } 1>&2
+
+}
+
+function brew_INSTALL ()
+{
+
+    local fnc precmd cmderr umask_bak
+    fnc="${FUNCNAME}"
+    precmd=
+    cmderr=0
+    umask_bak="$( umask )"
+    umask 0002
+
+    {
+
+        printf "${fnc}: %s\n" "Setting up { /usr/local }"
+        while :; do
+            {
+                "${precmd[@]}" mkdir -p           /usr/local/bin
+                "${precmd[@]}" chgrp -R admin     /usr/local/.
+                "${precmd[@]}" chmod -R g+rwX,o+X /usr/local/.
+                #"${precmd[@]}" find               /usr/local/. -type d -exec chmod g+s '{}' \;
+            } 2>/dev/null
+            cmderr="${?}"
+            if [[ "${cmderr}" -gt 0 ]]; then
+                if [[ "${precmd[0]}" == 'sudo' ]]; then
+                    printf "${fnc}: %s\n" \
+                        "ERROR: Could not setup { /usr/local }"
+                    return 255
+                else
+                    precmd=( sudo -p "${fnc}: Need administrator privileges: " )
+                    continue
+                fi
+            fi
+            break
+        done
+
+        printf "${fnc}: %s\n" \
+            "Status of involved directories."
+        ls -ld /usr/local/. /usr/local/*
+
+        printf "${fnc}: %s\n" \
+            "Install Homebrew."
+        ruby -e "$(
+            curl -fL 'https://raw.githubusercontent.com/Homebrew/install/master/install'
+        )"
+#        curl -L https://github.com/Homebrew/homebrew/tarball/master |
+#            tar xz --strip 1 -C "${prefix}"
+
+#        printf "${fnc}: %s\n" \
+#            "Create symlink for { brew }."
+#        ln -vnfs "${prefix}/bin/brew" /usr/local/bin/brew
+#
+#        printf "${fnc}: %s\n" \
+#            "Update Homebrew."
+#        /usr/local/bin/brew update
+
+        umask "${umask_bak}"
+
+    } 1>&2
+
+}
+
+function brew_BACKUP ()
+{
+    local fnc tc_tab tc_nln tc_tilde pkgs pkg opti optu out tmp rgx IFS IFS_DEF IFS_NLN
+    printf -v tc_tab    '\t'
+    printf -v tc_nln    '\n'
+    printf -v tc_tilde  '~'
+    printf -v IFS_DEF   ' \t\n'
+    printf -v IFS_NLN   '\n'
+    IFS="${IFS_DEF}"
+    fnc="${FUNCNAME}"
+    out=~/Documents/brew_BACKUP_"$( date +%Y_%m_%d_%H_%M_%S )".txt
+    tmp="$(
+        brew info --json=v1 --installed |
+            jq -c '.[] | { ( .name ): .dependencies }' |
+            sed \
+                -e 's="[^"]*/\([^"]*\)"="\1"=g' \
+                -e :END
+    )"
+    rgx="$(
+        echo "${tmp}" |
+            sed \
+                -e = \
+                -e 's=^{\([^:]*\)\(.*\)}=s'"${tc_tab}"'\1\\([^:]\\)'"${tc_tab}"'{\1\2}\\1'"${tc_tab}"'=' \
+                -e :END |
+            sed \
+                -e '/^[0-9]*$/bLBL' \
+                -e bPRT \
+                -e :LBL \
+                -e 's/^/:RGX/' \
+                -e p \
+                -e 's/^:/t/' \
+                -e h \
+                -e d \
+                -e :PRT \
+                -e 'p;g' \
+                -e :END
+    )"
+    tmp="$(
+        echo "${tmp}" |
+            sed -f <( echo "${rgx}" ) |
+            grep -o '"[^"]*"' |
+            cut -d'"' -f2
+    )"
+    tmp="$(
+        echo "${tmp}" |
+            grep -n . |
+            sort -t: -k 2,2 -k 1,1gr |
+            sort -t: -k 2,2 -u |
+            sort -t: -k 1,1gr |
+            cut -d: -f2
+    )"
+
+    IFS="${IFS_NLN}"
+    pkgs=( ${tmp} )
+    IFS="${IFS_DEF}"
+
+    brew info --json=v1 "${pkgs[@]}" |
+        jq -r '
+            .[] |
+            .name as $name |
+            .installed[].version as $ver |
+            (
+                (
+                    .versions |
+                    to_entries |
+                    map( select( .value == $ver ) ) |
+                    .[].key
+                )
+                //
+                (
+                    "version_not_found_" + $ver + "_this_will_install_default"
+                )
+            ) as $ver |
+            (
+                if $ver == "head" then
+                    "HEAD"
+                elif
+                    $ver == "stable"
+                then
+                    null
+                else
+                    $ver
+                end
+            ) as $ver |
+            [ .installed[].used_options[] ] as $opti |
+            ( [ .options[].option ] - $opti ) as $optu |
+            [
+                "brew install",
+                $name,
+                ( if $ver then "--" + $ver else empty end ),
+                $opti[],
+                ( if ( $optu | length ) > 0 then "#", $optu[] else empty end )
+            ] |
+            join(" ")' |
+        tee "${out}"
+    printf "${fnc}: %s\n" "Stored in { ${out/${HOME}/${tc_tilde}} }" 1>&2
+}
+
+function brew_new ()
+{
+    local dts="$( date -r $(( $( date +%s ) - ${1:-7} * 24 * 60 * 60 )) +%Y-%m-%d )"
+    brew log --grep='(new formula)' --since="${dts}" | sed -n 's/^[[:blank:]]*\([^[:blank:]]*\).*(new formula).*/\1/p' | sort -u
+}

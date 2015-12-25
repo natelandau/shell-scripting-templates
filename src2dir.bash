@@ -3,34 +3,28 @@
 function src2dir ()
 {
 
-    declare vars=(
+    local vars_al_=(
+        cmds
+        bins
+        uris
+    )
+    local vars_sl_=(
         fnc
-        src_repo
-        cmds cmd
-        bins bin
-        uris uri
+        src_base
+        cmd
+        bin
+        uri
         dir
         rgx_bins
+        rgx_uri
         rgx_uri_to_dir
         tc_spc tc_tab tc_nln
         tc_tilde tc_fslash tc_colon
-        IFS IFS_O_RGX IFS_I_ALL IFS_I_TAN IFS_I_NLN
+        IFS IFS_DEF IFS_NLN IFS_RGX
         I J K
     )
-    declare ${vars[*]}
-
-    cmds=()
-    bins=()
-    uris=()
-
-    fnc="${FUNCNAME}"
-
-    src_repo="${SRC2DIR_REPO:-${HOME_SRC_DIR}}"
-    [ -d "${src_repo}/." -a -n "${src_repo}" ] || {
-        printf "${fnc}: %s\n" \
-                "Could not find source target directory environment variable SRC2DIR_REPO or HOME_SRC_DIR"
-        return 9
-    }
+    local -- ${vars_sl_[*]}
+    local -a ${vars_al_[*]}
 
     printf -v tc_spc ' '
     printf -v tc_tab '\t'
@@ -40,110 +34,128 @@ function src2dir ()
     printf -v tc_fslash '/'
     printf -v tc_colon  ':'
 
-    printf -v IFS_I_ALL ' \t\n'
-    printf -v IFS_I_TAN '\t\t\n'
-    printf -v IFS_I_NLN '\n\n\n'
-    printf -v IFS_O_RGX '|\t\n'
-    IFS="${IFS_I_ALL}"
+    printf -v IFS_DEF ' \t\n'
+    printf -v IFS_NLN '\n'
+    printf -v IFS_RGX '|'
+    IFS="${IFS_DEF}"
 
-    uris=( "${@}" )
+    fnc="${FUNCNAME}"
 
-    cmds=(
-        git     'git clone "${uri}" .'                                  'git status'
-        hg      'hg clone "${uri}" .'                                   'hg verify; hg identify; hg status'
-        bzr     'bzr clone "${uri}" .'                                  'bzr status'
-        svn     'svn checkout "${uri}" .'                               'svn status'
-        cvs     'cd ..; cvs -d "${uri}" checkout -P .; cd "${dir}"'     'cvs status'
-    )
+    src_base="${SRC2DIR_BASE:-${HOME_SRC_DIR:-${HOME}/Source}}"
 
-    for (( I=0; I<${#cmds[@]}; I+=3 ))
-    do
-        bins=( "${bins[@]}" "${cmds[${I}]}:${I}" )
-    done
-
-    IFS="${IFS_O_RGX}"
-    rgx_bins="${bins[*]%:*}"
-    IFS="${IFS_I_ALL}"
-
+    rgx_uri='(.*@)?(https?|ssh):///?'
     rgx_uri_to_dir='^([^@/]*@)?([^@:/]+:///?)?([^@/:]*@)?(.*)'
 
-    for uri in "${uris[@]}"
-    do
+    {
 
-        bin=
-
-        [[ -n "${bin}" || ! "${uri}" =~ ^(${rgx_bins})[@:] ]] \
-            || bin="${BASH_REMATCH[1]}"
-        [[ -n "${bin}" || ! "${uri}" =~ (.*@)?(https?|ssh):///?(${rgx_bins})[\.@/] ]] \
-            || bin="${BASH_REMATCH[3]}"
-        [[ -n "${bin}" || ! "${uri}" =~ ((.*@)?(https?|ssh):///?)?github\. ]] \
-            || bin=git
-        [[ -n "${bin}" || ! "${uri}" =~ ((.*@)?(https?|ssh):///?)?bitbucket\. ]] \
-            || bin=hg
-        [[ -n "${bin}" || ! "${uri}" =~ ((.*@)?(https?|ssh):///?)?cvsweb\. ]] \
-            || bin=cvs
-        [[ -n "${bin}" || ! "${uri}" =~ (.*@)?(https?|ssh):///?[^/]+/.+\.(${rgx_bins})$ ]] \
-            || bin="${BASH_REMATCH[3]}"
-        [[ -n "${bin}" || ! "${uri}" =~ .*/(${rgx_bins})(/.*)?$ ]] \
-            || bin="${BASH_REMATCH[1]}"
-        [[ -n "${bin}" || ! "${uri}" =~ /(cvsroot|cvsweb|cvs)/ ]] \
-            || bin=cvs
-        [[ -n "${bin}" || ! "${uri}" =~ \.(${rgx_bins})\. ]] \
-            || bin="${BASH_REMATCH[1]}"
-
-        [ -n "${bin}" ] || {
+        [ -d "${src_base}/." -a -n "${src_base}" ] || {
             printf "${fnc}: %s\n" \
-                    "Could not determine source type of URI { ${uri} }"
-            continue
-        } 1>&2
+                    "No source base directory. { ${src_base} }" \
+                    "Set SRC2DIR_BASE, or create { ~/Source }"
+            return 9
+        }
 
-        printf "${fnc}: %s\n" \
-                "URI   ${uri}" \
-                "Type  ${bin}"
+        uris=( "${@}" )
 
-        dir="${uri}"
+        cmds=(
+            git
+            'git clone "${uri}" .'
+            'git status'
+            hg
+            'hg clone "${uri}" .'
+            'hg verify; hg identify; hg status'
+            bzr
+            'bzr clone "${uri}" .'
+            'bzr status'
+            svn
+            'svn checkout "${uri}" .'
+            'svn status'
+            cvs
+            'cd ..; cvs -d "${uri}" checkout -P .; cd "${dir}"'
+            'cvs status'
+        )
 
-        [[ ! "${dir}" =~ ${rgx_uri_to_dir} ]] \
-            || dir="${BASH_REMATCH[4]}"
+        for (( I=0; I<${#cmds[@]}; I+=3 ))
+        do
+            bins[${#bins[@]}]="${cmds[${I}]}:${I}"
+        done
 
-        dir="${dir//${tc_colon}${tc_fslash}/${tc_fslash}}"
-        dir="${dir%/}"
-        dir="${dir//:/${tc_fslash}}"
-        [[ "${dir}" != github.* || ! "${uri}" =~ https?:/ ]] \
-            || dir="${dir}.git"
-        dir="${src_repo}/${dir}"
+        IFS="${IFS_RGX}"
+        rgx_bins="${bins[*]%:*}"
+        IFS="${IFS_DEF}"
 
-        printf "${fnc}: %s\n" "Dir   ${dir/#${HOME}/${tc_tilde}}"
-
-        mkdir -p "${dir}" && cd "${dir}" || {
-            printf "${fnc}: %s\n" \
-                    "Could not prepare target directory!"
-            continue
-        } 1>&2
-
-        for I in "${bins[@]}"
+        for uri in "${uris[@]}"
         do
 
-            [[ "${I}" == ${bin}:* ]] || continue
+            if [[ "${uri}" =~ ^(${rgx_bins})[@:] ]]; then
+                bin="${BASH_REMATCH[1]}"
+            elif [[ "${uri}" =~ ^(${rgx_uri})?github\. ]]; then
+                bin=git
+            elif [[ "${uri}" =~ ^(${rgx_uri})?bitbucket\. ]]; then
+                bin=hg
+            elif [[ "${uri}" =~ ^(${rgx_uri})?cvsweb\. ]]; then
+                bin=cvs
+            elif [[ "${uri}" =~ ^(${rgx_uri})?[^/]+/.+\.(${rgx_bins})$ ]]; then
+                bin="${BASH_REMATCH[3]}"
+            elif [[ "${uri}" =~ ^${rgx_uri}(${rgx_bins}).* ]]; then
+                bin="${BASH_REMATCH[3]}"
+            else
+                printf "${fnc}: %s\n" \
+                        "Could not determine source type of URI { ${uri} }"
+                continue
+            fi
 
-            I="${I#*:}"
+            printf "${fnc}: %s\t%s\n" \
+                    'URI'   "${uri}" \
+                    'Type'  "${bin}"
 
-            printf "${fnc}: %s\n" "Obtain.."
-            cmd=( ${cmds[$((I+1))]} )
-            #printf '{%q}\n' "${cmd[@]}"
-            eval "${cmd[@]}"
+            dir="${uri}"
 
-            [ "${?}" -ne 0 ] || break
+            if [[ "${dir}" =~ ${rgx_uri_to_dir} ]]; then
+                dir="${BASH_REMATCH[4]}"
+            fi
+            #printf "${fnc}: %s\t%s\n" 'Dir?' "${dir}"
 
-            printf "${fnc}: %s\n" "Status.."
-            cmd=( ${cmds[$((I+2))]} )
-            #printf '{%q}\n' "${cmd[@]}"
-            eval "${cmd[@]}"
+            if [[ "${dir}" =~ github.* ]]; then
+                dir="${dir%.git}.git"
+            fi
+            #printf "${fnc}: %s\t%s\n" 'Dir?' "${dir}"
 
-            break
+            dir="${src_base}/${bin}/${dir}"
+            printf "${fnc}: %s\t%s\n" 'Dir' "${dir/#${HOME}/${tc_tilde}}"
+
+            mkdir -p "${dir}" && cd "${dir}"
+            if [[ "${?}" -ne 0 ]]; then
+                printf "${fnc}: %s\n" \
+                        "Could not prepare target directory!"
+                continue
+            fi
+
+            for I in "${bins[@]}"
+            do
+
+                [[ "${I}" == ${bin}:* ]] || continue
+
+                I="${I#*:}"
+
+                printf "${fnc}: %s\n" "Obtain.."
+                cmd=( ${cmds[$((I+1))]} )
+                printf "${fnc}: %s\n" "{ $( eval echo "${cmd[@]}" ); }"
+                eval "${cmd[@]}"
+
+                [ "${?}" -ne 0 ] || break
+
+                printf "${fnc}: %s\n" "Status.."
+                cmd=( ${cmds[$((I+2))]} )
+                printf "${fnc}: %s\n" "{ $( eval echo "${cmd[@]}" ); }"
+                eval "${cmd[@]}"
+
+                break
+
+            done
 
         done
 
-    done
+    }
 
 }
