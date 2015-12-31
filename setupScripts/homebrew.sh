@@ -145,6 +145,7 @@ RECIPES=(
   sqlite
   tag
   terminal-notifier
+  tldr
   tree
   unison
   z

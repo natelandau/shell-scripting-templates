@@ -101,10 +101,6 @@ install-ffmpeg () {
 #
 # Credit: https://github.com/cowboy/dotfiles
 # ------------------------------------------------------
-
-# Given a list of desired items and installed items, return a list
-# of uninstalled items.
-# Credit: https://github.com/cowboy/dotfiles
 function to_install() {
   local debugger desired installed i desired_s installed_s remain
   if [[ "$1" == 1 ]]; then debugger=1; shift; fi
@@ -142,6 +138,9 @@ function doInstall () {
           # FFMPEG takes additional flags
           if [[ "${item}" = "ffmpeg" ]]; then
             install-ffmpeg
+          elif [[ "${item}" = "tldr" ]]; then
+            brew tap tldr-pages/tldr
+            brew install tldr
           else
             ${INSTALLCOMMAND} ${item}
           fi
@@ -154,6 +153,9 @@ function doInstall () {
         # FFMPEG takes additional flags
         if [[ "${item}" = "ffmpeg" ]]; then
           install-ffmpeg
+        elif [[ "${item}" = "tldr" ]]; then
+          brew tap tldr-pages/tldr
+          brew install tldr
         else
           ${INSTALLCOMMAND} ${item}
         fi
