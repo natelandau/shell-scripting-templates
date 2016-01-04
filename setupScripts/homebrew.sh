@@ -3,24 +3,9 @@
 # ##################################################
 # My Generic BASH script template
 #
-version="1.0.0"               # Sets version variable for this script
+version="1.0.0"               # Sets version variable
 #
-scriptTemplateVersion="1.0.1" # Version of scriptTemplate.sh
-#                               that this script is based on
-#
-# Installs Homebrew and all its prerequisites, then installs a number of packages.
-#
-# For logging levels use the following functions:
-#   - header:   Prints a script header
-#   - input:    Ask for user input
-#   - success:  Print script success
-#   - info:     Print information to the user
-#   - notice:   Notify the user of something
-#   - warning:  Warn the user of something
-#   - error:    Print a non-fatal error
-#   - die:      A fatal error.  Will exit the script
-#   - debug:    Debug information
-#   - verbose:  Debug info only printed when 'verbose' flag is set to 'true'.
+scriptTemplateVersion="1.5.0" # Version of scriptTemplate.sh that this script is based on
 #
 # HISTORY:
 #
@@ -28,13 +13,20 @@ scriptTemplateVersion="1.0.1" # Version of scriptTemplate.sh
 #
 # ##################################################
 
+# Provide a variable with the location of this script.
+scriptPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 # Source Scripting Utilities
 # -----------------------------------
-# If these can't be found, update the path to the file
+# These shared utilities provide many functions which are needed to provide
+# the functionality in this boilerplate. This script will fail if they can
+# not be found.
 # -----------------------------------
-SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-if [ -f "${SCRIPTDIR}/../lib/utils.sh" ]; then
-  source "${SCRIPTDIR}/../lib/utils.sh"
+
+utilsLocation="${scriptPath}/../lib/utils.sh" # Update this path to find the utilities.
+
+if [ -f "${utilsLocation}" ]; then
+  source "${utilsLocation}"
 else
   echo "Please find the file util.sh and add a reference to it in this script. Exiting."
   exit 1
@@ -47,10 +39,25 @@ fi
 # -----------------------------------
 function trapCleanup() {
   echo ""
+  # Delete temp files, if any
   if is_dir "${tmpDir}"; then
     rm -r "${tmpDir}"
   fi
   die "Exit trapped."  # Edit this if you like.
+}
+
+# safeExit
+# -----------------------------------
+# Non destructive exit for when script exits naturally.
+# Usage: Add this function at the end of every script.
+# -----------------------------------
+function safeExit() {
+  # Delete temp files, if any
+  if is_dir "${tmpDir}"; then
+    rm -r "${tmpDir}"
+  fi
+  trap - INT TERM EXIT
+  exit
 }
 
 # Set Flags
@@ -58,34 +65,23 @@ function trapCleanup() {
 # Flags which can be overridden by user input.
 # Default values are below
 # -----------------------------------
-quiet=0
-printLog=0
-verbose=0
-force=0
-strict=0
+quiet=false
+printLog=false
+verbose=false
+force=false
+strict=false
+debug=false
+args=()
 
-
-# Set Local Variables
+# Set Temp Directory
 # -----------------------------------
-# A set of variables used by many scripts
-# -----------------------------------
-
-# Set Script name and location variables
-scriptName=`basename ${0}`  # Full name
-scriptBasename="$(basename ${scriptName} .sh)" # Strips '.sh' from name
-scriptPath="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# Set time stamp
-now=$(date +"%m-%d-%Y %r")
-# Set hostname
-thisHost=$(hostname)
-
 # Create temp directory with three random numbers and the process ID
 # in the name.  This directory is removed automatically at exit.
-  tmpDir="/tmp/${scriptName}.$RANDOM.$RANDOM.$RANDOM.$$"
-  (umask 077 && mkdir "${tmpDir}") || {
-    die "Could not create temporary directory! Exiting."
-  }
+# -----------------------------------
+tmpDir="/tmp/${scriptName}.$RANDOM.$RANDOM.$RANDOM.$$"
+(umask 077 && mkdir "${tmpDir}") || {
+  die "Could not create temporary directory! Exiting."
+}
 
 # Logging
 # -----------------------------------
@@ -97,11 +93,23 @@ thisHost=$(hostname)
 # -----------------------------------
 logFile="$HOME/Library/Logs/${scriptBasename}.log"
 
+# Check for Dependencies
+# -----------------------------------
+# Arrays containing package dependencies needed to execute this script.
+# The script will fail if dependencies are not installed.  For Mac users,
+# most dependencies can be installed automatically using the package
+# manager 'Homebrew'.  Mac applications will be installed using
+# Homebrew Casks. Ruby and gems via RVM.
+# -----------------------------------
+homebrewDependencies=()
+caskDependencies=()
+gemDependencies=()
 
 function mainScript() {
 ############## Begin Script Here ###################
+####################################################
 
-header "Beginning ${scriptName}"
+notice "Beginning ${scriptName}"
 
 # Set Variables
 LISTINSTALLED="brew list"
@@ -114,6 +122,7 @@ RECIPES=(
   bash-completion
   colordiff
   coreutils
+  ffmpeg
   gifsicle
   git
   git-extras
@@ -136,6 +145,7 @@ RECIPES=(
   optipng
   pkg-config
   pngcrush
+  p7zip
   readline
   rename
   shellcheck
@@ -169,9 +179,10 @@ doInstall
 htopPermissions
 brewCleanup
 
-header "Ending ${scriptName}"
+notice "${scriptName} completed"
 
-############## End Script Here ###################
+####################################################
+############### End Script Here ####################
 }
 
 ############## Begin Options and Usage ###################
@@ -184,12 +195,12 @@ usage() {
 Installs Homebrew and all its prerequisites, then installs a number of packages.
 
  Options:
-  -f, --force       Skip all user interaction.  Implied 'Yes' to all actions
   -q, --quiet       Quiet (no output)
   -l, --log         Print log to file
   -s, --strict      Exit script with null variables.  i.e 'set -o nounset'
   -v, --verbose     Output more information. (Items echoed to 'verbose')
   -h, --help        Display this help and exit
+      --force       Skip all user interaction.  Implied 'Yes' to all actions
       --version     Output version information and exit
 "
 }
@@ -238,23 +249,23 @@ unset options
 while [[ $1 = -?* ]]; do
   case $1 in
     -h|--help) usage >&2; safeExit ;;
-    --version) echo "$(basename $0) $version"; safeExit ;;
-    -u|--username) shift; username=$1 ;;
-    -p|--password) shift; password=$1 ;;
-    -v|--verbose) verbose=1 ;;
-    -l|--log) printLog=1 ;;
-    -q|--quiet) quiet=1 ;;
-    -s|--strict) strict=1;;
-    -f|--force) force=1 ;;
+    --version) echo "$(basename $0) ${version}"; safeExit ;;
+    -v|--verbose) verbose=true ;;
+    -l|--log) printLog=true ;;
+    -q|--quiet) quiet=true ;;
+    -s|--strict) strict=true;;
+    -d|--debug) debug=true;;
+    --force) force=true ;;
     --endopts) shift; break ;;
     *) die "invalid option: '$1'." ;;
   esac
   shift
 done
 
+# Store the remaining part as arguments.
+args+=("$@")
 
 ############## End Options and Usage ###################
-
 
 
 
@@ -269,19 +280,27 @@ done
 # Trap bad exits with your cleanup function
 trap trapCleanup EXIT INT TERM
 
-# Exit on error. Append ||true if you expect an error.
+# Set IFS to preferred implementation
+IFS=$' \n\t'
+
+# Exit on error. Append '||true' when you run the script if you expect an error.
 set -o errexit
 
+# Run in debug mode, if set
+if ${debug}; then set -x ; fi
+
 # Exit on empty variable
-if [ "${strict}" = "1" ]; then
-  set -o nounset
-fi
+if ${strict}; then set -o nounset ; fi
 
 # Bash will remember & return the highest exitcode in a chain of pipes.
-# This way you can catch the error in case mysqldump fails in `mysqldump |gzip`
+# This way you can catch the error in case mysqldump fails in `mysqldump |gzip`, for example.
 set -o pipefail
 
+# Invoke the checkDependenices function to test for Bash packages.  Uncomment if needed.
+# checkDependencies
 
-mainScript # Run your script
+# Run your script
+mainScript
 
-safeExit # Exit cleanly
+# Exit cleanlyd
+safeExit
