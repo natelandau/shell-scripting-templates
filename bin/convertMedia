@@ -493,16 +493,17 @@ convertMusic() {
 
       # FLAC TO ALAC
       if [[ "${userOutput,,}" == "alac" ]]; then
-        if type_exists "xlds"; then
+        if type_exists "xld"; then
           XLD=1
-          # audioConvertCommand="--profile FLACtoALAC"
+          #audioConvertCommand="--profile FLACtoALAC"
           audioConvertCommand="-f alac" && verbose "Using XLD. audioConvertCommand = -f alac"
+          outputFormat="m4a"
         else
           audioConvertCommand="-acodec alac" && verbose "Using ffmpeg. audioConvertCommand = -acodec alac"
           outputFormat="m4a"
         fi
       elif [[ "${userOutput,,}" == "flac" ]]; then
-        if type_exists "xlds"; then
+        if type_exists "xld"; then
           XLD=1
           audioConvertCommand="-f flac" && verbose "Using XLD. audioConvertCommand = -f flac"
         else
@@ -613,6 +614,7 @@ function doConvert() {
     else
       verbose "xld -o "${output}" ${audioConvertCommand} "${f}""
       xld -o "${output}" ${audioConvertCommand} "${f}"
+      deleteOriginalFile
     fi
   else # Use ffmpeg when XLD is set to 0
     # Respect --safe flag.
@@ -621,21 +623,24 @@ function doConvert() {
     else
       verbose "ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}" ${ffquiet}"
        ffmpeg -i "${f}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}" ${ffquiet}
+       deleteOriginalFile
+    fi
+  fi
 
-      # delete original if requested and remove '.new' from new file
-      if ${deleteOriginal}; then
-        rm -f $v "${f}"
-        #remove '.new' from filename
-        if [[ -n "${outputDir}" ]]; then
-          for file in "${outputDir}*.new.*"; do
-            rename $v 's/.new//g' "${file}"
-          done
-        else
-          for file in *.new.*; do
-            rename $v 's/.new//g' "${file}"
-          done
-        fi
-      fi
+}
+
+function deleteOriginalFile() {
+  if ${deleteOriginal}; then
+    rm -f $v "${f}"
+    #remove '.new' from filename
+    if [[ -n "${outputDir}" ]]; then
+      for file in "${outputDir}*.new.*"; do
+        rename $v 's/.new//g' "${file}"
+      done
+    else
+      for file in *.new.*; do
+        rename $v 's/.new//g' "${file}"
+      done
     fi
   fi
 }
