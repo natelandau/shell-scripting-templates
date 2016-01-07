@@ -22,6 +22,10 @@ scriptTemplateVersion="1.5.0" # Version of scriptTemplate.sh that this script is
 #                        - Better renaming of existing files
 #
 #
+# TODO
+#   - fix delete file function
+#   - add overwrite original function
+#
 # ##################################################
 
 # Provide a variable with the location of this script.
@@ -107,7 +111,7 @@ logFile="${HOME}/Library/Logs/${scriptBasename}.log"
 # Homebrew Casks. Ruby and gems via RVM.
 # -----------------------------------
 homebrewDependencies=(ffmpeg jq rename)
-caskDependencies=()
+caskDependencies=(xld)
 gemDependencies=()
 
 function mainScript() {
@@ -625,15 +629,14 @@ function mainScript() {
   }
 
   function deleteOriginalFile() {
-    local f
-    local newFile
-
     if ${verbose}; then v="-v" ; fi
 
     if [[ "${safeRun}" == "0" ]]; then
       if ${deleteOriginal}; then
         rm -f ${v} "${file}"
-        mv ${v} "${output}" "${outputDir}${file}"
+        if [[ "${file##*.}" == "${outputFormat}" ]]; then
+          mv ${v} "${output}" "${outputDir}${file}"
+        fi
       fi
     fi
   }
