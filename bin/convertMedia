@@ -3,7 +3,7 @@
 # ##################################################
 # My Generic BASH script template
 #
-version="2.0.1"               # Sets version variable for this script
+version="2.1.0"               # Sets version variable for this script
 #
 scriptTemplateVersion="1.5.0" # Version of scriptTemplate.sh that this script is based on
 #
@@ -21,11 +21,10 @@ scriptTemplateVersion="1.5.0" # Version of scriptTemplate.sh that this script is
 #                        - Better error handling
 #                        - Better renaming of existing files
 # * 2016-01-09 - v2.0.1  - Fixed bug on in video preset section where 'videoPreset' was malformed
+# * 2016-01-09 - v2.1.0  - Support for audiobooks with .m4b
+#                        - Support for concatenating multiple audio files
+#                        - Support for --probe function to output ffprobe data in JSON
 #
-#
-# TODO
-#   - fix delete file function
-#   - add overwrite original function
 #
 # ##################################################
 
@@ -80,6 +79,8 @@ deleteOriginal=false
 newFileFlag=false
 videoFoundFlag=false
 audioFoundFlag=false
+probe=false
+concat=false
 XLD=0
 args=()
 
@@ -121,7 +122,7 @@ function mainScript() {
 
   # File extension mappings - ie - are we working with a video or music file?
   videoTypes=(mp4 mov avi mkv wmv flv ogg m4p m4v 3gp divx h264)
-  audioTypes=(mp3 m4a aiff aac m4p wav wma flac)
+  audioTypes=(mp3 m4a aiff aac m4p wav wma flac m4b)
 
   function identifyFiles() {
     local item
@@ -238,6 +239,20 @@ function mainScript() {
     fi
   }
 
+  function concatFiles() {
+    if ${concatFiles}; then
+      # Create variable for ffmpeg to concacenate the files
+      concatConvert="concat:$(join "|" ${filesToConvert[@]})"
+      # Create the variable for the deleteOriginalFile function
+      concatDelete="$(join " " ${filesToConvert[@]})"
+
+      # Ask the user for the name of the newly created file
+      input "Please enter the name of the new file to be created. [ENTER]: "
+      read concatOutput
+
+    fi
+  }
+
   function parseJSON() {
     local ii
     local videoFoundFlag
@@ -256,6 +271,12 @@ function mainScript() {
     # Debugging:  Uncomment either (or both) of these lines
     #   ffprobe -v quiet -print_format json -show_format -show_streams "${file}" >> "${file}.json"
     #   cat "${informationFile}"
+
+    # If the '--probe' flag is set, we print the media file information onto the screen.
+    if "${probe}"; then
+      cat "${informationFile}"
+      return 0
+    fi
 
     # Read the necessary information from the JSON
     format="$(jq -r ".format.format_long_name" "${informationFile}")"
@@ -471,7 +492,6 @@ function mainScript() {
     # Build the Conversion Command
     # ########################################
 
-    # FLAC TO ALAC
     if [[ "${userOutput,,}" == "alac" ]]; then
       if type_exists "xld"; then
         XLD=1
@@ -485,23 +505,23 @@ function mainScript() {
     elif [[ "${userOutput,,}" == "flac" ]]; then
       if type_exists "xld"; then
         XLD=1
-        audioConvertCommand="-f flac" && verbose "Using XLD. audioConvertCommand = -f flac"
+        audioConvertCommand="-f flac"
       else
-        audioConvertCommand="-c:a flac" && verbose "Using ffmpeg. audioConvertCommand = -c:a flac"
+        audioConvertCommand="-c:a flac"
       fi
     elif [[ "${userOutput,,}" == "aac" || "${userOutput,,}" == "m4a" ]]; then
       # Pick the best aac audio encoder
       if $(ffmpeg -version | grep enable-libfdk-aac >/dev/null); then
         # set variable bit rate to '5', the highest
-        aacEncoder='libfdk_aac -vbr 5' && verbose "aacEncoder = libfdk_aac -vbr 5"
+        aacEncoder='libfdk_aac -vbr 5'
       else
-        aacEncoder='libfaac -q:a 400' && verbose "aacEncoder = libfaac -q:a 400"
+        aacEncoder='libfaac -q:a 400'
       fi
       if type_exists "xlds"; then
         XLD=1
         audioConvertCommand="-f aac" && verbose "using xld. audioConvertCommand = -f aac "
       else
-        audioConvertCommand="-acodec ${aacEncoder}" && verbose "using ffmpeg. audioConvertCommand = -acodec ${aacEncoder}"
+        audioConvertCommand="-acodec ${aacEncoder}"
       fi
     elif [[ "${userOutput,,}" == "mp3" ]]; then
       # Can we convert to mp3? Do we have an ffmpeg encoder?
@@ -515,12 +535,28 @@ function mainScript() {
       if [ -n "$bitrate" ]; then
         bitrate="${bitrate%k}k" # Ensure 'k' is at the end of any bitrate sent to ffmpeg
         ffmpegBitrate="-b:a $bitrate" && verbose "bitrate = ${bitrate}"
-        audioConvertCommand="-acodec ${mp3Encoder} ${ffmpegBitrate}" && verbose "audioConvertCommand = -acodec ${mp3Encoder} ${ffmpegBitrate}"
+        audioConvertCommand="-acodec ${mp3Encoder} ${ffmpegBitrate}"
       else
-        audioConvertCommand="-acodec ${mp3Encoder} -qscale:a 0" && verbose "audioConvertCommand = -acodec ${mp3Encoder} -qscale:a 0"
+        audioConvertCommand="-acodec ${mp3Encoder} -qscale:a 0"
       fi
+    elif [[ "${userOutput,,}" == "m4b" ]]; then
+      # m4b is exactly the same as m4a except it tells Apple that the file is an audiobook.
+      # so we use m4a conversion here and then rename the output file to m4b
+      # The main difference here is that we make the assumption that audiobooks don't
+      # need high fidelity or stereo so we make them mono and low bit-rate.
+
+      # Pick the best aac audio encoder
+      if $(ffmpeg -version | grep enable-libfdk-aac >/dev/null); then
+        # set variable bit rate to '5', the highest
+        aacEncoder='libfdk_aac -b:a 64k -ac 1 -f mp4'
+      else
+        aacEncoder='libfaac -b:a 64k -ac 1 -f mp4'
+      fi
+      audioConvertCommand="-acodec ${aacEncoder}"
     else
-      die "Unknown audio conversion format: '${outputFormat}'."
+      warning "We don't know what to do with audio format: '${outputFormat}'."
+      warning "Exiting"
+      safeExit
     fi
   }
 
@@ -560,6 +596,12 @@ function mainScript() {
     # Add the output directory
     output="${outputDir}${output}"
 
+    #Override the output file to the user's input if we are concatenating files
+    if [ -n "$concatOutput" ]; then
+      output="${outputDir}${concatOutput%.*}.${outputFormat}"
+      success "output=${output}"
+    fi
+
     # Confirm we're not overwriting an existing file
     # If we are, append '.new' to the name
     fileFlag=0
@@ -587,6 +629,11 @@ function mainScript() {
     if "${quiet}"; then
       verbose "running in quiet mode"
       ffquiet="-loglevel quiet"
+    fi
+
+    # When concatenating files, we need a different $file variable
+    if ${concatFiles}; then
+      file="${concatConvert}"
     fi
 
     # Respect the 'logfile' flag
@@ -632,29 +679,50 @@ function mainScript() {
   function deleteOriginalFile() {
     if ${verbose}; then v="-v" ; fi
 
+    # first, ensure we don't delete the originals if we're in a safe rune
     if [[ "${safeRun}" == "0" ]]; then
       if ${deleteOriginal}; then
-        rm -f ${v} "${file}"
-        if [[ "${file##*.}" == "${outputFormat}" ]]; then
-          mv ${v} "${output}" "${outputDir}${file}"
+        if ${concatFiles}; then
+          for fileToDelete in "${filesToConvert[@]}"; do
+            rm -f ${v} "${fileToDelete}"
+          done
+        else
+          rm -f ${v} "${file}"
+          if [[ "${file##*.}" == "${outputFormat}" ]]; then
+            mv ${v} "${output}" "${outputDir}${file}"
+          fi
         fi
       fi
+    fi
+
+    # break the loop if we're concatenating files.
+    if ${concatFiles}; then
+      break
     fi
   }
 
   ## RUN THE SCRIPT ##
   ####################################
 
-  # First we need to identify the files to be converted
+  # First we need to identify the files
   identifyFiles
 
   # Then we test that all files can be operated upon
   for fileToTest in "${filesToConvert[@]}"; do testFiles; done
 
+  # Then we respect the '--probe' option if requested
+  if "${probe}"; then
+    for file in "${filesToConvert[@]}"; do
+      info "Probing ${file}"
+      verbose "ffprobe -v quiet -print_format json -show_format -show_streams ${file}"
+      parseJSON
+    done
+    safeExit
+  fi
+
   # Then we work on the individual files.  This is the fun part.
   for file in "${filesToConvert[@]}"; do
     info "Working on ${file}"
-
     # First we grab the metadata of the file and assign it to variables
     parseJSON
     # Then we set the expected output format
@@ -664,6 +732,8 @@ function mainScript() {
     if [[ "${audioTypes[*]}" =~ "${file##*.}" ]]; then convertAudio; fi
     # Then we tell the script where to output the file
     setOutputDirectory
+    # Then we check if we are supposed to concatenate the files
+    concatFiles
     # Then we generate the name for the new file
     setOutputFile
     # Then we actually do the conversion
@@ -707,6 +777,8 @@ ${bold}General Options:${reset}
                     the FFMPEG commands to the terminal
       ${bold}--version${reset}     Output version information and exit
       ${bold}--recursive${reset}   Will search recursively through directories
+      ${bold}--probe${reset}       Outputs file metadata via ffprobe in JSON format. Does no coversion.
+      ${bold}--concat${reset}      Will concatenate audio files together into a single output.  Good for audiobooks.
 
 ${bold}File Options:${reset}
   ${bold}-f, --file${reset}        Specify a specific file to take actions on.
@@ -753,6 +825,11 @@ Do a recursive search for all directories beneath the current one. In each
 directory, search for .avi files and convert them to .mp4
 
     $ convertMedia -o mp4 -i avi --recursive
+
+Create an Apple audiobook (m4b) from all mp3 files in a directory
+
+    $ convertMedia -i mp3 -o m4b --concat
+
   "
 }
 
@@ -807,9 +884,11 @@ while [[ ${1} = -?* ]]; do
     --size) shift; videoSize="$1" ;;
     --height) shift; height="$1" ;;
     --width) shift; width="$1" ;;
+    --probe) probe=true; safeRun=1 ;;
     --downsize720) downsize720=1 ;;
     --recursive) recursive=true ;;
     --delete) deleteOriginal=true ;;
+    --concat) concat=true; ;;
     --saveDir) shift; saveDir="$1" ;;
     --bitrate) shift; bitrate="$1" ;;
     -h|--help) usage >&2; safeExit ;;
