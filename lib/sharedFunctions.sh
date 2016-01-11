@@ -3,12 +3,13 @@
 # ##################################################
 # Shared bash functions used by my bash scripts.
 #
-# VERSION 1.0.0
+# VERSION 1.3.0
 #
 # HISTORY
 #
 # * 2015-01-02 - v1.0.0   - First Creation
 # * 2015-04-16 - v1.2.0   - Added 'checkDependencies' and 'pauseScript'
+# * 2016-01-10 - v1.3.0   - Added 'join' function
 #
 # ##################################################
 
@@ -113,6 +114,18 @@ function pushover() {
     "${PUSHOVERURL}" > /dev/null 2>&1
   fi
 }
+
+# Join
+# ----------------------------------------------
+# This function joins items together with a user specified separator
+# Taken whole cloth from: http://stackoverflow.com/questions/1527049/bash-join-elements-of-an-array
+#
+# Usage:
+#   join , a "b c" d #a,b c,d
+#   join / var local tmp #var/local/tmp
+#   join , "${FOO[@]}" #a,b,c
+# ----------------------------------------------
+function join { local IFS="${1}"; shift; echo "${*}"; }
 
 # File Checks
 # ------------------------------------------------------
