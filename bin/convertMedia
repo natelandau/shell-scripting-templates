@@ -3,7 +3,7 @@
 # ##################################################
 # My Generic BASH script template
 #
-version="2.1.0"               # Sets version variable for this script
+version="2.1.1"               # Sets version variable for this script
 #
 scriptTemplateVersion="1.5.0" # Version of scriptTemplate.sh that this script is based on
 #
@@ -24,7 +24,7 @@ scriptTemplateVersion="1.5.0" # Version of scriptTemplate.sh that this script is
 # * 2016-01-09 - v2.1.0  - Support for audiobooks with .m4b
 #                        - Support for concatenating multiple audio files
 #                        - Support for --probe function to output ffprobe data in JSON
-#
+# * 2016-01-13 - v2.1.1  - Fixed bug with concatenating files
 #
 # ##################################################
 
@@ -240,9 +240,9 @@ function mainScript() {
   }
 
   function concatFiles() {
-    if ${concatFiles}; then
+    if ${concat}; then
       # Create variable for ffmpeg to concacenate the files
-      concatConvert="concat:$(join "|" ${filesToConvert[@]})"
+      concatConvert="concat:$(join "|" "${filesToConvert[@]}")"
       # Create the variable for the deleteOriginalFile function
       concatDelete="$(join " " ${filesToConvert[@]})"
 
@@ -357,9 +357,9 @@ function mainScript() {
 
     supportedAudioCodecs=(aac ac3 eac3)
     if [[ "${supportedAudioCodecs[*]}" =~ "${audioCodec}" ]]; then
-      videoAudioCommand="-c:a copy" && verbose "videoAudioCommand set to -c:a copy"
+      videoAudioCommand="-c:a copy"
     else
-      videoAudioCommand="-c:a ${aacEncoder} -b:a 160k"  && verbose "videoAudioCommand set to -c:a ${aacEncoder} -b:a 160k"
+      videoAudioCommand="-c:a ${aacEncoder} -b:a 160k"
     fi
 
     # SET VIDEO INFORMATION
@@ -632,7 +632,7 @@ function mainScript() {
     fi
 
     # When concatenating files, we need a different $file variable
-    if ${concatFiles}; then
+    if ${concat}; then
       file="${concatConvert}"
     fi
 
@@ -682,7 +682,7 @@ function mainScript() {
     # first, ensure we don't delete the originals if we're in a safe rune
     if [[ "${safeRun}" == "0" ]]; then
       if ${deleteOriginal}; then
-        if ${concatFiles}; then
+        if ${concat}; then
           for fileToDelete in "${filesToConvert[@]}"; do
             rm -f ${v} "${fileToDelete}"
           done
@@ -696,7 +696,7 @@ function mainScript() {
     fi
 
     # break the loop if we're concatenating files.
-    if ${concatFiles}; then
+    if ${concat}; then
       break
     fi
   }
