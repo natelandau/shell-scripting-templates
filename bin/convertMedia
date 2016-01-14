@@ -3,7 +3,7 @@
 # ##################################################
 # My Generic BASH script template
 #
-version="2.1.1"               # Sets version variable for this script
+version="2.2.0"               # Sets version variable for this script
 #
 scriptTemplateVersion="1.5.0" # Version of scriptTemplate.sh that this script is based on
 #
@@ -25,6 +25,7 @@ scriptTemplateVersion="1.5.0" # Version of scriptTemplate.sh that this script is
 #                        - Support for concatenating multiple audio files
 #                        - Support for --probe function to output ffprobe data in JSON
 # * 2016-01-13 - v2.1.1  - Fixed bug with concatenating files
+# * 2016-01-14 - v2.2.0  - Added 'spoken word' audio profiles
 #
 # ##################################################
 
@@ -79,6 +80,7 @@ deleteOriginal=false
 newFileFlag=false
 videoFoundFlag=false
 audioFoundFlag=false
+spokenWord=false
 probe=false
 concat=false
 XLD=0
@@ -492,22 +494,26 @@ function mainScript() {
     # Build the Conversion Command
     # ########################################
 
+    # Set mono/64k conversion for audiobooks
+    if ${spokenWord}; then
+      monoConversion="-b:a 96k -ac 1"
+    fi
+
     if [[ "${userOutput,,}" == "alac" ]]; then
       if type_exists "xld"; then
         XLD=1
         #audioConvertCommand="--profile FLACtoALAC"
-        audioConvertCommand="-f alac" && verbose "Using XLD. audioConvertCommand = -f alac"
+        audioConvertCommand="-f alac"
         outputFormat="m4a"
       else
-        audioConvertCommand="-acodec alac" && verbose "Using ffmpeg. audioConvertCommand = -acodec alac"
-        outputFormat="m4a"
+        audioConvertCommand="-acodec alac ${monoConversion}"
       fi
     elif [[ "${userOutput,,}" == "flac" ]]; then
       if type_exists "xld"; then
         XLD=1
         audioConvertCommand="-f flac"
       else
-        audioConvertCommand="-c:a flac"
+        audioConvertCommand="-c:a flac ${monoConversion}"
       fi
     elif [[ "${userOutput,,}" == "aac" || "${userOutput,,}" == "m4a" ]]; then
       # Pick the best aac audio encoder
@@ -526,7 +532,7 @@ function mainScript() {
     elif [[ "${userOutput,,}" == "mp3" ]]; then
       # Can we convert to mp3? Do we have an ffmpeg encoder?
       if $(ffmpeg -version | grep enable-libmp3lame >/dev/null); then
-        mp3Encoder='libmp3lame' && verbose "mp3Encoder = libmp3lame"
+        mp3Encoder='libmp3lame'
       else
         warning "No workable ffmpeg mp3 encoder. Skipping ${f}..."
         continue
@@ -534,11 +540,15 @@ function mainScript() {
       # Take user specified bitrate
       if [ -n "$bitrate" ]; then
         bitrate="${bitrate%k}k" # Ensure 'k' is at the end of any bitrate sent to ffmpeg
-        ffmpegBitrate="-b:a $bitrate" && verbose "bitrate = ${bitrate}"
-        audioConvertCommand="-acodec ${mp3Encoder} ${ffmpegBitrate}"
+        ffmpegBitrate="-b:a ${bitrate}"
       else
-        audioConvertCommand="-acodec ${mp3Encoder} -qscale:a 0"
+        ffmpegBitrate="-qscale:a 0"
       fi
+      # Set mono/64k conversion for audiobooks
+      if ${spokenWord}; then
+       ffmpegBitrate="${monoConversion}"
+      fi
+      audioConvertCommand="-acodec ${mp3Encoder} ${ffmpegBitrate}"
     elif [[ "${userOutput,,}" == "m4b" ]]; then
       # m4b is exactly the same as m4a except it tells Apple that the file is an audiobook.
       # so we use m4a conversion here and then rename the output file to m4b
@@ -548,9 +558,9 @@ function mainScript() {
       # Pick the best aac audio encoder
       if $(ffmpeg -version | grep enable-libfdk-aac >/dev/null); then
         # set variable bit rate to '5', the highest
-        aacEncoder='libfdk_aac -b:a 64k -ac 1 -f mp4'
+        aacEncoder="libfdk_aac ${monoConversion} -f mp4"
       else
-        aacEncoder='libfaac -b:a 64k -ac 1 -f mp4'
+        aacEncoder="libfaac ${monoConversion} -f mp4"
       fi
       audioConvertCommand="-acodec ${aacEncoder}"
     else
@@ -640,7 +650,7 @@ function mainScript() {
     if ${printLog}; then ffmpegLog=">> ${logFile}"; fi
 
     # Use XLD for audio file conversion if available
-    if [[ "${XLD}" ==  "1" ]]; then
+    if [[ "${XLD}" ==  "1" && "${spokenWord}" == "false" ]]; then
       verbose "Running XLD commands for audio. No FFMPEG."
       # Respect --safe flag.
       if [[ "${safeRun}" == "1" ]]; then
@@ -779,6 +789,8 @@ ${bold}General Options:${reset}
       ${bold}--recursive${reset}   Will search recursively through directories
       ${bold}--probe${reset}       Outputs file metadata via ffprobe in JSON format. Does no coversion.
       ${bold}--concat${reset}      Will concatenate audio files together into a single output.  Good for audiobooks.
+      ${bold}--spoken${reset}      Will convert audio files to mono, 64k.  Good for audiobooks
+
 
 ${bold}File Options:${reset}
   ${bold}-f, --file${reset}        Specify a specific file to take actions on.
@@ -889,6 +901,7 @@ while [[ ${1} = -?* ]]; do
     --recursive) recursive=true ;;
     --delete) deleteOriginal=true ;;
     --concat) concat=true; ;;
+    --spoken) spokenWord=true ;;
     --saveDir) shift; saveDir="$1" ;;
     --bitrate) shift; bitrate="$1" ;;
     -h|--help) usage >&2; safeExit ;;
