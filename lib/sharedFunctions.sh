@@ -263,7 +263,7 @@ function is_os() {
 
 # Ask the question
 function seek_confirmation() {
-  echo ""
+  # echo ""
   input "$@"
   if [[ "${force}" == "1" ]]; then
     notice "Forcing confirmation with '--force' flag set"

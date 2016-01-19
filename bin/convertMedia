@@ -195,6 +195,7 @@ function mainScript() {
 
     # Ensure the extension is known to this script
     extension="${fileToTest##*.}" # Grab file extension of input file
+    extension="$(echo "${extension}" | tr '[:upper:]' '[:lower:]')" # Lowercase the extension if needed
 
     # See if the extension is in the specified extension mappings
     if [[ ! "${videoTypes[*]}" =~ "${extension}" ]] && [[ ! "${audioTypes[*]}" =~ "${extension}" ]]; then
@@ -226,13 +227,13 @@ function mainScript() {
       fi
 
       # Confirm if a user wants to convert audio to it's own format
-      if [[ "${file##*.}" == "${userOutput}" ]]; then
-        warning "You are attempting to convert a ${file##*.} file to ${userOutput}."
-        seek_confirmation "Do you want to proceed?"
-        if is_not_confirmed; then
-          continue
-        fi
-      fi
+      # if [[ "${file##*.}" == "${userOutput}" ]]; then
+      #   warning "You are attempting to convert a ${file##*.} file to ${userOutput}."
+      #   seek_confirmation "Do you want to proceed?"
+      #   if is_not_confirmed; then
+      #     continue
+      #   fi
+      # fi
     fi
 
     # Reads user input for format (-o, --output)
@@ -496,7 +497,7 @@ function mainScript() {
 
     # Set mono/64k conversion for audiobooks
     if ${spokenWord}; then
-      monoConversion="-b:a 96k -ac 1"
+      monoConversion="-ab 96k -ac 1"
     fi
 
     if [[ "${userOutput,,}" == "alac" ]]; then
@@ -506,7 +507,7 @@ function mainScript() {
         audioConvertCommand="-f alac"
         outputFormat="m4a"
       else
-        audioConvertCommand="-acodec alac ${monoConversion}"
+        audioConvertCommand="-acodec alac"
       fi
     elif [[ "${userOutput,,}" == "flac" ]]; then
       if type_exists "xld"; then
@@ -516,10 +517,15 @@ function mainScript() {
         audioConvertCommand="-c:a flac ${monoConversion}"
       fi
     elif [[ "${userOutput,,}" == "aac" || "${userOutput,,}" == "m4a" ]]; then
+      outputFormat="m4a"
       # Pick the best aac audio encoder
       if $(ffmpeg -version | grep enable-libfdk-aac >/dev/null); then
-        # set variable bit rate to '5', the highest
-        aacEncoder='libfdk_aac -vbr 5'
+        # set variable bit rate to '5', the highest unless we are doing spoken word
+        if ${spokenWord}; then
+          aacEncoder='libfdk_aac'
+        else
+          aacEncoder='libfdk_aac -vbr 5'
+        fi
       else
         aacEncoder='libfaac -q:a 400'
       fi
@@ -527,28 +533,28 @@ function mainScript() {
         XLD=1
         audioConvertCommand="-f aac" && verbose "using xld. audioConvertCommand = -f aac "
       else
-        audioConvertCommand="-acodec ${aacEncoder}"
+        audioConvertCommand="-acodec ${aacEncoder} ${monoConversion}"
       fi
     elif [[ "${userOutput,,}" == "mp3" ]]; then
       # Can we convert to mp3? Do we have an ffmpeg encoder?
       if $(ffmpeg -version | grep enable-libmp3lame >/dev/null); then
         mp3Encoder='libmp3lame'
-      else
-        warning "No workable ffmpeg mp3 encoder. Skipping ${f}..."
-        continue
+      # else
+      #   warning "No workable ffmpeg mp3 encoder. Skipping ${f}..."
+      #   continue
       fi
       # Take user specified bitrate
       if [ -n "$bitrate" ]; then
         bitrate="${bitrate%k}k" # Ensure 'k' is at the end of any bitrate sent to ffmpeg
-        ffmpegBitrate="-b:a ${bitrate}"
+        ffmpegBitrate="-ab ${bitrate}"
       else
         ffmpegBitrate="-qscale:a 0"
       fi
-      # Set mono/64k conversion for audiobooks
+      # Set mono conversion for audiobooks
       if ${spokenWord}; then
        ffmpegBitrate="${monoConversion}"
       fi
-      audioConvertCommand="-acodec ${mp3Encoder} ${ffmpegBitrate}"
+      audioConvertCommand="-acodec ${mp3Encoder} ${ffmpegBitrate} -map_metadata 0 -id3v2_version 3"
     elif [[ "${userOutput,,}" == "m4b" ]]; then
       # m4b is exactly the same as m4a except it tells Apple that the file is an audiobook.
       # so we use m4a conversion here and then rename the output file to m4b
@@ -558,9 +564,9 @@ function mainScript() {
       # Pick the best aac audio encoder
       if $(ffmpeg -version | grep enable-libfdk-aac >/dev/null); then
         # set variable bit rate to '5', the highest
-        aacEncoder="libfdk_aac ${monoConversion} -f mp4"
+        aacEncoder="libfdk_aac ${monoConversion} -f m4a"
       else
-        aacEncoder="libfaac ${monoConversion} -f mp4"
+        aacEncoder="libfaac ${monoConversion} -f m4a"
       fi
       audioConvertCommand="-acodec ${aacEncoder}"
     else
@@ -633,6 +639,8 @@ function mainScript() {
   }
 
   function doConvert() {
+    verbose "running doConvert function"
+
     if ${verbose}; then v="-v" ; fi
 
     # Respect the 'Quiet' flag
@@ -732,14 +740,14 @@ function mainScript() {
 
   # Then we work on the individual files.  This is the fun part.
   for file in "${filesToConvert[@]}"; do
-    info "Working on ${file}"
+    if ! ${concat}; then info "Working on ${file}"; fi
     # First we grab the metadata of the file and assign it to variables
     parseJSON
     # Then we set the expected output format
     convertToFormat
     # Then we set the appropriate conversion commands
-    if [[ "${videoTypes[*]}" =~ "${file##*.}" ]]; then convertVideo; fi
-    if [[ "${audioTypes[*]}" =~ "${file##*.}" ]]; then convertAudio; fi
+    if [[ "${videoTypes[*]}" =~ "$(echo ${file##*.} | tr '[:upper:]' '[:lower:]')" ]]; then convertVideo; fi
+    if [[ "${audioTypes[*]}" =~ "$(echo ${file##*.} | tr '[:upper:]' '[:lower:]')" ]]; then convertAudio; fi
     # Then we tell the script where to output the file
     setOutputDirectory
     # Then we check if we are supposed to concatenate the files
