@@ -519,8 +519,8 @@ progressBar() {
         bar=$(printf "%0.s${bar_char}" $(seq 1 ${num}))
     fi
     # Print the progress bar.
-    line=$(printf "%s [%-${width}s] (%d%%)" "Running Process" "${bar}" "${perc}")
-    echo -en "${line}\r"
+    progressBarLine=$(printf "%s [%-${width}s] (%d%%)" "Running Process" "${bar}" "${perc}")
+    echo -en "${progressBarLine}\r"
     progressBarProgress=$[${progressBarProgress}+1]
   else
     # Clear the progress bar when complete
