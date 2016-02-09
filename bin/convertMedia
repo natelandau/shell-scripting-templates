@@ -198,7 +198,7 @@ function mainScript() {
     extension="$(echo "${extension}" | tr '[:upper:]' '[:lower:]')" # Lowercase the extension if needed
 
     # See if the extension is in the specified extension mappings
-    if [[ ! "${videoTypes[*]}" =~ "${extension}" ]] && [[ ! "${audioTypes[*]}" =~ "${extension}" ]]; then
+    if [[ ! "${videoTypes[*]}" =~ ${extension} ]] && [[ ! "${audioTypes[*]}" =~ ${extension} ]]; then
       error "The extension of '${extension} ' was not recognized."
       die "We don't know what to do with ${fileToTest}."
     fi
@@ -207,7 +207,7 @@ function mainScript() {
   function convertToFormat() {
 
     # Do things on video files
-    if [[ "${videoTypes[*]}" =~ "${file##*.}" ]]; then
+    if [[ "${videoTypes[*]}" =~ ${file##*.} ]]; then
       # if you wanted a default target format for a specific input format,
       # you would put it here.
       # Set the default video conversion format to mp4
@@ -218,7 +218,7 @@ function mainScript() {
     fi
 
     # Do things on audio files
-    if [[ "${audioTypes[*]}" =~ "${file##*.}" ]]; then
+    if [[ "${audioTypes[*]}" =~ ${file##*.} ]]; then
 
       # Ensure a user sets an output format since we don't have a default.
       if [[ -z ${userOutput} ]]; then
@@ -309,11 +309,11 @@ function mainScript() {
       fi
 
       # Increase loop count
-      ii=$[$ii+1]
+      ii=$((ii+1))
     done
 
     # Error Handling for video files
-    if [[ "${videoTypes[*]}" =~ "${file##*.}" ]]; then
+    if [[ "${videoTypes[*]}" =~ ${file##*.} ]]; then
       if [ "${videoFoundFlag}" = "false" ]; then
         warning "Missing video stream for '${file}'."
         seek_confirmation "Inspect the file with ffprobe?"
@@ -328,7 +328,7 @@ function mainScript() {
     fi
 
     # Error Handling for audio files
-    if [[ "${audioTypes[*]}" =~ "${file##*.}" ]]; then
+    if [[ "${audioTypes[*]}" =~ ${file##*.} ]]; then
       if [ "${audioFoundFlag}" = "false" ]; then
         warning "Missing audio stream for '${file}'."
         seek_confirmation "Inspect the file with ffprobe?"
@@ -352,14 +352,14 @@ function mainScript() {
     ################################################################
 
     # Pick the best aac audio encoder
-    if $(ffmpeg -version | grep enable-libfdk-aac >/dev/null); then
+    if ffmpeg -version | grep enable-libfdk-aac >/dev/null; then
       aacEncoder="libfdk_aac"
     else
-      aacencoder="libfaac"
+      aacEncoder="libfaac"
     fi
 
     supportedAudioCodecs=(aac ac3 eac3)
-    if [[ "${supportedAudioCodecs[*]}" =~ "${audioCodec}" ]]; then
+    if [[ "${supportedAudioCodecs[*]}" =~ ${audioCodec} ]]; then
       videoAudioCommand="-c:a copy"
     else
       videoAudioCommand="-c:a ${aacEncoder} -b:a 160k"
@@ -435,7 +435,7 @@ function mainScript() {
         userWidth=$(echo ${videoSize} | cut -f1 -dx)
         userHeight=$(echo ${videoSize} | cut -f2 -dx)
         if [ "${userWidth}" -gt "${videoWidth}" ] || [ "${userHeight}" -gt "${videoHeight}" ]; then
-          seek_confirmation "Upscale "${file}" to "${videoSize}"? It is already "${videoWidth}"x"${videoHeight}"."
+          seek_confirmation "Upscale ${file} to ${videoSize}? It is already ${videoWidth}x${videoHeight}."
           if is_not_confirmed; then
             continue
           fi
@@ -450,7 +450,7 @@ function mainScript() {
     # ####################################
       if is_not_empty "${height}"; then
         if [ "${height}" -gt "${videoHeight}" ]; then
-          seek_confirmation "Upscale "${file}" to height "${height}"? It is already "${videoWidth}"x"${videoHeight}"."
+          seek_confirmation "Upscale ${file} to height ${height}? It is already ${videoWidth}x${videoHeight}."
           if is_not_confirmed; then
             continue
           fi
@@ -459,7 +459,7 @@ function mainScript() {
       fi
       if is_not_empty "${width}"; then
         if [ "${width}" -gt "${videoWidth}" ]; then
-          seek_confirmation "Upscale "${file}" to width "${width}"? It is already "${videoWidth}"x"${videoHeight}"."
+          seek_confirmation "Upscale ${file} to width ${width}? It is already ${videoWidth}x${videoHeight}."
           if is_not_confirmed; then
             continue
           fi
@@ -478,7 +478,7 @@ function mainScript() {
 
       # Don't convert to self if no other options set
       if [[ -z ${height} && -z ${width} && -z ${videoSize} && ${downsize720} == "0" && "${outputFormat}" == "${file##*.}" ]]; then
-        error "Can't convert a '"${file##*.}"' file to itself. Skipping ${file}"
+        error "Can't convert a '${file##*.}' file to itself. Skipping ${file}"
         continue
       fi
   }
@@ -519,7 +519,7 @@ function mainScript() {
     elif [[ "${userOutput,,}" == "aac" || "${userOutput,,}" == "m4a" ]]; then
       outputFormat="m4a"
       # Pick the best aac audio encoder
-      if $(ffmpeg -version | grep enable-libfdk-aac >/dev/null); then
+      if ffmpeg -version | grep enable-libfdk-aac >/dev/null; then
         # set variable bit rate to '5', the highest unless we are doing spoken word
         if ${spokenWord}; then
           aacEncoder='libfdk_aac'
@@ -537,7 +537,7 @@ function mainScript() {
       fi
     elif [[ "${userOutput,,}" == "mp3" ]]; then
       # Can we convert to mp3? Do we have an ffmpeg encoder?
-      if $(ffmpeg -version | grep enable-libmp3lame >/dev/null); then
+      if ffmpeg -version | grep enable-libmp3lame >/dev/null; then
         mp3Encoder='libmp3lame'
       # else
       #   warning "No workable ffmpeg mp3 encoder. Skipping ${f}..."
@@ -562,7 +562,7 @@ function mainScript() {
       # need high fidelity or stereo so we make them mono and low bit-rate.
 
       # Pick the best aac audio encoder
-      if $(ffmpeg -version | grep enable-libfdk-aac >/dev/null); then
+      if ffmpeg -version | grep enable-libfdk-aac >/dev/null; then
         # set variable bit rate to '5', the highest
         aacEncoder="libfdk_aac ${monoConversion} -f m4a"
       else
@@ -662,17 +662,17 @@ function mainScript() {
       verbose "Running XLD commands for audio. No FFMPEG."
       # Respect --safe flag.
       if [[ "${safeRun}" == "1" ]]; then
-        notice "xld -o "${output}" ${audioConvertCommand} "${file}""
+        notice "xld -o "${output} ${audioConvertCommand} ${file}
       else
-        verbose "xld -o "${output}" ${audioConvertCommand} "${file}""
-        xld -o "${output}" ${audioConvertCommand} "${file}"
+        verbose "xld -o ${output} ${audioConvertCommand} ${file}"
+        xld -o "${output}" "${audioConvertCommand}" "${file}"
       fi
     else # Use ffmpeg when XLD is set to 0
       # Respect --safe flag.
       if [[ "${safeRun}" == "1" ]]; then
-        notice "ffmpeg -i "${file}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}" ${ffquiet}"
+        notice "ffmpeg -i ${file} ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} ${output} ${ffquiet}"
       else
-        verbose "ffmpeg -i "${file}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}" ${ffquiet}"
+        verbose "ffmpeg -i ${file} ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} ${output} ${ffquiet}"
          ffmpeg -i "${file}" ${videoResize} ${videoCommand} ${videoAudioCommand} ${audioConvertCommand} "${output}" ${ffquiet}
       fi
     fi

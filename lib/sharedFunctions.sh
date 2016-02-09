@@ -39,10 +39,10 @@ function safeExit() {
 # Outputs each line in a variable named $result
 # ------------------------------------------------------
 function readFile() {
-  unset ${result}
+  unset "${result}"
   while read result
   do
-    echo ${result}
+    echo "${result}"
   done < "$1"
 }
 
@@ -220,14 +220,14 @@ function is_not_empty() {
 # ------------------------------------------------------
 
 function type_exists() {
-  if [ $(type -P "$1") ]; then
+  if [ "$(type -P "$1")" ]; then
     return 0
   fi
   return 1
 }
 
 function type_not_exists() {
-  if [ ! $(type -P "$1") ]; then
+  if [ ! "$(type -P "$1")" ]; then
     return 0
   fi
   return 1
@@ -334,7 +334,7 @@ function unmountDrive() {
 
 function help () {
   echo "" 1>&2
-  input "   ${@}" 1>&2
+  input "   $@" 1>&2
   if [ -n "${usage}" ]; then # print usage information if available
     echo "   ${usage}" 1>&2
   fi
@@ -401,9 +401,9 @@ function pauseScript() {
 function in_array() {
     # Determine if a value is in an array.
     # Usage: in_array [VALUE] [ARRAY]
-    local value=$1; shift
-    for item in "$@"; do
-        [[ $item == $value ]] && return 0
+    local value="$1"; shift
+    for arrayItem in "$@"; do
+        [[ "${arrayItem}" == "${value}" ]] && return 0
     done
     return 1
 }
@@ -483,7 +483,7 @@ squeeze_lines() {
 # -----------------------------------
 
 progressBar() {
-  if [[ ${quiet} = "true" ]] || [ ${quiet} == "1" ]; then
+  if [[ "${quiet}" = "true" ]] || [ "${quiet}" == "1" ]; then
     return
   fi
 
@@ -495,7 +495,7 @@ progressBar() {
   if ${verbose}; then return; fi
 
   # Reset the count
-  if [ -z ${progressBarProgress} ]; then
+  if [ -z "${progressBarProgress}" ]; then
     progressBarProgress=0
   fi
 
@@ -508,11 +508,11 @@ progressBar() {
     tput civis
     trap 'tput cnorm; exit 1' SIGINT
 
-  if [ ! ${progressBarProgress} -eq $(( $1 - 1 )) ]; then
+  if [ ! "${progressBarProgress}" -eq $(( $1 - 1 )) ]; then
     # Compute the percentage.
-    perc=$(( ${progressBarProgress} * 100 / $1 ))
+    perc=$(( progressBarProgress * 100 / $1 ))
     # Compute the number of blocks to represent the percentage.
-    num=$(( ${progressBarProgress} * $width / $1 ))
+    num=$(( progressBarProgress * width / $1 ))
     # Create the progress bar string.
     bar=
     if [ ${num} -gt 0 ]; then
@@ -521,7 +521,7 @@ progressBar() {
     # Print the progress bar.
     progressBarLine=$(printf "%s [%-${width}s] (%d%%)" "Running Process" "${bar}" "${perc}")
     echo -en "${progressBarLine}\r"
-    progressBarProgress=$[${progressBarProgress}+1]
+    progressBarProgress=$(( progressBarProgress + 1 ))
   else
     # Clear the progress bar when complete
     echo -ne "${width}%\033[0K\r"
@@ -552,7 +552,7 @@ urlencode() {
   for (( i = 0; i < length; i++ )); do
       local c="${1:i:1}"
       case $c in
-          [a-zA-Z0-9.~_-]) printf "$c" ;;
+          [a-zA-Z0-9.~_-]) printf "%s" "$c" ;;
           *) printf '%%%02X' "'$c"
       esac
   done
