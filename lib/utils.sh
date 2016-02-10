@@ -12,6 +12,7 @@
 # HISTORY
 #
 # * 2015-01-02 - v1.0.0  - First Creation
+# * 2016-02-10 - v1.1.1  - Minor changes to satisfy Shellcheck
 #
 # ##################################################
 
@@ -61,31 +62,31 @@ function _alert() {
 
   # Print to $logFile
   if [[ ${printLog} = "true" ]] || [ "${printLog}" == "1" ]; then
-    echo -e "$(date +"%m-%d-%Y %r") $(printf "[%9s]" ${1}) "${_message}"" >> "${logFile}";
+    echo -e "$(date +"%m-%d-%Y %r") $(printf "[%9s]" "${1}") ${_message}" >> "${logFile}";
   fi
 
   # Print to console when script is not 'quiet'
-  if [[ "${quiet}" = "true" ]] || [ ${quiet} == "1" ]; then
+  if [[ "${quiet}" = "true" ]] || [ "${quiet}" == "1" ]; then
    return
   else
-   echo -e "$(date +"%r") ${color}$(printf "[%9s]" ${1}) "${_message}"${reset}";
+   echo -e "$(date +"%r") ${color}$(printf "[%9s]" "${1}") ${_message}${reset}";
   fi
 
 }
 
-function die ()       { local _message="${@} Exiting."; echo "$(_alert emergency)"; safeExit;}
-function error ()     { local _message="${@}"; echo "$(_alert error)"; }
-function warning ()   { local _message="${@}"; echo "$(_alert warning)"; }
-function notice ()    { local _message="${@}"; echo "$(_alert notice)"; }
-function info ()      { local _message="${@}"; echo "$(_alert info)"; }
-function debug ()     { local _message="${@}"; echo "$(_alert debug)"; }
-function success ()   { local _message="${@}"; echo "$(_alert success)"; }
-function input()      { local _message="${@}"; echo -n "$(_alert input)"; }
-function header()     { local _message="========== ${@} ==========  "; echo "$(_alert header)"; }
+function die ()       { local _message="${*} Exiting."; echo "$(_alert emergency)"; safeExit;}
+function error ()     { local _message="${*}"; echo "$(_alert error)"; }
+function warning ()   { local _message="${*}"; echo "$(_alert warning)"; }
+function notice ()    { local _message="${*}"; echo "$(_alert notice)"; }
+function info ()      { local _message="${*}"; echo "$(_alert info)"; }
+function debug ()     { local _message="${*}"; echo "$(_alert debug)"; }
+function success ()   { local _message="${*}"; echo "$(_alert success)"; }
+function input()      { local _message="${*}"; echo -n "$(_alert input)"; }
+function header()     { local _message="========== ${*} ==========  "; echo "$(_alert header)"; }
 
 # Log messages when verbose is set to "true"
 verbose() {
-  if [[ "${verbose}" = "true" ]] || [ ${verbose} == "1" ]; then
+  if [[ "${verbose}" = "true" ]] || [ "${verbose}" == "1" ]; then
     debug "$@"
   fi
 }
