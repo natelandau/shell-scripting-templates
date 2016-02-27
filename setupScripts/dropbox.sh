@@ -10,5 +10,7 @@ fi
 
 
 # Confirm we have Dropbox
-hasDropbox
+# hasDropbox
+
+
 
