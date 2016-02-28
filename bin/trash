@@ -488,11 +488,44 @@ function header()     { local _message="========== ${*} ==========  "; echo "$(_
 # Log messages when verbose is set to "true"
 verbose() { if ${verbose}; then debug "$@"; fi }
 
+function seek_confirmation() {
+  # echo ""
+  input "$@"
+  if [[ "${force}" == "1" ]]; then
+    notice "Forcing confirmation with '--force' flag set"
+  else
+    read -p " (y/n) " -n 1
+    echo ""
+  fi
+}
+
+function is_confirmed() {
+  if [[ "${force}" == "1" ]]; then
+    return 0
+  else
+    if [[ "${REPLY}" =~ ^[Yy]$ ]]; then
+      return 0
+    fi
+    return 1
+  fi
+}
+
+function is_not_confirmed() {
+  if [[ "${force}" == "1" ]]; then
+    return 1
+  else
+    if [[ "${REPLY}" =~ ^[Nn]$ ]]; then
+      return 0
+    fi
+    return 1
+  fi
+}
+
 # Trap bad exits with your cleanup function
 trap trapCleanup EXIT INT TERM
 
 # Set IFS to preferred implementation
-IFS=$'\n\t'
+IFS=$' \n\t'
 
 # Exit on error. Append '||true' when you run the script if you expect an error.
 set -o errexit
