@@ -42,6 +42,7 @@ hasHomebrew () {
       ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
       brew tap homebrew/dupes
       brew tap homebrew/versions
+      brew tap argon/mas
     else
       die "Without Homebrew installed we won't get very far."
     fi
@@ -130,7 +131,7 @@ function doInstall () {
   if [[ "${list}" ]]; then
     seek_confirmation "Confirm each package before installing?"
     if is_confirmed; then
-      for item in ${list[@]}
+      for item in "${list[@]}"
       do
         seek_confirmation "Install ${item}?"
         if is_confirmed; then
@@ -142,12 +143,12 @@ function doInstall () {
             brew tap tldr-pages/tldr
             brew install tldr
           else
-            ${INSTALLCOMMAND} ${item}
+            ${INSTALLCOMMAND} "${item}"
           fi
         fi
       done
     else
-      for item in ${list[@]}
+      for item in "${list[@]}"
       do
         notice "Installing ${item}"
         # FFMPEG takes additional flags
@@ -157,7 +158,7 @@ function doInstall () {
           brew tap tldr-pages/tldr
           brew install tldr
         else
-          ${INSTALLCOMMAND} ${item}
+          ${INSTALLCOMMAND} "${item}"
         fi
       done
     fi

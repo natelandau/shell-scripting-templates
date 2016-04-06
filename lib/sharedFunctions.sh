@@ -82,16 +82,17 @@ function convertsecs() {
   printf "%02d:%02d:%02d\n" $h $m $s
 }
 
-# pushover
-# ------------------------------------------------------
-# Sends notifications view Pushover
-# Requires a file named 'pushover.cfg' be placed in '../etc/'
-#
-# Usage: pushover "Title Goes Here" "Message Goes Here"
-#
-# Credit: http://ryonsherman.blogspot.com/2012/10/shell-script-to-send-pushover.html
-# ------------------------------------------------------
 function pushover() {
+  # pushover
+  # ------------------------------------------------------
+  # Sends notifications view Pushover
+  # Requires a file named 'pushover.cfg' be placed in '../etc/'
+  #
+  # Usage: pushover "Title Goes Here" "Message Goes Here"
+  #
+  # Credit: http://ryonsherman.blogspot.com/2012/10/shell-script-to-send-pushover.html
+  # ------------------------------------------------------
+
   # Check for config file containing API Keys
   if [ ! -f "${SOURCEPATH}/../etc/pushover.cfg" ]; then
    error "Please locate the pushover.cfg to send notifications to Pushover."
@@ -469,20 +470,20 @@ squeeze_lines() {
     sed '/^[[:space:]]\+$/s/.*//g' | cat -s | trim_lines
 }
 
-# progressBar
-# -----------------------------------
-# Prints a progress bar within a for/while loop.
-# To use this function you must pass the total number of
-# times the loop will run to the function.
-#
-# usage:
-#   for number in $(seq 0 100); do
-#     sleep 1
-#     progressBar 100
-#   done
-# -----------------------------------
 
 progressBar() {
+  # progressBar
+  # -----------------------------------
+  # Prints a progress bar within a for/while loop.
+  # To use this function you must pass the total number of
+  # times the loop will run to the function.
+  #
+  # usage:
+  #   for number in $(seq 0 100); do
+  #     sleep 1
+  #     progressBar 100
+  #   done
+  # -----------------------------------
   if [[ "${quiet}" = "true" ]] || [ "${quiet}" == "1" ]; then
     return
   fi
@@ -563,6 +564,38 @@ urldecode() {
 
     local url_encoded="${1//+/ }"
     printf '%b' "${url_encoded//%/\x}"
+}
+
+parse_yaml() {
+  # Function to parse YAML files and add values to variables. Send it to a temp file and source it
+  # https://gist.github.com/epiloque/8cf512c6d64641bde388
+  #
+  # Usage:
+  #     $ parse_yaml sample.yml > /some/tempfile
+  #
+  # parse_yaml accepts a prefix argument so that imported settings all have a common prefix
+  # (which will reduce the risk of namespace collisions).
+  #
+  #     $ parse_yaml sample.yml "CONF_"
+
+  local prefix=$2
+  local s
+  local w
+  local fs
+  s='[[:space:]]*'
+  w='[a-zA-Z0-9_]*'
+  fs="$(echo @|tr @ '\034')"
+  sed -ne "s|^\($s\)\($w\)$s:$s\"\(.*\)\"$s\$|\1$fs\2$fs\3|p" \
+      -e "s|^\($s\)\($w\)$s[:-]$s\(.*\)$s\$|\1$fs\2$fs\3|p" "$1" |
+  awk -F"$fs" '{
+  indent = length($1)/2;
+  vname[indent] = $2;
+  for (i in vname) {if (i > indent) {delete vname[i]}}
+      if (length($3) > 0) {
+          vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+          printf("%s%s%s=(\"%s\")\n", "'"$prefix"'",vn, $2, $3);
+      }
+  }' | sed 's/_=/+=/g'
 }
 
 httpStatus() {

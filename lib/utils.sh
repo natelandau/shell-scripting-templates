@@ -36,29 +36,15 @@ function _alert() {
   if [ "${1}" = "emergency" ]; then
     local color="${bold}${red}"
   fi
-  if [ "${1}" = "error" ] || [ "${1}" = "warning" ]; then
-    local color="${red}"
-  fi
-  if [ "${1}" = "success" ]; then
-    local color="${green}"
-  fi
-  if [ "${1}" = "debug" ]; then
-    local color="${purple}"
-  fi
-  if [ "${1}" = "header" ]; then
-    local color="${bold}""${tan}"
-  fi
-  if [ "${1}" = "input" ]; then
-    local color="${bold}"
-    printLog="0"
-  fi
-  if [ "${1}" = "info" ] || [ "${1}" = "notice" ]; then
-    local color="" # Us terminal default color
-  fi
+  if [ "${1}" = "error" ]; then local color="${bold}${red}"; fi
+  if [ "${1}" = "warning" ]; then local color="${red}"; fi
+  if [ "${1}" = "success" ]; then local color="${green}"; fi
+  if [ "${1}" = "debug" ]; then local color="${purple}"; fi
+  if [ "${1}" = "header" ]; then local color="${bold}""${tan}"; fi
+  if [ "${1}" = "input" ]; then local color="${bold}"; printLog="false"; fi
+  if [ "${1}" = "info" ] || [ "${1}" = "notice" ]; then local color=""; fi
   # Don't use colors on pipes or non-recognized terminals
-  if [[ "${TERM}" != "xterm"* ]] || [ -t 1 ]; then
-    color=""; reset=""
-  fi
+  if [[ "${TERM}" != "xterm"* ]] || [ -t 1 ]; then color=""; reset=""; fi
 
   # Print to $logFile
   if [[ ${printLog} = "true" ]] || [ "${printLog}" == "1" ]; then
