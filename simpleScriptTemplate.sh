@@ -12,12 +12,11 @@ version="1.0.0"              # Sets version variable
 
 
 function mainScript() {
-  # USE THIS SPACE FOR THE MAIN FUNCTIONALITY OF THE SCRIPT
-  # --------------------------------------------------------
-
-  echo -n
-
+ echo -n
 }
+
+## SET SCRIPTNAME VARIABLE ##
+scriptName=$(basename "$0")
 
 function trapCleanup() {
   # trapCleanup Function
@@ -185,47 +184,44 @@ blue=$(tput setaf 38)
 underline=$(tput sgr 0 1)
 
 function _alert() {
-  if [ "${1}" = "emergency" ]; then local color="${bold}${red}"; fi
-  if [ "${1}" = "error" ] || [ "${1}" = "warning" ]; then local color="${red}"; fi
+  if [ "${1}" = "error" ]; then local color="${bold}${red}"; fi
+  if [ "${1}" = "warning" ]; then local color="${red}"; fi
   if [ "${1}" = "success" ]; then local color="${green}"; fi
   if [ "${1}" = "debug" ]; then local color="${purple}"; fi
   if [ "${1}" = "header" ]; then local color="${bold}""${tan}"; fi
-  if [ "${1}" = "input" ]; then local color="${bold}"; printLog="0"; fi
+  if [ "${1}" = "input" ]; then local color="${bold}"; fi
   if [ "${1}" = "info" ] || [ "${1}" = "notice" ]; then local color=""; fi
   # Don't use colors on pipes or non-recognized terminals
   if [[ "${TERM}" != "xterm"* ]] || [ -t 1 ]; then color=""; reset=""; fi
 
-  # Print to $logFile
-  if ${printLog}; then
-    echo -e "$(date +"%m-%d-%Y %r") $(printf "[%9s]" "${1}") ${_message}" >> "${logFile}";
+  # Print to console when script is not 'quiet'
+  if ${quiet}; then return; else
+   echo -e "$(date +"%r") ${color}$(printf "[%7s]" "${1}") ${_message}${reset}";
   fi
 
-  # Print to console when script is not 'quiet'
-  if ${quiet}; then
-   return
-  else
-   echo -e "$(date +"%r") ${color}$(printf "[%9s]" "${1}") ${_message}${reset}";
+  # Print to Logfile
+  if ${printLog} && [ "${1}" != "input" ]; then
+    color=""; reset="" # Don't use colors in logs
+    echo -e "$(date +"%m-%d-%Y %r") $(printf "[%7s]" "${1}") ${_message}" >> "${logFile}";
   fi
 }
 
-function die ()       { local _message="${*} Exiting."; echo "$(_alert emergency)"; safeExit;}
-function error ()     { local _message="${*}"; echo "$(_alert error)"; }
-function warning ()   { local _message="${*}"; echo "$(_alert warning)"; }
-function notice ()    { local _message="${*}"; echo "$(_alert notice)"; }
-function info ()      { local _message="${*}"; echo "$(_alert info)"; }
-function debug ()     { local _message="${*}"; echo "$(_alert debug)"; }
-function success ()   { local _message="${*}"; echo "$(_alert success)"; }
+function die ()       { local _message="${*} Exiting."; echo -e "$(_alert error)"; safeExit;}
+function error ()     { local _message="${*}"; echo -e "$(_alert error)"; }
+function warning ()   { local _message="${*}"; echo -e "$(_alert warning)"; }
+function notice ()    { local _message="${*}"; echo -e "$(_alert notice)"; }
+function info ()      { local _message="${*}"; echo -e "$(_alert info)"; }
+function debug ()     { local _message="${*}"; echo -e "$(_alert debug)"; }
+function success ()   { local _message="${*}"; echo -e "$(_alert success)"; }
 function input()      { local _message="${*}"; echo -n "$(_alert input)"; }
-function header()     { local _message="========== ${*} ==========  "; echo "$(_alert header)"; }
-
-# Log messages when verbose is set to "true"
-verbose() { if ${verbose}; then debug "$@"; fi }
+function header()     { local _message="== ${*} ==  "; echo -e "$(_alert header)"; }
+function verbose()    { if ${verbose}; then debug "$@"; fi }
 
 # Trap bad exits with your cleanup function
 trap trapCleanup EXIT INT TERM
 
 # Set IFS to preferred implementation
-IFS=$'\n\t'
+IFS=$' \n\t'
 
 # Exit on error. Append '||true' when you run the script if you expect an error.
 set -o errexit
