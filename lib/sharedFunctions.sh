@@ -127,7 +127,7 @@ function pushover() {
 #   join / var local tmp #var/local/tmp
 #   join , "${FOO[@]}" #a,b,c
 # ----------------------------------------------
-function join { local IFS="${1}"; shift; echo "${*}"; }
+function join() { local IFS="${1}"; shift; echo "${*}"; }
 
 # File Checks
 # ------------------------------------------------------
@@ -266,7 +266,7 @@ function is_os() {
 function seek_confirmation() {
   # echo ""
   input "$@"
-  if [[ "${force}" == "1" ]]; then
+  if "${force}"; then
     notice "Forcing confirmation with '--force' flag set"
   else
     read -p " (y/n) " -n 1
@@ -276,7 +276,7 @@ function seek_confirmation() {
 
 # Test whether the result of an 'ask' is a confirmation
 function is_confirmed() {
-  if [[ "${force}" == "1" ]]; then
+  if "${force}"; then
     return 0
   else
     if [[ "${REPLY}" =~ ^[Yy]$ ]]; then
@@ -287,7 +287,7 @@ function is_confirmed() {
 }
 
 function is_not_confirmed() {
-  if [[ "${force}" == "1" ]]; then
+  if "${force}"; then
     return 1
   else
     if [[ "${REPLY}" =~ ^[Nn]$ ]]; then
@@ -568,34 +568,36 @@ urldecode() {
 
 parse_yaml() {
   # Function to parse YAML files and add values to variables. Send it to a temp file and source it
+  # https://gist.github.com/DinoChiesa/3e3c3866b51290f31243 which is derived from
   # https://gist.github.com/epiloque/8cf512c6d64641bde388
   #
   # Usage:
   #     $ parse_yaml sample.yml > /some/tempfile
   #
   # parse_yaml accepts a prefix argument so that imported settings all have a common prefix
-  # (which will reduce the risk of namespace collisions).
+  # (which will reduce the risk of name-space collisions).
   #
   #     $ parse_yaml sample.yml "CONF_"
 
-  local prefix=$2
-  local s
-  local w
-  local fs
-  s='[[:space:]]*'
-  w='[a-zA-Z0-9_]*'
-  fs="$(echo @|tr @ '\034')"
-  sed -ne "s|^\($s\)\($w\)$s:$s\"\(.*\)\"$s\$|\1$fs\2$fs\3|p" \
-      -e "s|^\($s\)\($w\)$s[:-]$s\(.*\)$s\$|\1$fs\2$fs\3|p" "$1" |
-  awk -F"$fs" '{
-  indent = length($1)/2;
-  vname[indent] = $2;
-  for (i in vname) {if (i > indent) {delete vname[i]}}
+    local prefix=$2
+    local s
+    local w
+    local fs
+    s='[[:space:]]*'
+    w='[a-zA-Z0-9_]*'
+    fs="$(echo @|tr @ '\034')"
+    sed -ne "s|^\($s\)\($w\)$s:$s\"\(.*\)\"$s\$|\1$fs\2$fs\3|p" \
+        -e "s|^\($s\)\($w\)$s[:-]$s\(.*\)$s\$|\1$fs\2$fs\3|p" "$1" |
+    awk -F"$fs" '{
+      indent = length($1)/2;
+      if (length($2) == 0) { conj[indent]="+";} else {conj[indent]="";}
+      vname[indent] = $2;
+      for (i in vname) {if (i > indent) {delete vname[i]}}
       if (length($3) > 0) {
-          vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
-          printf("%s%s%s=(\"%s\")\n", "'"$prefix"'",vn, $2, $3);
+              vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+              printf("%s%s%s%s=(\"%s\")\n", "'"$prefix"'",vn, $2, conj[indent-1],$3);
       }
-  }' | sed 's/_=/+=/g'
+    }' | sed 's/_=/+=/g'
 }
 
 httpStatus() {
@@ -704,4 +706,51 @@ httpStatus() {
   esac
 
   IFS="${saveIFS}"
+}
+
+function makeCSV() {
+  # Creates a new CSV file if one does not already exist.
+  # Takes passed arguments and writes them as a header line to the CSV
+  # Usage 'makeCSV column1 column2 column3'
+
+  # Set the location and name of the CSV File
+  if [ -z "${csvLocation}" ]; then
+    csvLocation="${HOME}/Desktop"
+  fi
+  if [ -z "${csvName}" ]; then
+    csvName="$(LC_ALL=C date +%Y-%m-%d)-${FUNCNAME[1]}.csv"
+  fi
+  csvFile="${csvLocation}/${csvName}"
+
+  # Overwrite existing file? If not overwritten, new content is added
+  # to the bottom of the existing file
+  if [ -f "${csvFile}" ]; then
+    seek_confirmation "${csvFile} already exists. Overwrite?"
+    if is_confirmed; then
+      rm "${csvFile}"
+      writeCSV "$@"
+    fi
+  fi
+}
+
+function writeCSV() {
+  # Takes passed arguments and writes them as a comma separated line
+  # Usage 'writeCSV column1 column2 column3'
+
+  csvInput=($@)
+  saveIFS=$IFS
+  IFS=','
+  echo "${csvInput[*]}" >> "${csvFile}"
+  IFS=$saveIFS
+
+}
+
+function json2yaml {
+  # convert json files to yaml using python and PyYAML
+  python -c 'import sys, yaml, json; yaml.safe_dump(json.load(sys.stdin), sys.stdout, default_flow_style=False)' < "$1"
+}
+
+function yaml2json() {
+  # convert yaml files to json using python and PyYAML
+  python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' < "$1"
 }
