@@ -15,9 +15,6 @@ function mainScript() {
  echo -n
 }
 
-## SET SCRIPTNAME VARIABLE ##
-scriptName=$(basename "$0")
-
 function trapCleanup() {
   # trapCleanup Function
   # -----------------------------------
@@ -29,7 +26,7 @@ function trapCleanup() {
   if [ -d "${tmpDir}" ] ; then
     rm -r "${tmpDir}"
   fi
-  die "Exit trapped."
+  die "Exit trapped. In function: '${FUNCNAME[*]}'"
 }
 
 function safeExit() {
@@ -46,11 +43,11 @@ function safeExit() {
   exit
 }
 
+# Set Base Variables
+# ----------------------
+scriptName=$(basename "$0")
+
 # Set Flags
-# -----------------------------------
-# Flags which can be overridden by user input.
-# Default values are below
-# -----------------------------------
 quiet=false
 printLog=false
 verbose=false
@@ -58,6 +55,16 @@ force=false
 strict=false
 debug=false
 args=()
+
+# Set Colors
+bold=$(tput bold)
+reset=$(tput sgr0)
+purple=$(tput setaf 171)
+red=$(tput setaf 1)
+green=$(tput setaf 76)
+tan=$(tput setaf 3)
+blue=$(tput setaf 38)
+underline=$(tput sgr 0 1)
 
 # Set Temp Directory
 # -----------------------------------
@@ -173,22 +180,12 @@ args+=("$@")
 # Example usage: success "sometext"
 #------------------------------------------------------
 
-# Set Colors
-bold=$(tput bold)
-reset=$(tput sgr0)
-purple=$(tput setaf 171)
-red=$(tput setaf 1)
-green=$(tput setaf 76)
-tan=$(tput setaf 3)
-blue=$(tput setaf 38)
-underline=$(tput sgr 0 1)
-
 function _alert() {
   if [ "${1}" = "error" ]; then local color="${bold}${red}"; fi
   if [ "${1}" = "warning" ]; then local color="${red}"; fi
   if [ "${1}" = "success" ]; then local color="${green}"; fi
   if [ "${1}" = "debug" ]; then local color="${purple}"; fi
-  if [ "${1}" = "header" ]; then local color="${bold}""${tan}"; fi
+  if [ "${1}" = "header" ]; then local color="${bold}${tan}"; fi
   if [ "${1}" = "input" ]; then local color="${bold}"; fi
   if [ "${1}" = "info" ] || [ "${1}" = "notice" ]; then local color=""; fi
   # Don't use colors on pipes or non-recognized terminals

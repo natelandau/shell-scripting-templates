@@ -55,7 +55,7 @@ function trapCleanup() {
   if is_dir "${tmpDir}"; then
     rm -r "${tmpDir}"
   fi
-  die "Exit trapped."  # Edit this if you like.
+  die "Exit trapped. In function: '${FUNCNAME[*]}'"
 }
 
 # safeExit
