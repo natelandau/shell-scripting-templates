@@ -6,7 +6,7 @@ version="1.0.0"              # Sets version variable
 #
 # HISTORY:
 #
-# * DATE - v1.0.0  - First Creation
+# * 2016-04-19 - v1.0.0  - First Creation
 #
 # ##################################################
 
@@ -130,7 +130,7 @@ function mainScript() {
       # sign in to the app store
       if [[ $INSTALLCOMMAND =~ mas ]]; then
         # Lookup the name of the application being installed
-        appName="$(curl -s https://itunes.apple.com/lookup?id=803453959 | jq .results[].trackName)"
+        appName="$(curl -s https://itunes.apple.com/lookup?id=$item | jq .results[].trackName)"
         if isAppInstalled "${appName}" &> /dev/null; then
           continue
         fi
@@ -162,7 +162,7 @@ function mainScript() {
             notice "Installing ${item}"
             # FFMPEG takes additional flags
             if [[ "${item}" = "ffmpeg" ]]; then
-              install-ffmpeg
+              installffmpeg
             elif [[ "${item}" = "tldr" ]]; then
               brew tap tldr-pages/tldr
               brew install tldr
@@ -177,7 +177,7 @@ function mainScript() {
           notice "Installing ${item}"
           # FFMPEG takes additional flags
           if [[ "${item}" = "ffmpeg" ]]; then
-            install-ffmpeg
+            installffmpeg
           elif [[ "${item}" = "tldr" ]]; then
             brew tap tldr-pages/tldr
             brew install tldr
@@ -254,6 +254,7 @@ function mainScript() {
   function installHomebrewTaps() {
     brew tap homebrew/dupes
     brew tap homebrew/versions
+    brew install argon/mas/mas
     brew tap argon/mas
     brew tap caskroom/cask
     brew tap caskroom/fonts
@@ -344,6 +345,7 @@ function mainScript() {
       marked
       mailplane
       moom
+      ngrok
       nvalt
       omnifocus
       omnifocus-clip-o-tron
@@ -602,7 +604,7 @@ function mainScript() {
       done
     done
 
-    Add some additional time just to be sure....
+    #Add some additional time just to be sure....
     for ((i=1; i<=6; i++)); do
       info "  Waiting for Dropbox to Sync files..."
       sleep 10
@@ -646,20 +648,20 @@ function mainScript() {
   # Ask for the administrator password upfront
   sudo -v
 
-  # installCommandLineTools
-  # installHomebrew
-  # checkTaps
-  # brewCleanup
-  # installXcode
-  # installDropbox
-  # installCaskApps
+  installCommandLineTools
+  installHomebrew
+  checkTaps
+  brewCleanup
+  installXcode
+  installDropbox
+  installHomebrewPackages
+  installCaskApps
   installAppStoreApps
-  # installDevApps
-  # installHomebrewPackages
-  # installRuby
-  # installRubyGems
-  # configureSSH
-  # configureMackup
+  installDevApps
+  installRuby
+  installRubyGems
+  configureSSH
+  configureMackup
 }
 
 ## SET SCRIPTNAME VARIABLE ##
@@ -707,10 +709,14 @@ function seek_confirmation() {
   #
   # Credt: https://github.com/kevva/dotfiles
   # ------------------------------------------------------
-  # echo ""
+
   input "$@"
-  read -p " (y/n) " -n 1
-  echo ""
+  if ${force}; then
+    notice "Forcing confirmation with '--force' flag set"
+  else
+    read -p " (y/n) " -n 1
+    echo ""
+  fi
 }
 
 function is_confirmed() {
