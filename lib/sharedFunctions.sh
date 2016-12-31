@@ -332,7 +332,6 @@ function unmountDrive() {
 # text is available in the script they will be printed
 # in the '$usage' variable.
 # ------------------------------------------------------
-
 function help () {
   echo "" 1>&2
   input "   $@" 1>&2
@@ -351,7 +350,6 @@ function help () {
 # manager 'Homebrew'.
 # Usage in script:  $ homebrewDependencies=(package1 package2)
 # -----------------------------------
-
 function checkDependencies() {
   saveIFS=$IFS
   IFS=$' \n\t'
@@ -383,13 +381,10 @@ function checkDependencies() {
   IFS=$saveIFS
 }
 
-# pauseScript
-# -----------------------------------
-# A simple function used to pause a script at any point and
-# only continue on user input
-# -----------------------------------
 
 function pauseScript() {
+  # A simple function used to pause a script at any point and
+  # only continue on user input
   seek_confirmation "Ready to continue?"
   if is_confirmed; then
     info "Continuing"
@@ -401,7 +396,7 @@ function pauseScript() {
 
 function in_array() {
     # Determine if a value is in an array.
-    # Usage: in_array [VALUE] [ARRAY]
+    # Usage: if in_array "VALUE" "${ARRAY[@]}"; then ...
     local value="$1"; shift
     for arrayItem in "$@"; do
         [[ "${arrayItem}" == "${value}" ]] && return 0
@@ -469,7 +464,6 @@ squeeze_lines() {
 
     sed '/^[[:space:]]\+$/s/.*//g' | cat -s | trim_lines
 }
-
 
 progressBar() {
   # progressBar
@@ -543,7 +537,6 @@ htmlEncode() {
   # Usage: htmlEncode <string>
   echo "${1}" | sed -f "${SOURCEPATH}/htmlEncode.sed"
 }
-
 
 urlencode() {
   # URL encoding/decoding from: https://gist.github.com/cdown/1163649
@@ -745,7 +738,7 @@ function writeCSV() {
 
 }
 
-function json2yaml {
+function json2yaml() {
   # convert json files to yaml using python and PyYAML
   python -c 'import sys, yaml, json; yaml.safe_dump(json.load(sys.stdin), sys.stdout, default_flow_style=False)' < "$1"
 }
