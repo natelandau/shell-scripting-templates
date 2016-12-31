@@ -225,7 +225,7 @@ function mainScript() {
 
       success "Set Home Folder as the default location for new Finder windows"
       # For other paths, use `PfLo` and `file:///full/path/here/`
-      defaults write com.apple.finder NewWindowTarget -string "PfDe"
+      defaults write com.apple.finder NewWindowTarget -string "PfHm"
       defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}/"
 
       success "Show icons for hard drives, servers, and removable media on the desktop"
@@ -306,6 +306,9 @@ function mainScript() {
       success "Show the ~/Library folder"
       chflags nohidden ${HOME}/Library
 
+      success "Show the /Volumes folder"
+      sudo chflags nohidden /Volumes
+
       #success "Remove Dropbox’s green checkmark icons in Finder"
       #file=/Applications/Dropbox.app/Contents/Resources/emblem-dropbox-uptodate.icns
       #[ -e "${file}" ] && mv -f "${file}" "${file}.bak"
@@ -329,8 +332,14 @@ function mainScript() {
       success "Enable highlight hover effect for the grid view of a stack"
       defaults write com.apple.dock mouse-over-hilite-stack -bool true
 
+      success "Change minimize/maximize window effect"
+      defaults write com.apple.dock mineffect -string "genie"
+
       success "Set the icon size of Dock items to 36 pixels"
       defaults write com.apple.dock tilesize -int 36
+
+      success "Show only open applications in the Dock"
+      defaults write com.apple.dock static-only -bool true
 
       success "Minimize windows into their application’s icon"
       defaults write com.apple.dock minimize-to-application -bool true

@@ -97,8 +97,6 @@ function mainScript() {
     #
     # Credit: https://github.com/cowboy/dotfiles
 
-
-
     function to_install() {
       local desired installed i desired_s installed_s remain
       # Convert args to arrays, handling both space- and newline-separated lists.
@@ -257,7 +255,7 @@ function mainScript() {
     brew install argon/mas/mas
     brew tap argon/mas
     brew tap caskroom/cask
-    brew tap caskroom/fonts
+    # brew tap caskroom/fonts
     brew tap caskroom/versions
   }
 
@@ -489,7 +487,6 @@ function mainScript() {
       tree
       unison              # Rsynch like tool
     )
-
     doInstall
 
     success "Done installing Homebrew packages"
@@ -586,12 +583,10 @@ function mainScript() {
       "Dropbox/sharedConfiguration/Mackup/Library/Application Support/PaxGalaxia/net.txt"
       "Dropbox/sharedConfiguration/Mackup/Pictures/DeviantartBackup/clouds2.jpg"
       "Dropbox/sharedConfiguration/Mackup/Library/init/bash/aliases.bash"
-      "Dropbox/sharedConfiguration/Mackup/Downloads"
       "Dropbox/sharedConfiguration/Mackup/.mackup/my-files.cfg"
       "Dropbox/sharedConfiguration/App Configuration Files/Alfred2/Alfred.alfredpreferences"
       "Dropbox/sharedConfiguration/Mackup/Library/Preferences/com.dustinrue.ControlPlane.plist"
       )
-
 
     info "Confirming that Dropbox has synced by looking for files..."
     info "(This might fail if the list of files is out of date)"
