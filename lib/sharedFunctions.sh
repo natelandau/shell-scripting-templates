@@ -24,6 +24,7 @@
 # Usage: Add this function at the end of every script
 function safeExit() {
   # Delete temp files, if any
+  stopSudo
   if is_dir "${tmpDir}"; then
     rm -r "${tmpDir}"
   fi
@@ -54,13 +55,28 @@ escape() { echo "${@}" | sed 's/[]\.|$(){}?+*^]/\\&/g'; }
 
 # needSudo
 # ------------------------------------------------------
+# Usage: needSudo; stuff; stopSudo
+# ------------------------------------------------------
 # If a script needs sudo access, call this function which
 # requests sudo access and then keeps it alive.
+# See: stopSudo
 # ------------------------------------------------------
 function needSudo() {
   # Update existing sudo time stamp if set, otherwise do nothing.
   sudo -v
-  while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+  ( while true; do sudo -v; sleep 60; done; ) & SUDO_PID="$!"
+  trap stopsudo SIGINT SIGTERM
+}
+
+# stopSudo
+# ------------------------------------------------------
+# Unset needSudo when sudo access is not desired or at
+# the end of the script.
+# ------------------------------------------------------
+function stopSudo() {
+  kill "$SUDO_PID"
+  trap - SIGINT SIGTERM
+  sudo -k
 }
 
 # convertsecs
