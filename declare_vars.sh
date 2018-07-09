@@ -73,7 +73,6 @@ function declare_vars_diff ()
 
 declare_vars() {
     #
-    typeset -x PATH="${PATH}:/dev/null/$[!]/tmps_$$"
     local ___declare_vars_vars=(
     ___declare_vars_I
     ___declare_vars_4eval
