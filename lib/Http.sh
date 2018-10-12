@@ -5,6 +5,19 @@
 # @author  Michael Strache
 
 
+# Prevent this library from being sourced more than once
+[[ ${_GUARD_BFL_HTTP:-} -eq 1 ]] && return 0 || declare -r _GUARD_BFL_HTTP=1
+
+
+# **************************************************************************** #
+# Dependencies                                                                 #
+# **************************************************************************** #
+
+
+# **************************************************************************** #
+# Main                                                                         #
+# **************************************************************************** #
+
 # Simple function to check if a given URL is available (e.g. before downloading a remote file)
 #
 # @param String   URL             URL of the file that should be checked

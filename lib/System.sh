@@ -5,6 +5,19 @@
 # @author  Michael Strache
 
 
+# Prevent this library from being sourced more than once
+[[ ${_GUARD_BFL_SYSTEM:-} -eq 1 ]] && return 0 || declare -r _GUARD_BFL_SYSTEM=1
+
+
+# **************************************************************************** #
+# Dependencies                                                                 #
+# **************************************************************************** #
+
+
+# **************************************************************************** #
+# Main                                                                         #
+# **************************************************************************** #
+
 # Checks if the sources of KERNEL exist in the local system
 #
 # @param String   KERNEL          Name of the kernel

@@ -5,6 +5,19 @@
 # @author  Michael Strache
 
 
+# Prevent this library from being sourced more than once
+[[ ${_GUARD_BFL_NEXUS:-} -eq 1 ]] && return 0 || declare -r _GUARD_BFL_NEXUS=1
+
+
+# **************************************************************************** #
+# Dependencies                                                                 #
+# **************************************************************************** #
+
+
+# **************************************************************************** #
+# Main                                                                         #
+# **************************************************************************** #
+
 # Downloads an artifact from Nexus
 #
 # @param String   USER

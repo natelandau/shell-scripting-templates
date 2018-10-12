@@ -5,6 +5,19 @@
 # @author  Michael Strache
 
 
+# Prevent this library from being sourced more than once
+[[ ${_GUARD_BFL_MAVEN:-} -eq 1 ]] && return 0 || declare -r _GUARD_BFL_MAVEN=1
+
+
+# **************************************************************************** #
+# Dependencies                                                                 #
+# **************************************************************************** #
+
+
+# **************************************************************************** #
+# Main                                                                         #
+# **************************************************************************** #
+
 # Returns the path the specified maven artefact would have in the local filesystem repository and if that artifact exists on localhost
 #
 # @param String   GROUP_ID        GroupId as specified in the pom.xml

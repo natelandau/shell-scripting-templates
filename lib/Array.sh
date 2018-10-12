@@ -5,6 +5,19 @@
 # @author  Michael Strache
 
 
+# Prevent this library from being sourced more than once
+[[ ${_GUARD_BFL_ARRAY:-} -eq 1 ]] && return 0 || declare -r _GUARD_BFL_ARRAY=1
+
+
+# **************************************************************************** #
+# Dependencies                                                                 #
+# **************************************************************************** #
+
+
+# **************************************************************************** #
+# Main                                                                         #
+# **************************************************************************** #
+
 # Checks, if the array contains the element
 # Invocation: Array::contains_element ARRAY[@] "${ELEMENT}"
 #

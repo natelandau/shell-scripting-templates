@@ -5,6 +5,19 @@
 # @author  Michael Strache
 
 
+# Prevent this library from being sourced more than once
+[[ ${_GUARD_BFL_UTIL:-} -eq 1 ]] && return 0 || declare -r _GUARD_BFL_UTIL=1
+
+
+# **************************************************************************** #
+# Dependencies                                                                 #
+# **************************************************************************** #
+
+
+# **************************************************************************** #
+# Main                                                                         #
+# **************************************************************************** #
+
 # Compares two strings containing version numbers
 #
 # @param String   VERSION1        String with the first version number

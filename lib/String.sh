@@ -5,6 +5,19 @@
 # @author  Michael Strache
 
 
+# Prevent this library from being sourced more than once
+[[ ${_GUARD_BFL_STRING:-} -eq 1 ]] && return 0 || declare -r _GUARD_BFL_STRING=1
+
+
+# **************************************************************************** #
+# Dependencies                                                                 #
+# **************************************************************************** #
+
+
+# **************************************************************************** #
+# Main                                                                         #
+# **************************************************************************** #
+
 # Tests if STRING contains SUBSTRING
 #
 # @param String  STRING           The string to be tested
