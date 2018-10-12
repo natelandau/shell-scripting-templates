@@ -1,7 +1,7 @@
 # Bash Function Libraries
 This project is collection of Bourne-again shell functions.
 
-As for almost every function library the idea is to keep scripts readable, collect best practices and stop people reinventing the wheel. It is developed and tested with Bash 4 (GNU) but most functions should also work in Bash 3 and on MacOS.
+As for almost every function library the idea is to keep scripts readable, collect best practices and keep people from reinventing the wheel. It is developed and tested with Bash 4 (GNU) but most functions should also work in Bash 3 and on MacOS.
 
 ## Usage
 All libraries are located in `lib/*`. Since we are talking about Bash, all you have to use is to source the library you want to use:

@@ -69,7 +69,7 @@ function System::mount() {
 
   if [[ ! -d ${DIR} ]]; then
     { # try
-      log_debug "mkdir ${DIR} && chmod 755 ${DIR}" &&
+      Log::Debug "mkdir ${DIR} && chmod 755 ${DIR}" &&
       mkdir ${DIR} &&
       chmod 755 ${DIR}
     } || { # catch
@@ -78,7 +78,7 @@ function System::mount() {
   fi
 
   { # try
-    log_debug "mount ${FSTYPE} ${OPTIONS} ${DEVICE} ${DIR}" &&
+    Log::Debug "mount ${FSTYPE} ${OPTIONS} ${DEVICE} ${DIR}" &&
     mount ${FSTYPE} ${OPTIONS} ${DEVICE} ${DIR}
   } || { # catch
     return 1
