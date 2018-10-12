@@ -38,9 +38,11 @@ function System::Kernel::exists() {
 # @return String  String representation of an array (e.g. "4.4.6-gentoo 4.4.39-gentoo")
 function System::Kernel::get_available() {
   # List all kernel sources folders, sort their base names naturally (the lowest version first, the highest last) and remove the 'linux-' prefix
-  local -r NEWEST_VERSION=( $( find /usr/src/ -maxdepth 1 -name 'linux-*' -type d -print0 | xargs --null --max-args=1 basename | sort --version-sort | sed -e 's/^linux-//' ) )
+  local -r AVAILABLE_VERSIONS=( $( find /usr/src/ -maxdepth 1 -name 'linux-*' -type d -print0 | xargs --null --max-args=1 basename | sort --version-sort | sed -e 's/^linux-//' ) )
 
-  echo "${NEWEST_VERSION[@]}"
+  # Serialize the array ('declare -p' prints out the array constructor, which then is stripped down to the array string)
+  local -r AVAILABLE_VERSIONS_SERIALIZED=$( declare -p AVAILABLE_VERSIONS )
+  printf "${AVAILABLE_VERSIONS_SERIALIZED#*=}"
 }
 
 

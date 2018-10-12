@@ -20,8 +20,8 @@ Array::contains_element my_array[@] ${some_element}
 
 Read an array returned by a function:
 ```bash
-declare -a kernel_available=( $( System::Kernel::get_available ) )
-# The string returned look like "4.4.6-gentoo 4.4.39-gentoo" and will be transformed to an array automatically
+declare -a kernel_available=$( System::Kernel::get_available )
+# The returned string looks like '( [0]="4.16.18-gentoo" [1]="4.17.13-gentoo" [2]="4.17.14-gentoo" )' and will be transformed to an array automatically
 ```
 
 
