@@ -21,7 +21,8 @@ Array::contains_element my_array[@] ${some_element}
 Read an array returned by a function:
 ```bash
 declare -a kernel_available=$( System::Kernel::get_available )
-# The returned string looks like '( [0]="4.16.18-gentoo" [1]="4.17.13-gentoo" [2]="4.17.14-gentoo" )' and will be transformed to an array automatically
+# The returned string looks like '( [0]="4.16.18-gentoo" [1]="4.17.13-gentoo" [2]="4.17.14-gentoo" )'
+# and will be transformed to an array automatically
 ```
 
 
@@ -38,22 +39,22 @@ Functions related to terminal and file logging
 *Note: Logging to files is not yet implemented.*
 
 All available colors and formats are made available as constants that can be used in strings:
-* CLR_GOOD
-* CLR_INFORM
-* CLR_WARN
-* CLR_BAD
-* CLR_HILITE
-* CLR_BRACKET
-* CLR_NORMAL
-* FMT_BOLD
-* FMT_UNDERLINE
+* `CLR_GOOD`
+* `CLR_INFORM`
+* `CLR_WARN`
+* `CLR_BAD`
+* `CLR_HILITE`
+* `CLR_BRACKET`
+* `CLR_NORMAL`
+* `FMT_BOLD`
+* `FMT_UNDERLINE`
 
 The same applies to the available log levels
-* LOG_LVL_OFF
-* LOG_LVL_ERR
-* LOG_LVL_WRN
-* LOG_LVL_INF
-* LOG_LVL_DBG
+* `LOG_LVL_OFF`
+* `LOG_LVL_ERR`
+* `LOG_LVL_WRN`
+* `LOG_LVL_INF`
+* `LOG_LVL_DBG`
 
 The current log level and whether a timestamp should be added to each entry can be configured:
 ```bash
