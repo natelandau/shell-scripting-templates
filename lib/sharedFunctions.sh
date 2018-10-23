@@ -378,6 +378,13 @@ function checkDependencies() {
     # Invoke functions from setupScriptFunctions.sh
     doInstall
   fi
+  if [ -n "$pipDependencies" ]; then
+    LISTINSTALLED="pip list | awk '{print $1}'"
+    INSTALLCOMMAND="pip install --user"
+    RECIPES=("${pipDependencies[@]}")
+    # Invoke functions from setupScriptFunctions.sh
+    doInstall
+  fi
   IFS=$saveIFS
 }
 
