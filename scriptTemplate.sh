@@ -116,6 +116,7 @@ logFile="$HOME/Library/Logs/${scriptBasename}.log"
 homebrewDependencies=()
 caskDependencies=()
 gemDependencies=()
+pipDependencies=()
 
 function mainScript() {
 ############## Begin Script Here ###################
