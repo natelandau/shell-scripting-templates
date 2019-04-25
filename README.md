@@ -1,3 +1,8 @@
+
+**As of 2017, this repository is in archival state.**  I refactored much of the code and am now using the scripts and utilities available publicly in this repository:  [https://github.com/natelandau/dotfiles](https://github.com/natelandau/dotfiles).
+
+
+
 # My Shell Scripts
 This is the centralized repository of all the shell scripts which I use for a number of different purposes.
 
@@ -14,7 +19,7 @@ This is the centralized repository of all the shell scripts which I use for a nu
 	* Syncing user preferences and files using [Mackup][3]
 	* Installing [RVM][4] and associated Gems
 	* Pushing a new SSH key to Github
-* **syncScripts/** - Scripts which use [RSYNC][5] and [Unison][6] to keep different directories and computers in sync. 
+* **syncScripts/** - Scripts which use [RSYNC][5] and [Unison][6] to keep different directories and computers in sync.
 * **scriptTemplate.sh** - A bash script boilerplate template.
 
 ## Versioning
