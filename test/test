@@ -1,0 +1,258 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Performs assertion testing of the functions in this library.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+# Declares assertions.
+#
+# It is not possible to perform assertion testing on the assert() function
+# itself.
+#
+# @return global array $assertions
+#   This is a one dimensional array. Each element is a pipe delimited list
+#   of three values in this sequence:
+#
+#   1. Function to test (example: lib::implode)
+#   2. Parameters to pass to function (example, "1" "2" "3")
+#   3. Expected return code (example: 0)
+#------------------------------------------------------------------------------
+declare_assertions() {
+  declare -ga assertions=(
+    'lib::declare_global_display_constants|"foo" "bar"|1'
+    'lib::declare_global_display_constants|"foo"|1'
+    'lib::declare_global_display_constants|""|1'
+    'lib::declare_global_display_constants||0'
+    'lib::echo_args|"foo" "bar"|0'
+    'lib::echo_args|"foo"|0'
+    'lib::echo_args|""|0'
+    'lib::echo_args||1'
+    'lib::err|"foo" "bar"|1'
+    'lib::err|"foo"|0'
+    'lib::err|""|1'
+    'lib::err||1'
+    'lib::get_file_directory||1'
+    'lib::get_file_directory|""|1'
+    'lib::get_file_directory|"a" "b"|1'
+    'lib::get_file_directory|"/tmp/non-existent-file.ext"|1'
+    'lib::get_file_directory|"/etc/host.conf"|0'
+    'lib::get_file_extension||1'
+    'lib::get_file_extension|""|1'
+    'lib::get_file_extension|"a" "b"|1'
+    'lib::get_file_extension|"/tmp/non-existent-file.ext"|1'
+    'lib::get_file_extension|"/etc/host.conf"|0'
+    'lib::get_file_name||1'
+    'lib::get_file_name|""|1'
+    'lib::get_file_name|"a" "b"|1'
+    'lib::get_file_name|"/tmp/non-existent-file.ext"|1'
+    'lib::get_file_name|"/etc/host.conf"|0'
+    'lib::get_file_name_without_extension||1'
+    'lib::get_file_name_without_extension|""|1'
+    'lib::get_file_name_without_extension|"a" "b"|1'
+    'lib::get_file_name_without_extension|"/tmp/non-existent-file.ext"|1'
+    'lib::get_file_name_without_extension|"/etc/host.conf"|0'
+    'lib::get_file_path||1'
+    'lib::get_file_path|""|1'
+    'lib::get_file_path|"a" "b"|1'
+    'lib::get_file_path|"/tmp/non-existent-file.ext"|1'
+    'lib::get_file_path|"/etc/host.conf"|0'
+    'lib::generate_password||1'
+    'lib::generate_password|""|1'
+    'lib::generate_password|"a"|1'
+    'lib::generate_password|"1" "2"|1'
+    'lib::generate_password|"7"|1'
+    'lib::generate_password|"8"|0'
+    'lib::generate_password|"9"|0'
+    'lib::generate_password|"32"|0'
+    'lib::implode|"," "This is" "a" "test."|0'
+    'lib::implode|"," "Foo"|0'
+    'lib::implode|"" "Foo"|0'
+    'lib::implode|"" "" ""|0'
+    'lib::implode|"," ""|0'
+    'lib::implode|"," "" ""|0'
+    'lib::implode|"" ""|0'
+    'lib::implode|","|1'
+    'lib::implode||1'
+    'lib::is_empty|""|0'
+    'lib::is_empty|"a"|1'
+    'lib::is_empty|"a" "b"|1'
+    'lib::is_empty|"" ""|1'
+    'lib::is_empty||1'
+    'lib::is_integer|"69"|0'
+    'lib::is_integer|"foo"|1'
+    'lib::is_integer|"1" "2" "3"|1'
+    'lib::is_integer||1'
+    'lib::send_mail_msg||1'
+    'lib::send_mail_msg|""|1'
+    'lib::send_mail_msg|"" ""|1'
+    'lib::send_mail_msg|"" "" ""|1'
+    'lib::send_mail_msg|"" "" "" ""|1'
+    'lib::send_mail_msg|"" "" "" "" ""|1'
+    'lib::send_mail_msg|"foo@example.com" "" "" "" ""|1'
+    'lib::send_mail_msg|"foo@example.com" "foo@example.com" "" "" ""|1'
+    'lib::send_mail_msg|"foo@example.com" "foo@example.com" "foo@example.com" "" ""|1'
+    'lib::send_mail_msg|"foo@example.com" "foo@example.com" "foo@example.com" "Subject" ""|0'
+    'lib::send_mail_msg|"foo@example.com" "foo@example.com" "foo@example.com" "Subject"|0'
+    'lib::send_mail_msg|"foo@example.com" "foo@example.com" "foo@example.com" "Subject" "Body"|0'
+    'lib::send_mail_msg|"Foo <foo@example.com>" "foo@example.com" "foo@example.com" "Subject" "Body"|0'
+    'lib::send_mail_msg|"Foo <foo@example.com>" "Foo <foo@example.com>" "foo@example.com" "Subject" "Body"|0'
+    'lib::str_repeat|"-" "3"|0'
+    'lib::str_repeat|"" "6"|0'
+    'lib::str_repeat|" " "9"|0'
+    'lib::str_repeat|"-" "a"|1'
+    'lib::str_repeat|"" ""|1'
+    'lib::str_repeat|"-" ""|1'
+    'lib::str_repeat||1'
+    'lib::trim||1'
+    'lib::trim|""|0'
+    'lib::trim|"abc"|0'
+    'lib::trim|"   def"|0'
+    'lib::trim|"ghi   "|0'
+    'lib::trim|"   jkl   "|0'
+    'lib::trim|"   mno   pqr   stu   "|0'
+    'lib::transliterate|"This is A string."|0'
+    'lib::transliterate|"This is A string." "So is this."|1'
+    'lib::transliterate|""|0'
+    'lib::transliterate||1'
+    'lib::validate_arg_count|"2" "1" "3"|0'
+    'lib::validate_arg_count|"4" "5" "6"|1'
+    'lib::validate_arg_count|"a" "8" "9"|1'
+    'lib::validate_arg_count|"7" "b" "9"|1'
+    'lib::validate_arg_count|"7" "8" "c"|1'
+    'lib::validate_arg_count|"7"|1'
+    'lib::validate_arg_count||1'
+    'lib::verify_dependencies|"rm" "sort" "cough"|1'
+    'lib::verify_dependencies|"rm" "ls" "whoami"|0'
+  )
+}
+
+#------------------------------------------------------------------------------
+# @function
+# Tests a function to see if its return code matches the expected return code.
+#
+# @param string $function_to_test
+#   The function to be tested.
+# @param string $args
+#   The arguments to pass to the function.
+# @param string $expected_return_code
+#   The expected return code (0 or 1).
+#
+# shellcheck disable=SC2059
+# shellcheck disable=SC2154
+#------------------------------------------------------------------------------
+assert() {
+  lib::validate_arg_count "$#" 3 3 || return 1
+  declare -r function_to_test="$1"
+  declare -r args="$2"
+  declare -r expected_return_code="$3"
+  declare actual_return_code
+  declare cmd
+  declare cmd_output
+  declare format
+  declare result
+
+  # Test for empty strings.
+  if lib::is_empty "${function_to_test}"; then
+    lib::err "Error: \$function_to_test is a an empty string."
+    return 1
+  fi
+  if lib::is_empty "${expected_return_code}"; then
+    lib::err "Error: \$expected_return_code is a an empty string."
+    return 1
+  fi
+
+  # Run the command.
+  cmd=$(printf "%s %s" "${function_to_test}" "${args}")
+  cmd_output=$(eval "${cmd}" 2>&1)
+  actual_return_code="$?"
+
+  # Print results.
+  if [[ "${actual_return_code}" -eq "${expected_return_code}" ]]; then
+    result="PASS"
+    format="${green}%-${cw1}s${reset} %-${cw2}s %-${cw3}s %-${cw4}s %-${cw5}s %-${cw6}s${reset} \\n"
+  else
+    result="FAIL"
+    format="${red}%-${cw1}s${reset} %-${cw2}s %-${cw3}s %-${cw4}s %-${cw5}s %-${cw6}s${reset} \\n"
+  fi
+  cmd_output=${cmd_output//[$'\n']}
+  printf "${format}" "${result}" "${function_to_test:0:${cw2}}" "${args:0:${cw3}}" "${expected_return_code}" "${actual_return_code}" "${cmd_output:0:${cw6}}"
+}
+
+#------------------------------------------------------------------------------
+# @function
+# Main function.
+#
+# @param array global $assertions
+#   Global array created by declare_assertions().
+#
+# shellcheck disable=SC1090
+# shellcheck disable=SC2034
+# shellcheck disable=SC2059
+#------------------------------------------------------------------------------
+main() {
+  source "${BASH_FUNCTION_LIBRARY}"
+
+  # Declare assertions.
+  declare_assertions
+
+  # We can't call lib::declare_global_display_constants() because we might test it,
+  # and the function declares read only constants. If we test the function,
+  # it will attempt to reassign the read only constants, causing an error.
+  # Instead, we'll declare the colors here.
+  declare -g red="\\e[0;31m"
+  declare -g yellow="\\e[1;33m"
+  declare -g green="\\e[0;32m"
+  declare -g reset="\\e[0m"
+
+  # Declare column widths for displaying test results.
+  declare -rg cw1=6     # Width of column 1: Result (PASS/FAIL)
+  declare -rg cw2=37    # Width of column 2: Function
+  declare -rg cw3=33    # Width of column 3: Arguments
+  declare -rg cw4=8     # Width of column 4: Expected return code
+  declare -rg cw5=6     # Width of column 5: Actual return code
+  declare -rg cw6=109   # Width of column 6: Command output
+
+  # Declare other local variables.
+  declare assertion
+  declare -r format="%-${cw1}s %-${cw2}s %-${cw3}s %-${cw4}s %-${cw5}s %-${cw6}s"
+  declare line_1 line_2 line_3 line_4 line_5 line_6
+  declare -a pieces
+
+  # Create table header lines for for displaying test results.
+  line_1=$(lib::str_repeat "=" ${cw1})
+  line_2=$(lib::str_repeat "=" ${cw2})
+  line_3=$(lib::str_repeat "=" ${cw3})
+  line_4=$(lib::str_repeat "=" ${cw4})
+  line_5=$(lib::str_repeat "=" ${cw5})
+  line_6=$(lib::str_repeat "=" ${cw6})
+
+  # Clear the screen.
+  clear
+
+  # Print initial newline.
+  printf "\\n"
+
+  # Print table header.
+  printf "${format}\\n" "" "" "" "Expected" "Actual" ""
+  printf "${format}\\n" "" "" "" "Return" "Return" ""
+  printf "${format}\\n" "Result" "Function" "Arguments (truncated)" "Code" "Code" "First line of command output (truncated)"
+  printf "%s %s %s %s %s %s\\n" "${line_1}" "${line_2}" "${line_3}" "${line_4}" "${line_5}" "${line_6}"
+
+  # Run assertion tests.
+  for assertion in "${assertions[@]}"; do
+    IFS="|" read -r -a pieces <<< "${assertion}"
+    # ${pieces[0]} is the function to be called
+    # ${pieces[1]} is the arguments string
+    # ${pieces[2]} is the expected return code
+    assert "${pieces[0]}" "${pieces[1]}" "${pieces[2]}" || true
+  done
+
+  # Print final newline.
+  printf "\\n"
+}
+
+set -euo pipefail
+main

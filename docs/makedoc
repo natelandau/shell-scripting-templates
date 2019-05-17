@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Creates documentation for library functions.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+# Main function.
+#
+# shellcheck disable=1090
+#------------------------------------------------------------------------------
+main() {
+  source "${BASH_FUNCTION_LIBRARY}"
+  lib::declare_global_display_constants
+
+  declare body
+  declare file_path
+  declare footer
+  declare function_desc
+  declare function_name
+  declare function_params
+  declare function_return
+  declare -r header="# Bash Function Library - Documentation"
+  declare -r output_file_name="documentation.md"
+  declare toc
+
+  footer="*Last updated: $(date --iso-8601=s).*"
+  toc="## Table of Contents\\n\\n"
+
+  for file_path in "$(dirname "${BASH_FUNCTION_LIBRARY}")"/_*; do
+
+    function_name=$(grep "() {" "${file_path}")
+    function_name="${function_name::-4}"
+
+    function_desc=$(grep -A1 @function "${file_path}" | tail -1)
+    function_desc="${function_desc:2}"
+
+    # The following sed command...
+    #   1) Removes '# ' at the beginning of each line
+    #   2) Deletes lines that begin and end with '#'
+    #   3) Adds two spaces to the end of each line
+    #   4) Places '**' on each side of '@param' and '@return'
+    set +e
+    function_params=$(grep -A1 --no-group-separator "@param" "${file_path}" | sed 's/^# //; /^#$/d; s/$/  /; s/@param/**@param**/')
+    function_return=$(grep -A1 --no-group-separator "@return" "${file_path}" | sed 's/^# //; /^#$/d; s/$/  /; s/@return/**@return**/')
+    set -e
+
+    toc+="* [${function_name}](#${function_name//::/_})\\n"
+
+    body+="<a id=\"${function_name//::/_}\"></a>\\n\\n"
+    body+="## ${function_name}\\n\\n"
+    body+="${function_desc}\\n\\n"
+
+    if ! lib::is_empty "${function_params}"; then body+="${function_params}\\n\\n"; fi
+    if ! lib::is_empty "${function_return}"; then body+="${function_return}\\n\\n"; fi
+
+  done
+
+  echo -e "${header}\\n\\n${toc}\\n${body}---\\n${footer}" \
+    > "$(dirname "${BASH_FUNCTION_LIBRARY}")/docs/${output_file_name}"
+}
+
+set -euo pipefail
+main

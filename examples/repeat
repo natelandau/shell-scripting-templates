@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Repeats a string N times.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+# Displays usage message.
+#------------------------------------------------------------------------------
+usage() {
+  declare this_script
+  this_script=$(basename "$0")
+  echo
+  echo "Repeats a string N times."
+  echo
+  echo "Usage:    ${this_script} string multiplier"
+  echo "Example:  ${this_script} \"=\" \"10\""
+  echo
+  exit 1
+}
+
+#------------------------------------------------------------------------------
+# @function
+# Main function.
+#
+# shellcheck disable=1090
+#------------------------------------------------------------------------------
+main() {
+  source "${BASH_FUNCTION_LIBRARY}"
+  lib::declare_global_display_constants
+  lib::validate_arg_count "$#" 2 2 || usage
+
+  declare -r string_to_repeat="$1"
+  declare -r multiplier="$2"
+  declare repeated_string
+
+  repeated_string=$(lib::str_repeat "${string_to_repeat}" "${multiplier}")
+  printf "%s\\n" "${repeated_string}"
+}
+
+set -euo pipefail
+main "$@"

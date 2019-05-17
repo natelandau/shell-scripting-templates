@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Does something. TODO
+#
+# Detailed description. TODO
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+# Displays usage message.
+#------------------------------------------------------------------------------
+usage() {
+  declare this_script
+  this_script=$(basename "$0")
+  echo
+  echo "One sentence description."  #TODO
+  echo
+  echo "Detailed description (optional). Use multiple lines if needed."   #TODO
+  echo
+  echo "Usage:    ${this_script} arg1 arg2"         #TODO
+  echo "Example:  ${this_script} \"foo\" \"bar\""   #TODO
+  echo
+  exit 1
+}
+
+#------------------------------------------------------------------------------
+# @function
+# Performs cleanup when script exits for any reason. Called by trap.
+#------------------------------------------------------------------------------
+cleanup() {
+  : TODO
+}
+
+#------------------------------------------------------------------------------
+# @function
+# Main function.
+#
+# shellcheck disable=1090
+#------------------------------------------------------------------------------
+main() {
+  source "${BASH_FUNCTION_LIBRARY}"
+  lib::declare_global_display_constants
+  lib::validate_arg_count "$#" 2 2 || usage
+
+  declare -r arg1="$1"
+  declare -r arg2="$2"
+
+  printf "%s %s\\n" "${arg1}" "${arg2}"
+}
+
+set -euo pipefail
+trap cleanup EXIT
+main "$@"
