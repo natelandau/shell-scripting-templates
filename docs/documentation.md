@@ -5,6 +5,7 @@
 * [lib::declare_global_display_constants](#lib_declare_global_display_constants)
 * [lib::echo_args](#lib_echo_args)
 * [lib::err](#lib_err)
+* [lib::find_nearest_integer](#lib_find_nearest_integer)
 * [lib::generate_password](#lib_generate_password)
 * [lib::get_file_directory](#lib_get_file_directory)
 * [lib::get_file_extension](#lib_get_file_extension)
@@ -66,6 +67,20 @@ Prints message to stderr.
 
 **@param** string $message  
   Message to be printed.  
+
+<a id="lib_find_nearest_integer"></a>
+
+## lib::find_nearest_integer
+
+Finds the nearest integer to a target integer from a list of integers.
+
+**@param** string $target  
+  The target integer.  
+**@param** string $list  
+  List of integers.  
+
+**@return** string $nearest  
+  Integer in list that is nearest to the target.  
 
 <a id="lib_generate_password"></a>
 
@@ -249,4 +264,4 @@ Verifies that dependencies are installed.
   One dimensional array of applications, executables, or commands.  
 
 ---
-*Last updated: 2019-05-18T12:31:05-04:00.*
+*Last updated: 2019-07-10T09:37:50-04:00.*
