@@ -25,8 +25,15 @@ lib::get_file_path() {
     return 1
   fi
 
+  # Verify that the path exists.
   if ! canonical_file_path=$(realpath -eq "${path}"); then
     lib::err "Error: ${path} does not exist."
+    return 1
+  fi
+
+  # Verify that the path points to a file, not a directory.
+  if [[ ! -f "${canonical_file_path}" ]]; then
+    lib::err "Error: ${canonical_file_path} is not a file."
     return 1
   fi
 
