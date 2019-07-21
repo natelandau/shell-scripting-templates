@@ -21,18 +21,24 @@
 #   Integer in list that is nearest to the target.
 #------------------------------------------------------------------------------
 lib::find_nearest_integer() {
+  lib::validate_arg_count "$#" 2 2 || return 1
+
+  if ! lib::is_integer "$1"; then
+    lib::err "Error: expected integer, received $1"
+    return 1
+  fi
+
+  if lib::is_empty "$2"; then
+    lib::err "Error: expected list, received empty string"
+    return 1
+  fi
+
   declare -r target="$1"
   declare -ar list="($2)"
   declare item
   declare table
   declare nearest
 
-  lib::validate_arg_count "$#" 2 2 || return 1
-
-  if ! lib::is_integer "${target}"; then
-    lib::err "Error: expected integer, received ${target}"
-    return 1
-  fi
 
   for item in "${list[@]}"; do
     if ! lib::is_integer "${item}"; then
