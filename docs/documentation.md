@@ -16,6 +16,7 @@
 * [lib::is_empty](#lib_is_empty)
 * [lib::is_integer](#lib_is_integer)
 * [lib::send_mail_msg](#lib_send_mail_msg)
+* [lib::send_sms_msg](#lib_send_sms_msg)
 * [lib::str_repeat](#lib_str_repeat)
 * [lib::transliterate](#lib_transliterate)
 * [lib::trim](#lib_trim)
@@ -203,6 +204,17 @@ Sends an email message.
 **@param** string $body (optional)  
   Message body.  
 
+<a id="lib_send_sms_msg"></a>
+
+## lib::send_sms_msg
+
+Sends an SMS message via Amazon Simple Notification Service (SNS).
+
+**@param** string $phone_number  
+  Recipient's phone number, including country code.  
+**@param** string $message  
+  The message.  
+
 <a id="lib_str_repeat"></a>
 
 ## lib::str_repeat
@@ -264,4 +276,4 @@ Verifies that dependencies are installed.
   One dimensional array of applications, executables, or commands.  
 
 ---
-*Last updated: 2019-07-10T09:37:50-04:00.*
+*Last updated: 2019-07-21T21:43:04-04:00.*
