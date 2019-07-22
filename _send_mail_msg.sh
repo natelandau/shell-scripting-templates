@@ -7,7 +7,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Sends an email message.
+# Sends an email message via sendmail.
 #
 # @param string $to
 #   Message recipient or recipients.
@@ -38,6 +38,7 @@ lib::send_mail_msg() {
   declare -r envelope_from="$3"
   declare -r subject="$4"
   declare -r body="${5:-}"
+  declare interpreted_body
   declare message
 
   if lib::is_empty "${to}"; then
@@ -60,11 +61,17 @@ lib::send_mail_msg() {
     return 1
   fi
 
-  message=$(printf "To: %s\nFrom: %s\nSubject: %s\n\n%s" \
+  # Backslash escapes such as \n (newline) in the message body must be
+  # interpreted before sending the message.
+  interpreted_body=$(echo -e "${body}")
+
+  # Format the message.
+  message=$(printf "To: %s\\nFrom: %s\\nSubject: %s\\n\\n%s" \
     "${to}" \
     "${from}" \
     "${subject}" \
-    "${body}")
+    "${interpreted_body}")
 
+  # Send the message.
   echo "$message" | sendmail -f "$envelope_from" "$to" || return 1
 }

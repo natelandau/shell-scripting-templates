@@ -191,7 +191,7 @@ Determines if the supplied argument is an integer.
 
 ## lib::send_mail_msg
 
-Sends an email message.
+Sends an email message via sendmail.
 
 **@param** string $to  
   Message recipient or recipients.  
@@ -276,4 +276,4 @@ Verifies that dependencies are installed.
   One dimensional array of applications, executables, or commands.  
 
 ---
-*Last updated: 2019-07-21T21:43:04-04:00.*
+*Last updated: 2019-07-21T21:59:56-04:00.*
