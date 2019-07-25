@@ -7,6 +7,22 @@
 
 #------------------------------------------------------------------------------
 # @function
+# Displays usage message.
+#------------------------------------------------------------------------------
+usage() {
+  declare this_script
+  this_script=$(basename "$0")
+  echo
+  echo "Creates documentation for library functions."
+  echo
+  echo "Usage:    ${this_script}"
+  echo "Example:  ${this_script}"
+  echo
+  exit 1
+}
+
+#------------------------------------------------------------------------------
+# @function
 # Main function.
 #
 # shellcheck disable=1090
@@ -17,8 +33,8 @@ main() {
     exit 1
   fi
 
-  lib::validate_arg_count "$#" 0 0 || usage
   lib::declare_global_display_constants
+  lib::validate_arg_count "$#" 0 0 || usage
 
   declare body
   declare file_path
@@ -68,4 +84,4 @@ main() {
 }
 
 set -euo pipefail
-main
+main "$@"

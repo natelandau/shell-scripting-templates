@@ -276,4 +276,4 @@ Verifies that dependencies are installed.
   One dimensional array of applications, executables, or commands.  
 
 ---
-*Last updated: 2019-07-25T14:20:48-04:00.*
+*Last updated: 2019-07-25T15:23:28-04:00.*
