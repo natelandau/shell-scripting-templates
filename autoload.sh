@@ -17,9 +17,8 @@
 # The autoload function loops through the files in the library directory, and
 # sources file names that begin with an underscore.
 #
-# An "underscore" file should contain one and only one function. To improve
-# readability, the file name should be equal to the function name, preceded by
-# an underscore.
+# An "underscore" file should contain one and only one function. The file name
+# should be equal to the function name, preceded by an underscore.
 #
 # So here's the scenario...
 #
@@ -53,7 +52,10 @@
 #
 # Then, at the top of each new script add:
 #
-#   source "${BASH_FUNCTION_LIBRARY}"
+#   if ! source "${BASH_FUNCTION_LIBRARY}"; then
+#     printf "Error: unable to source BASH_FUNCTION_LIBRARY.\\n"
+#     exit 1
+#   fi
 #
 # shellcheck disable=SC1090
 #------------------------------------------------------------------------------
@@ -67,10 +69,13 @@
 autoload() {
   declare this_script_dir
   declare file_path
-  this_script_dir=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+  declare cannonical_path
+
+  cannonical_path=$(readlink -e "${BASH_SOURCE[0]}") || exit 1
+  this_script_dir=$(dirname "${cannonical_path}") || exit 1
 
   for file_path in "${this_script_dir}"/_*; do
-    source "${file_path}"
+    source "${file_path}" || exit 1
   done
 }
 

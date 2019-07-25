@@ -14,7 +14,8 @@
 #------------------------------------------------------------------------------
 #
 lib::is_empty() {
-  lib::validate_arg_count "$#" 1 1 || return 1
+  lib::validate_arg_count "$#" 1 1 || exit 1
+
   declare -r value_to_test="$1"
 
   if [[ -n "${value_to_test}" ]] ; then

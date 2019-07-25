@@ -14,7 +14,8 @@
 #------------------------------------------------------------------------------
 #
 lib::is_integer() {
-  lib::validate_arg_count "$#" 1 1 || return 1
+  lib::validate_arg_count "$#" 1 1 || exit 1
+
   declare -r value_to_test="$1"
   declare -r regex="^[0-9]+$"
 

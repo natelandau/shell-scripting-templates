@@ -39,32 +39,32 @@
 # shellcheck disable=SC2034
 #------------------------------------------------------------------------------
 lib::declare_global_display_constants() {
-  lib::validate_arg_count "$#" 0 0 || return 1
+  lib::validate_arg_count "$#" 0 0 || exit 1
 
   # Declare colors.
-  declare -rg red="\e[0;31m"
-  declare -rg light_red="\e[1;31m"
-  declare -rg green="\e[0;32m"
-  declare -rg light_green="\e[1;32m"
-  declare -rg blue="\e[0;34m"
-  declare -rg light_blue="\e[1;34m"
-  declare -rg purple="\e[0;35m"
-  declare -rg light_purple="\e[1;35m"
-  declare -rg cyan="\e[0;36m"
-  declare -rg light_cyan="\e[1;36m"
-  declare -rg brown="\e[0;33m"
-  declare -rg yellow="\e[1;33m"
-  declare -rg black="\e[0;30m"
-  declare -rg dark_gray="\e[1;30m"
-  declare -rg light_gray="\e[0;37m"
-  declare -rg white="\e[1;37m"
+  declare -rg red="\\e[0;31m"
+  declare -rg light_red="\\e[1;31m"
+  declare -rg green="\\e[0;32m"
+  declare -rg light_green="\\e[1;32m"
+  declare -rg blue="\\e[0;34m"
+  declare -rg light_blue="\\e[1;34m"
+  declare -rg purple="\\e[0;35m"
+  declare -rg light_purple="\\e[1;35m"
+  declare -rg cyan="\\e[0;36m"
+  declare -rg light_cyan="\\e[1;36m"
+  declare -rg brown="\\e[0;33m"
+  declare -rg yellow="\\e[1;33m"
+  declare -rg black="\\e[0;30m"
+  declare -rg dark_gray="\\e[1;30m"
+  declare -rg light_gray="\\e[0;37m"
+  declare -rg white="\\e[1;37m"
 
   # Declare styles.
-  declare -rg blinking="\e[5m"
-  declare -rg bold="\e[1m"
-  declare -rg reverse_video="\e[7m"
-  declare -rg underline="\e[4m"
+  declare -rg blinking="\\e[5m"
+  declare -rg bold="\\e[1m"
+  declare -rg reverse_video="\\e[7m"
+  declare -rg underline="\\e[4m"
 
   # Declare reset (turn off character attributes).
-  declare -rg reset="\e[0m"
+  declare -rg reset="\\e[0m"
 }

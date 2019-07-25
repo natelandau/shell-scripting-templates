@@ -16,7 +16,8 @@
 #   The trimmed string.
 #------------------------------------------------------------------------------
 lib::trim() {
-  lib::validate_arg_count "$#" 1 1 || return 1
+  lib::validate_arg_count "$#" 1 1 || exit 1
+
   declare -r input="$1"
   declare temp="${input}"
   declare output

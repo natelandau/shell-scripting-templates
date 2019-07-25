@@ -15,17 +15,18 @@
 #   One dimensional array of arguments passed to this function.
 #------------------------------------------------------------------------------
 lib::echo_args() {
-  lib::validate_arg_count "$#" 1 999 || return 1
+  lib::validate_arg_count "$#" 1 999 || exit 1
+
   declare -ar parameters=("$@")
   declare counter=0
   declare parameter
 
-  echo -e "\n----- Begin output from lib::echo_args -----"
+  echo -e "\\n----- Begin output from ${FUNCNAME[0]} -----"
   echo "\$@ =" "$@"
   echo "\$# =" "$#"
   for parameter in "${parameters[@]}"; do
     ((counter++)) || true
     echo "\$${counter} = ${parameter}"
   done
-  echo -e "----- End output from lib::echo_args -----\n"
+  echo -e "----- End output from ${FUNCNAME[0]} -----\\n"
 }

@@ -21,16 +21,14 @@
 #   Integer in list that is nearest to the target.
 #------------------------------------------------------------------------------
 lib::find_nearest_integer() {
-  lib::validate_arg_count "$#" 2 2 || return 1
+  lib::validate_arg_count "$#" 2 2 || exit 1
 
   if ! lib::is_integer "$1"; then
-    lib::err "Error: expected integer, received $1"
-    return 1
+    lib::die "Error: expected integer, received $1"
   fi
 
   if lib::is_empty "$2"; then
-    lib::err "Error: expected list, received empty string"
-    return 1
+    lib::die "Error: expected list, received empty string"
   fi
 
   declare -r target="$1"
@@ -39,13 +37,11 @@ lib::find_nearest_integer() {
   declare table
   declare nearest
 
-
   for item in "${list[@]}"; do
     if ! lib::is_integer "${item}"; then
-      lib::err "Error: expected integer, received ${item}"
-      return 1
+      lib::die "Error: expected integer, received ${item}"
     fi
-    diff=$((target-item))
+    diff=$((target-item)) || lib::die
     abs_diff=${diff/-/}
     table+="${item} ${abs_diff}\\n"
   done
@@ -53,6 +49,6 @@ lib::find_nearest_integer() {
   # Remove final line feed from $table.
   table=${table::-2}
 
-  nearest=$(echo -e "${table}" | sort -n -k2 | head -n1 | cut -f1 -d " ")
+  nearest=$(echo -e "${table}" | sort -n -k2 | head -n1 | cut -f1 -d " ") || lib::die
   printf "%s" "${nearest}"
 }

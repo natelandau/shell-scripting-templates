@@ -18,18 +18,18 @@
 #   The repeated string.
 #------------------------------------------------------------------------------
 lib::str_repeat() {
-  lib::validate_arg_count "$#" 2 2 || return 1
+  lib::validate_arg_count "$#" 2 2 || exit 1
+
   declare -r input="$1"
   declare -r multiplier="$2"
   declare result
 
   if ! lib::is_integer "${multiplier}"; then
-    lib::err "Error: \$multiplier is not a positive integer."
-    return 1
+    lib::die "Error: \$multiplier is not a positive integer."
   fi
 
   # Create a string of spaces that is $multiplier long.
-  result=$(printf "%${multiplier}s")
+  result=$(printf "%${multiplier}s") || lib::die
   # Replace each space with the $input.
   result=${result// /"${input}"}
 

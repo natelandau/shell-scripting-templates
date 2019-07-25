@@ -59,7 +59,12 @@ printf "%s\\n" "${BASH_FUNCTION_LIBRARY}"
 6\. Test using the [lib::str_repeat](docs/documentation.md#lib_str_repeat) function from the library.
 
 ```bash
-source "${BASH_FUNCTION_LIBRARY}"
+if ! source "${BASH_FUNCTION_LIBRARY}"; then
+  printf "Error: unable to source BASH_FUNCTION_LIBRARY.\\n"
+  exit 1
+fi
+
+
 printf "%s\\n" "$(lib::str_repeat "=" "10")"
 ```
 
@@ -105,7 +110,11 @@ usage() {
 # shellcheck disable=1090
 #------------------------------------------------------------------------------
 main() {
-  source "${BASH_FUNCTION_LIBRARY}"
+  if ! source "${BASH_FUNCTION_LIBRARY}"; then
+    printf "Error: unable to source BASH_FUNCTION_LIBRARY.\\n"
+    exit 1
+  fi
+
   lib::declare_global_display_constants
   lib::validate_arg_count "$#" 2 2 || usage
 

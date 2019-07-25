@@ -30,8 +30,8 @@
 #   Message body.
 #------------------------------------------------------------------------------
 lib::send_mail_msg() {
-  lib::verify_dependencies "sendmail" || return 1
-  lib::validate_arg_count "$#" 4 5 || return 1
+  lib::validate_arg_count "$#" 4 5 || exit 1
+  lib::verify_dependencies "sendmail"
 
   declare -r to="$1"
   declare -r from="$2"
@@ -42,36 +42,32 @@ lib::send_mail_msg() {
   declare message
 
   if lib::is_empty "${to}"; then
-    lib::err "Error: the message recipient was not specified."
-    return 1
+    lib::die "Error: the message recipient was not specified."
   fi
 
   if lib::is_empty "${from}"; then
-    lib::err "Error: the message sender was not specified."
-    return 1
+    lib::die "Error: the message sender was not specified."
   fi
 
   if lib::is_empty "${envelope_from}"; then
-    lib::err "Error: the envelope sender address was not specified."
-    return 1
+    lib::die "Error: the envelope sender address was not specified."
   fi
 
   if lib::is_empty "${subject}"; then
-    lib::err "Error: the message subject was not specified."
-    return 1
+    lib::die "Error: the message subject was not specified."
   fi
 
   # Backslash escapes such as \n (newline) in the message body must be
   # interpreted before sending the message.
-  interpreted_body=$(echo -e "${body}")
+  interpreted_body=$(echo -e "${body}") || lib::die
 
   # Format the message.
   message=$(printf "To: %s\\nFrom: %s\\nSubject: %s\\n\\n%s" \
     "${to}" \
     "${from}" \
     "${subject}" \
-    "${interpreted_body}")
+    "${interpreted_body}") || lib::die
 
   # Send the message.
-  echo "$message" | sendmail -f "$envelope_from" "$to" || return 1
+  echo "$message" | sendmail -f "$envelope_from" "$to" || lib::die
 }

@@ -16,17 +16,17 @@
 #   Transliterated string (example: "foo-bar-baz")
 #------------------------------------------------------------------------------
 lib::transliterate() {
-  lib::validate_arg_count "$#" 1 1 || return 1
+  lib::validate_arg_count "$#" 1 1 || exit 1
+  lib::verify_dependencies "iconv"
+
   declare -r input="$1"
   declare output
-
-  lib::verify_dependencies "iconv" || return 1
 
   # Enable extended pattern matching features.
   shopt -s extglob
 
   # Convert from UTF-8 to ASCII.
-  output=$(iconv -c -f utf8 -t ascii//TRANSLIT <<< "${input}")
+  output=$(iconv -c -f utf8 -t ascii//TRANSLIT <<< "${input}") || lib::die
   # Replace non-alphanumeric characters with a hyphen.
   output=${output//[^[:alnum:]]/-}
   # Replace two or more sequential hyphens with a single hyphen.

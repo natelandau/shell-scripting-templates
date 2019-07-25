@@ -2,30 +2,30 @@
 
 #------------------------------------------------------------------------------
 # @file
-# Defines function: lib::err().
+# Defines function: lib::die().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # @function
-# Prints message to stderr.
+# Prints message to stderr and exits with status code 1.
 #
-# @param string $message
+# @param string $message (optional)
 #   Message to be printed.
 #
 # shellcheck disable=SC2154
 #------------------------------------------------------------------------------
-lib::err() {
-  lib::validate_arg_count "$#" 1 1 || return 1
-  declare -r message="$1"
+lib::die() {
+  declare error_msg="${1:-"Error: die() was called; error message not provided."}"
   declare stack
 
-  if lib::is_empty "${message}"; then
-    lib::err "Error: \$message is a an empty string."
-    return 1
+  # Validate argument count.
+  if [[ "$#" -gt "1" ]]; then
+    error_msg="Error: invalid number of arguments. Expected 0 or 1, received $#."
   fi
 
   # Build a string showing the "stack" of functions that got us here.
-  # This will look like "function_c <- function_b <- function_a."
-  stack=$(lib::implode " <- " "${FUNCNAME[@]:1}") || return 1
-  echo -e "${red}${message} ${yellow}[${stack}]${reset}" >&2
+  stack="${FUNCNAME[*]}"
+  stack="${stack// / <- }"
+  echo -e "${red}${error_msg}\\n${yellow}[${stack}]${reset}" >&2
+  exit 1
 }

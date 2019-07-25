@@ -30,10 +30,10 @@ declare_assertions() {
     'lib::echo_args|"foo"|0'
     'lib::echo_args|""|0'
     'lib::echo_args||1'
-    'lib::err|"foo" "bar"|1'
-    'lib::err|"foo"|0'
-    'lib::err|""|1'
-    'lib::err||1'
+    'lib::die|"foo" "bar"|1'
+    'lib::die|"foo"|1'
+    'lib::die|""|1'
+    'lib::die||1'
     'lib::find_nearest_integer||1'
     'lib::find_nearest_integer||1'
     'lib::find_nearest_integer|"" ""|1'
@@ -165,7 +165,8 @@ declare_assertions() {
 # shellcheck disable=SC2154
 #------------------------------------------------------------------------------
 assert() {
-  lib::validate_arg_count "$#" 3 3 || return 1
+  lib::validate_arg_count "$#" 3 3 || exit 1
+
   declare -r function_to_test="$1"
   declare -r args="$2"
   declare -r expected_return_code="$3"
@@ -177,15 +178,14 @@ assert() {
 
   # Test for empty strings.
   if lib::is_empty "${function_to_test}"; then
-    lib::err "Error: \$function_to_test is a an empty string."
-    return 1
+    lib::die "Error: \$function_to_test is a an empty string."
   fi
   if lib::is_empty "${expected_return_code}"; then
-    lib::err "Error: \$expected_return_code is a an empty string."
-    return 1
+    lib::die "Error: \$expected_return_code is a an empty string."
   fi
 
-  # Run the command.
+  # Run the command. The command is run in a subshell (command substitution);
+  # exit calls will terminate the subshell, not this script.
   cmd=$(printf "%s %s" "${function_to_test}" "${args}")
   cmd_output=$(eval "${cmd}" 2>&1)
   actual_return_code="$?"
@@ -214,7 +214,10 @@ assert() {
 # shellcheck disable=SC2059
 #------------------------------------------------------------------------------
 main() {
-  source "${BASH_FUNCTION_LIBRARY}"
+  if ! source "${BASH_FUNCTION_LIBRARY}"; then
+    printf "Error: unable to source BASH_FUNCTION_LIBRARY.\\n"
+    exit 1
+  fi
 
   # Declare assertions.
   declare_assertions
@@ -228,7 +231,7 @@ main() {
   declare -g green="\\e[0;32m"
   declare -g reset="\\e[0m"
 
-  # Declare column widths for displaying test results.
+  # Declare column widths (global constants) for displaying test results.
   declare -rg cw1=6     # Width of column 1: Result (PASS/FAIL)
   declare -rg cw2=37    # Width of column 2: Function
   declare -rg cw3=33    # Width of column 3: Arguments

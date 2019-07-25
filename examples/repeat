@@ -28,7 +28,11 @@ usage() {
 # shellcheck disable=1090
 #------------------------------------------------------------------------------
 main() {
-  source "${BASH_FUNCTION_LIBRARY}"
+  if ! source "${BASH_FUNCTION_LIBRARY}"; then
+    printf "Error: unable to source BASH_FUNCTION_LIBRARY.\\n"
+    exit 1
+  fi
+
   lib::declare_global_display_constants
   lib::validate_arg_count "$#" 2 2 || usage
 
@@ -36,7 +40,7 @@ main() {
   declare -r multiplier="$2"
   declare repeated_string
 
-  repeated_string=$(lib::str_repeat "${string_to_repeat}" "${multiplier}")
+  repeated_string=$(lib::str_repeat "${string_to_repeat}" "${multiplier}") || lib::die
   printf "%s\\n" "${repeated_string}"
 }
 

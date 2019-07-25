@@ -23,26 +23,22 @@
 # shellcheck disable=SC2154
 #-----------------------------------------------------------------------------
 lib::implode() {
-  # Validate argument count. We cannot call lib::validate_arg_count() from within
-  # this function, because lib::validate_arg_count() calls lib::err() which calls
-  # lib::implode()... an endless loop.
-  if [[ "$#" -lt "2" ]]; then
-    message="Error: invalid number of arguments (expected at least 2, received $#)."
-    echo -e "${red}${message} ${yellow}[${FUNCNAME[0]}]${reset}" >&2
-    return 1
-  fi
+  lib::validate_arg_count "$#" 2 999 || exit 1
+
   declare -r glue="$1"
+
   # Delete the first positional parameter.
   shift
+
   # Create the pieces array from the remaining positional parameters.
   declare -a pieces=("$@")
   declare imploded_string
 
   while (( "${#pieces[@]}" )); do
     if [[ "${#pieces[@]}" -eq "1" ]]; then
-      imploded_string+=$(printf "%s\n" "${pieces[0]}")
+      imploded_string+=$(printf "%s\\n" "${pieces[0]}") || lib::die
     else
-      imploded_string+=$(printf "%s%s" "${pieces[0]}" "${glue}")
+      imploded_string+=$(printf "%s%s" "${pieces[0]}" "${glue}") || lib::die
     fi
     pieces=("${pieces[@]:1}")   # Shift the first element off of the array.
   done

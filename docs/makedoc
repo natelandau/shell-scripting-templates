@@ -12,7 +12,12 @@
 # shellcheck disable=1090
 #------------------------------------------------------------------------------
 main() {
-  source "${BASH_FUNCTION_LIBRARY}"
+  if ! source "${BASH_FUNCTION_LIBRARY}"; then
+    printf "Error: unable to source BASH_FUNCTION_LIBRARY.\\n"
+    exit 1
+  fi
+
+  lib::validate_arg_count "$#" 0 0 || usage
   lib::declare_global_display_constants
 
   declare body
@@ -30,11 +35,10 @@ main() {
   toc="## Table of Contents\\n\\n"
 
   for file_path in "$(dirname "${BASH_FUNCTION_LIBRARY}")"/_*; do
-
-    function_name=$(grep "() {" "${file_path}")
+    function_name=$(grep "() {" "${file_path}") || lib::die
     function_name="${function_name::-4}"
 
-    function_desc=$(grep -A1 @function "${file_path}" | tail -1)
+    function_desc=$(grep -A1 @function "${file_path}" | tail -1) || lib::die
     function_desc="${function_desc:2}"
 
     # The following sed command...
@@ -43,6 +47,7 @@ main() {
     #   3) Adds two spaces to the end of each line
     #   4) Places '**' on each side of '@param' and '@return'
     set +e
+
     function_params=$(grep -A1 --no-group-separator "@param" "${file_path}" | sed 's/^# //; /^#$/d; s/$/  /; s/@param/**@param**/')
     function_return=$(grep -A1 --no-group-separator "@return" "${file_path}" | sed 's/^# //; /^#$/d; s/$/  /; s/@return/**@return**/')
     set -e

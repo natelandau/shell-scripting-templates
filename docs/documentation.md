@@ -3,8 +3,8 @@
 ## Table of Contents
 
 * [lib::declare_global_display_constants](#lib_declare_global_display_constants)
+* [lib::die](#lib_die)
 * [lib::echo_args](#lib_echo_args)
-* [lib::err](#lib_err)
 * [lib::find_nearest_integer](#lib_find_nearest_integer)
 * [lib::generate_password](#lib_generate_password)
 * [lib::get_file_directory](#lib_get_file_directory)
@@ -51,6 +51,15 @@ Declares global display constants.
 **@return** global string $underline  
 **@return** global string $reset  
 
+<a id="lib_die"></a>
+
+## lib::die
+
+Prints message to stderr and exits with status code 1.
+
+**@param** string $message (optional)  
+  Message to be printed.  
+
 <a id="lib_echo_args"></a>
 
 ## lib::echo_args
@@ -59,15 +68,6 @@ Echoes the arguments passed to this function. This is a debugging tool.
 
 **@param** array $parameters  
   One dimensional array of arguments passed to this function.  
-
-<a id="lib_err"></a>
-
-## lib::err
-
-Prints message to stderr.
-
-**@param** string $message  
-  Message to be printed.  
 
 <a id="lib_find_nearest_integer"></a>
 
@@ -276,4 +276,4 @@ Verifies that dependencies are installed.
   One dimensional array of applications, executables, or commands.  
 
 ---
-*Last updated: 2019-07-21T21:59:56-04:00.*
+*Last updated: 2019-07-25T14:20:48-04:00.*

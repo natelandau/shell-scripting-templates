@@ -11,12 +11,11 @@
 #
 # Other functions in this library call this function to validate the number of
 # arguments received. To prevent infinite loops, this function must not call
-# any other function in this library.
+# any other function in this library, other than lib::die.
 #
 # That is why we are essentially recreating:
 # - lib::validate_arg_count()
 # - lib::is_integer()
-# - lib::err()
 #
 # @param integer $actual_arg_count
 #   Actual number of arguments received.
@@ -30,37 +29,32 @@
 lib::validate_arg_count() {
   # Validate argument count.
   if [[ "$#" -ne "3" ]]; then
-    message="Error: invalid number of arguments (expected 3, received $#)."
-    echo -e "${red}${message} ${yellow}[${FUNCNAME[0]}]${reset}" >&2
-    return 1
+    lib::die "Error: invalid number of arguments. Expected 3, received $#."
   fi
   declare -r actual_arg_count="$1"
   declare -r expected_arg_count_min="$2"
   declare -r expected_arg_count_max="$3"
-  declare message
   declare -r regex="^[0-9]+$"
+  declare error_msg
 
   # Make sure all of the arguments are integers.
   if ! [[ "${actual_arg_count}" =~ ${regex} ]] ; then
-    message="Error: \"${actual_arg_count}\" is not an integer."
-    echo -e "${red}${message} ${yellow}[${FUNCNAME[0]}]${reset}" >&2
-    return 1
+    lib::die "Error: \"${actual_arg_count}\" is not an integer."
   fi
   if ! [[ "${expected_arg_count_min}" =~ ${regex} ]] ; then
-    message="Error: \"${expected_arg_count_min}\" is not an integer."
-    echo -e "${red}${message} ${yellow}[${FUNCNAME[0]}]${reset}" >&2
-    return 1
+    lib::die "Error: \"${expected_arg_count_min}\" is not an integer."
   fi
-    if ! [[ "${expected_arg_count_max}" =~ ${regex} ]] ; then
-    message="Error: \"${expected_arg_count_max}\" is not an integer."
-    echo -e "${red}${message} ${yellow}[${FUNCNAME[0]}]${reset}" >&2
-    return 1
+  if ! [[ "${expected_arg_count_max}" =~ ${regex} ]] ; then
+    lib::die "Error: \"${expected_arg_count_max}\" is not an integer."
   fi
 
   # Test.
-  if [[ "${actual_arg_count}" -lt "${expected_arg_count_min}" || "${actual_arg_count}" -gt "${expected_arg_count_max}" ]]; then
-    message="Error: invalid number of arguments (expected between ${expected_arg_count_min} and ${expected_arg_count_max}, received ${actual_arg_count})."
-    echo -e "${red}${message}${reset}" >&2
+  if [[ "${actual_arg_count}" -lt "${expected_arg_count_min}" || \
+        "${actual_arg_count}" -gt "${expected_arg_count_max}" ]]; then
+    error_msg="Error: invalid number of arguments. Expected between "
+    error_msg+="${expected_arg_count_min} and ${expected_arg_count_max}, "
+    error_msg+="received ${actual_arg_count}."
+    echo -e "${red}${error_msg}${reset}" >&2
     return 1
   fi
 }
