@@ -54,7 +54,6 @@ lib::validate_arg_count() {
     error_msg="Error: invalid number of arguments. Expected between "
     error_msg+="${expected_arg_count_min} and ${expected_arg_count_max}, "
     error_msg+="received ${actual_arg_count}."
-    echo -e "${red}${error_msg}${reset}" >&2
-    return 1
+    lib::die "${error_msg}"
   fi
 }
