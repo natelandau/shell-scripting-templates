@@ -18,11 +18,9 @@ lib::verify_dependencies() {
   declare -ar apps=("$@")
   declare app
 
-  set +e
   for app in "${apps[@]}"; do
     if ! hash "${app}" 2> /dev/null; then
       lib::die "Error: ${app} is not installed."
     fi
   done
-  set -e
 }
