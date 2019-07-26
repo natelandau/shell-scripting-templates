@@ -22,7 +22,6 @@ lib::verify_dependencies() {
   for app in "${apps[@]}"; do
     if ! hash "${app}" 2> /dev/null; then
       lib::die "Error: ${app} is not installed."
-
     fi
   done
   set -e
