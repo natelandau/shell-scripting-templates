@@ -37,6 +37,14 @@ cleanup() {
 # @function
 # Main function.
 #
+# @param type $foo #TODO
+#   Description. #TODO
+# @param type $foo #TODO
+#   Description. #TODO
+#
+# @return type $bar #TODO
+#   Description. Remove this section nothing is returned. #TODO
+#
 # shellcheck disable=1090
 #------------------------------------------------------------------------------
 main() {
