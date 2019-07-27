@@ -16,6 +16,7 @@ usage() {
   echo "Creates documentation for library functions."
   echo
   echo "Usage:    ${this_script}"
+  echo
   echo "Example:  ${this_script}"
   echo
   exit 1

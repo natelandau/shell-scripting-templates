@@ -98,6 +98,7 @@ usage() {
   echo "Repeats a string N times."
   echo
   echo "Usage:    ${this_script} string multiplier"
+  echo
   echo "Example:  ${this_script} \"=\" \"10\""
   echo
   exit 1
