@@ -18,12 +18,11 @@ lib::foo () {
 
 Exception: validate_arg_count will _return_ 1 instead of _exit_ 1 on error.
 
-- When writing a _script_, if validate_arg_count fails, display the usage
-  message. For example:  
-  ```lib::validate_arg_count "$#" 1 3 || usage```
+- Within the main() function of a script, if validate_arg_count fails, display the usage message. For example:  
+  ```lib::validate_arg_count "$#" 1 3 || usage``` 
 
-- When writing a _library function_, if validate_arg_count fails, exit. For example:  
-  ```lib::validate_arg_count "$#" 1 3 || exit 1```
+- Within any other function, if validate_arg_count fails, exit. For example:  
+  ```lib::validate_arg_count "$#" 1 3 || exit 1``` 
 
 3\) There is no need to test the exit status when calling a library function
 directly; library functions call lib::die upon error. For example:
