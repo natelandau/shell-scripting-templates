@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 # @file
-# Defines function: lib::implode().
+# Defines function: bfl::implode().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -10,7 +10,7 @@
 # Combines multiple strings into a single string, separated by another string.
 #
 # This function will accept an unlimited number of arguments.
-# Example: lib::implode "," "This is" "a" "test."
+# Example: bfl::implode "," "This is" "a" "test."
 #
 # @param string $glue
 #   The character or characters that will be used to glue the strings together.
@@ -22,8 +22,8 @@
 #
 # shellcheck disable=SC2154
 #-----------------------------------------------------------------------------
-lib::implode() {
-  lib::validate_arg_count "$#" 2 999 || exit 1
+bfl::implode() {
+  bfl::validate_arg_count "$#" 2 999 || exit 1
 
   declare -r glue="$1"
 
@@ -36,9 +36,9 @@ lib::implode() {
 
   while (( "${#pieces[@]}" )); do
     if [[ "${#pieces[@]}" -eq "1" ]]; then
-      imploded_string+=$(printf "%s\\n" "${pieces[0]}") || lib::die
+      imploded_string+=$(printf "%s\\n" "${pieces[0]}") || bfl::die
     else
-      imploded_string+=$(printf "%s%s" "${pieces[0]}" "${glue}") || lib::die
+      imploded_string+=$(printf "%s%s" "${pieces[0]}" "${glue}") || bfl::die
     fi
     pieces=("${pieces[@]:1}")   # Shift the first element off of the array.
   done

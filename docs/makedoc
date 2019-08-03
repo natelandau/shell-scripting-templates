@@ -34,8 +34,8 @@ main() {
     exit 1
   fi
 
-  lib::declare_global_display_constants
-  lib::validate_arg_count "$#" 0 0 || usage
+  bfl::declare_global_display_constants
+  bfl::validate_arg_count "$#" 0 0 || usage
 
   declare body
   declare file_path
@@ -52,10 +52,10 @@ main() {
   toc="## Table of Contents\\n\\n"
 
   for file_path in "$(dirname "${BASH_FUNCTION_LIBRARY}")"/_*; do
-    function_name=$(grep "() {" "${file_path}") || lib::die
+    function_name=$(grep "() {" "${file_path}") || bfl::die
     function_name="${function_name::-4}"
 
-    function_desc=$(grep -A1 @function "${file_path}" | tail -1) || lib::die
+    function_desc=$(grep -A1 @function "${file_path}" | tail -1) || bfl::die
     function_desc="${function_desc:2}"
 
     # The following sed command...
@@ -75,8 +75,8 @@ main() {
     body+="## ${function_name}\\n\\n"
     body+="${function_desc}\\n\\n"
 
-    if ! lib::is_empty "${function_params}"; then body+="${function_params}\\n\\n"; fi
-    if ! lib::is_empty "${function_return}"; then body+="${function_return}\\n\\n"; fi
+    if ! bfl::is_empty "${function_params}"; then body+="${function_params}\\n\\n"; fi
+    if ! bfl::is_empty "${function_return}"; then body+="${function_return}\\n\\n"; fi
 
   done
 

@@ -14,7 +14,7 @@
 
 This is a library of Bash functions that I've used over the years. These are
 not, and were never intended to be, POSIX compliant. Each of the functions is
-name-spaced with the "lib::" prefix. For example, call lib::trim to trim a
+name-spaced with the "bfl::" prefix. For example, call bfl::trim to trim a
 string.
 
 The calling script must source the entire library as some of the functions
@@ -28,7 +28,7 @@ autoload.sh. See the comments in autoload.sh for an explanation of the loading p
 1\. Clone this repository into ~/.lib.
 
 ```bash
-git clone https://github.com/jmooring/bash-function-library.git "${HOME}/.lib"
+git clone https://github.com/jmooring/bash-function-library.git "${HOME}/.lib/fl"
 ```
 
 2\. Create a permanent environment variable containing the path to the autoloader.
@@ -38,7 +38,7 @@ heredoc=$(cat<<EOT
 # Export path to the autoloader for the Bash Function Library.
 # See https://github.com/jmooring/bash-function-library.
 if [ -f "${HOME}/.lib/autoload.sh" ]; then
-  export BASH_FUNCTION_LIBRARY="$HOME/.lib/autoload.sh"
+  export BASH_FUNCTION_LIBRARY="$HOME/.lib/bfl/autoload.sh"
 fi
 EOT
 )
@@ -49,14 +49,13 @@ printf "\\n%s\\n" "${heredoc}" >> "${HOME}/.bashrc"
 
 4\. Open a new terminal.
 
-5\. Verify that the BASH_FUNCTION_LIBRARY environment variable is set to the
-correct path.
+5\. Verify that the BASH_FUNCTION_LIBRARY environment variable is correct.
 
 ```bash
 printf "%s\\n" "${BASH_FUNCTION_LIBRARY}"
 ```
 
-6\. Test using the [lib::str_repeat](docs/documentation.md#lib_str_repeat) function from the library.
+6\. Test using the [bfl::str_repeat](docs/documentation.md#bfl_str_repeat) function from the library.
 
 ```bash
 if ! source "${BASH_FUNCTION_LIBRARY}"; then
@@ -65,7 +64,7 @@ if ! source "${BASH_FUNCTION_LIBRARY}"; then
 fi
 
 
-printf "%s\\n" "$(lib::str_repeat "=" "10")"
+printf "%s\\n" "$(bfl::str_repeat "=" "10")"
 ```
 
 <a id="example"></a>
@@ -74,10 +73,10 @@ printf "%s\\n" "$(lib::str_repeat "=" "10")"
 
 This Bash script calls three functions from the Bash Function Library:
 
-* lib::declare_global_display_constants ([documentation](docs/documentation.md#lib_declare_global_display_constants))
+* bfl::declare_global_display_constants ([documentation](docs/documentation.md#bfl_declare_global_display_constants))
   ([code](_declare_global_display_constants.sh))
-* lib::validate_arg_count ([documentation](docs/documentation.md#lib_validate_arg_count)) ([code](_validate_arg_count.sh))
-* lib::str_repeat ([documentation](docs/documentation.md#lib_str_repeat)) ([code](_str_repeat.sh))
+* bfl::validate_arg_count ([documentation](docs/documentation.md#bfl_validate_arg_count)) ([code](_validate_arg_count.sh))
+* bfl::str_repeat ([documentation](docs/documentation.md#bfl_str_repeat)) ([code](_str_repeat.sh))
 
 ```bash
 #!/usr/bin/env bash
@@ -116,14 +115,14 @@ main() {
     exit 1
   fi
 
-  lib::declare_global_display_constants
-  lib::validate_arg_count "$#" 2 2 || usage
+  bfl::declare_global_display_constants
+  bfl::validate_arg_count "$#" 2 2 || usage
 
   declare -r string_to_repeat="$1"
   declare -r multiplier="$2"
   declare repeated_string
 
-  repeated_string=$(lib::str_repeat "${string_to_repeat}" "${multiplier}")
+  repeated_string=$(bfl::str_repeat "${string_to_repeat}" "${multiplier}")
   printf "%s\\n" "${repeated_string}"
 }
 

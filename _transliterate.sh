@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 # @file
-# Defines function: lib::transliterate().
+# Defines function: bfl::transliterate().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -10,14 +10,14 @@
 # Transliterates a string.
 #
 # @param string $input
-#   String to lib::transliterate (example: "_Foo Bar@  BAz").
+#   String to bfl::transliterate (example: "_Foo Bar@  BAz").
 #
 # @return string $output
 #   Transliterated string (example: "foo-bar-baz")
 #------------------------------------------------------------------------------
-lib::transliterate() {
-  lib::validate_arg_count "$#" 1 1 || exit 1
-  lib::verify_dependencies "iconv"
+bfl::transliterate() {
+  bfl::validate_arg_count "$#" 1 1 || exit 1
+  bfl::verify_dependencies "iconv"
 
   declare -r input="$1"
   declare output
@@ -26,7 +26,7 @@ lib::transliterate() {
   shopt -s extglob
 
   # Convert from UTF-8 to ASCII.
-  output=$(iconv -c -f utf8 -t ascii//TRANSLIT <<< "${input}") || lib::die
+  output=$(iconv -c -f utf8 -t ascii//TRANSLIT <<< "${input}") || bfl::die
   # Replace non-alphanumeric characters with a hyphen.
   output=${output//[^[:alnum:]]/-}
   # Replace two or more sequential hyphens with a single hyphen.

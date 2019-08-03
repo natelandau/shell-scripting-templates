@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 # @file
-# Defines function: lib::get_file_name().
+# Defines function: bfl::get_file_name().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -15,19 +15,19 @@
 # @return string $file_name
 #   The file name, including extension.
 #------------------------------------------------------------------------------
-lib::get_file_name() {
-  lib::validate_arg_count "$#" 1 1 || exit 1
+bfl::get_file_name() {
+  bfl::validate_arg_count "$#" 1 1 || exit 1
 
   declare -r path="$1"
   declare canonical_file_path
   declare file_name
 
-  if lib::is_empty "${path}"; then
-    lib::die "Error: the path was not specified."
+  if bfl::is_empty "${path}"; then
+    bfl::die "Error: the path was not specified."
   fi
 
-  canonical_file_path=$(lib::get_file_path "${path}") || lib::die
-  file_name=$(basename "${canonical_file_path}") || lib::die
+  canonical_file_path=$(bfl::get_file_path "${path}") || bfl::die
+  file_name=$(basename "${canonical_file_path}") || bfl::die
 
   printf "%s" "${file_name}"
 }

@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 # @file
-# Defines function: lib::echo_args().
+# Defines function: bfl::echo_args().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -14,8 +14,8 @@
 # @param array $parameters
 #   One dimensional array of arguments passed to this function.
 #------------------------------------------------------------------------------
-lib::echo_args() {
-  lib::validate_arg_count "$#" 1 999 || exit 1
+bfl::echo_args() {
+  bfl::validate_arg_count "$#" 1 999 || exit 1
 
   declare -ar parameters=("$@")
   declare counter=0

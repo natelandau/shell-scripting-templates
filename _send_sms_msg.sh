@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 # @file
-# Defines function: lib::send_sms_msg().
+# Defines function: bfl::send_sms_msg().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -16,9 +16,9 @@
 #   The message.
 #   Example: "This is line one.\nThis is line two.\nThis is line three."
 #------------------------------------------------------------------------------
-lib::send_sms_msg() {
-  lib::validate_arg_count "$#" 2 2 || exit 1
-  lib::verify_dependencies "aws"
+bfl::send_sms_msg() {
+  bfl::validate_arg_count "$#" 2 2 || exit 1
+  bfl::verify_dependencies "aws"
 
   declare -r phone_number="$1"
   declare -r message="$2"
@@ -26,12 +26,12 @@ lib::send_sms_msg() {
   declare error_msg
   declare interpreted_message
 
-   if lib::is_empty "${phone_number}"; then
-    lib::die "Error: the recipient's phone number was not specified."
+   if bfl::is_empty "${phone_number}"; then
+    bfl::die "Error: the recipient's phone number was not specified."
   fi
 
-  if lib::is_empty "${message}"; then
-    lib::die "Error: the message was not specified."
+  if bfl::is_empty "${message}"; then
+    bfl::die "Error: the message was not specified."
   fi
 
   # Make sure phone number is properly formatted.
@@ -39,14 +39,14 @@ lib::send_sms_msg() {
     error_msg="Error: the recipient's phone number is improperly formatted.\\n"
     error_msg+="Expected a plus sign followed by six or more digits, "
     error_msg+="received ${phone_number}."
-    lib::die "${error_msg}"
+    bfl::die "${error_msg}"
   fi
 
   # Backslash escapes such as \n (newline) in the message string must be
   # interpreted before sending the message.
-  interpreted_message=$(echo -e "${message}") || lib::die
+  interpreted_message=$(echo -e "${message}") || bfl::die
 
   # Send the message.
   aws sns publish --phone-number "${phone_number}" \
-                  --message "${interpreted_message}" || lib::die
+                  --message "${interpreted_message}" || bfl::die
 }

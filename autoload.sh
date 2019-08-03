@@ -42,8 +42,8 @@
 #
 # See https://google.github.io/styleguide/shell.xml#File_Extensions.
 #
-# Logical functions in this library, such as lib::is_integer() or
-# lib::is_empty(), should not output any messages. They should only return 0
+# Logical functions in this library, such as bfl::is_integer() or
+# bfl::is_empty(), should not output any messages. They should only return 0
 # if true or return 1 if false.
 #
 # To simplify usage, place this line at the top of $HOME/.bashrc:

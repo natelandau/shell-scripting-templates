@@ -54,8 +54,8 @@ main() {
     exit 1
   fi
 
-  lib::declare_global_display_constants
-  lib::validate_arg_count "$#" 2 2 || usage
+  bfl::declare_global_display_constants
+  bfl::validate_arg_count "$#" 2 2 || usage
 
   declare -r arg1="$1"
   declare -r arg2="$2"

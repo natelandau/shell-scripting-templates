@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 # @file
-# Defines function: lib::send_mail_msg().
+# Defines function: bfl::send_mail_msg().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -29,9 +29,9 @@
 # @param string $body (optional)
 #   Message body.
 #------------------------------------------------------------------------------
-lib::send_mail_msg() {
-  lib::validate_arg_count "$#" 4 5 || exit 1
-  lib::verify_dependencies "sendmail"
+bfl::send_mail_msg() {
+  bfl::validate_arg_count "$#" 4 5 || exit 1
+  bfl::verify_dependencies "sendmail"
 
   declare -r to="$1"
   declare -r from="$2"
@@ -41,33 +41,33 @@ lib::send_mail_msg() {
   declare interpreted_body
   declare message
 
-  if lib::is_empty "${to}"; then
-    lib::die "Error: the message recipient was not specified."
+  if bfl::is_empty "${to}"; then
+    bfl::die "Error: the message recipient was not specified."
   fi
 
-  if lib::is_empty "${from}"; then
-    lib::die "Error: the message sender was not specified."
+  if bfl::is_empty "${from}"; then
+    bfl::die "Error: the message sender was not specified."
   fi
 
-  if lib::is_empty "${envelope_from}"; then
-    lib::die "Error: the envelope sender address was not specified."
+  if bfl::is_empty "${envelope_from}"; then
+    bfl::die "Error: the envelope sender address was not specified."
   fi
 
-  if lib::is_empty "${subject}"; then
-    lib::die "Error: the message subject was not specified."
+  if bfl::is_empty "${subject}"; then
+    bfl::die "Error: the message subject was not specified."
   fi
 
   # Backslash escapes such as \n (newline) in the message body must be
   # interpreted before sending the message.
-  interpreted_body=$(echo -e "${body}") || lib::die
+  interpreted_body=$(echo -e "${body}") || bfl::die
 
   # Format the message.
   message=$(printf "To: %s\\nFrom: %s\\nSubject: %s\\n\\n%s" \
     "${to}" \
     "${from}" \
     "${subject}" \
-    "${interpreted_body}") || lib::die
+    "${interpreted_body}") || bfl::die
 
   # Send the message.
-  echo "$message" | sendmail -f "$envelope_from" "$to" || lib::die
+  echo "$message" | sendmail -f "$envelope_from" "$to" || bfl::die
 }

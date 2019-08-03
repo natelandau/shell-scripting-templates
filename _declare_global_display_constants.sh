@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 # @file
-# Defines function: lib::declare_global_display_constants().
+# Defines function: bfl::declare_global_display_constants().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -38,8 +38,8 @@
 #
 # shellcheck disable=SC2034
 #------------------------------------------------------------------------------
-lib::declare_global_display_constants() {
-  lib::validate_arg_count "$#" 0 0 || exit 1
+bfl::declare_global_display_constants() {
+  bfl::validate_arg_count "$#" 0 0 || exit 1
 
   # Declare colors.
   declare -rg red="\\e[0;31m"

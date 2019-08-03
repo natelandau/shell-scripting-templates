@@ -4,14 +4,14 @@
 
 ### Guidelines
 
-1\) The lib::die function calls exit 1.
+1\) The bfl::die function calls exit 1.
 
-2\) Library functions must call lib::die on error, including an error message. For example:
+2\) Library functions must call bfl::die on error, including an error message. For example:
 
 ```bash
-lib::foo () {
+bfl::foo () {
   if [[ "$#" -ne "1" ]]; then
-    lib::die "Error: an argument was not supplied."
+    bfl::die "Error: an argument was not supplied."
   fi
 }
 ```
@@ -19,23 +19,25 @@ lib::foo () {
 Exception: validate_arg_count will _return_ 1 instead of _exit_ 1 on error.
 
 - Within a library function, if validate_arg_count fails, exit. For example:  
-  ```lib::validate_arg_count "$#" 1 3 || exit 1``` 
+  ```bfl::validate_arg_count "$#" 1 3 || exit 1```  
 
   - Within a library function, if validate_arg_count fails, you could call
-    lib::die instead of exit, but it would generate a redundant message.  
+    bfl::die instead of exit, but it would generate a redundant message.  
 
 - Within the main() function of a script, if validate_arg_count fails, display the usage message. For example:  
-  ```lib::validate_arg_count "$#" 1 3 || usage``` 
+  ```bfl::validate_arg_count "$#" 1 3 || usage```  
 
 - In a script, there is no reason to call validate_arg_count from any function
   other than main(). If main() doesn't receive the correct number of arguments,
-  the user messed up; that's why we validate and notify. If any other function doesn't receive the correct number of arguments, the _programmer_ messed up.
+  the _user_ messed up. If any other function doesn't receive the correct
+  number of arguments, the _programmer_ messed up. It doesn't hurt to verify
+  the argument count, but it's not necessary.
 
 3\) There is no need to test the exit status when calling a library function
-directly; library functions call lib::die upon error. For example:
+directly; library functions call bfl::die upon error. For example:
 
 ```bash
-lib::foo "bar"
+bfl::foo "bar"
 ```
 
 Exception: validate_arg_count. See #2 above.
@@ -43,13 +45,13 @@ Exception: validate_arg_count. See #2 above.
 4\) Always test the exit status when performing command substitution. For example:
 
 ```bash
-var=$(lib::foo "bar") || lib::die
-var=$(pwd) || lib::die
+var=$(bfl::foo "bar") || bfl::die
+var=$(pwd) || bfl::die
 ```
 
 5\) Logical library functions
 
-Logical library functions such as lib::is_empty and lib::is_integer have an
+Logical library functions such as bfl::is_empty and bfl::is_integer have an
 exit status of 0 if true, 1 if false.
 
 ### Background

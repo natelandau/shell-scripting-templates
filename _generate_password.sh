@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 # @file
-# Defines function: lib::generate_password().
+# Defines function: bfl::generate_password().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -27,30 +27,30 @@
 # @return string $password
 #   A random password
 #------------------------------------------------------------------------------
-lib::generate_password() {
-  lib::validate_arg_count "$#" 1 1 || exit 1
-  lib::verify_dependencies "pwgen" "shuf"
+bfl::generate_password() {
+  bfl::validate_arg_count "$#" 1 1 || exit 1
+  bfl::verify_dependencies "pwgen" "shuf"
 
   declare -r password_length="$1"
   declare length_one
   declare length_two
   declare password
 
-  if lib::is_empty "${password_length}"; then
-    lib::die "Error: the password length was not specified."
+  if bfl::is_empty "${password_length}"; then
+    bfl::die "Error: the password length was not specified."
   fi
 
-  if ! lib::is_integer "${password_length}"; then
-    lib::die "Error: the password length must be an integer."
+  if ! bfl::is_integer "${password_length}"; then
+    bfl::die "Error: the password length must be an integer."
   fi
 
   if [[ "${password_length}" -lt "8" ]]; then
-    lib::die "Error: the password length must be 8 or more characters."
+    bfl::die "Error: the password length must be 8 or more characters."
   fi
 
-  length_one=$(shuf -i 1-$((password_length-2)) -n 1) || lib::die
-  length_two=$((password_length-length_one-1)) || lib::die
-  password=$(pwgen -cns "$length_one" 1)_$(pwgen -cns "$length_two" 1) || lib::die
+  length_one=$(shuf -i 1-$((password_length-2)) -n 1) || bfl::die
+  length_two=$((password_length-length_one-1)) || bfl::die
+  password=$(pwgen -cns "$length_one" 1)_$(pwgen -cns "$length_two" 1) || bfl::die
 
   printf "%s" "${password}"
 }

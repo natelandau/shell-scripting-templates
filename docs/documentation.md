@@ -2,30 +2,30 @@
 
 ## Table of Contents
 
-* [lib::declare_global_display_constants](#lib_declare_global_display_constants)
-* [lib::die](#lib_die)
-* [lib::echo_args](#lib_echo_args)
-* [lib::find_nearest_integer](#lib_find_nearest_integer)
-* [lib::generate_password](#lib_generate_password)
-* [lib::get_file_directory](#lib_get_file_directory)
-* [lib::get_file_extension](#lib_get_file_extension)
-* [lib::get_file_name](#lib_get_file_name)
-* [lib::get_file_name_without_extension](#lib_get_file_name_without_extension)
-* [lib::get_file_path](#lib_get_file_path)
-* [lib::implode](#lib_implode)
-* [lib::is_empty](#lib_is_empty)
-* [lib::is_integer](#lib_is_integer)
-* [lib::send_mail_msg](#lib_send_mail_msg)
-* [lib::send_sms_msg](#lib_send_sms_msg)
-* [lib::str_repeat](#lib_str_repeat)
-* [lib::transliterate](#lib_transliterate)
-* [lib::trim](#lib_trim)
-* [lib::validate_arg_count](#lib_validate_arg_count)
-* [lib::verify_dependencies](#lib_verify_dependencies)
+* [bfl::declare_global_display_constants](#bfl_declare_global_display_constants)
+* [bfl::die](#bfl_die)
+* [bfl::echo_args](#bfl_echo_args)
+* [bfl::find_nearest_integer](#bfl_find_nearest_integer)
+* [bfl::generate_password](#bfl_generate_password)
+* [bfl::get_file_directory](#bfl_get_file_directory)
+* [bfl::get_file_extension](#bfl_get_file_extension)
+* [bfl::get_file_name](#bfl_get_file_name)
+* [bfl::get_file_name_without_extension](#bfl_get_file_name_without_extension)
+* [bfl::get_file_path](#bfl_get_file_path)
+* [bfl::implode](#bfl_implode)
+* [bfl::is_empty](#bfl_is_empty)
+* [bfl::is_integer](#bfl_is_integer)
+* [bfl::send_mail_msg](#bfl_send_mail_msg)
+* [bfl::send_sms_msg](#bfl_send_sms_msg)
+* [bfl::str_repeat](#bfl_str_repeat)
+* [bfl::transliterate](#bfl_transliterate)
+* [bfl::trim](#bfl_trim)
+* [bfl::validate_arg_count](#bfl_validate_arg_count)
+* [bfl::verify_dependencies](#bfl_verify_dependencies)
 
-<a id="lib_declare_global_display_constants"></a>
+<a id="bfl_declare_global_display_constants"></a>
 
-## lib::declare_global_display_constants
+## bfl::declare_global_display_constants
 
 Declares global display constants.
 
@@ -51,27 +51,27 @@ Declares global display constants.
 **@return** global string $underline  
 **@return** global string $reset  
 
-<a id="lib_die"></a>
+<a id="bfl_die"></a>
 
-## lib::die
+## bfl::die
 
 Prints message to stderr and exits with status code 1.
 
 **@param** string $message (optional)  
   Message to be printed.  
 
-<a id="lib_echo_args"></a>
+<a id="bfl_echo_args"></a>
 
-## lib::echo_args
+## bfl::echo_args
 
 Echoes the arguments passed to this function. This is a debugging tool.
 
 **@param** array $parameters  
   One dimensional array of arguments passed to this function.  
 
-<a id="lib_find_nearest_integer"></a>
+<a id="bfl_find_nearest_integer"></a>
 
-## lib::find_nearest_integer
+## bfl::find_nearest_integer
 
 Finds the nearest integer to a target integer from a list of integers.
 
@@ -83,9 +83,9 @@ Finds the nearest integer to a target integer from a list of integers.
 **@return** string $nearest  
   Integer in list that is nearest to the target.  
 
-<a id="lib_generate_password"></a>
+<a id="bfl_generate_password"></a>
 
-## lib::generate_password
+## bfl::generate_password
 
 Generates a random password.
 
@@ -95,9 +95,9 @@ Generates a random password.
 **@return** string $password  
   A random password  
 
-<a id="lib_get_file_directory"></a>
+<a id="bfl_get_file_directory"></a>
 
-## lib::get_file_directory
+## bfl::get_file_directory
 
 Gets the canonical path to the directory in which a file resides.
 
@@ -107,9 +107,9 @@ Gets the canonical path to the directory in which a file resides.
 **@return** string $canonical_directory_path  
   The canonical path to the directory in which a file resides.  
 
-<a id="lib_get_file_extension"></a>
+<a id="bfl_get_file_extension"></a>
 
-## lib::get_file_extension
+## bfl::get_file_extension
 
 Gets the file extension.
 
@@ -119,9 +119,9 @@ Gets the file extension.
 **@return** string $file_extension  
   The file extension, excluding the preceding period.  
 
-<a id="lib_get_file_name"></a>
+<a id="bfl_get_file_name"></a>
 
-## lib::get_file_name
+## bfl::get_file_name
 
 Gets the file name, including extension.
 
@@ -131,9 +131,9 @@ Gets the file name, including extension.
 **@return** string $file_name  
   The file name, including extension.  
 
-<a id="lib_get_file_name_without_extension"></a>
+<a id="bfl_get_file_name_without_extension"></a>
 
-## lib::get_file_name_without_extension
+## bfl::get_file_name_without_extension
 
 Gets the file name, excluding extension.
 
@@ -143,9 +143,9 @@ Gets the file name, excluding extension.
 **@return** string $file_name_without_extension  
   The file name, excluding extension.  
 
-<a id="lib_get_file_path"></a>
+<a id="bfl_get_file_path"></a>
 
-## lib::get_file_path
+## bfl::get_file_path
 
 Gets the canonical path to a file.
 
@@ -155,9 +155,9 @@ Gets the canonical path to a file.
 **@return** string $canonical_file_path  
   The canonical path to the file.  
 
-<a id="lib_implode"></a>
+<a id="bfl_implode"></a>
 
-## lib::implode
+## bfl::implode
 
 Combines multiple strings into a single string, separated by another string.
 
@@ -169,27 +169,27 @@ Combines multiple strings into a single string, separated by another string.
 **@return** string $imploded_string  
   Example: "This is,a,test."  
 
-<a id="lib_is_empty"></a>
+<a id="bfl_is_empty"></a>
 
-## lib::is_empty
+## bfl::is_empty
 
 Determines if the supplied argument is an empty string.
 
 **@param** string $value_to_test  
   The value to be tested.  
 
-<a id="lib_is_integer"></a>
+<a id="bfl_is_integer"></a>
 
-## lib::is_integer
+## bfl::is_integer
 
 Determines if the supplied argument is an integer.
 
 **@param** string $value_to_test  
   The value to be tested.  
 
-<a id="lib_send_mail_msg"></a>
+<a id="bfl_send_mail_msg"></a>
 
-## lib::send_mail_msg
+## bfl::send_mail_msg
 
 Sends an email message via sendmail.
 
@@ -204,9 +204,9 @@ Sends an email message via sendmail.
 **@param** string $body (optional)  
   Message body.  
 
-<a id="lib_send_sms_msg"></a>
+<a id="bfl_send_sms_msg"></a>
 
-## lib::send_sms_msg
+## bfl::send_sms_msg
 
 Sends an SMS message via Amazon Simple Notification Service (SNS).
 
@@ -215,9 +215,9 @@ Sends an SMS message via Amazon Simple Notification Service (SNS).
 **@param** string $message  
   The message.  
 
-<a id="lib_str_repeat"></a>
+<a id="bfl_str_repeat"></a>
 
-## lib::str_repeat
+## bfl::str_repeat
 
 Repeats a string.
 
@@ -229,21 +229,21 @@ Repeats a string.
 **@return** string $result  
   The repeated string.  
 
-<a id="lib_transliterate"></a>
+<a id="bfl_transliterate"></a>
 
-## lib::transliterate
+## bfl::transliterate
 
 Transliterates a string.
 
 **@param** string $input  
-  String to lib::transliterate (example: "_Foo Bar@  BAz").  
+  String to bfl::transliterate (example: "_Foo Bar@  BAz").  
 
 **@return** string $output  
   Transliterated string (example: "foo-bar-baz")  
 
-<a id="lib_trim"></a>
+<a id="bfl_trim"></a>
 
-## lib::trim
+## bfl::trim
 
 Removes leading and trailing whitespace from a string.
 
@@ -253,9 +253,9 @@ Removes leading and trailing whitespace from a string.
 **@return** string $output  
   The trimmed string.  
 
-<a id="lib_validate_arg_count"></a>
+<a id="bfl_validate_arg_count"></a>
 
-## lib::validate_arg_count
+## bfl::validate_arg_count
 
 Validates the number of arguments received against expected values.
 
@@ -266,9 +266,9 @@ Validates the number of arguments received against expected values.
 **@param** integer $expected_arg_count_max  
   Maximum number of arguments expected.  
 
-<a id="lib_verify_dependencies"></a>
+<a id="bfl_verify_dependencies"></a>
 
-## lib::verify_dependencies
+## bfl::verify_dependencies
 
 Verifies that dependencies are installed.
 
@@ -276,4 +276,4 @@ Verifies that dependencies are installed.
   One dimensional array of applications, executables, or commands.  
 
 ---
-*Last updated: 2019-07-25T15:23:28-04:00.*
+*Last updated: 2019-08-03T15:12:43-04:00.*

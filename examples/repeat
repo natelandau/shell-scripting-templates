@@ -34,14 +34,14 @@ main() {
     exit 1
   fi
 
-  lib::declare_global_display_constants
-  lib::validate_arg_count "$#" 2 2 || usage
+  bfl::declare_global_display_constants
+  bfl::validate_arg_count "$#" 2 2 || usage
 
   declare -r string_to_repeat="$1"
   declare -r multiplier="$2"
   declare repeated_string
 
-  repeated_string=$(lib::str_repeat "${string_to_repeat}" "${multiplier}") || lib::die
+  repeated_string=$(bfl::str_repeat "${string_to_repeat}" "${multiplier}") || bfl::die
   printf "%s\\n" "${repeated_string}"
 }
 

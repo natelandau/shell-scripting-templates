@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 # @file
-# Defines function: lib::validate_arg_count().
+# Defines function: bfl::validate_arg_count().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -11,11 +11,11 @@
 #
 # Other functions in this library call this function to validate the number of
 # arguments received. To prevent infinite loops, this function must not call
-# any other function in this library, other than lib::die.
+# any other function in this library, other than bfl::die.
 #
 # That is why we are essentially recreating:
-# - lib::validate_arg_count()
-# - lib::is_integer()
+# - bfl::validate_arg_count()
+# - bfl::is_integer()
 #
 # @param integer $actual_arg_count
 #   Actual number of arguments received.
@@ -26,10 +26,10 @@
 #
 # shellcheck disable=SC2154
 #------------------------------------------------------------------------------
-lib::validate_arg_count() {
+bfl::validate_arg_count() {
   # Validate argument count.
   if [[ "$#" -ne "3" ]]; then
-    lib::die "Error: invalid number of arguments. Expected 3, received $#."
+    bfl::die "Error: invalid number of arguments. Expected 3, received $#."
   fi
   declare -r actual_arg_count="$1"
   declare -r expected_arg_count_min="$2"
@@ -39,13 +39,13 @@ lib::validate_arg_count() {
 
   # Make sure all of the arguments are integers.
   if ! [[ "${actual_arg_count}" =~ ${regex} ]] ; then
-    lib::die "Error: \"${actual_arg_count}\" is not an integer."
+    bfl::die "Error: \"${actual_arg_count}\" is not an integer."
   fi
   if ! [[ "${expected_arg_count_min}" =~ ${regex} ]] ; then
-    lib::die "Error: \"${expected_arg_count_min}\" is not an integer."
+    bfl::die "Error: \"${expected_arg_count_min}\" is not an integer."
   fi
   if ! [[ "${expected_arg_count_max}" =~ ${regex} ]] ; then
-    lib::die "Error: \"${expected_arg_count_max}\" is not an integer."
+    bfl::die "Error: \"${expected_arg_count_max}\" is not an integer."
   fi
 
   # Test.

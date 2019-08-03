@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 # @file
-# Defines function: lib::str_repeat().
+# Defines function: bfl::str_repeat().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -17,19 +17,19 @@
 # @return string $result
 #   The repeated string.
 #------------------------------------------------------------------------------
-lib::str_repeat() {
-  lib::validate_arg_count "$#" 2 2 || exit 1
+bfl::str_repeat() {
+  bfl::validate_arg_count "$#" 2 2 || exit 1
 
   declare -r input="$1"
   declare -r multiplier="$2"
   declare result
 
-  if ! lib::is_integer "${multiplier}"; then
-    lib::die "Error: \$multiplier is not a positive integer."
+  if ! bfl::is_integer "${multiplier}"; then
+    bfl::die "Error: \$multiplier is not a positive integer."
   fi
 
   # Create a string of spaces that is $multiplier long.
-  result=$(printf "%${multiplier}s") || lib::die
+  result=$(printf "%${multiplier}s") || bfl::die
   # Replace each space with the $input.
   result=${result// /"${input}"}
 
