@@ -16,7 +16,7 @@
 #   The canonical path to the directory in which a file resides.
 #------------------------------------------------------------------------------
 bfl::get_file_directory() {
-  bfl::validate_arg_count "$#" 1 1 || exit 1
+  bfl::verify_arg_count "$#" 1 1 || exit 1
 
   declare -r path="$1"
   declare canonical_directory_path

@@ -35,7 +35,7 @@ main() {
   fi
 
   bfl::declare_global_display_constants
-  bfl::validate_arg_count "$#" 2 2 || usage
+  bfl::verify_arg_count "$#" 2 2 || usage
 
   declare -r string_to_repeat="$1"
   declare -r multiplier="$2"

@@ -20,7 +20,7 @@
 * [bfl::str_repeat](#bfl_str_repeat)
 * [bfl::transliterate](#bfl_transliterate)
 * [bfl::trim](#bfl_trim)
-* [bfl::validate_arg_count](#bfl_validate_arg_count)
+* [bfl::verify_arg_count](#bfl_verify_arg_count)
 * [bfl::verify_dependencies](#bfl_verify_dependencies)
 
 <a id="bfl_declare_global_display_constants"></a>
@@ -253,11 +253,11 @@ Removes leading and trailing whitespace from a string.
 **@return** string $output  
   The trimmed string.  
 
-<a id="bfl_validate_arg_count"></a>
+<a id="bfl_verify_arg_count"></a>
 
-## bfl::validate_arg_count
+## bfl::verify_arg_count
 
-Validates the number of arguments received against expected values.
+Verifies the number of arguments received against expected values.
 
 **@param** integer $actual_arg_count  
   Actual number of arguments received.  
@@ -276,4 +276,4 @@ Verifies that dependencies are installed.
   One dimensional array of applications, executables, or commands.  
 
 ---
-*Last updated: 2019-08-03T15:12:43-04:00.*
+*Last updated: 2019-08-04T01:52:41-04:00.*

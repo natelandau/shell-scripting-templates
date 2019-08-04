@@ -17,7 +17,7 @@
 #   Example: "This is line one.\nThis is line two.\nThis is line three."
 #------------------------------------------------------------------------------
 bfl::send_sms_msg() {
-  bfl::validate_arg_count "$#" 2 2 || exit 1
+  bfl::verify_arg_count "$#" 2 2 || exit 1
   bfl::verify_dependencies "aws"
 
   declare -r phone_number="$1"

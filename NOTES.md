@@ -16,18 +16,17 @@ bfl::foo () {
 }
 ```
 
-Exception: validate_arg_count will _return_ 1 instead of _exit_ 1 on error.
+Exception: verify_arg_count will _return_ 1 instead of _exit_ 1 on error.
 
-- Within a library function, if validate_arg_count fails, exit. For example:  
-  ```bfl::validate_arg_count "$#" 1 3 || exit 1```  
+- Within a library function, if verify_arg_count fails, exit. For example:  
+  ```bfl::verify_arg_count "$#" 1 3 || exit 1```  
 
-  - Within a library function, if validate_arg_count fails, you could call
-    bfl::die instead of exit, but it would generate a redundant message.  
+- Within a library function, if verify_arg_count fails, you could call bfl::die instead of exit, but it would generate a redundant message.  
 
-- Within the main() function of a script, if validate_arg_count fails, display the usage message. For example:  
-  ```bfl::validate_arg_count "$#" 1 3 || usage```  
+- Within the main() function of a script, if verify_arg_count fails, display the usage message. For example:  
+  ```bfl::verify_arg_count "$#" 1 3 || usage```  
 
-- In a script, there is no reason to call validate_arg_count from any function
+- In a script, there is no reason to call verify_arg_count from any function
   other than main(). If main() doesn't receive the correct number of arguments,
   the _user_ messed up. If any other function doesn't receive the correct
   number of arguments, the _programmer_ messed up. It doesn't hurt to verify
@@ -40,7 +39,7 @@ directly; library functions call bfl::die upon error. For example:
 bfl::foo "bar"
 ```
 
-Exception: validate_arg_count. See #2 above.
+Exception: verify_arg_count. See #2 above.
 
 4\) Always test the exit status when performing command substitution. For example:
 

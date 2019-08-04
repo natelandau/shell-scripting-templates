@@ -18,7 +18,7 @@
 #   The repeated string.
 #------------------------------------------------------------------------------
 bfl::str_repeat() {
-  bfl::validate_arg_count "$#" 2 2 || exit 1
+  bfl::verify_arg_count "$#" 2 2 || exit 1
 
   declare -r input="$1"
   declare -r multiplier="$2"

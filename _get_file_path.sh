@@ -16,7 +16,7 @@
 #   The canonical path to the file.
 #------------------------------------------------------------------------------
 bfl::get_file_path() {
-  bfl::validate_arg_count "$#" 1 1 || exit 1
+  bfl::verify_arg_count "$#" 1 1 || exit 1
 
   declare -r path="$1"
   declare canonical_file_path

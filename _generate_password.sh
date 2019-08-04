@@ -28,7 +28,7 @@
 #   A random password
 #------------------------------------------------------------------------------
 bfl::generate_password() {
-  bfl::validate_arg_count "$#" 1 1 || exit 1
+  bfl::verify_arg_count "$#" 1 1 || exit 1
   bfl::verify_dependencies "pwgen" "shuf"
 
   declare -r password_length="$1"

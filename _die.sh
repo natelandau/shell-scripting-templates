@@ -18,7 +18,7 @@ bfl::die() {
   declare error_msg="${1:-"Error: die() was called; error message not provided."}"
   declare stack
 
-  # Validate argument count.
+  # Verify argument count.
   if [[ "$#" -gt "1" ]]; then
     error_msg="Error: invalid number of arguments. Expected 0 or 1, received $#."
   fi

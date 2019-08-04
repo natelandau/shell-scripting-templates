@@ -39,7 +39,7 @@
 # shellcheck disable=SC2034
 #------------------------------------------------------------------------------
 bfl::declare_global_display_constants() {
-  bfl::validate_arg_count "$#" 0 0 || exit 1
+  bfl::verify_arg_count "$#" 0 0 || exit 1
 
   # Declare colors.
   declare -rg red="\\e[0;31m"

@@ -16,7 +16,7 @@
 #   Transliterated string (example: "foo-bar-baz")
 #------------------------------------------------------------------------------
 bfl::transliterate() {
-  bfl::validate_arg_count "$#" 1 1 || exit 1
+  bfl::verify_arg_count "$#" 1 1 || exit 1
   bfl::verify_dependencies "iconv"
 
   declare -r input="$1"

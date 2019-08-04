@@ -2,19 +2,19 @@
 
 #------------------------------------------------------------------------------
 # @file
-# Defines function: bfl::validate_arg_count().
+# Defines function: bfl::verify_arg_count().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # @function
-# Validates the number of arguments received against expected values.
+# Verifies the number of arguments received against expected values.
 #
-# Other functions in this library call this function to validate the number of
+# Other functions in this library call this function to verify the number of
 # arguments received. To prevent infinite loops, this function must not call
 # any other function in this library, other than bfl::die.
 #
 # That is why we are essentially recreating:
-# - bfl::validate_arg_count()
+# - bfl::verify_arg_count()
 # - bfl::is_integer()
 #
 # @param integer $actual_arg_count
@@ -26,8 +26,8 @@
 #
 # shellcheck disable=SC2154
 #------------------------------------------------------------------------------
-bfl::validate_arg_count() {
-  # Validate argument count.
+bfl::verify_arg_count() {
+  # Verify argument count.
   if [[ "$#" -ne "3" ]]; then
     bfl::die "Error: invalid number of arguments. Expected 3, received $#."
   fi

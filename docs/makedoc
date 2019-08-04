@@ -35,7 +35,7 @@ main() {
   fi
 
   bfl::declare_global_display_constants
-  bfl::validate_arg_count "$#" 0 0 || usage
+  bfl::verify_arg_count "$#" 0 0 || usage
 
   declare body
   declare file_path

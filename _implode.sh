@@ -23,7 +23,7 @@
 # shellcheck disable=SC2154
 #-----------------------------------------------------------------------------
 bfl::implode() {
-  bfl::validate_arg_count "$#" 2 999 || exit 1
+  bfl::verify_arg_count "$#" 2 999 || exit 1
 
   declare -r glue="$1"
 

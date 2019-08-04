@@ -15,7 +15,7 @@
 #   One dimensional array of arguments passed to this function.
 #------------------------------------------------------------------------------
 bfl::echo_args() {
-  bfl::validate_arg_count "$#" 1 999 || exit 1
+  bfl::verify_arg_count "$#" 1 999 || exit 1
 
   declare -ar parameters=("$@")
   declare counter=0

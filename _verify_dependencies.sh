@@ -13,7 +13,7 @@
 #   One dimensional array of applications, executables, or commands.
 #------------------------------------------------------------------------------
 bfl::verify_dependencies() {
-  bfl::validate_arg_count "$#" 1 999 || exit 1
+  bfl::verify_arg_count "$#" 1 999 || exit 1
 
   declare -ar apps=("$@")
   declare app

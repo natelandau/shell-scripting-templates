@@ -16,7 +16,7 @@
 #   The file extension, excluding the preceding period.
 #------------------------------------------------------------------------------
 bfl::get_file_extension() {
-  bfl::validate_arg_count "$#" 1 1 || exit 1
+  bfl::verify_arg_count "$#" 1 1 || exit 1
 
   declare -r path="$1"
   declare file_name

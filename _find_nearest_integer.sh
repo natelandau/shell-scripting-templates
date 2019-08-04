@@ -21,7 +21,7 @@
 #   Integer in list that is nearest to the target.
 #------------------------------------------------------------------------------
 bfl::find_nearest_integer() {
-  bfl::validate_arg_count "$#" 2 2 || exit 1
+  bfl::verify_arg_count "$#" 2 2 || exit 1
 
   if ! bfl::is_integer "$1"; then
     bfl::die "Error: expected integer, received $1"

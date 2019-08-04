@@ -75,7 +75,7 @@ This Bash script calls three functions from the Bash Function Library:
 
 * bfl::declare_global_display_constants ([documentation](docs/documentation.md#bfl_declare_global_display_constants))
   ([code](_declare_global_display_constants.sh))
-* bfl::validate_arg_count ([documentation](docs/documentation.md#bfl_validate_arg_count)) ([code](_validate_arg_count.sh))
+* bfl::verify_arg_count ([documentation](docs/documentation.md#bfl_verify_arg_count)) ([code](_verify_arg_count.sh))
 * bfl::str_repeat ([documentation](docs/documentation.md#bfl_str_repeat)) ([code](_str_repeat.sh))
 
 ```bash
@@ -116,7 +116,7 @@ main() {
   fi
 
   bfl::declare_global_display_constants
-  bfl::validate_arg_count "$#" 2 2 || usage
+  bfl::verify_arg_count "$#" 2 2 || usage
 
   declare -r string_to_repeat="$1"
   declare -r multiplier="$2"

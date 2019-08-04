@@ -30,7 +30,7 @@
 #   Message body.
 #------------------------------------------------------------------------------
 bfl::send_mail_msg() {
-  bfl::validate_arg_count "$#" 4 5 || exit 1
+  bfl::verify_arg_count "$#" 4 5 || exit 1
   bfl::verify_dependencies "sendmail"
 
   declare -r to="$1"

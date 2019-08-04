@@ -16,7 +16,7 @@
 #   The trimmed string.
 #------------------------------------------------------------------------------
 bfl::trim() {
-  bfl::validate_arg_count "$#" 1 1 || exit 1
+  bfl::verify_arg_count "$#" 1 1 || exit 1
 
   declare -r input="$1"
   declare temp="${input}"
