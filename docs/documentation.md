@@ -18,6 +18,7 @@
 * [bfl::send_mail_msg](#bfl_send_mail_msg)
 * [bfl::send_sms_msg](#bfl_send_sms_msg)
 * [bfl::str_repeat](#bfl_str_repeat)
+* [bfl::time_convert_s_to_hhmmss](#bfl_time_convert_s_to_hhmmss)
 * [bfl::transliterate](#bfl_transliterate)
 * [bfl::trim](#bfl_trim)
 * [bfl::verify_arg_count](#bfl_verify_arg_count)
@@ -229,6 +230,18 @@ Repeats a string.
 **@return** string $result  
   The repeated string.  
 
+<a id="bfl_time_convert_s_to_hhmmss"></a>
+
+## bfl::time_convert_s_to_hhmmss
+
+Converts seconds to the hh:mm:ss format.
+
+**@param** integer $path  
+  The number of seconds to convert.  
+
+**@return** string $hms  
+  The number of seconds in hh:mm:ss format.  
+
 <a id="bfl_transliterate"></a>
 
 ## bfl::transliterate
@@ -276,4 +289,4 @@ Verifies that dependencies are installed.
   One dimensional array of applications, executables, or commands.  
 
 ---
-*Last updated: 2019-08-04T01:52:41-04:00.*
+*Last updated: 2019-08-09T19:53:47-04:00.*
