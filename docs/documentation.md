@@ -236,10 +236,10 @@ Repeats a string.
 
 Converts seconds to the hh:mm:ss format.
 
-**@param** integer $path  
+**@param** integer $seconds  
   The number of seconds to convert.  
 
-**@return** string $hms  
+**@return** string $hhmmss  
   The number of seconds in hh:mm:ss format.  
 
 <a id="bfl_transliterate"></a>
@@ -289,4 +289,4 @@ Verifies that dependencies are installed.
   One dimensional array of applications, executables, or commands.  
 
 ---
-*Last updated: 2019-08-09T19:53:47-04:00.*
+*Last updated: 2019-08-09T20:39:38-04:00.*

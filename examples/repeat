@@ -42,7 +42,7 @@ main() {
   declare repeated_string
 
   repeated_string=$(bfl::str_repeat "${string_to_repeat}" "${multiplier}") || bfl::die
-  printf "%s\\n" "${repeated_string}"
+  printf "%s" "${repeated_string}"
 }
 
 set -euo pipefail

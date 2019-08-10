@@ -28,7 +28,7 @@ autoload.sh. See the comments in autoload.sh for an explanation of the loading p
 1\. Clone this repository into ~/.lib.
 
 ```bash
-git clone https://github.com/jmooring/bash-function-library.git "${HOME}/.lib/fl"
+git clone https://github.com/jmooring/bash-function-library.git "${HOME}/.lib/bfl"
 ```
 
 2\. Create a permanent environment variable containing the path to the autoloader.
@@ -37,7 +37,7 @@ git clone https://github.com/jmooring/bash-function-library.git "${HOME}/.lib/fl
 heredoc=$(cat<<EOT
 # Export path to the autoloader for the Bash Function Library.
 # See https://github.com/jmooring/bash-function-library.
-if [ -f "${HOME}/.lib/autoload.sh" ]; then
+if [ -f "${HOME}/.lib/blf/autoload.sh" ]; then
   export BASH_FUNCTION_LIBRARY="$HOME/.lib/bfl/autoload.sh"
 fi
 EOT
@@ -62,7 +62,6 @@ if ! source "${BASH_FUNCTION_LIBRARY}"; then
   printf "Error: unable to source BASH_FUNCTION_LIBRARY.\\n"
   exit 1
 fi
-
 
 printf "%s\\n" "$(bfl::str_repeat "=" "10")"
 ```
@@ -123,7 +122,7 @@ main() {
   declare repeated_string
 
   repeated_string=$(bfl::str_repeat "${string_to_repeat}" "${multiplier}")
-  printf "%s\\n" "${repeated_string}"
+  printf "%s" "${repeated_string}"
 }
 
 set -euo pipefail
