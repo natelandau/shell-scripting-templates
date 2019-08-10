@@ -15,7 +15,7 @@
 #
 # @return string $hhmmss
 #   The number of seconds in hh:mm:ss format.
-#   Example: 01h:01m:01s
+#   Example: 01:01:01
 #------------------------------------------------------------------------------
 bfl::time_convert_s_to_hhmmss() {
   bfl::verify_arg_count "$#" 1 1 || exit 1
@@ -31,7 +31,7 @@ bfl::time_convert_s_to_hhmmss() {
     bfl::die "Error: expected an integer, received ${seconds}."
   fi
 
-  hhmmss=$(printf '%02dh:%02dm:%02ds\n' \
+  hhmmss=$(printf '%02d:%02d:%02d\n' \
     $((seconds/3600)) \
     $((seconds%3600/60)) \
     $((seconds%60))) \
