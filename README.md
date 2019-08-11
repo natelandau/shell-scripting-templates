@@ -88,17 +88,21 @@ This Bash script calls three functions from the Bash Function Library:
 #------------------------------------------------------------------------------
 # @function
 # Displays usage message.
+#
+# @return string $msg
+#   The usage message.
 #------------------------------------------------------------------------------
 usage() {
-  declare this_script
-  this_script=$(basename "$0")
-  echo
-  echo "Repeats a string N times."
-  echo
-  echo "Usage:    ${this_script} string multiplier"
-  echo
-  echo "Example:  ${this_script} \"=\" \"10\""
-  echo
+  declare msg
+  msg="
+    Repeats a string N times.
+
+    Usage:    $(basename "$0") string multiplier
+
+    Example:  $(basename "$0") \"=\" \"10\"
+  "
+  msg=$(bfl::trim "${msg}") || bfl::die "Error: unable to trim usage message."
+  printf "%s\\n" "${msg}"
   exit 1
 }
 
@@ -121,7 +125,7 @@ main() {
   declare -r multiplier="$2"
   declare repeated_string
 
-  repeated_string=$(bfl::str_repeat "${string_to_repeat}" "${multiplier}")
+  repeated_string=$(bfl::str_repeat "${string_to_repeat}" "${multiplier}") || bfl::die
   printf "%s" "${repeated_string}"
 }
 

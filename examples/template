@@ -10,19 +10,23 @@
 #------------------------------------------------------------------------------
 # @function
 # Displays usage message.
+#
+# @return string $msg
+#   The usage message.
 #------------------------------------------------------------------------------
 usage() {
-  declare this_script
-  this_script=$(basename "$0")
-  echo
-  echo "One sentence description."  #TODO
-  echo
-  echo "Detailed description (optional). Use multiple lines if needed."   #TODO
-  echo
-  echo "Usage:    ${this_script} arg1 arg2"         #TODO
-  echo
-  echo "Example:  ${this_script} \"foo\" \"bar\""   #TODO
-  echo
+  declare msg
+  msg="
+    One sentence description. # TODO
+
+    Detailed description (optional). Use multiple lines if needed. # TODO
+
+    Usage:    $(basename "$0") arg1 arg2 # TODO
+
+    Example:  $(basename "$0") \"foo\" \"bar\" # TODO
+  "
+  msg=$(bfl::trim "${msg}") || bfl::die "Error: unable to trim usage message."
+  printf "%s\\n" "${msg}"
   exit 1
 }
 
