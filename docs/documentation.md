@@ -258,7 +258,7 @@ Transliterates a string.
 
 ## bfl::trim
 
-Removes leading and trailing whitespace from a string.
+Removes leading and trailing whitespace, including blank lines, from string.
 
 **@param** string $input  
   The string to be trimmed.  
@@ -289,4 +289,4 @@ Verifies that dependencies are installed.
   One dimensional array of applications, executables, or commands.  
 
 ---
-*Last updated: 2019-08-09T20:39:38-04:00.*
+*Last updated: 2019-08-11T14:08:54-04:00.*
