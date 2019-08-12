@@ -38,7 +38,6 @@ bfl::send_mail_msg() {
   declare -r envelope_from="$3"
   declare -r subject="$4"
   declare -r body="${5:-}"
-  declare interpreted_body
   declare message
 
   if bfl::is_empty "${to}"; then
@@ -57,16 +56,12 @@ bfl::send_mail_msg() {
     bfl::die "Error: the message subject was not specified."
   fi
 
-  # Backslash escapes such as \n (newline) in the message body must be
-  # interpreted before sending the message.
-  interpreted_body=$(echo -e "${body}") || bfl::die
-
   # Format the message.
-  message=$(printf "To: %s\\nFrom: %s\\nSubject: %s\\n\\n%s" \
+  message=$(printf "To: %s\\nFrom: %s\\nSubject: %s\\n\\n%b" \
     "${to}" \
     "${from}" \
     "${subject}" \
-    "${interpreted_body}") || bfl::die
+    "${body}") || bfl::die
 
   # Send the message.
   echo "$message" | sendmail -f "$envelope_from" "$to" || bfl::die

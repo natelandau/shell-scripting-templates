@@ -24,7 +24,6 @@ bfl::send_sms_msg() {
   declare -r message="$2"
   declare -r phone_number_regex="^\\+[0-9]{6,}$"
   declare error_msg
-  declare interpreted_message
 
    if bfl::is_empty "${phone_number}"; then
     bfl::die "Error: the recipient's phone number was not specified."
@@ -44,7 +43,7 @@ bfl::send_sms_msg() {
 
   # Backslash escapes such as \n (newline) in the message string must be
   # interpreted before sending the message.
-  interpreted_message=$(echo -e "${message}") || bfl::die
+  interpreted_message=$(printf "%b" "${message}") || bfl::die
 
   # Send the message.
   aws sns publish --phone-number "${phone_number}" \
