@@ -2,9 +2,9 @@
 
 #------------------------------------------------------------------------------
 # @file
-# Does something. #TODO
+# Does something. # TODO
 #
-# Detailed description. #TODO
+# Detailed description. # TODO
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -35,20 +35,20 @@ usage() {
 # Performs cleanup when script exits for any reason. Called by trap.
 #------------------------------------------------------------------------------
 cleanup() {
-  : #TODO
+  : # TODO
 }
 
 #------------------------------------------------------------------------------
 # @function
 # Main function.
 #
-# @param type $foo #TODO
-#   Description. #TODO
-# @param type $foo #TODO
-#   Description. #TODO
+# @param type $foo # TODO
+#   Description. # TODO
+# @param type $foo # TODO
+#   Description. # TODO
 #
-# @return type $bar #TODO
-#   Description. Remove this section nothing is returned. #TODO
+# @return type $bar # TODO
+#   Description. Remove this section nothing is returned. # TODO
 #
 # shellcheck disable=1090
 #------------------------------------------------------------------------------
