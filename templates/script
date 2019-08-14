@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Does something. #TODO
+#
+# Detailed description. Use multiple lines if needed. #TODO
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+# Displays usage message.
+#
+# @return string $msg
+#   The usage message.
+#------------------------------------------------------------------------------
+usage() {
+  declare msg
+  msg=$(cat <<EOT
+One sentence description. # TODO
+
+Detailed description. Use multiple lines if needed. #TODO
+
+Usage:    $(basename "$0") foo bar # TODO
+
+Example:  $(basename "$0") "Fred" "George" # TODO
+EOT
+  )
+  printf "%s\\n" "${msg}"
+  exit 1
+}
+
+#------------------------------------------------------------------------------
+# @function
+# Performs cleanup when script exits for any reason. Called by trap.
+#
+# Detailed description. Use multiple lines if needed. #TODO
+#------------------------------------------------------------------------------
+cleanup() {
+  # TODO
+  :
+}
+
+#------------------------------------------------------------------------------
+# @function
+# Main function.
+#
+# Detailed description. Use multiple lines if needed. #TODO
+#
+# @param type $foo #TODO
+#   Description. #TODO
+# @param type $bar #TODO
+#   Description. #TODO
+#
+# shellcheck disable=1090
+#------------------------------------------------------------------------------
+main() {
+  # Source the Bash Function Library.
+  if ! source "${BASH_FUNCTION_LIBRARY}"; then
+    printf "Error: unable to source BASH_FUNCTION_LIBRARY.\\n"
+    exit 1
+  fi
+
+  # Declare global display constants.
+  bfl::declare_global_display_constants
+
+  # Verify argument count.
+  bfl::verify_arg_count "$#" 2 2 || usage # TODO
+
+  # Verify dependencies.
+  bfl::verify_dependencies "printf" # TODO
+
+  # Declare positional arguments (readonly, sorted by position).
+  declare -r foo="$1" # TODO
+  declare -r bar="$2" # TODO
+
+  # Declare other readonly variables (sorted by name).
+  declare -r wibble="Harry" # TODO
+  declare -r wobble="Ron" # TODO
+
+  # Declare all other variables (sorted by name).
+  declare eggs="Dean" # TODO
+  declare ham="Seamus" # TODO
+
+  # Verify argument values.
+  bfl::is_empty "$foo" && bfl::die "Error: foo is required." # TODO
+  bfl::is_empty "$bar" && bfl::die "Error: bar is required." # TODO
+
+  # TODO
+  printf "%s\\n" "${foo}, ${bar}, ${wibble}, ${wobble}, ${eggs}, and ${ham}."
+}
+
+set -euo pipefail
+trap cleanup EXIT
+main "$@"

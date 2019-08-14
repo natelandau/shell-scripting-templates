@@ -44,12 +44,12 @@ main() {
   declare function_name
   declare function_params
   declare function_return
-  declare -r header="# Bash Function Library - Documentation"
-  declare -r output_file_name="documentation.md"
+  declare -r header="# Bash Function Library"
+  declare -r output_file_name="function-list.md"
   declare toc
 
   footer="*Last updated: $(date --iso-8601=s).*"
-  toc="## Table of Contents\\n\\n"
+  toc="## Function List\\n\\n"
 
   for file_path in "$(dirname "${BASH_FUNCTION_LIBRARY}")"/_*; do
     function_name=$(grep "() {" "${file_path}") || bfl::die

@@ -4,9 +4,9 @@
 
 * [Overview](#overview)
 * [Installation](#installation)
-* [Example](#example)
+* [Examples](#examples)
+* [Templates](#templates)
 * [Documentation](#documentation)
-* [Template](#template)
 
 <a id="overview"></a>
 
@@ -25,7 +25,7 @@ autoload.sh. See the comments in autoload.sh for an explanation of the loading p
 
 ## Installation
 
-1\. Clone this repository into ~/.lib.
+1\. Clone this repository into ~/.lib/bfl.
 
 ```bash
 git clone https://github.com/jmooring/bash-function-library.git "${HOME}/.lib/bfl"
@@ -37,7 +37,7 @@ git clone https://github.com/jmooring/bash-function-library.git "${HOME}/.lib/bf
 heredoc=$(cat<<EOT
 # Export path to the autoloader for the Bash Function Library.
 # See https://github.com/jmooring/bash-function-library.
-if [ -f "${HOME}/.lib/blf/autoload.sh" ]; then
+if [ -f "${HOME}/.lib/bfl/autoload.sh" ]; then
   export BASH_FUNCTION_LIBRARY="$HOME/.lib/bfl/autoload.sh"
 fi
 EOT
@@ -58,87 +58,49 @@ printf "%s\\n" "${BASH_FUNCTION_LIBRARY}"
 6\. Test using the [bfl::str_repeat](docs/documentation.md#bfl_str_repeat) function from the library.
 
 ```bash
-if ! source "${BASH_FUNCTION_LIBRARY}"; then
+if source "${BASH_FUNCTION_LIBRARY}"; then
+  printf "%s\\n" "$(bfl::str_repeat "=" "40")"
+else
   printf "Error: unable to source BASH_FUNCTION_LIBRARY.\\n"
-  exit 1
 fi
-
-printf "%s\\n" "$(bfl::str_repeat "=" "10")"
 ```
 
-<a id="example"></a>
+<a id="examples"></a>
 
-## Example
+## Examples
 
-This Bash script calls three functions from the Bash Function Library:
+[examples/\_introduce.sh](examples/_introduce.sh)
 
-* bfl::declare_global_display_constants ([documentation](docs/documentation.md#bfl_declare_global_display_constants))
-  ([code](_declare_global_display_constants.sh))
-* bfl::verify_arg_count ([documentation](docs/documentation.md#bfl_verify_arg_count)) ([code](_verify_arg_count.sh))
-* bfl::str_repeat ([documentation](docs/documentation.md#bfl_str_repeat)) ([code](_str_repeat.sh))
+> This library function is simple and heavily documented&mdash;a tutorial.
 
-```bash
-#!/usr/bin/env bash
+[examples/session-info](examples/session-info)
 
-#------------------------------------------------------------------------------
-# @file
-# Repeats a string N times.
-#------------------------------------------------------------------------------
+> This script leverages the Bash Function Library, displaying a banner with user and system information.
 
-#------------------------------------------------------------------------------
-# @function
-# Displays usage message.
-#
-# @return string $msg
-#   The usage message.
-#------------------------------------------------------------------------------
-usage() {
-  declare msg
-  msg="
-    Repeats a string N times.
+<a id="templates"></a>
 
-    Usage:    $(basename "$0") string multiplier
+## Templates
 
-    Example:  $(basename "$0") \"=\" \"10\"
-  "
-  msg=$(bfl::trim "${msg}") || bfl::die "Error: unable to trim usage message."
-  printf "%s\\n" "${msg}"
-  exit 1
-}
+[templates/\_library_function.sh](templates/_library_function.sh)
 
-#------------------------------------------------------------------------------
-# @function
-# Main function.
-#
-# shellcheck disable=1090
-#------------------------------------------------------------------------------
-main() {
-  if ! source "${BASH_FUNCTION_LIBRARY}"; then
-    printf "Error: unable to source BASH_FUNCTION_LIBRARY.\\n"
-    exit 1
-  fi
+> Use this template to create a new library function.
 
-  bfl::declare_global_display_constants
-  bfl::verify_arg_count "$#" 2 2 || usage
+[templates/script](templates/script)
 
-  declare -r string_to_repeat="$1"
-  declare -r multiplier="$2"
-  declare repeated_string
-
-  repeated_string=$(bfl::str_repeat "${string_to_repeat}" "${multiplier}") || bfl::die
-  printf "%s" "${repeated_string}"
-}
-
-set -euo pipefail
-main "$@"
-```
+> Use this template to create a script which leverages the Bash Function Library.
 
 <a id="documentation"></a>
 
 ## Documentation
 
-See [docs/documentation.md](docs/documentation.md).
+[docs/function-list.md](docs/function-list.md)
 
-## Template
+> Summary of library functions.
 
-See [examples/template](examples/template).
+[docs/error-handling.md](docs/error-handling.md)
+
+> Notes on error handling.
+
+[docs/style-guide.md](docs/style-guide.md)
+
+> Style guide.

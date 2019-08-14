@@ -1,6 +1,6 @@
-# Bash Function Library - Documentation
+# Bash Function Library
 
-## Table of Contents
+## Function List
 
 * [bfl::declare_global_display_constants](#bfl_declare_global_display_constants)
 * [bfl::die](#bfl_die)
@@ -23,6 +23,7 @@
 * [bfl::trim](#bfl_trim)
 * [bfl::verify_arg_count](#bfl_verify_arg_count)
 * [bfl::verify_dependencies](#bfl_verify_dependencies)
+* [bfl::warn](#bfl_warn)
 
 <a id="bfl_declare_global_display_constants"></a>
 
@@ -30,36 +31,63 @@
 
 Declares global display constants.
 
-**@return** global string $red  
-**@return** global string $light_red  
-**@return** global string $green  
-**@return** global string $light_green  
-**@return** global string $blue  
-**@return** global string $light_blue  
-**@return** global string $purple  
-**@return** global string $light_purple  
-**@return** global string $cyan  
-**@return** global string $light_cyan  
-**@return** global string $brown  
-**@return** global string $yellow  
-**@return** global string $black  
-**@return** global string $dark_gray  
-**@return** global string $light_gray  
-**@return** global string $white  
-**@return** global string $blinking  
-**@return** global string $bold  
-**@return** global string $reverse_video  
-**@return** global string $underline  
-**@return** global string $reset  
+**@return** string $black (global)  
+**@return** string $black_bold (global)  
+**@return** string $black_faint (global)  
+**@return** string $black_underline (global)  
+**@return** string $black_blink (global)  
+**@return** string $black_reverse (global)  
+**@return** string $red (global)  
+**@return** string $red_bold (global)  
+**@return** string $red_faint (global)  
+**@return** string $red_underline (global)  
+**@return** string $red_blink (global)  
+**@return** string $red_reverse (global)  
+**@return** string $green (global)  
+**@return** string $green_bold (global)  
+**@return** string $green_faint (global)  
+**@return** string $green_underline (global)  
+**@return** string $green_blink (global)  
+**@return** string $green_reverse (global)  
+**@return** string $yellow (global)  
+**@return** string $yellow_bold (global)  
+**@return** string $yellow_faint (global)  
+**@return** string $yellow_underline (global)  
+**@return** string $yellow_blink (global)  
+**@return** string $yellow_reverse (global)  
+**@return** string $blue (global)  
+**@return** string $blue_bold (global)  
+**@return** string $blue_faint (global)  
+**@return** string $blue_underline (global)  
+**@return** string $blue_blink (global)  
+**@return** string $blue_reverse (global)  
+**@return** string $magenta (global)  
+**@return** string $magenta_bold (global)  
+**@return** string $magenta_faint (global)  
+**@return** string $magenta_underline (global)  
+**@return** string $magenta_blink (global)  
+**@return** string $magenta_reverse (global)  
+**@return** string $cyan (global)  
+**@return** string $cyan_bold (global)  
+**@return** string $cyan_faint (global)  
+**@return** string $cyan_underline (global)  
+**@return** string $cyan_blink (global)  
+**@return** string $cyan_reverse (global)  
+**@return** string $white (global)  
+**@return** string $white_bold (global)  
+**@return** string $white_faint (global)  
+**@return** string $white_underline (global)  
+**@return** string $white_blink (global)  
+**@return** string $white_reverse (global)  
 
 <a id="bfl_die"></a>
 
 ## bfl::die
 
-Prints message to stderr and exits with status code 1.
+Prints error message to stderr and exits with status code 1.
 
-**@param** string $message (optional)  
-  Message to be printed.  
+**@param** string $msg (optional)  
+  The error message.  
 
 <a id="bfl_echo_args"></a>
 
@@ -288,5 +316,14 @@ Verifies that dependencies are installed.
 **@param** array $apps  
   One dimensional array of applications, executables, or commands.  
 
+<a id="bfl_warn"></a>
+
+## bfl::warn
+
+Prints warning message to stdout.
+
+**@param** string $msg (optional)  
+  The warning message.  
+
 ---
-*Last updated: 2019-08-11T14:08:54-04:00.*
+*Last updated: 2019-08-15T00:23:33-04:00.*
