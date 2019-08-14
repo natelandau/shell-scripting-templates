@@ -30,7 +30,7 @@ bfl::trim() {
   #
   # See https://tinyurl.com/yav7zw9k and https://tinyurl.com/3z8eh
 
-  output=$(printfS "%b" "${input}" | \
+  output=$(printf "%b" "${input}" | \
     sed -E 's/^[[:space:]]+// ; s/[[:space:]]+$// ; /./,$ !d') \
     || bfl::die "Error: unable to trim whitespace."
 
