@@ -7,25 +7,35 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Prints message to stderr and exits with status code 1.
+# Prints error message to stderr and exits with status code 1.
 #
-# @param string $message (optional)
-#   Message to be printed.
+# @param string $msg (optional)
+#   The error message.
+#
+# @example
+#   bfl::error "Error: the foo is bar."
 #
 # shellcheck disable=SC2154
 #------------------------------------------------------------------------------
 bfl::die() {
-  declare error_msg="${1:-"Error: die() was called; error message not provided."}"
-  declare stack
-
   # Verify argument count.
-  if [[ "$#" -gt "1" ]]; then
-    error_msg="Error: invalid number of arguments. Expected 0 or 1, received $#."
-  fi
+  bfl::verify_arg_count "$#" 0 1 || exit 1
+
+  # Declare positional arguments (readonly, sorted by position).
+  declare -r msg="${1:-"Error: unspecified error."}"
+
+  # Declare all other variables (sorted by name).
+  declare stack
 
   # Build a string showing the "stack" of functions that got us here.
   stack="${FUNCNAME[*]}"
   stack="${stack// / <- }"
-  echo -e "${red}${error_msg}\\n${yellow}[${stack}]${reset}" >&2
+
+  # Print the message.
+  printf "%b\\n" "${red}${msg}${reset}"
+
+  # Print the stack.
+  printf "%b\\n" "${yellow}[${stack}]${reset}"
+
   exit 1
 }
