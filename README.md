@@ -12,20 +12,21 @@
 
 ## Overview
 
-This is a library of Bash functions that I've used over the years. These are
-not, and were never intended to be, POSIX compliant. Each of the functions is
-name-spaced with the "bfl::" prefix. For example, call bfl::trim to trim a
-string.
+The Bash Function Library is a collection of utility functions. The library is
+not, and was never intended to be, POSIX compliant. Each function is
+namespaced with the `bfl::` prefix. For example, to trim a string:
 
-The calling script must source the entire library as some of the functions
-depend on one or more of the others. Source the entire library by sourcing
-autoload.sh. See the comments in autoload.sh for an explanation of the loading process.
+```bash
+bfl::trim "${var}"
+```
+
+The calling script must source the entire library; some of the functions depend on one or more of the others. Source the entire library by sourcing autoload.sh. See the comments in autoload.sh for an explanation of the loading process.
 
 <a id="installation"></a>
 
 ## Installation
 
-1\. Clone this repository into ~/.lib/bfl.
+1\. Clone this repository into `${HOME}/.lib/bfl`.
 
 ```bash
 git clone https://github.com/jmooring/bash-function-library.git "${HOME}/.lib/bfl"
@@ -45,17 +46,14 @@ EOT
 printf "\\n%s\\n" "${heredoc}" >> "${HOME}/.bashrc"
 ```
 
-3\. Close all terminals.
-
-4\. Open a new terminal.
-
-5\. Verify that the BASH_FUNCTION_LIBRARY environment variable is correct.
+3\. Verify that the BASH_FUNCTION_LIBRARY environment variable is correct.
 
 ```bash
+source "${HOME}/.bashrc"
 printf "%s\\n" "${BASH_FUNCTION_LIBRARY}"
 ```
 
-6\. Test using the [bfl::str_repeat](docs/documentation.md#bfl_str_repeat) function from the library.
+4\. Test using the `bfl::str_repeat` library function.
 
 ```bash
 if source "${BASH_FUNCTION_LIBRARY}"; then
