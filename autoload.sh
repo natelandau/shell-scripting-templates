@@ -67,15 +67,15 @@
 # This will only source file names that begin with an underscore.
 #------------------------------------------------------------------------------
 autoload() {
-  declare this_script_dir
-  declare file_path
-  declare cannonical_path
+  declare autoload_cannonical_path   # Canonical path to this file.
+  declare autoload_directory         # Directory in which this file resides.
+  declare file
 
-  cannonical_path=$(readlink -e "${BASH_SOURCE[0]}") || exit 1
-  this_script_dir=$(dirname "${cannonical_path}") || exit 1
+  autoload_cannonical_path=$(readlink -e "${BASH_SOURCE[0]}") || exit 1
+  autoload_directory=$(dirname "${autoload_cannonical_path}") || exit 1
 
-  for file_path in "${this_script_dir}"/_*; do
-    source "${file_path}" || exit 1
+  for file in "${autoload_directory}"/_*; do
+    source "${file}" || exit 1
   done
 }
 
