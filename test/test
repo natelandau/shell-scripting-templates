@@ -123,13 +123,13 @@ declare_assertions() {
     'bfl::send_sms_msg|"+17039897379"|1'
     'bfl::send_sms_msg|"+17039897379" ""|1'
     'bfl::send_sms_msg|"+17039897379" "bar"|0'
-    'bfl::str_repeat|"-" "3"|0'
-    'bfl::str_repeat|"" "6"|0'
-    'bfl::str_repeat|" " "9"|0'
-    'bfl::str_repeat|"-" "a"|1'
-    'bfl::str_repeat|"" ""|1'
-    'bfl::str_repeat|"-" ""|1'
-    'bfl::str_repeat||1'
+    'bfl::repeat|"-" "3"|0'
+    'bfl::repeat|"" "6"|0'
+    'bfl::repeat|" " "9"|0'
+    'bfl::repeat|"-" "a"|1'
+    'bfl::repeat|"" ""|1'
+    'bfl::repeat|"-" ""|1'
+    'bfl::repeat||1'
     'bfl::time_convert_s_to_hhmmss||1'
     'bfl::time_convert_s_to_hhmmss|""|1'
     'bfl::time_convert_s_to_hhmmss|"a"|1'
@@ -262,12 +262,12 @@ main() {
   declare -a pieces
 
   # Create table header lines for for displaying test results.
-  line_1=$(bfl::str_repeat "=" ${cw1})
-  line_2=$(bfl::str_repeat "=" ${cw2})
-  line_3=$(bfl::str_repeat "=" ${cw3})
-  line_4=$(bfl::str_repeat "=" ${cw4})
-  line_5=$(bfl::str_repeat "=" ${cw5})
-  line_6=$(bfl::str_repeat "=" ${cw6})
+  line_1=$(bfl::repeat "=" ${cw1})
+  line_2=$(bfl::repeat "=" ${cw2})
+  line_3=$(bfl::repeat "=" ${cw3})
+  line_4=$(bfl::repeat "=" ${cw4})
+  line_5=$(bfl::repeat "=" ${cw5})
+  line_6=$(bfl::repeat "=" ${cw6})
 
   # Clear the screen.
   clear

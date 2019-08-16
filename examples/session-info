@@ -102,7 +102,7 @@ main() {
 
   # Create border.
   width=$((21+${#date_now}))
-  border=$(bfl::str_repeat "=" "${width}") \
+  border=$(bfl::repeat "=" "${width}") \
     || bfl::die "Error: unable to create a repeated string."
 
   # Display the banner.

@@ -53,11 +53,11 @@ source "${HOME}/.bashrc"
 printf "%s\\n" "${BASH_FUNCTION_LIBRARY}"
 ```
 
-4\. Test using the `bfl::str_repeat` library function.
+4\. Test using the `bfl::repeat` library function.
 
 ```bash
 if source "${BASH_FUNCTION_LIBRARY}"; then
-  printf "%s\\n" "$(bfl::str_repeat "=" "40")"
+  printf "%s\\n" "$(bfl::repeat "=" "40")"
 else
   printf "Error: unable to source BASH_FUNCTION_LIBRARY.\\n"
 fi

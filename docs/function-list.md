@@ -17,7 +17,7 @@
 * [bfl::is_integer](#bfl_is_integer)
 * [bfl::send_mail_msg](#bfl_send_mail_msg)
 * [bfl::send_sms_msg](#bfl_send_sms_msg)
-* [bfl::str_repeat](#bfl_str_repeat)
+* [bfl::repeat](#bfl_repeat)
 * [bfl::time_convert_s_to_hhmmss](#bfl_time_convert_s_to_hhmmss)
 * [bfl::transliterate](#bfl_transliterate)
 * [bfl::trim](#bfl_trim)
@@ -244,9 +244,9 @@ Sends an SMS message via Amazon Simple Notification Service (SNS).
 **@param** string $message  
   The message.  
 
-<a id="bfl_str_repeat"></a>
+<a id="bfl_repeat"></a>
 
-## bfl::str_repeat
+## bfl::repeat
 
 Repeats a string.
 
@@ -326,4 +326,4 @@ Prints warning message to stdout.
   The warning message.  
 
 ---
-*Last updated: 2019-08-15T00:23:33-04:00.*
+*Last updated: 2019-08-16T03:02:58-04:00.*
