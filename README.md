@@ -79,7 +79,7 @@ fi
 
 ## Templates
 
-[templates/\_library_function.sh](templates/_library_function.sh)
+[templates/_library_function.sh](templates/_library_function.sh)
 
 > Use this template to create a new library function.
 
@@ -99,6 +99,6 @@ fi
 
 > Notes on error handling.
 
-[docs/style-guide.md](docs/style-guide.md)
+[docs/coding-standards.md](docs/coding-standards.md)
 
-> Style guide.
+> Coding standards.

@@ -5,18 +5,12 @@
 [Framework](#framework)  
 [Guidelines](#guidelines)  
 [Exit with Command Substitution](#exit-with-command-substitution) 
-[Recommendation](#recommendation)
 
 <a name="framework"></a>
 
 ### Framework
 
-The `bfl::die` function calls `exit 1`. If the chain of commands leading to
-`bfl::die` is direct (no command substitution), the parent script exits when
-`bfl::die` fires. If command substitution occurs **anywhere** in the chain of
-commands leading to `bfl::die`, the parent script will **not** exit because
-command substitution spawns a subshell. See [Exit with Command
-Substitution](#exit-with-command-substitution) for a detailed explanation.
+The `bfl::die` function calls `exit 1`. If the chain of commands leading to `bfl::die` is direct (no command substitution), the parent script exits when `bfl::die` fires. If command substitution occurs **anywhere** in the chain of commands leading to `bfl::die`, the parent script will **not** exit because command substitution spawns a subshell. See [Exit with Command Substitution](#exit-with-command-substitution) for a detailed explanation.
 
 Upon error, all library functions except `bfl::verify_arg_count` call `bfl::die` with an error message. For example:
 
@@ -28,11 +22,7 @@ bfl::foo () {
 }
 ```
 
-The `bfl::verify_arg_count` function **does not** call `bfl::die` on error.
-Instead, `bfl::verify_arg_count` calls <code>return&nbsp;1</code> upon error.
-This exception allows the parent script to call a usage function when the
-argument count is incorrect. The usage function calls `exit 1` after displaying
-a usage message. For example:
+The `bfl::verify_arg_count` function **does not** call `bfl::die` on error. Instead, `bfl::verify_arg_count` calls <code>return&nbsp;1</code> upon error. This exception allows the parent script to call a usage function when the argument count is incorrect. The usage function calls `exit 1` after displaying a usage message. For example:
 
 ```bash
 bfl::verify_arg_count "$#" 1 3 || usage
@@ -69,9 +59,7 @@ var=$(bfl::foo "bar") || bfl::die "Error: unable to foo the bar."
 var=$(pwd) || bfl::die "Error: unable to determine working directory."
 ```
 
-4\) Logical library functions such as `bfl::is_empty` and `bfl::is_integer`
-have an exit status of 0 if true, 1 if false. By definition you will always
-test the exit status, either explicitly or implicitly, when using logical library functions. For example:
+4\) Logical library functions such as `bfl::is_empty` and `bfl::is_integer` have an exit status of 0 if true, 1 if false. By definition you will always test the exit status, either explicitly or implicitly, when using logical library functions. For example:
 
 ```bash
 if bfl::is_integer "${foo}"; then
@@ -119,12 +107,8 @@ var=$(bfl::trim "${foo}") || exit 1
 
 2\) Configure the shell or script to exit if any command exits with a non-zero status with `set -e`. In this configuration, the shell or script that invokes command substitution will exit when the subshell exits.
 
-<a name="recommendation"></a>
-
-### Recommendation
-
-Code defensively by testing the exit status of all but the most trivial
-commands, and invoke `set -euo pipefail` at the beginning of the script. While
-we don't want to rely on `set -e`, it will catch some of the things we miss. 
+Recommendation: code defensively by testing the exit status of all but the most
+trivial commands, and invoke `set -euo pipefail` at the beginning of the
+script. While we don't want to rely on `set -e`, it may catch items we miss.
 
 Do both&mdash;take no chances!

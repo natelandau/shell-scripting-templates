@@ -16,13 +16,13 @@
 #
 # This file must not be executable, and its extension must be .sh.
 #
-# The tokens in the file and function headers (@file, @function, @param,
+# The tags in the file and function headers (@file, @function, @param,
 # @return, and @example) are parsed by the library's documentation generator,
 # makedoc, located in the docs directory.
 #
 #-----
 #
-# The @param token must be formatted as follows:
+# The @param tag must be formatted as follows:
 #
 #   @param type $name [(optional)]
 #     Description.
@@ -43,7 +43,7 @@
 # complex implementations consider getopt or getopts.
 #-----
 #
-# The @return token must be formatted as follows:
+# The @return tag must be formatted as follows:
 #
 #   @return type $name [(global)]
 #     Description.
@@ -78,11 +78,11 @@
 #
 #-----
 #
-# This silly example function has 168 lines (5600 bytes):
+# This silly example function has 167 lines (5592 bytes):
 #
 #   Shebang: 1 (not required)
 #   Comments: 140
-#   Blank: 11
+#   Blank: 10
 #   Code: 16
 #
 #   The shebang is not required in a sourced file. It is included in this
@@ -111,7 +111,7 @@
 #   1) To validate data.
 #   2) To perform dependency checks.
 #   3) To safely scope variables (defend against dynamic scoping, no globals).
-#   4) To enable automated documentation (@tokens).
+#   4) To enable automated documentation (@tags).
 #   5) To make it easy to read (formatting).
 #   6) To make it easy to understand (comments, simplicity).
 #   7) To ensure a consistent structure and style for every function in the
