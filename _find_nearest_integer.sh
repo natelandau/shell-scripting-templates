@@ -17,6 +17,7 @@
 #   The target integer.
 # @param string $list
 #   List of integers.
+#
 # @return string $nearest
 #   Integer in list that is nearest to the target.
 #------------------------------------------------------------------------------
