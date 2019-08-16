@@ -17,7 +17,7 @@ bfl::is_integer() {
   bfl::verify_arg_count "$#" 1 1 || exit 1
 
   declare -r value_to_test="$1"
-  declare -r regex="^[0-9]+$"
+  declare -r regex="^-{0,1}[0-9]+$"
 
   if ! [[ "${value_to_test}" =~ ${regex} ]] ; then
     return 1
