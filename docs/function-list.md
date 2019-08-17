@@ -22,6 +22,7 @@
 * [bfl::time_convert_s_to_hhmmss](#bfl_time_convert_s_to_hhmmss)
 * [bfl::transliterate](#bfl_transliterate)
 * [bfl::trim](#bfl_trim)
+* [bfl::urlencode](#bfl_urlencode)
 * [bfl::verify_arg_count](#bfl_verify_arg_count)
 * [bfl::verify_dependencies](#bfl_verify_dependencies)
 * [bfl::warn](#bfl_warn)
@@ -526,6 +527,28 @@ string $output
 bfl::trim " foo "
 ```
 
+<a id="bfl_urlencode"></a>
+
+## bfl::urlencode
+
+Percent-encodes a URL per https://tools.ietf.org/html/rfc3986#section-2.1.
+
+#### Parameter
+
+string $str
+>The string to be encoded.
+
+#### Return
+
+string $str_encoded
+>The encoded string.
+
+#### Example
+
+```bash
+bfl::urlencode "foo bar"
+```
+
 <a id="bfl_verify_arg_count"></a>
 
 ## bfl::verify_arg_count
@@ -586,4 +609,4 @@ bfl::warn "Warning: the foo is bar."
 
 
      ---
-*Last updated: 2019-08-17T16:16:24-04:00.*
+*Last updated: 2019-08-17T16:52:32-04:00.*
