@@ -26,7 +26,7 @@
 #   Example: foo@example.com
 # @param string $subject
 #   Message subject.
-# @param string $body (optional)
+# @param string $body
 #   Message body.
 #   Example: "This is line one.\\nThis is line two.\\n"
 #
@@ -34,31 +34,26 @@
 #   bfl::send_mail_msg "a@b.com" "x@y.com" "x@y.com" "Test" "Hello world."
 #------------------------------------------------------------------------------
 bfl::send_mail_msg() {
-  bfl::verify_arg_count "$#" 4 5 || exit 1
+  bfl::verify_arg_count "$#" 5 5 || exit 1
   bfl::verify_dependencies "sendmail"
 
   declare -r to="$1"
   declare -r from="$2"
   declare -r envelope_from="$3"
   declare -r subject="$4"
-  declare -r body="${5:-}"
+  declare -r body="$5"
   declare message
 
-  if bfl::is_empty "${to}"; then
-    bfl::die "Error: the message recipient was not specified."
-  fi
-
-  if bfl::is_empty "${from}"; then
-    bfl::die "Error: the message sender was not specified."
-  fi
-
-  if bfl::is_empty "${envelope_from}"; then
-    bfl::die "Error: the envelope sender address was not specified."
-  fi
-
-  if bfl::is_empty "${subject}"; then
-    bfl::die "Error: the message subject was not specified."
-  fi
+  bfl::is_empty "${to}" \
+    && bfl::die "Error: the message recipient was not specified."
+  bfl::is_empty "${from}" \
+    && bfl::die "Error: the message sender was not specified."
+  bfl::is_empty "${envelope_from}" \
+    && bfl::die "Error: the envelope sender address was not specified."
+  bfl::is_empty "${subject}" \
+    && bfl::die "Error: the message subject was not specified."
+  bfl::is_empty "${body}" \
+    && bfl::die "Error: the message body was not specified."
 
   # Format the message.
   message=$(printf "To: %s\\nFrom: %s\\nSubject: %s\\n\\n%b" \
