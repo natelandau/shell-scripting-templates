@@ -16,6 +16,9 @@
 #
 # @return string $result
 #   The repeated string.
+#
+# @example
+#   bfl::repeat "=" "10"
 #------------------------------------------------------------------------------
 bfl::repeat() {
   bfl::verify_arg_count "$#" 2 2 || exit 1

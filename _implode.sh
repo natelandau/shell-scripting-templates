@@ -10,17 +10,18 @@
 # Combines multiple strings into a single string, separated by another string.
 #
 # This function will accept an unlimited number of arguments.
-# Example: bfl::implode "," "This is" "a" "test."
+# Example: bfl::implode "," "foo" "bar" "baz"
 #
 # @param string $glue
 #   The character or characters that will be used to glue the strings together.
-# @param array $pieces
+# @param array $piece
 #   One dimensional array of strings to be combined.
 #
 # @return string $imploded_string
 #   Example: "This is,a,test."
 #
-# shellcheck disable=SC2154
+# @example
+#   bfl::implode "," "foo" "bar" "baz"
 #-----------------------------------------------------------------------------
 bfl::implode() {
   bfl::verify_arg_count "$#" 2 999 || exit 1

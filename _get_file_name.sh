@@ -14,6 +14,9 @@
 #
 # @return string $file_name
 #   The file name, including extension.
+#
+# @example
+#   bfl::get_file_name "./foo/bar.text"
 #------------------------------------------------------------------------------
 bfl::get_file_name() {
   bfl::verify_arg_count "$#" 1 1 || exit 1

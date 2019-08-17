@@ -24,6 +24,9 @@
 # @param integer $expected_arg_count_max
 #   Maximum number of arguments expected.
 #
+# @example
+#   bfl::verify_arg_count "$#" 2 3
+#
 # shellcheck disable=SC2154
 #------------------------------------------------------------------------------
 bfl::verify_arg_count() {

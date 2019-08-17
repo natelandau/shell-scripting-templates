@@ -11,6 +11,9 @@
 #
 # @param array $apps
 #   One dimensional array of applications, executables, or commands.
+#
+# @example
+#   bfl::verify_dependencies "curl" "wget" "git"
 #------------------------------------------------------------------------------
 bfl::verify_dependencies() {
   bfl::verify_arg_count "$#" 1 999 || exit 1

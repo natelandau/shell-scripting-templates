@@ -13,6 +13,9 @@
 #
 # @param array $parameters
 #   One dimensional array of arguments passed to this function.
+#
+# @example
+# bfl::echo_args "foo" "bar" "baz"
 #------------------------------------------------------------------------------
 bfl::echo_args() {
   bfl::verify_arg_count "$#" 1 999 || exit 1

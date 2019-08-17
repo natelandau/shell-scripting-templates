@@ -16,6 +16,9 @@
 #
 # @return string $output
 #   The trimmed string.
+#
+# @example
+#   bfl::trim " foo "
 #------------------------------------------------------------------------------
 bfl::trim() {
   bfl::verify_arg_count "$#" 1 1 || exit 1

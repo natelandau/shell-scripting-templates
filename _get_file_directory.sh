@@ -14,6 +14,9 @@
 #
 # @return string $canonical_directory_path
 #   The canonical path to the directory in which a file resides.
+#
+# @example
+#   bfl::get_file_directory "./foo/bar.txt"
 #------------------------------------------------------------------------------
 bfl::get_file_directory() {
   bfl::verify_arg_count "$#" 1 1 || exit 1

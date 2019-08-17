@@ -14,6 +14,9 @@
 #
 # @return string $file_name_without_extension
 #   The file name, excluding extension.
+#
+# @example
+#   bfl::get_file_name_without_extension "./foo/bar.txt"
 #------------------------------------------------------------------------------
 bfl::get_file_name_without_extension() {
   bfl::verify_arg_count "$#" 1 1 || exit 1

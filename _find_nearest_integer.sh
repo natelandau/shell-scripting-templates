@@ -9,17 +9,16 @@
 # @function
 # Finds the nearest integer to a target integer from a list of integers.
 #
-# Example usage:
-#
-#   bfl::find_nearest_integer "4" "0 3 6 9 12"
-#
 # @param string $target
 #   The target integer.
 # @param string $list
-#   List of integers.
+#   A list of integers.
 #
 # @return string $nearest
 #   Integer in list that is nearest to the target.
+#
+# @example
+#   bfl::find_nearest_integer "4" "0 3 6 9 12"
 #------------------------------------------------------------------------------
 bfl::find_nearest_integer() {
   bfl::verify_arg_count "$#" 2 2 || exit 1

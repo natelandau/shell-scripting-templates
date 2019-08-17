@@ -11,11 +11,12 @@
 #
 # @param integer $seconds
 #   The number of seconds to convert.
-#   Example: 3661
 #
 # @return string $hhmmss
 #   The number of seconds in hh:mm:ss format.
-#   Example: 01:01:01
+#
+# @example
+#   bfl::time_convert_s_to_hhmmss "3661"
 #------------------------------------------------------------------------------
 bfl::time_convert_s_to_hhmmss() {
   bfl::verify_arg_count "$#" 1 1 || exit 1

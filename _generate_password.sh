@@ -18,14 +18,17 @@
 #
 # The underscore placed randomly in the middle ensures that the password will
 # have at least one special character. The underscore is probably the most
-# benign special character (i.e., it won't break quoted strings, doesn't contain
-# escape sequences, etc.).
+# benign special character (i.e., it won't break quoted strings, doesn't
+# contain escape sequences, etc.).
 #
 # @param integer $password_length
 #   The length of the desired password.
 #
 # @return string $password
 #   A random password
+#
+# @example
+#   bfl::generate_password "16"
 #------------------------------------------------------------------------------
 bfl::generate_password() {
   bfl::verify_arg_count "$#" 1 1 || exit 1

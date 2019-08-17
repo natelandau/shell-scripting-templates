@@ -14,6 +14,9 @@
 #
 # @return string $canonical_file_path
 #   The canonical path to the file.
+#
+# @example
+#   bfl::get_file_path "./foo/bar.text"
 #------------------------------------------------------------------------------
 bfl::get_file_path() {
   bfl::verify_arg_count "$#" 1 1 || exit 1

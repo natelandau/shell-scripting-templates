@@ -14,6 +14,9 @@
 #
 # @return string $file_extension
 #   The file extension, excluding the preceding period.
+#
+# @example
+#   bfl::get_file_extension "./foo/bar.txt"
 #------------------------------------------------------------------------------
 bfl::get_file_extension() {
   bfl::verify_arg_count "$#" 1 1 || exit 1

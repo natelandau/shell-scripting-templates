@@ -10,10 +10,13 @@
 # Transliterates a string.
 #
 # @param string $input
-#   String to bfl::transliterate (example: "_Foo Bar@  BAz").
+#   The string to transliterate.
 #
 # @return string $output
-#   Transliterated string (example: "foo-bar-baz")
+#   The transliterated string.
+#
+# @example
+#   bfl::transliterate "_Olé Über! "
 #------------------------------------------------------------------------------
 bfl::transliterate() {
   bfl::verify_arg_count "$#" 1 1 || exit 1
