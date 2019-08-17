@@ -9,10 +9,10 @@
 # @function
 # Transliterates a string.
 #
-# @param string $input
+# @param string $str
 #   The string to transliterate.
 #
-# @return string $output
+# @return string $str_transliterated
 #   The transliterated string.
 #
 # @example
@@ -22,24 +22,24 @@ bfl::transliterate() {
   bfl::verify_arg_count "$#" 1 1 || exit 1
   bfl::verify_dependencies "iconv"
 
-  declare -r input="$1"
-  declare output
+  declare -r str="$1"
+  declare str_transliterated
 
   # Enable extended pattern matching features.
   shopt -s extglob
 
   # Convert from UTF-8 to ASCII.
-  output=$(iconv -c -f utf8 -t ascii//TRANSLIT <<< "${input}") || bfl::die
+  str_transliterated=$(iconv -c -f utf8 -t ascii//TRANSLIT <<< "${str}") || bfl::die
   # Replace non-alphanumeric characters with a hyphen.
-  output=${output//[^[:alnum:]]/-}
+  str_transliterated=${str_transliterated//[^[:alnum:]]/-}
   # Replace two or more sequential hyphens with a single hyphen.
-  output=${output//+(-)/-}
+  str_transliterated=${str_transliterated//+(-)/-}
   # Remove leading hyphen, if any.
-  output=${output#-}
+  str_transliterated=${str_transliterated#-}
   # Remove trailing hyphen, if any.
-  output=${output%-}
+  str_transliterated=${str_transliterated%-}
   # Convert to lower case
-  output=${output,,}
+  str_transliterated=${str_transliterated,,}
 
-  printf "%s" "${output}"
+  printf "%s" "${str_transliterated}"
 }

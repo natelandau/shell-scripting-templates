@@ -11,10 +11,10 @@
 #
 # The string can either be single or multi-line.
 #
-# @param string $input
+# @param string $str
 #   The string to be trimmed.
 #
-# @return string $output
+# @return string $str_trimmed
 #   The trimmed string.
 #
 # @example
@@ -23,8 +23,8 @@
 bfl::trim() {
   bfl::verify_arg_count "$#" 1 1 || exit 1
 
-  declare -r input="$1"
-  declare output
+  declare -r str="$1"
+  declare str_trimmed
 
   # Explanation of sed commands:
   # - Remove leading whitespace from every line: s/^[[:space:]]+//
@@ -33,9 +33,9 @@ bfl::trim() {
   #
   # See https://tinyurl.com/yav7zw9k and https://tinyurl.com/3z8eh
 
-  output=$(printf "%b" "${input}" | \
+  str_trimmed=$(printf "%b" "${str}" | \
     sed -E 's/^[[:space:]]+// ; s/[[:space:]]+$// ; /./,$ !d') \
     || bfl::die "Error: unable to trim whitespace."
 
-  printf "%s" "${output}"
+  printf "%s" "${str_trimmed}"
 }

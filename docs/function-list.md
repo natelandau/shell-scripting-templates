@@ -395,7 +395,7 @@ Repeats a string.
 
 #### Parameters
 
-string $input
+string $str
 >The string to be repeated.
 
 int $multiplier
@@ -403,7 +403,7 @@ int $multiplier
 
 #### Return
 
-string $result
+string $str_repeated
 >The repeated string.
 
 #### Example
@@ -432,7 +432,7 @@ string $envelope_from
 string $subject
 >Message subject.
 
-string $body (optional)
+string $body
 >Message body.
 
 #### Example
@@ -491,12 +491,12 @@ Transliterates a string.
 
 #### Parameter
 
-string $input
+string $str
 >The string to transliterate.
 
 #### Return
 
-string $output
+string $str_transliterated
 >The transliterated string.
 
 #### Example
@@ -513,12 +513,12 @@ Removes leading and trailing whitespace, including blank lines, from string.
 
 #### Parameter
 
-string $input
+string $str
 >The string to be trimmed.
 
 #### Return
 
-string $output
+string $str_trimmed
 >The trimmed string.
 
 #### Example
@@ -609,4 +609,4 @@ bfl::warn "Warning: the foo is bar."
 
 
      ---
-*Last updated: 2019-08-17T16:52:32-04:00.*
+*Last updated: 2019-08-17T17:25:31-04:00.*
