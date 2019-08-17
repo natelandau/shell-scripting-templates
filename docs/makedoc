@@ -140,7 +140,7 @@ main() {
     ! bfl::is_empty "${func_examples}" && body+="${func_examples}\\n"
   done
 
-  printf  "%b\\n\\n     ---\\n%b" \
+  printf  "%b\\n\\n%b\\n%b---\\n%b" \
     "${header}" \
     "${toc}" \
     "${body}" \

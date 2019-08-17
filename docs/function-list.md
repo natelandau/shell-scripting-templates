@@ -2,7 +2,6 @@
 
 ## Function List
 
-     ---
 * [bfl::declare_global_display_constants](#bfl_declare_global_display_constants)
 * [bfl::die](#bfl_die)
 * [bfl::echo_args](#bfl_echo_args)
@@ -26,6 +25,7 @@
 * [bfl::verify_arg_count](#bfl_verify_arg_count)
 * [bfl::verify_dependencies](#bfl_verify_dependencies)
 * [bfl::warn](#bfl_warn)
+
 <a id="bfl_declare_global_display_constants"></a>
 
 ## bfl::declare_global_display_constants
@@ -606,7 +606,5 @@ string $msg (optional)
 bfl::warn "Warning: the foo is bar."
 ```
 
-
-
-     ---
-*Last updated: 2019-08-17T17:25:31-04:00.*
+---
+*Last updated: 2019-08-17T19:23:42-04:00.*
