@@ -28,7 +28,7 @@ bfl::repeat() {
   declare str_repeated
 
   if ! bfl::is_integer "${multiplier}"; then
-    bfl::die "Error: \$multiplier is not a positive integer."
+    bfl::die "Error: multiplier is not a positive integer."
   fi
 
   # Create a string of spaces that is $multiplier long.
