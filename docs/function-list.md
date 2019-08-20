@@ -13,6 +13,7 @@
 * [bfl::get_file_name_without_extension](#bfl_get_file_name_without_extension)
 * [bfl::get_file_path](#bfl_get_file_path)
 * [bfl::implode](#bfl_implode)
+* [bfl::is_blank](#bfl_is_blank)
 * [bfl::is_empty](#bfl_is_empty)
 * [bfl::is_integer](#bfl_is_integer)
 * [bfl::repeat](#bfl_repeat)
@@ -353,16 +354,33 @@ string $imploded_string
 bfl::implode "," "foo" "bar" "baz"
 ```
 
+<a id="bfl_is_blank"></a>
+
+## bfl::is_blank
+
+Checks if a string is whitespace, empty (""), or null.
+
+#### Parameter
+
+string $str
+>The string to check.
+
+#### Example
+
+```bash
+bfl::is_blank "foo"
+```
+
 <a id="bfl_is_empty"></a>
 
 ## bfl::is_empty
 
-Determines if the argument is empty.
+Checks if a string is empty ("") or null.
 
 #### Parameter
 
-string $argument
->The value to be tested.
+string $str
+>The string to check.
 
 #### Example
 
@@ -607,4 +625,4 @@ bfl::warn "Warning: the foo is bar."
 ```
 
 ---
-*Last updated: 2019-08-18T09:25:20-04:00.*
+*Last updated: 2019-08-20T11:12:41-04:00.*
