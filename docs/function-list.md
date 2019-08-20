@@ -12,10 +12,10 @@
 * [bfl::get_file_name](#bfl_get_file_name)
 * [bfl::get_file_name_without_extension](#bfl_get_file_name_without_extension)
 * [bfl::get_file_path](#bfl_get_file_path)
-* [bfl::implode](#bfl_implode)
 * [bfl::is_blank](#bfl_is_blank)
 * [bfl::is_empty](#bfl_is_empty)
 * [bfl::is_integer](#bfl_is_integer)
+* [bfl::join](#bfl_join)
 * [bfl::repeat](#bfl_repeat)
 * [bfl::send_mail_msg](#bfl_send_mail_msg)
 * [bfl::send_sms_msg](#bfl_send_sms_msg)
@@ -329,31 +329,6 @@ string $canonical_file_path
 bfl::get_file_path "./foo/bar.text"
 ```
 
-<a id="bfl_implode"></a>
-
-## bfl::implode
-
-Combines multiple strings into a single string, separated by another string.
-
-#### Parameters
-
-string $glue
->The character or characters that will be used to glue the strings together.
-
-array $piece
->One dimensional array of strings to be combined.
-
-#### Return
-
-string $imploded_string
->Example: "This is,a,test."
-
-#### Example
-
-```bash
-bfl::implode "," "foo" "bar" "baz"
-```
-
 <a id="bfl_is_blank"></a>
 
 ## bfl::is_blank
@@ -403,6 +378,31 @@ string $value_to_test
 
 ```bash
 bfl::is_integer "8675309"
+```
+
+<a id="bfl_join"></a>
+
+## bfl::join
+
+Joins multiple strings into a single string, separated by another string.
+
+#### Parameters
+
+string $glue
+>The character or characters that will be used to glue the strings together.
+
+array $pieces
+>The array of strings to be combined.
+
+#### Return
+
+string $joined_string
+>Example: "This is,a,test."
+
+#### Example
+
+```bash
+bfl::join "," "foo" "bar" "baz"
 ```
 
 <a id="bfl_repeat"></a>
@@ -625,4 +625,4 @@ bfl::warn "Warning: the foo is bar."
 ```
 
 ---
-*Last updated: 2019-08-20T11:12:41-04:00.*
+*Last updated: 2019-08-20T12:54:19-04:00.*

@@ -16,7 +16,7 @@
 #   This is a one dimensional array. Each element is a pipe delimited list
 #   of three values in this sequence:
 #
-#   1. Function to test (example: bfl::implode)
+#   1. Function to test (example: bfl::join)
 #   2. Parameters to pass to function (example, "1" "2" "3")
 #   3. Expected return code (example: 0)
 #------------------------------------------------------------------------------
@@ -81,15 +81,15 @@ declare_assertions() {
     'bfl::generate_password|"8"|0'
     'bfl::generate_password|"9"|0'
     'bfl::generate_password|"32"|0'
-    'bfl::implode|"," "This is" "a" "test."|0'
-    'bfl::implode|"," "Foo"|0'
-    'bfl::implode|"" "Foo"|0'
-    'bfl::implode|"" "" ""|0'
-    'bfl::implode|"," ""|0'
-    'bfl::implode|"," "" ""|0'
-    'bfl::implode|"" ""|0'
-    'bfl::implode|","|1'
-    'bfl::implode||1'
+    'bfl::join|"," "This is" "a" "test."|0'
+    'bfl::join|"," "Foo"|0'
+    'bfl::join|"" "Foo"|0'
+    'bfl::join|"" "" ""|0'
+    'bfl::join|"," ""|0'
+    'bfl::join|"," "" ""|0'
+    'bfl::join|"" ""|0'
+    'bfl::join|","|1'
+    'bfl::join||1'
     'bfl::is_blank||1'
     'bfl::is_blank|"asd"|1'
     'bfl::is_blank|""|0'

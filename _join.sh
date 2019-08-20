@@ -2,28 +2,28 @@
 
 #------------------------------------------------------------------------------
 # @file
-# Defines function: bfl::implode().
+# Defines function: bfl::join().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # @function
-# Combines multiple strings into a single string, separated by another string.
+# Joins multiple strings into a single string, separated by another string.
 #
 # This function will accept an unlimited number of arguments.
-# Example: bfl::implode "," "foo" "bar" "baz"
+# Example: bfl::join "," "foo" "bar" "baz"
 #
 # @param string $glue
 #   The character or characters that will be used to glue the strings together.
-# @param array $piece
-#   One dimensional array of strings to be combined.
+# @param array $pieces
+#   The array of strings to be combined.
 #
-# @return string $imploded_string
+# @return string $joined_string
 #   Example: "This is,a,test."
 #
 # @example
-#   bfl::implode "," "foo" "bar" "baz"
+#   bfl::join "," "foo" "bar" "baz"
 #-----------------------------------------------------------------------------
-bfl::implode() {
+bfl::join() {
   bfl::verify_arg_count "$#" 2 999 || exit 1
 
   declare -r glue="$1"
@@ -33,16 +33,16 @@ bfl::implode() {
 
   # Create the pieces array from the remaining positional parameters.
   declare -a pieces=("$@")
-  declare imploded_string
+  declare joined_string
 
   while (( "${#pieces[@]}" )); do
     if [[ "${#pieces[@]}" -eq "1" ]]; then
-      imploded_string+=$(printf "%s\\n" "${pieces[0]}") || bfl::die
+      joined_string+=$(printf "%s\\n" "${pieces[0]}") || bfl::die
     else
-      imploded_string+=$(printf "%s%s" "${pieces[0]}" "${glue}") || bfl::die
+      joined_string+=$(printf "%s%s" "${pieces[0]}" "${glue}") || bfl::die
     fi
     pieces=("${pieces[@]:1}")   # Shift the first element off of the array.
   done
 
-  printf "%s" "${imploded_string}"
+  printf "%s" "${joined_string}"
 }
