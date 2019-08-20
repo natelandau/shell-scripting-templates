@@ -7,21 +7,21 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Determines if the argument is empty.
+# Checks if a string is empty ("") or null.
 #
-# @param string $argument
-#   The value to be tested.
+# @param string $str
+#   The string to check.
 #
 # @example
 #   bfl::is_empty "foo"
 #------------------------------------------------------------------------------
-#
 bfl::is_empty() {
+  # Verify argument count.
   bfl::verify_arg_count "$#" 1 1 || exit 1
 
-  declare -r argument="$1"
+  # Declare positional arguments (readonly, sorted by position).
+  declare -r str="$1"
 
-  if [[ -n "${argument}" ]] ; then
-    return 1
-  fi
+  # Check the string.
+  [[ -z "${str}" ]] || return 1
 }

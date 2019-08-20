@@ -597,7 +597,7 @@ Prints warning message to stdout.
 
 #### Parameter
 
-string $msg (optional)
+string $msg
 >The warning message.
 
 #### Example
@@ -607,4 +607,4 @@ bfl::warn "Warning: the foo is bar."
 ```
 
 ---
-*Last updated: 2019-08-17T19:23:42-04:00.*
+*Last updated: 2019-08-18T09:25:20-04:00.*
