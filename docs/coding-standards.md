@@ -116,6 +116,6 @@ From the [example function](../examples/_introduce.sh):
 #   a) Use "declare -g foo" syntax.
 #   b) Include a @return declaration in the function header. For example:
 #
-#   @return string $foo (global)
+#   @return global string $foo
 #     The foo, which can either be "bar" or "baz".
 ```
