@@ -25,18 +25,18 @@ bfl::time_convert_s_to_hhmmss() {
   declare hhmmss
 
   if bfl::is_empty "${seconds}"; then
-    bfl::die "Error: expected an integer, received an empty string."
+    bfl::die "Expected an integer, received an empty string."
   fi
 
   if ! bfl::is_integer "${seconds}"; then
-    bfl::die "Error: expected an integer, received ${seconds}."
+    bfl::die "Expected an integer, received ${seconds}."
   fi
 
   hhmmss=$(printf '%02d:%02d:%02d\n' \
     $((seconds/3600)) \
     $((seconds%3600/60)) \
     $((seconds%60))) \
-    || bfl::die "Error: unable to convert ${seconds} to hh:mm:ss format."
+    || bfl::die "Unable to convert ${seconds} to hh:mm:ss format."
 
   printf "%s" "${hhmmss}"
 }

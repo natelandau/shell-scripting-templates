@@ -40,15 +40,15 @@ bfl::generate_password() {
   declare password
 
   if bfl::is_empty "${password_length}"; then
-    bfl::die "Error: the password length was not specified."
+    bfl::die "The password length was not specified."
   fi
 
   if ! bfl::is_integer "${password_length}"; then
-    bfl::die "Error: the password length must be an integer."
+    bfl::die "The password length must be an integer."
   fi
 
   if [[ "${password_length}" -lt "8" ]]; then
-    bfl::die "Error: the password length must be 8 or more characters."
+    bfl::die "The password length must be 8 or more characters."
   fi
 
   length_one=$(shuf -i 1-$((password_length-2)) -n 1) || bfl::die

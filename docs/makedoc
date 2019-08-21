@@ -35,7 +35,7 @@ EOT
 main() {
   # Source the Bash Function Library.
   if ! source "${BASH_FUNCTION_LIBRARY}"; then
-    printf "Error: unable to source BASH_FUNCTION_LIBRARY.\\n"
+    printf "Error. Unable to source BASH_FUNCTION_LIBRARY.\\n" 1>&2
     exit 1
   fi
 
@@ -82,13 +82,13 @@ main() {
 
     # Find the function name (one line).
     func_name=$(grep -Eo -m1 "bfl::.+" "${file}" | sed 's/().*//') \
-      || bfl::die "Error: unable to find function name"
+      || bfl::die "Unable to find function name"
 
     # Find the function description (one entry).
     func_summary=$(grep -A1 "@function" "${file}" | \
       tail -n1 | \
       sed 's/^# *//') \
-      || bfl::die "Error: unable to find function description."
+      || bfl::die "Unable to find function description."
 
     # The sed command to format @param and @return entries:
     #

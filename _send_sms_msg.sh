@@ -27,16 +27,16 @@ bfl::send_sms_msg() {
   declare error_msg
 
    if bfl::is_empty "${phone_number}"; then
-    bfl::die "Error: the recipient's phone number was not specified."
+    bfl::die "The recipient's phone number was not specified."
   fi
 
   if bfl::is_empty "${message}"; then
-    bfl::die "Error: the message was not specified."
+    bfl::die "The message was not specified."
   fi
 
   # Make sure phone number is properly formatted.
   if [[ ! "${phone_number}" =~ ${phone_number_regex} ]]; then
-    error_msg="Error: the recipient's phone number is improperly formatted.\\n"
+    error_msg="The recipient's phone number is improperly formatted.\\n"
     error_msg+="Expected a plus sign followed by six or more digits, "
     error_msg+="received ${phone_number}."
     bfl::die "${error_msg}"

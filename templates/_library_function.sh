@@ -45,8 +45,8 @@ bfl::library_function() {
   declare ham="Seamus" # TODO
 
   # Verify argument values.
-  bfl::is_empty "$foo" && bfl::die "Error: foo is required." # TODO
-  bfl::is_empty "$bar" && bfl::die "Error: bar is required." # TODO
+  bfl::is_empty "$foo" && bfl::die "Foo is required." # TODO
+  bfl::is_empty "$bar" && bfl::die "Bar is required." # TODO
 
   # Build the return value.
   baz="${foo}, ${bar}, ${wibble}, ${wobble}, ${eggs}, and ${ham}." # TODO

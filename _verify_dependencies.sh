@@ -23,7 +23,7 @@ bfl::verify_dependencies() {
 
   for app in "${apps[@]}"; do
     if ! hash "${app}" 2> /dev/null; then
-      bfl::die "Error: ${app} is not installed."
+       bfl::die "${app} is not installed."
     fi
   done
 }

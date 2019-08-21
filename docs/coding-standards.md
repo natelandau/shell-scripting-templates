@@ -101,7 +101,7 @@ From the [example function](../examples/_introduce.sh):
 # For example, to capture the "return" value of this function from a script:
 #
 #   introduction=$(bfl::introduce "John" "25") \
-#     || bfl::die "Error: unable to create introduction."
+#     || bfl::die "Unable to create introduction."
 #
 # Note that we test the exit status of the command substitution, and in this
 # case call bfl::die with an error message upon failure.

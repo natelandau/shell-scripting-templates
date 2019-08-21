@@ -59,7 +59,7 @@ printf "%s\\n" "${BASH_FUNCTION_LIBRARY}"
 if source "${BASH_FUNCTION_LIBRARY}"; then
   printf "%s\\n" "$(bfl::repeat "=" "40")"
 else
-  printf "Error: unable to source BASH_FUNCTION_LIBRARY.\\n"
+  printf "Error. Unable to source BASH_FUNCTION_LIBRARY.\\n" 1>&2
 fi
 ```
 

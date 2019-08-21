@@ -32,11 +32,11 @@ bfl::urlencode() {
   declare str_encoded
 
   # Verify argument values.
-  bfl::is_empty "$str" && bfl::die "Error: empty string."
+  bfl::is_empty "$str" && bfl::die "Empty string."
 
   # Build the return value.
   str_encoded=$(jq -Rr @uri <<< "${str}") \
-    || bfl::die "Error: unable to URL encode the string."
+    || bfl::die "Unable to URL encode the string."
 
   # Print the return value.
   printf "%s\\n" "${str_encoded}"

@@ -57,7 +57,7 @@ cleanup() {
 main() {
   # Source the Bash Function Library.
   if ! source "${BASH_FUNCTION_LIBRARY}"; then
-    printf "Error: unable to source BASH_FUNCTION_LIBRARY.\\n"
+    printf "Error. Unable to source BASH_FUNCTION_LIBRARY.\\n" 1>&2
     exit 1
   fi
 
@@ -83,8 +83,8 @@ main() {
   declare ham="Seamus" # TODO
 
   # Verify argument values.
-  bfl::is_empty "$foo" && bfl::die "Error: foo is required." # TODO
-  bfl::is_empty "$bar" && bfl::die "Error: bar is required." # TODO
+  bfl::is_empty "$foo" && bfl::die "Foo is required." # TODO
+  bfl::is_empty "$bar" && bfl::die "Bar is required." # TODO
 
   # TODO
   printf "%s\\n" "${foo}, ${bar}, ${wibble}, ${wobble}, ${eggs}, and ${ham}."

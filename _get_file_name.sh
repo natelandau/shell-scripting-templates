@@ -26,7 +26,7 @@ bfl::get_file_name() {
   declare file_name
 
   if bfl::is_empty "${path}"; then
-    bfl::die "Error: the path was not specified."
+    bfl::die "The path was not specified."
   fi
 
   canonical_file_path=$(bfl::get_file_path "${path}") || bfl::die

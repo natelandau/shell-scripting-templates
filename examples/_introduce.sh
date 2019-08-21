@@ -58,7 +58,7 @@
 # For example, to capture the "return" value of this function from a script:
 #
 #   introduction=$(bfl::introduce "John" "25") \
-#     || bfl::die "Error: unable to create introduction."
+#     || bfl::die "Unable to create introduction."
 #
 # Note that we test the exit status of the command substitution, and in this
 # case call bfl::die with an error message upon failure.
@@ -155,9 +155,9 @@ bfl::introduce() {
   :
 
   # Verify argument values.
-  bfl::is_empty "$name" && bfl::die "Error: name is required."
-  bfl::is_empty "$age" && bfl::die "Error: age is required."
-  bfl::is_integer "$age" || bfl::die "Error: age must be a positive integer."
+  bfl::is_empty "$name" && bfl::die "Name is required."
+  bfl::is_empty "$age" && bfl::die "Age is required."
+  bfl::is_integer "$age" || bfl::die "Age must be a positive integer."
 
   # Build the return value.
   introduction="${const1} ${name}. ${const2} ${age} ${const3}."

@@ -25,17 +25,17 @@ bfl::get_file_path() {
   declare canonical_file_path
 
   if bfl::is_empty "${path}"; then
-    bfl::die "Error: the path was not specified."
+    bfl::die "The path was not specified."
   fi
 
   # Verify that the path exists.
   if ! canonical_file_path=$(readlink -e "${path}"); then
-    bfl::die "Error: ${path} does not exist."
+    bfl::die "${path} does not exist."
   fi
 
   # Verify that the path points to a file, not a directory.
   if [[ ! -f "${canonical_file_path}" ]]; then
-    bfl::die "Error: ${canonical_file_path} is not a file."
+    bfl::die "${canonical_file_path} is not a file."
   fi
 
   printf "%s" "${canonical_file_path}"

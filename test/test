@@ -205,10 +205,10 @@ assert() {
 
   # Test for empty strings.
   if bfl::is_empty "${function_to_test}"; then
-    bfl::die "Error: \$function_to_test is a an empty string."
+    bfl::die "\$function_to_test is a an empty string."
   fi
   if bfl::is_empty "${expected_return_code}"; then
-    bfl::die "Error: \$expected_return_code is a an empty string."
+    bfl::die "\$expected_return_code is a an empty string."
   fi
 
   # Run the command. The command is run in a subshell (command substitution);
@@ -242,7 +242,7 @@ assert() {
 #------------------------------------------------------------------------------
 main() {
   if ! source "${BASH_FUNCTION_LIBRARY}"; then
-    printf "Error: unable to source BASH_FUNCTION_LIBRARY.\\n"
+    printf "Error. Unable to source BASH_FUNCTION_LIBRARY.\\n" 1>&2
     exit 1
   fi
 

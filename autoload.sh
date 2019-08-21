@@ -53,7 +53,7 @@
 # Then, at the top of each new script add:
 #
 #   if ! source "${BASH_FUNCTION_LIBRARY}"; then
-#     printf "Error: unable to source BASH_FUNCTION_LIBRARY.\\n"
+#     printf "Error. Unable to source BASH_FUNCTION_LIBRARY.\\n" 1>&2
 #     exit 1
 #   fi
 #

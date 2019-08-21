@@ -35,7 +35,7 @@ bfl::trim() {
 
   str_trimmed=$(printf "%b" "${str}" | \
     sed -E 's/^[[:space:]]+// ; s/[[:space:]]+$// ; /./,$ !d') \
-    || bfl::die "Error: unable to trim whitespace."
+    || bfl::die "Unable to trim whitespace."
 
   printf "%s" "${str_trimmed}"
 }

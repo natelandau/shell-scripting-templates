@@ -17,7 +17,7 @@ Upon error, all library functions except `bfl::verify_arg_count` call `bfl::die`
 ```bash
 bfl::foo () {
   if [[ ! -f "${file}" ]]; then
-    bfl::die "Error: ${file} does not exist."
+    bfl::die "${file} does not exist."
   fi
 }
 ```
@@ -55,8 +55,8 @@ bfl::foo "bar"
 3\) Always test the exit status when performing command substitution. For example:
 
 ```bash
-var=$(bfl::foo "bar") || bfl::die "Error: unable to foo the bar."
-var=$(pwd) || bfl::die "Error: unable to determine working directory."
+var=$(bfl::foo "bar") || bfl::die "Unable to foo the bar."
+var=$(pwd) || bfl::die "Unable to determine working directory."
 ```
 
 4\) Logical library functions such as `bfl::is_empty` and `bfl::is_integer` have an exit status of 0 if true, 1 if false. By definition you will always test the exit status, either explicitly or implicitly, when using logical library functions. For example:

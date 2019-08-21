@@ -189,7 +189,7 @@ bfl::declare_ansi_escape_sequences
 
 ## bfl::die
 
-Prints error message to stderr and exits with status code 1.
+Prints an error message to stderr and exits with status code 1.
 
 #### Parameter
 
@@ -199,7 +199,7 @@ string $msg (optional)
 #### Example
 
 ```bash
-bfl::error "Error: the foo is bar."
+bfl::error "The foo is bar."
 ```
 
 <a id="bfl_echo_args"></a>
@@ -658,7 +658,7 @@ bfl::verify_dependencies "curl" "wget" "git"
 
 ## bfl::warn
 
-Prints warning message to stdout.
+Prints a warning message to stdout.
 
 #### Parameter
 
@@ -668,8 +668,8 @@ string $msg
 #### Example
 
 ```bash
-bfl::warn "Warning: the foo is bar."
+bfl::warn "The foo is bar."
 ```
 
 ---
-*Last updated: 2019-08-20T20:30:59-04:00.*
+*Last updated: 2019-08-20T21:45:01-04:00.*

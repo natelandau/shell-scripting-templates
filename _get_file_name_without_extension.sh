@@ -26,7 +26,7 @@ bfl::get_file_name_without_extension() {
   declare file_name_without_extension
 
   if bfl::is_empty "${path}"; then
-    bfl::die "Error: the path was not specified."
+    bfl::die "The path was not specified."
   fi
 
   file_name="$(bfl::get_file_name "$1")" || bfl::die

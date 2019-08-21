@@ -45,15 +45,15 @@ bfl::send_mail_msg() {
   declare message
 
   bfl::is_empty "${to}" \
-    && bfl::die "Error: the message recipient was not specified."
+    && bfl::die "The message recipient was not specified."
   bfl::is_empty "${from}" \
-    && bfl::die "Error: the message sender was not specified."
+    && bfl::die "The message sender was not specified."
   bfl::is_empty "${envelope_from}" \
-    && bfl::die "Error: the envelope sender address was not specified."
+    && bfl::die "The envelope sender address was not specified."
   bfl::is_empty "${subject}" \
-    && bfl::die "Error: the message subject was not specified."
+    && bfl::die "The message subject was not specified."
   bfl::is_empty "${body}" \
-    && bfl::die "Error: the message body was not specified."
+    && bfl::die "The message body was not specified."
 
   # Format the message.
   message=$(printf "To: %s\\nFrom: %s\\nSubject: %s\\n\\n%b" \

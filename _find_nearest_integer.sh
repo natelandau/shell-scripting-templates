@@ -24,11 +24,11 @@ bfl::find_nearest_integer() {
   bfl::verify_arg_count "$#" 2 2 || exit 1
 
   if ! bfl::is_integer "$1"; then
-    bfl::die "Error: expected integer, received $1"
+    bfl::die "Expected integer, received $1"
   fi
 
   if bfl::is_empty "$2"; then
-    bfl::die "Error: expected list, received empty string"
+    bfl::die "Expected list, received empty string"
   fi
 
   declare -r target="$1"
@@ -39,7 +39,7 @@ bfl::find_nearest_integer() {
 
   for item in "${list[@]}"; do
     if ! bfl::is_integer "${item}"; then
-      bfl::die "Error: expected integer, received ${item}"
+      bfl::die "Expected integer, received ${item}"
     fi
     diff=$((target-item)) || bfl::die
     abs_diff=${diff/-/}

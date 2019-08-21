@@ -32,7 +32,7 @@
 bfl::verify_arg_count() {
   # Verify argument count.
   if [[ "$#" -ne "3" ]]; then
-    bfl::die "Error: invalid number of arguments. Expected 3, received $#."
+    bfl::die "Invalid number of arguments. Expected 3, received $#."
   fi
   declare -r actual_arg_count="$1"
   declare -r expected_arg_count_min="$2"
@@ -42,22 +42,22 @@ bfl::verify_arg_count() {
 
   # Make sure all of the arguments are integers.
   if ! [[ "${actual_arg_count}" =~ ${regex} ]] ; then
-    bfl::die "Error: \"${actual_arg_count}\" is not an integer."
+    bfl::die "\"${actual_arg_count}\" is not an integer."
   fi
   if ! [[ "${expected_arg_count_min}" =~ ${regex} ]] ; then
-    bfl::die "Error: \"${expected_arg_count_min}\" is not an integer."
+    bfl::die "\"${expected_arg_count_min}\" is not an integer."
   fi
   if ! [[ "${expected_arg_count_max}" =~ ${regex} ]] ; then
-    bfl::die "Error: \"${expected_arg_count_max}\" is not an integer."
+    bfl::die "\"${expected_arg_count_max}\" is not an integer."
   fi
 
   # Test.
   if [[ "${actual_arg_count}" -lt "${expected_arg_count_min}" || \
         "${actual_arg_count}" -gt "${expected_arg_count_max}" ]]; then
-    error_msg="Error: invalid number of arguments. Expected between "
+    error_msg="Invalid number of arguments. Expected between "
     error_msg+="${expected_arg_count_min} and ${expected_arg_count_max}, "
     error_msg+="received ${actual_arg_count}."
-    echo -e "${red}${error_msg}${reset}" >&2
+    printf "%b\\n" "${red}Error. ${error_msg}${reset}" 1>&2
     return 1
   fi
 }
