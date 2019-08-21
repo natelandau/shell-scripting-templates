@@ -2,7 +2,7 @@
 
 ## Function List
 
-* [bfl::declare_global_display_constants](#bfl_declare_global_display_constants)
+* [bfl::declare_ansi_escape_sequences](#bfl_declare_ansi_escape_sequences)
 * [bfl::die](#bfl_die)
 * [bfl::echo_args](#bfl_echo_args)
 * [bfl::find_nearest_integer](#bfl_find_nearest_integer)
@@ -27,115 +27,162 @@
 * [bfl::verify_dependencies](#bfl_verify_dependencies)
 * [bfl::warn](#bfl_warn)
 
-<a id="bfl_declare_global_display_constants"></a>
+<a id="bfl_declare_ansi_escape_sequences"></a>
 
-## bfl::declare_global_display_constants
+## bfl::declare_ansi_escape_sequences
 
 Declares global display constants.
 
 #### Returns
 
-string $black (global)
+global string $black
+>ANSI escape sequence for black.
 
-string $black_bold (global)
+global string $black_bold
+>ANSI escape sequence for black + bold.
 
-string $black_faint (global)
+global string $black_faint
+>ANSI escape sequence for black + faint.
 
-string $black_underline (global)
+global string $black_underline
+>ANSI escape sequence for black + underline.
 
-string $black_blink (global)
+global string $black_blink
+>ANSI escape sequence for black + blink.
 
-string $black_reverse (global)
+global string $black_reverse
+>ANSI escape sequence for black + reverse.
 
-string $red (global)
+global string $red
+>ANSI escape sequence for red.
 
-string $red_bold (global)
+global string $red_bold
+>ANSI escape sequence for red + bold.
 
-string $red_faint (global)
+global string $red_faint
+>ANSI escape sequence for red + faint.
 
-string $red_underline (global)
+global string $red_underline
+>ANSI escape sequence for red + underline.
 
-string $red_blink (global)
+global string $red_blink
+>ANSI escape sequence for red + blink.
 
-string $red_reverse (global)
+global string $red_reverse
+>ANSI escape sequence for red + reverse.
 
-string $green (global)
+global string $green
+>ANSI escape sequence for green.
 
-string $green_bold (global)
+global string $green_bold
+>ANSI escape sequence for green + bold.
 
-string $green_faint (global)
+global string $green_faint
+>ANSI escape sequence for green + faint.
 
-string $green_underline (global)
+global string $green_underline
+>ANSI escape sequence for green + underline.
 
-string $green_blink (global)
+global string $green_blink
+>ANSI escape sequence for green + blink.
 
-string $green_reverse (global)
+global string $green_reverse
+>ANSI escape sequence for green + reverse.
 
-string $yellow (global)
+global string $yellow
+>ANSI escape sequence for yellow.
 
-string $yellow_bold (global)
+global string $yellow_bold
+>ANSI escape sequence for yellow + bold.
 
-string $yellow_faint (global)
+global string $yellow_faint
+>ANSI escape sequence for yellow + faint.
 
-string $yellow_underline (global)
+global string $yellow_underline
+>ANSI escape sequence for yellow + underline.
 
-string $yellow_blink (global)
+global string $yellow_blink
+>ANSI escape sequence for yellow + blink.
 
-string $yellow_reverse (global)
+global string $yellow_reverse
+>ANSI escape sequence for yellow + reverse.
 
-string $blue (global)
+global string $blue
+>ANSI escape sequence for blue.
 
-string $blue_bold (global)
+global string $blue_bold
+>ANSI escape sequence for blue + bold.
 
-string $blue_faint (global)
+global string $blue_faint
+>ANSI escape sequence for blue + faint.
 
-string $blue_underline (global)
+global string $blue_underline
+>ANSI escape sequence for blue + underline.
 
-string $blue_blink (global)
+global string $blue_blink
+>ANSI escape sequence for blue + blink.
 
-string $blue_reverse (global)
+global string $blue_reverse
+>ANSI escape sequence for blue + reverse.
 
-string $magenta (global)
+global string $magenta
+>ANSI escape sequence for magenta.
 
-string $magenta_bold (global)
+global string $magenta_bold
+>ANSI escape sequence for magenta + bold.
 
-string $magenta_faint (global)
+global string $magenta_faint
+>ANSI escape sequence for magenta + faint.
 
-string $magenta_underline (global)
+global string $magenta_underline
+>ANSI escape sequence for magenta + underline.
 
-string $magenta_blink (global)
+global string $magenta_blink
+>ANSI escape sequence for magenta + blink.
 
-string $magenta_reverse (global)
+global string $magenta_reverse
+>ANSI escape sequence for magenta + reverse.
 
-string $cyan (global)
+global string $cyan
+>ANSI escape sequence for cyan.
 
-string $cyan_bold (global)
+global string $cyan_bold
+>ANSI escape sequence for cyan + bold.
 
-string $cyan_faint (global)
+global string $cyan_faint
+>ANSI escape sequence for cyan + faint.
 
-string $cyan_underline (global)
+global string $cyan_underline
+>ANSI escape sequence for cyan + underline.
 
-string $cyan_blink (global)
+global string $cyan_blink
+>ANSI escape sequence for cyan + blink.
 
-string $cyan_reverse (global)
+global string $cyan_reverse
+>ANSI escape sequence for cyan + reverse.
 
-string $white (global)
+global string $white
+>ANSI escape sequence for white.
 
-string $white_bold (global)
+global string $white_bold
+>ANSI escape sequence for white + bold.
 
-string $white_faint (global)
+global string $white_faint
+>ANSI escape sequence for white + faint.
 
-string $white_underline (global)
+global string $white_underline
+>ANSI escape sequence for white + underline.
 
-string $white_blink (global)
+global string $white_blink
+>ANSI escape sequence for white + blink.
 
-string $white_reverse (global)
->
+global string $white_reverse
+>ANSI escape sequence for white + reverse.
 
 #### Example
 
 ```bash
-bfl::declare_global_display_constants
+bfl::declare_ansi_escape_sequences
 ```
 
 <a id="bfl_die"></a>
@@ -625,4 +672,4 @@ bfl::warn "Warning: the foo is bar."
 ```
 
 ---
-*Last updated: 2019-08-20T12:54:19-04:00.*
+*Last updated: 2019-08-20T20:30:59-04:00.*

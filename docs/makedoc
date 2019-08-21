@@ -40,7 +40,7 @@ main() {
   fi
 
   # Declare global display constants.
-  bfl::declare_global_display_constants
+  bfl::declare_ansi_escape_sequences
 
   # Verify argument count.
   bfl::verify_arg_count "$#" 0 0 || usage

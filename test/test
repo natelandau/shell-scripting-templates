@@ -22,10 +22,10 @@
 #------------------------------------------------------------------------------
 declare_assertions() {
   declare -ga assertions=(
-    'bfl::declare_global_display_constants|"foo" "bar"|1'
-    'bfl::declare_global_display_constants|"foo"|1'
-    'bfl::declare_global_display_constants|""|1'
-    'bfl::declare_global_display_constants||0'
+    'bfl::declare_ansi_escape_sequences|"foo" "bar"|1'
+    'bfl::declare_ansi_escape_sequences|"foo"|1'
+    'bfl::declare_ansi_escape_sequences|""|1'
+    'bfl::declare_ansi_escape_sequences||0'
     'bfl::echo_args|"foo" "bar"|0'
     'bfl::echo_args|"foo"|0'
     'bfl::echo_args|""|0'
@@ -249,7 +249,7 @@ main() {
   # Declare assertions.
   declare_assertions
 
-  # We can't call bfl::declare_global_display_constants() because we might test it,
+  # We can't call bfl::declare_ansi_escape_sequences() because we might test it,
   # and the function declares read only constants. If we test the function,
   # it will attempt to reassign the read only constants, causing an error.
   # Instead, we'll declare the colors here.
