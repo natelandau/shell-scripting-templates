@@ -91,7 +91,7 @@ main() {
     || bfl::die "Unable to determine date."
   host=$(hostname) \
     || bfl::die "Unable to determine hostname ."
-  ip_address_private=$(hostname -I) \
+  ip_address_private=$(ip route get 1 | head -n1 | cut -d' ' -f7) \
     || bfl::die "Unable to determine private IP address."
   ip_address_public=$(curl -s --max-time 5 https://ipinfo.io/ip) \
     || bfl::die "Unable to determine public IP address."
