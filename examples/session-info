@@ -55,7 +55,7 @@ main() {
     exit 1
   fi
 
-  # Declare global display constants.
+  # Declare ANSI escape sequences.
   bfl::declare_ansi_escape_sequences
 
   # Verify argument count.
