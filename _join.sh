@@ -14,8 +14,8 @@
 #
 # @param string $glue
 #   The character or characters that will be used to glue the strings together.
-# @param array $pieces
-#   The array of strings to be combined.
+# @param list $pieces
+#   The list of strings to be combined.
 #
 # @return string $joined_string
 #   Example: "This is,a,test."
