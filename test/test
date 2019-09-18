@@ -26,10 +26,7 @@ declare_assertions() {
     'bfl::declare_ansi_escape_sequences|"foo"|1'
     'bfl::declare_ansi_escape_sequences|""|1'
     'bfl::declare_ansi_escape_sequences||0'
-    'bfl::echo_args|"foo" "bar"|0'
-    'bfl::echo_args|"foo"|0'
-    'bfl::echo_args|""|0'
-    'bfl::echo_args||1'
+
     'bfl::die||1'
     'bfl::die|""|1'
     'bfl::die|" "|1'
@@ -105,6 +102,10 @@ declare_assertions() {
     'bfl::is_integer|"foo"|1'
     'bfl::is_integer|"1" "2" "3"|1'
     'bfl::is_integer||1'
+
+    'bfl::print_args|"foo"|0'
+    'bfl::print_args|""|0'
+    'bfl::print_args||1'
     'bfl::send_mail_msg||1'
     'bfl::send_mail_msg|""|1'
     'bfl::send_mail_msg|"" ""|1'
