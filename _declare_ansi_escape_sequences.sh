@@ -7,7 +7,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Declares global display constants.
+# Declares ANSI escape sequences.
 #
 # These are ANSI escape sequences for controlling a VT100 terminal. Examples
 # for using these constants within a script:
