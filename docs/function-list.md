@@ -4,7 +4,6 @@
 
 * [bfl::declare_ansi_escape_sequences](#bfl_declare_ansi_escape_sequences)
 * [bfl::die](#bfl_die)
-* [bfl::echo_args](#bfl_echo_args)
 * [bfl::find_nearest_integer](#bfl_find_nearest_integer)
 * [bfl::generate_password](#bfl_generate_password)
 * [bfl::get_file_directory](#bfl_get_file_directory)
@@ -16,6 +15,7 @@
 * [bfl::is_empty](#bfl_is_empty)
 * [bfl::is_integer](#bfl_is_integer)
 * [bfl::join](#bfl_join)
+* [bfl::print_args](#bfl_print_args)
 * [bfl::repeat](#bfl_repeat)
 * [bfl::send_mail_msg](#bfl_send_mail_msg)
 * [bfl::send_sms_msg](#bfl_send_sms_msg)
@@ -31,7 +31,7 @@
 
 ## bfl::declare_ansi_escape_sequences
 
-Declares global display constants.
+Declares ANSI escape sequences.
 
 #### Returns
 
@@ -200,23 +200,6 @@ string $msg (optional)
 
 ```bash
 bfl::error "The foo is bar."
-```
-
-<a id="bfl_echo_args"></a>
-
-## bfl::echo_args
-
-Echoes the arguments passed to this function. This is a debugging tool.
-
-#### Parameter
-
-array $parameters
->One dimensional array of arguments passed to this function.
-
-#### Example
-
-```bash
-bfl::echo_args "foo" "bar" "baz"
 ```
 
 <a id="bfl_find_nearest_integer"></a>
@@ -438,8 +421,8 @@ Joins multiple strings into a single string, separated by another string.
 string $glue
 >The character or characters that will be used to glue the strings together.
 
-array $pieces
->The array of strings to be combined.
+list $pieces
+>The list of strings to be combined.
 
 #### Return
 
@@ -450,6 +433,23 @@ string $joined_string
 
 ```bash
 bfl::join "," "foo" "bar" "baz"
+```
+
+<a id="bfl_print_args"></a>
+
+## bfl::print_args
+
+Prints the arguments passed to this function.
+
+#### Parameter
+
+list $arguments
+>One or more arguments.
+
+#### Example
+
+```bash
+bfl::print_args "foo" "bar" "baz"
 ```
 
 <a id="bfl_repeat"></a>
@@ -672,4 +672,4 @@ bfl::warn "The foo is bar."
 ```
 
 ---
-*Last updated: 2019-08-20T21:45:01-04:00.*
+*Last updated: 2019-09-18T12:21:00-04:00.*
