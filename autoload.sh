@@ -66,7 +66,7 @@
 #
 # This will only source file names that begin with an underscore.
 #------------------------------------------------------------------------------
-autoload() {
+bfl::autoload() {
   declare autoload_cannonical_path   # Canonical path to this file.
   declare autoload_directory         # Directory in which this file resides.
   declare file
@@ -79,4 +79,4 @@ autoload() {
   done
 }
 
-autoload
+bfl::autoload
