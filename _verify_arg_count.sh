@@ -57,7 +57,7 @@ bfl::verify_arg_count() {
     error_msg="Invalid number of arguments. Expected between "
     error_msg+="${expected_arg_count_min} and ${expected_arg_count_max}, "
     error_msg+="received ${actual_arg_count}."
-    printf "%b\\n" "${red}Error. ${error_msg}${reset}" 1>&2
+    printf "%b\\n" "${bfl_aes_red}Error. ${error_msg}${bfl_aes_reset}" 1>&2
     return 1
   fi
 }

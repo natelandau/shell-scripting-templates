@@ -35,148 +35,148 @@ Declares ANSI escape sequences.
 
 #### Returns
 
-global string $black
+global string $bfl_aes_black
 >ANSI escape sequence for black.
 
-global string $black_bold
+global string $bfl_aes_black_bold
 >ANSI escape sequence for black + bold.
 
-global string $black_faint
+global string $bfl_aes_black_faint
 >ANSI escape sequence for black + faint.
 
-global string $black_underline
+global string $bfl_aes_black_underline
 >ANSI escape sequence for black + underline.
 
-global string $black_blink
+global string $bfl_aes_black_blink
 >ANSI escape sequence for black + blink.
 
-global string $black_reverse
+global string $bfl_aes_black_reverse
 >ANSI escape sequence for black + reverse.
 
-global string $red
+global string $bfl_aes_red
 >ANSI escape sequence for red.
 
-global string $red_bold
+global string $bfl_aes_red_bold
 >ANSI escape sequence for red + bold.
 
-global string $red_faint
+global string $bfl_aes_red_faint
 >ANSI escape sequence for red + faint.
 
-global string $red_underline
+global string $bfl_aes_red_underline
 >ANSI escape sequence for red + underline.
 
-global string $red_blink
+global string $bfl_aes_red_blink
 >ANSI escape sequence for red + blink.
 
-global string $red_reverse
+global string $bfl_aes_red_reverse
 >ANSI escape sequence for red + reverse.
 
-global string $green
+global string $bfl_aes_green
 >ANSI escape sequence for green.
 
-global string $green_bold
+global string $bfl_aes_green_bold
 >ANSI escape sequence for green + bold.
 
-global string $green_faint
+global string $bfl_aes_green_faint
 >ANSI escape sequence for green + faint.
 
-global string $green_underline
+global string $bfl_aes_green_underline
 >ANSI escape sequence for green + underline.
 
-global string $green_blink
+global string $bfl_aes_green_blink
 >ANSI escape sequence for green + blink.
 
-global string $green_reverse
+global string $bfl_aes_green_reverse
 >ANSI escape sequence for green + reverse.
 
-global string $yellow
+global string $bfl_aes_yellow
 >ANSI escape sequence for yellow.
 
-global string $yellow_bold
+global string $bfl_aes_yellow_bold
 >ANSI escape sequence for yellow + bold.
 
-global string $yellow_faint
+global string $bfl_aes_yellow_faint
 >ANSI escape sequence for yellow + faint.
 
-global string $yellow_underline
+global string $bfl_aes_yellow_underline
 >ANSI escape sequence for yellow + underline.
 
-global string $yellow_blink
+global string $bfl_aes_yellow_blink
 >ANSI escape sequence for yellow + blink.
 
-global string $yellow_reverse
+global string $bfl_aes_yellow_reverse
 >ANSI escape sequence for yellow + reverse.
 
-global string $blue
+global string $bfl_aes_blue
 >ANSI escape sequence for blue.
 
-global string $blue_bold
+global string $bfl_aes_blue_bold
 >ANSI escape sequence for blue + bold.
 
-global string $blue_faint
+global string $bfl_aes_blue_faint
 >ANSI escape sequence for blue + faint.
 
-global string $blue_underline
+global string $bfl_aes_blue_underline
 >ANSI escape sequence for blue + underline.
 
-global string $blue_blink
+global string $bfl_aes_blue_blink
 >ANSI escape sequence for blue + blink.
 
-global string $blue_reverse
+global string $bfl_aes_blue_reverse
 >ANSI escape sequence for blue + reverse.
 
-global string $magenta
+global string $bfl_aes_magenta
 >ANSI escape sequence for magenta.
 
-global string $magenta_bold
+global string $bfl_aes_magenta_bold
 >ANSI escape sequence for magenta + bold.
 
-global string $magenta_faint
+global string $bfl_aes_magenta_faint
 >ANSI escape sequence for magenta + faint.
 
-global string $magenta_underline
+global string $bfl_aes_magenta_underline
 >ANSI escape sequence for magenta + underline.
 
-global string $magenta_blink
+global string $bfl_aes_magenta_blink
 >ANSI escape sequence for magenta + blink.
 
-global string $magenta_reverse
+global string $bfl_aes_magenta_reverse
 >ANSI escape sequence for magenta + reverse.
 
-global string $cyan
+global string $bfl_aes_cyan
 >ANSI escape sequence for cyan.
 
-global string $cyan_bold
+global string $bfl_aes_cyan_bold
 >ANSI escape sequence for cyan + bold.
 
-global string $cyan_faint
+global string $bfl_aes_cyan_faint
 >ANSI escape sequence for cyan + faint.
 
-global string $cyan_underline
+global string $bfl_aes_cyan_underline
 >ANSI escape sequence for cyan + underline.
 
-global string $cyan_blink
+global string $bfl_aes_cyan_blink
 >ANSI escape sequence for cyan + blink.
 
-global string $cyan_reverse
+global string $bfl_aes_cyan_reverse
 >ANSI escape sequence for cyan + reverse.
 
-global string $white
+global string $bfl_aes_white
 >ANSI escape sequence for white.
 
-global string $white_bold
+global string $bfl_aes_white_bold
 >ANSI escape sequence for white + bold.
 
-global string $white_faint
+global string $bfl_aes_white_faint
 >ANSI escape sequence for white + faint.
 
-global string $white_underline
+global string $bfl_aes_white_underline
 >ANSI escape sequence for white + underline.
 
-global string $white_blink
+global string $bfl_aes_white_blink
 >ANSI escape sequence for white + blink.
 
-global string $white_reverse
+global string $bfl_aes_white_reverse
 >ANSI escape sequence for white + reverse.
 
 #### Example
@@ -672,4 +672,4 @@ bfl::warn "The foo is bar."
 ```
 
 ---
-*Last updated: 2019-09-18T12:21:00-04:00.*
+*Last updated: 2019-09-21T16:29:52-04:00.*

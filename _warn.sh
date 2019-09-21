@@ -30,5 +30,5 @@ bfl::warn() {
   bfl::is_blank "$msg" && bfl::die "A warning message was not specified."
 
   # Print the message.
-  printf "%b\\n" "${yellow}Warning. ${msg}${reset}"
+  printf "%b\\n" "${bfl_aes_yellow}Warning. ${msg}${bfl_aes_reset}"
 }

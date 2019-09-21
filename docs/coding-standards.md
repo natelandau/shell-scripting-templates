@@ -53,7 +53,7 @@ Guide](https://google.github.io/styleguide/shell.xml).
 
 #### General
 
-* Library function names must begin with `bfl::`.
+* Library function names must begin with `bfl::` to avoid namespace collisions.
 * The file name must begin with an underscore.
 * The file name must end with `.sh`.
 * The file name must match the function name. For example, if the function is
@@ -63,6 +63,8 @@ Guide](https://google.github.io/styleguide/shell.xml).
 * If you create a library function named `bfl::foo`, and you need a helper
   function `bar` within the same file, name the helper function `bfl::foo::bar`
   to avoid naming collisions.
+* Global variables defined within library functions must begin with `bfl_` to
+  avoid namespace collisions.
 
 #### Housekeeping Sequence
 

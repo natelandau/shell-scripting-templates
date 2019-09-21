@@ -9,8 +9,9 @@
 # @function
 # Declares assertions.
 #
-# It is not possible to perform assertion testing on the assert() function
-# itself.
+# Do not create any assertions for bfl::declare_ansi_escape_sequences because
+# the function declares readonly variables. Each assertion would fail due to
+# attempted assignments of readonly variables.
 #
 # @return global array $assertions
 #   This is a one dimensional array. Each element is a pipe delimited list
@@ -22,11 +23,6 @@
 #------------------------------------------------------------------------------
 declare_assertions() {
   declare -ga assertions=(
-    'bfl::declare_ansi_escape_sequences|"foo" "bar"|1'
-    'bfl::declare_ansi_escape_sequences|"foo"|1'
-    'bfl::declare_ansi_escape_sequences|""|1'
-    'bfl::declare_ansi_escape_sequences||0'
-
     'bfl::die||1'
     'bfl::die|""|1'
     'bfl::die|" "|1'
@@ -55,16 +51,16 @@ declare_assertions() {
     'bfl::get_file_extension|"a" "b"|1'
     'bfl::get_file_extension|"/tmp/non-existent-file.ext"|1'
     'bfl::get_file_extension|"/etc/host.conf"|0'
-    'bfl::get_file_name||1'
-    'bfl::get_file_name|""|1'
-    'bfl::get_file_name|"a" "b"|1'
-    'bfl::get_file_name|"/tmp/non-existent-file.ext"|1'
-    'bfl::get_file_name|"/etc/host.conf"|0'
     'bfl::get_file_name_without_extension||1'
     'bfl::get_file_name_without_extension|""|1'
     'bfl::get_file_name_without_extension|"a" "b"|1'
     'bfl::get_file_name_without_extension|"/tmp/non-existent-file.ext"|1'
     'bfl::get_file_name_without_extension|"/etc/host.conf"|0'
+    'bfl::get_file_name||1'
+    'bfl::get_file_name|""|1'
+    'bfl::get_file_name|"a" "b"|1'
+    'bfl::get_file_name|"/tmp/non-existent-file.ext"|1'
+    'bfl::get_file_name|"/etc/host.conf"|0'
     'bfl::get_file_path||1'
     'bfl::get_file_path|""|1'
     'bfl::get_file_path|"a" "b"|1'
@@ -78,15 +74,6 @@ declare_assertions() {
     'bfl::generate_password|"8"|0'
     'bfl::generate_password|"9"|0'
     'bfl::generate_password|"32"|0'
-    'bfl::join|"," "This is" "a" "test."|0'
-    'bfl::join|"," "Foo"|0'
-    'bfl::join|"" "Foo"|0'
-    'bfl::join|"" "" ""|0'
-    'bfl::join|"," ""|0'
-    'bfl::join|"," "" ""|0'
-    'bfl::join|"" ""|0'
-    'bfl::join|","|1'
-    'bfl::join||1'
     'bfl::is_blank||1'
     'bfl::is_blank|"asd"|1'
     'bfl::is_blank|""|0'
@@ -102,10 +89,25 @@ declare_assertions() {
     'bfl::is_integer|"foo"|1'
     'bfl::is_integer|"1" "2" "3"|1'
     'bfl::is_integer||1'
-
+    'bfl::join|"," "This is" "a" "test."|0'
+    'bfl::join|"," "Foo"|0'
+    'bfl::join|"" "Foo"|0'
+    'bfl::join|"" "" ""|0'
+    'bfl::join|"," ""|0'
+    'bfl::join|"," "" ""|0'
+    'bfl::join|"" ""|0'
+    'bfl::join|","|1'
+    'bfl::join||1'
     'bfl::print_args|"foo"|0'
     'bfl::print_args|""|0'
     'bfl::print_args||1'
+    'bfl::repeat|"-" "3"|0'
+    'bfl::repeat|"" "6"|0'
+    'bfl::repeat|" " "9"|0'
+    'bfl::repeat|"-" "a"|1'
+    'bfl::repeat|"" ""|1'
+    'bfl::repeat|"-" ""|1'
+    'bfl::repeat||1'
     'bfl::send_mail_msg||1'
     'bfl::send_mail_msg|""|1'
     'bfl::send_mail_msg|"" ""|1'
@@ -130,19 +132,16 @@ declare_assertions() {
     'bfl::send_sms_msg|"+17039897379"|1'
     'bfl::send_sms_msg|"+17039897379" ""|1'
     'bfl::send_sms_msg|"+17039897379" "bar"|0'
-    'bfl::repeat|"-" "3"|0'
-    'bfl::repeat|"" "6"|0'
-    'bfl::repeat|" " "9"|0'
-    'bfl::repeat|"-" "a"|1'
-    'bfl::repeat|"" ""|1'
-    'bfl::repeat|"-" ""|1'
-    'bfl::repeat||1'
     'bfl::time_convert_s_to_hhmmss||1'
     'bfl::time_convert_s_to_hhmmss|""|1'
     'bfl::time_convert_s_to_hhmmss|"a"|1'
     'bfl::time_convert_s_to_hhmmss|"1"|0'
     'bfl::time_convert_s_to_hhmmss|"61"|0'
     'bfl::time_convert_s_to_hhmmss|"3661"|0'
+    'bfl::transliterate|"This is A string."|0'
+    'bfl::transliterate|"This is A string." "So is this."|1'
+    'bfl::transliterate|""|0'
+    'bfl::transliterate||1'
     'bfl::trim||1'
     'bfl::trim|""|0'
     'bfl::trim|"abc"|0'
@@ -150,10 +149,6 @@ declare_assertions() {
     'bfl::trim|"ghi   "|0'
     'bfl::trim|"   jkl   "|0'
     'bfl::trim|"   mno   pqr   stu   "|0'
-    'bfl::transliterate|"This is A string."|0'
-    'bfl::transliterate|"This is A string." "So is this."|1'
-    'bfl::transliterate|""|0'
-    'bfl::transliterate||1'
     'bfl::urlencode||1'
     'bfl::urlencode|""|1'
     'bfl::urlencode|"" ""|1'
@@ -221,10 +216,10 @@ assert() {
   # Print results.
   if [[ "${actual_return_code}" -eq "${expected_return_code}" ]]; then
     result="PASS"
-    format="${green}%-${cw1}s${reset} %-${cw2}s %-${cw3}s %-${cw4}s %-${cw5}s %-${cw6}s${reset} \\n"
+    format="${bfl_aes_green}%-${cw1}s${bfl_aes_reset} %-${cw2}s %-${cw3}s %-${cw4}s %-${cw5}s %-${cw6}s${bfl_aes_reset} \\n"
   else
     result="FAIL"
-    format="${red}%-${cw1}s${reset} %-${cw2}s %-${cw3}s %-${cw4}s %-${cw5}s %-${cw6}s${reset} \\n"
+    format="${bfl_aes_red}%-${cw1}s${bfl_aes_reset} %-${cw2}s %-${cw3}s %-${cw4}s %-${cw5}s %-${cw6}s${bfl_aes_reset} \\n"
   fi
   cmd_output=${cmd_output//[$'\n']}
   printf "${format}" "${result}" "${function_to_test:0:${cw2}}" "${args:0:${cw3}}" "${expected_return_code}" "${actual_return_code}" "${cmd_output:0:${cw6}}"
@@ -249,15 +244,6 @@ main() {
 
   # Declare assertions.
   declare_assertions
-
-  # We can't call bfl::declare_ansi_escape_sequences() because we might test it,
-  # and the function declares read only constants. If we test the function,
-  # it will attempt to reassign the read only constants, causing an error.
-  # Instead, we'll declare the colors here.
-  declare -g red="\\e[0;31m"
-  declare -g yellow="\\e[1;33m"
-  declare -g green="\\e[0;32m"
-  declare -g reset="\\e[0m"
 
   # Declare column widths (global constants) for displaying test results.
   declare -rg cw1=6     # Width of column 1: Result (PASS/FAIL)

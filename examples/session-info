@@ -55,9 +55,6 @@ main() {
     exit 1
   fi
 
-  # Declare ANSI escape sequences.
-  bfl::declare_ansi_escape_sequences
-
   # Verify argument count.
   bfl::verify_arg_count "$#" 0 1 || usage
 
@@ -73,6 +70,7 @@ main() {
   declare host
   declare ip_address_private
   declare ip_address_public
+  declare name_of_color_constant
   declare time_now
   declare user
   declare width
@@ -80,6 +78,7 @@ main() {
   # Verify argument values.
   case "${color}" in
     "blue"|"cyan"|"green"|"magenta"|"red"|"yellow"|"white" )
+      name_of_color_constant="bfl_aes_${color}"
       ;;
     * )
       bfl::warn "The specified color not is not supported." && usage
@@ -106,7 +105,7 @@ main() {
     || bfl::die "Unable to create a repeated string."
 
   # Display the banner.
-  printf "%b\\n" "${!color}" # Indirect variable expansion; see man bash.
+  printf "%b\\n" "${!name_of_color_constant}"   # Indirect variable expansion.
   printf "%s\\n" "${border}"
   column -t -s "|$" <<<"
 User:|${user}

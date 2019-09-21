@@ -61,9 +61,6 @@ main() {
     exit 1
   fi
 
-  # Declare ANSI escape sequences.
-  bfl::declare_ansi_escape_sequences
-
   # Verify argument count.
   bfl::verify_arg_count "$#" 2 2 || usage # TODO
 

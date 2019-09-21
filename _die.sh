@@ -34,10 +34,10 @@ bfl::die() {
   stack="${stack// / <- }"
 
   # Print the message.
-  printf "%b\\n" "${red}Error. ${msg}${reset}" 1>&2
+  printf "%b\\n" "${bfl_aes_red}Error. ${msg}${bfl_aes_reset}" 1>&2
 
   # Print the stack.
-  printf "%b\\n" "${yellow}[${stack}]${reset}" 1>&2
+  printf "%b\\n" "${bfl_aes_yellow}[${stack}]${bfl_aes_reset}" 1>&2
 
   exit 1
 }
