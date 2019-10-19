@@ -45,7 +45,7 @@ main() {
   # Verify dependencies.
   bfl::verify_dependencies "grep" "sed"
 
-  # Declare other readonly variables (sorted by name).
+  # Declare readonly variables (sorted by name).
   declare -r btx3="\\x60\\x60\\x60" # 3 backticks
   declare -r header="# Bash Function Library\\n\\n## Function List"
   declare -r output_file_name="function-list.md"

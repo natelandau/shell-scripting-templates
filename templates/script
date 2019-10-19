@@ -71,7 +71,7 @@ main() {
   declare -r foo="$1" # TODO
   declare -r bar="$2" # TODO
 
-  # Declare other readonly variables (sorted by name).
+  # Declare readonly variables (sorted by name).
   declare -r wibble="Harry" # TODO
   declare -r wobble="Ron" # TODO
 

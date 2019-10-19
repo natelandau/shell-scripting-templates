@@ -36,7 +36,7 @@ bfl::library_function() {
   # Declare return value.
   declare baz # TODO
 
-  # Declare other readonly variables (sorted by name).
+  # Declare readonly variables (sorted by name).
   declare -r wibble="Harry" # TODO
   declare -r wobble="Ron" # TODO
 

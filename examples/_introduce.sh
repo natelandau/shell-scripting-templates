@@ -146,7 +146,7 @@ bfl::introduce() {
   # Declare return value.
   declare introduction
 
-  # Declare other readonly variables (sorted by name).
+  # Declare readonly variables (sorted by name).
   declare -r const1="My name is"
   declare -r const2="I am"
   declare -r const3="years old"
