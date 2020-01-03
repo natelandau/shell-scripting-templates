@@ -9,7 +9,8 @@
 # @function
 # Removes leading and trailing whitespace, including blank lines, from string.
 #
-# The string can either be single or multi-line.
+# The string can either be single or multi-line. In a multi-line string,
+# leading and trailing whitespace is removed from every line.
 #
 # @param string $str
 #   The string to be trimmed.
@@ -28,7 +29,7 @@ bfl::trim() {
 
   # Explanation of sed commands:
   # - Remove leading whitespace from every line: s/^[[:space:]]+//
-  # - Remove trailing whitespace from every line: s/^[[:space:]]+//
+  # - Remove trailing whitespace from every line: s/[[:space:]]+$//
   # - Remove leading and trailing blank lines: /./,$ !d
   #
   # See https://tinyurl.com/yav7zw9k and https://tinyurl.com/3z8eh
