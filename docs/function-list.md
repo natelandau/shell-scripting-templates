@@ -503,7 +503,7 @@ string $body
 #### Example
 
 ```bash
-bfl::send_mail_msg "a@b.com" "x@y.com" "x@y.com" "Test" "Hello world."
+bfl::send_mail_msg "a@b.com" "x@y.com" "x@y.com" "Test" "Line 1.\nLine 2."
 ```
 
 <a id="bfl_send_sms_msg"></a>
@@ -523,7 +523,7 @@ string $message
 #### Example
 
 ```bash
-bfl::send_sms_msg "+12065550100" "Line one.\nLine two.\n"
+bfl::send_sms_msg "+12065550100" "Line 1.\nLine 2."
 ```
 
 <a id="bfl_time_convert_s_to_hhmmss"></a>
@@ -672,4 +672,4 @@ bfl::warn "The foo is bar."
 ```
 
 ---
-*Last updated: 2020-01-02T21:10:51-05:00.*
+*Last updated: 2020-02-14T06:55:08-05:00.*

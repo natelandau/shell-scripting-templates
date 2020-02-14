@@ -31,7 +31,7 @@
 #   Example: "This is line one.\\nThis is line two.\\n"
 #
 # @example
-#   bfl::send_mail_msg "a@b.com" "x@y.com" "x@y.com" "Test" "Hello world."
+#   bfl::send_mail_msg "a@b.com" "x@y.com" "x@y.com" "Test" "Line 1.\\nLine 2."
 #------------------------------------------------------------------------------
 bfl::send_mail_msg() {
   bfl::verify_arg_count "$#" 5 5 || exit 1

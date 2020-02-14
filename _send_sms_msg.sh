@@ -15,7 +15,7 @@
 #   Example: "This is line one.\\nThis is line two.\\n"
 #
 # @example
-#   bfl::send_sms_msg "+12065550100" "Line one.\\nLine two.\\n"
+#   bfl::send_sms_msg "+12065550100" "Line 1.\\nLine 2."
 #------------------------------------------------------------------------------
 bfl::send_sms_msg() {
   bfl::verify_arg_count "$#" 2 2 || exit 1
