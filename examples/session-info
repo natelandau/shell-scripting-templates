@@ -42,7 +42,7 @@ cleanup() {
 # @function
 # Main function.
 #
-# @param type $color
+# @param string $color
 #   The foreground color of the banner.
 #   Supported colors: blue, cyan, green, magenta, red, yellow, or white.
 #
