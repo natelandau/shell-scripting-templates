@@ -43,9 +43,9 @@ Guide](https://google.github.io/styleguide/shell.xml).
 * Use `declare` instead of `local`.
 * Use `declare -r` instead of `readonly`.
 * Use `declare -g` when creating a global variable. Don't create global variables.
-* Declare and assign literals on same line.  
+* Declare and assign on the same line.  
   `declare -r foo="$1"`
-* Declare and assign literals on separate lines when using command
+* Declare and assign on separate lines when using command
   substitution. Don't do this:  
   `declare foo=$(whoami)`
 
@@ -62,7 +62,7 @@ Guide](https://google.github.io/styleguide/shell.xml).
 * Define no more than one library function per file.
 * If you create a library function named `bfl::foo`, and you need a helper
   function `bar` within the same file, name the helper function `bfl::foo::bar`
-  to avoid naming collisions.
+  to avoid namespace collisions.
 * Global variables defined within library functions must begin with `bfl_` to
   avoid namespace collisions.
 
