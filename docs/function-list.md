@@ -14,6 +14,7 @@
 * [bfl::is_blank](#bfl_is_blank)
 * [bfl::is_empty](#bfl_is_empty)
 * [bfl::is_integer](#bfl_is_integer)
+* [bfl::is_positive_integer](#bfl_is_positive_integer)
 * [bfl::join](#bfl_join)
 * [bfl::print_args](#bfl_print_args)
 * [bfl::repeat](#bfl_repeat)
@@ -410,6 +411,23 @@ string $value_to_test
 bfl::is_integer "8675309"
 ```
 
+<a id="bfl_is_positive_integer"></a>
+
+## bfl::is_positive_integer
+
+Determines if the argument is a positive integer.
+
+#### Parameter
+
+string $value_to_test
+>The value to be tested.
+
+#### Example
+
+```bash
+bfl::is_positive_integer "8675309"
+```
+
 <a id="bfl_join"></a>
 
 ## bfl::join
@@ -672,4 +690,4 @@ bfl::warn "The foo is bar."
 ```
 
 ---
-*Last updated: 2020-02-14T06:55:08-05:00.*
+*Last updated: 2020-03-08T12:04:17-04:00.*
