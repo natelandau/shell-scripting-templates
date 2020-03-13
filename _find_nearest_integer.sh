@@ -23,26 +23,27 @@
 bfl::find_nearest_integer() {
   bfl::verify_arg_count "$#" 2 2 || exit 1
 
-  if ! bfl::is_integer "$1"; then
-    bfl::die "Expected integer, received $1"
-  fi
-
-  if bfl::is_empty "$2"; then
-    bfl::die "Expected list, received empty string"
-  fi
-
   declare -r target="$1"
   declare -ar list="($2)"
-  declare item
-  declare table
+
   declare nearest
 
+  declare -r regex="^(-{0,1}[0-9]+\s*)+$"
+  declare abs_diff
+  declare diff
+  declare item
+  declare table
+
+  bfl::is_integer "${target}" \
+    || bfl::die "Expected integer, received ${target}."
+
+  if ! [[ "${list[*]}" =~ ${regex} ]]; then
+    bfl::die "Expected list of integers, received ${list[*]}."
+  fi
+
   for item in "${list[@]}"; do
-    if ! bfl::is_integer "${item}"; then
-      bfl::die "Expected integer, received ${item}"
-    fi
     diff=$((target-item)) || bfl::die
-    abs_diff=${diff/-/}
+    abs_diff="${diff/-/}"
     table+="${item} ${abs_diff}\\n"
   done
 
