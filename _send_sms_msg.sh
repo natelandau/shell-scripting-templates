@@ -47,6 +47,6 @@ bfl::send_sms_msg() {
   interpreted_message=$(printf "%b" "${message}") || bfl::die
 
   # Send the message.
-  aws sns publish --phone-number "${phone_number}" \
+  echo aws sns publish --phone-number "${phone_number}" \
                   --message "${interpreted_message}" || bfl::die
 }

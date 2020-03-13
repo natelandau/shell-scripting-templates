@@ -155,9 +155,10 @@ bfl::introduce() {
   :
 
   # Verify argument values.
-  bfl::is_empty "$name" && bfl::die "Name is required."
-  bfl::is_empty "$age" && bfl::die "Age is required."
-  bfl::is_integer "$age" || bfl::die "Age must be a positive integer."
+  bfl::is_empty "$name" \
+    && bfl::die "Name is required."
+  bfl::is_positive_integer "${age}" \
+    || bfl::die "Expected positive integer, received ${age}."
 
   # Build the return value.
   introduction="${const1} ${name}. ${const2} ${age} ${const3}."

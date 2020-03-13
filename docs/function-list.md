@@ -236,7 +236,7 @@ Generates a random password.
 
 #### Parameter
 
-integer $password_length
+integer $pswd_length
 >The length of the desired password.
 
 #### Return
@@ -690,4 +690,4 @@ bfl::warn "The foo is bar."
 ```
 
 ---
-*Last updated: 2020-03-08T12:04:17-04:00.*
+*Last updated: 2020-03-13T09:37:53-04:00.*

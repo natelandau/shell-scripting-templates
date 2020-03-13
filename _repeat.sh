@@ -27,9 +27,8 @@ bfl::repeat() {
   declare -r multiplier="$2"
   declare str_repeated
 
-  if ! bfl::is_integer "${multiplier}"; then
-    bfl::die "Multiplier is not a positive integer."
-  fi
+  bfl::is_positive_integer "${multiplier}" \
+    || bfl::die "Expected positive integer, received ${multiplier}."
 
   # Create a string of spaces that is $multiplier long.
   str_repeated=$(printf "%${multiplier}s") || bfl::die

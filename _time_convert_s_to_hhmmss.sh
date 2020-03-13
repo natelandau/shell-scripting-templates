@@ -24,13 +24,8 @@ bfl::time_convert_s_to_hhmmss() {
   declare -r seconds="$1"
   declare hhmmss
 
-  if bfl::is_empty "${seconds}"; then
-    bfl::die "Expected an integer, received an empty string."
-  fi
-
-  if ! bfl::is_integer "${seconds}"; then
-    bfl::die "Expected an integer, received ${seconds}."
-  fi
+  bfl::is_positive_integer "${seconds}" \
+    || bfl::die "Expected positive integer, received ${seconds}."
 
   hhmmss=$(printf '%02d:%02d:%02d\n' \
     $((seconds/3600)) \
