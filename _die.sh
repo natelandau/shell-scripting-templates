@@ -12,7 +12,7 @@
 # The message provided will be prepended with "Error. "
 #
 # @param string $msg (optional)
-#   The error message.
+#   The message.
 #
 # @example
 #   bfl::error "The foo is bar."
