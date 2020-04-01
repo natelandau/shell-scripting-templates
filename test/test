@@ -88,6 +88,14 @@ declare_assertions() {
     'bfl::get_file_path|"/tmp/non-existent-file.ext"|1'
     'bfl::get_file_path|"/etc/host.conf"|0'
 
+    'bfl::inform||1'
+    'bfl::inform|""|1'
+    'bfl::inform|" "|1'
+    'bfl::inform|"foo"|0'
+    'bfl::inform|"foo" ""|1'
+    'bfl::inform|"foo" " "|1'
+    'bfl::inform|"foo" "bar"|1'
+
     'bfl::is_blank||1'
     'bfl::is_blank|""|0'
     'bfl::is_blank|" "|0'

@@ -11,6 +11,7 @@
 * [bfl::get_file_name](#bfl_get_file_name)
 * [bfl::get_file_name_without_extension](#bfl_get_file_name_without_extension)
 * [bfl::get_file_path](#bfl_get_file_path)
+* [bfl::inform](#bfl_inform)
 * [bfl::is_blank](#bfl_is_blank)
 * [bfl::is_empty](#bfl_is_empty)
 * [bfl::is_integer](#bfl_is_integer)
@@ -360,6 +361,23 @@ string $canonical_file_path
 bfl::get_file_path "./foo/bar.text"
 ```
 
+<a id="bfl_inform"></a>
+
+## bfl::inform
+
+Prints a informational message to stderr.
+
+#### Parameter
+
+string $msg
+>The message.
+
+#### Example
+
+```bash
+bfl::inform "The foo is bar."
+```
+
 <a id="bfl_is_blank"></a>
 
 ## bfl::is_blank
@@ -676,12 +694,12 @@ bfl::verify_dependencies "curl" "wget" "git"
 
 ## bfl::warn
 
-Prints a warning message to stdout.
+Prints a warning message to stderr.
 
 #### Parameter
 
 string $msg
->The warning message.
+>The message.
 
 #### Example
 
@@ -690,4 +708,4 @@ bfl::warn "The foo is bar."
 ```
 
 ---
-*Last updated: 2020-03-13T10:45:46-04:00.*
+*Last updated: 2020-04-01T12:56:57-04:00.*
