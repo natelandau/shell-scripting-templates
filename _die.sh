@@ -9,7 +9,7 @@
 # @function
 # Prints an error message to stderr and exits with status code 1.
 #
-# The message provided will be prepended with "Error. "
+# The message provided will be prepended with "Fatal error. "
 #
 # @param string $msg (optional)
 #   The message.
@@ -34,7 +34,7 @@ bfl::die() {
   stack="${stack// / <- }"
 
   # Print the message.
-  printf "%b\\n" "${bfl_aes_red}Error. ${msg}${bfl_aes_reset}" 1>&2
+  printf "%b\\n" "${bfl_aes_red}Fatal error. ${msg}${bfl_aes_reset}" 1>&2
 
   # Print the stack.
   printf "%b\\n" "${bfl_aes_yellow}[${stack}]${bfl_aes_reset}" 1>&2
