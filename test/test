@@ -29,6 +29,14 @@ declare_assertions() {
     'bfl::die|"foo"|1'
     'bfl::die|"foo" "bar"|1'
 
+    'bfl::error||1'
+    'bfl::error|""|1'
+    'bfl::error|" "|1'
+    'bfl::error|"foo"|0'
+    'bfl::error|"foo" ""|1'
+    'bfl::error|"foo" " "|1'
+    'bfl::error|"foo" "bar"|1'
+
     'bfl::find_nearest_integer||1'
     'bfl::find_nearest_integer|"" "" ""|1'
     'bfl::find_nearest_integer|"" ""|1'

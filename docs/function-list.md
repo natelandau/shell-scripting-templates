@@ -4,6 +4,7 @@
 
 * [bfl::declare_ansi_escape_sequences](#bfl_declare_ansi_escape_sequences)
 * [bfl::die](#bfl_die)
+* [bfl::error](#bfl_error)
 * [bfl::find_nearest_integer](#bfl_find_nearest_integer)
 * [bfl::generate_password](#bfl_generate_password)
 * [bfl::get_file_directory](#bfl_get_file_directory)
@@ -196,7 +197,24 @@ Prints an error message to stderr and exits with status code 1.
 #### Parameter
 
 string $msg (optional)
->The error message.
+>The message.
+
+#### Example
+
+```bash
+bfl::error "The foo is bar."
+```
+
+<a id="bfl_error"></a>
+
+## bfl::error
+
+Prints a warning message to stderr.
+
+#### Parameter
+
+string $msg
+>The message.
 
 #### Example
 
@@ -708,4 +726,4 @@ bfl::warn "The foo is bar."
 ```
 
 ---
-*Last updated: 2020-04-01T12:56:57-04:00.*
+*Last updated: 2020-04-01T13:16:35-04:00.*
