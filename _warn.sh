@@ -7,12 +7,12 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Prints a warning message to stdout.
+# Prints a warning message to stderr.
 #
 # The message provided will be prepended with "Warning. "
 #
 # @param string $msg
-#   The warning message.
+#   The message.
 #
 # @example
 #   bfl::warn "The foo is bar."
@@ -27,8 +27,8 @@ bfl::warn() {
   declare msg="${1}"
 
   # Verify argument values.
-  bfl::is_blank "$msg" && bfl::die "A warning message was not specified."
+  bfl::is_blank "$msg" && bfl::die "A message was not specified."
 
   # Print the message.
-  printf "%b\\n" "${bfl_aes_yellow}Warning. ${msg}${bfl_aes_reset}"
+  printf "%b\\n" "${bfl_aes_yellow}Warning. ${msg}${bfl_aes_reset}" 1>&2
 }
