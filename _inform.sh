@@ -7,7 +7,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Prints a informational message to stderr.
+# Prints an informational message to stderr.
 #
 # @param string $msg
 #   The message.

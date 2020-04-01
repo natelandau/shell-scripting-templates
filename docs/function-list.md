@@ -209,7 +209,7 @@ bfl::error "The foo is bar."
 
 ## bfl::error
 
-Prints a warning message to stderr.
+Prints an error message to stderr.
 
 #### Parameter
 
@@ -383,7 +383,7 @@ bfl::get_file_path "./foo/bar.text"
 
 ## bfl::inform
 
-Prints a informational message to stderr.
+Prints an informational message to stderr.
 
 #### Parameter
 
@@ -726,4 +726,4 @@ bfl::warn "The foo is bar."
 ```
 
 ---
-*Last updated: 2020-04-01T13:16:35-04:00.*
+*Last updated: 2020-04-01T13:23:11-04:00.*
