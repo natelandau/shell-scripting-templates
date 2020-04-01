@@ -9,8 +9,8 @@
 # @function
 # Prints an informational message to stderr.
 #
-# @param string $msg
-#   The message.
+# @param string $msg (optional)
+#   The message. A blank line will be printed if no message is provided.
 #
 # @example
 #   bfl::inform "The foo is bar."
@@ -19,13 +19,10 @@
 #------------------------------------------------------------------------------
 bfl::inform() {
   # Verify argument count.
-  bfl::verify_arg_count "$#" 1 1 || exit 1
+  bfl::verify_arg_count "$#" 0 1 || exit 1
 
   # Declare positional arguments (readonly, sorted by position).
-  declare msg="${1}"
-
-  # Verify argument values.
-  bfl::is_blank "$msg" && bfl::die "A message was not specified."
+  declare msg="${1:-}"
 
   # Print the message.
   printf "%b\\n" "${msg}" 1>&2

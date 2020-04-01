@@ -7,7 +7,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Prints an error message to stderr and exits with status code 1.
+# Prints a fatal error message to stderr, then exits with status code 1.
 #
 # The message provided will be prepended with "Fatal error. "
 #
@@ -24,7 +24,7 @@ bfl::die() {
   bfl::verify_arg_count "$#" 0 1 || exit 1
 
   # Declare positional arguments (readonly, sorted by position).
-  declare -r msg="${1:-"Unknown error."}"
+  declare -r msg="${1:-"Unspecified fatal error."}"
 
   # Declare all other variables (sorted by name).
   declare stack

@@ -29,12 +29,10 @@ declare_assertions() {
     'bfl::die|"foo"|1'
     'bfl::die|"foo" "bar"|1'
 
-    'bfl::error||1'
-    'bfl::error|""|1'
-    'bfl::error|" "|1'
+    'bfl::error||0'
+    'bfl::error|""|0'
+    'bfl::error|" "|0'
     'bfl::error|"foo"|0'
-    'bfl::error|"foo" ""|1'
-    'bfl::error|"foo" " "|1'
     'bfl::error|"foo" "bar"|1'
 
     'bfl::find_nearest_integer||1'
@@ -96,12 +94,10 @@ declare_assertions() {
     'bfl::get_file_path|"/tmp/non-existent-file.ext"|1'
     'bfl::get_file_path|"/etc/host.conf"|0'
 
-    'bfl::inform||1'
-    'bfl::inform|""|1'
-    'bfl::inform|" "|1'
+    'bfl::inform||0'
+    'bfl::inform|""|0'
+    'bfl::inform|" "|0'
     'bfl::inform|"foo"|0'
-    'bfl::inform|"foo" ""|1'
-    'bfl::inform|"foo" " "|1'
     'bfl::inform|"foo" "bar"|1'
 
     'bfl::is_blank||1'
@@ -230,12 +226,10 @@ declare_assertions() {
     'bfl::verify_dependencies|"rm" "sort" "cough"|1'
     'bfl::verify_dependencies|"rm" "ls" "whoami"|0'
 
-    'bfl::warn||1'
-    'bfl::warn|""|1'
-    'bfl::warn|" "|1'
+    'bfl::warn||0'
+    'bfl::warn|""|0'
+    'bfl::warn|" "|0'
     'bfl::warn|"foo"|0'
-    'bfl::warn|"foo" ""|1'
-    'bfl::warn|"foo" " "|1'
     'bfl::warn|"foo" "bar"|1'
   )
 }

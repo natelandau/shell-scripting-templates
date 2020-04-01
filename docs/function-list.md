@@ -192,7 +192,7 @@ bfl::declare_ansi_escape_sequences
 
 ## bfl::die
 
-Prints an error message to stderr and exits with status code 1.
+Prints a fatal error message to stderr, then exits with status code 1.
 
 #### Parameter
 
@@ -213,7 +213,7 @@ Prints an error message to stderr.
 
 #### Parameter
 
-string $msg
+string $msg (optional)
 >The message.
 
 #### Example
@@ -387,8 +387,8 @@ Prints an informational message to stderr.
 
 #### Parameter
 
-string $msg
->The message.
+string $msg (optional)
+>The message. A blank line will be printed if no message is provided.
 
 #### Example
 
@@ -716,7 +716,7 @@ Prints a warning message to stderr.
 
 #### Parameter
 
-string $msg
+string $msg (optional)
 >The message.
 
 #### Example
@@ -726,4 +726,4 @@ bfl::warn "The foo is bar."
 ```
 
 ---
-*Last updated: 2020-04-01T13:23:11-04:00.*
+*Last updated: 2020-04-01T14:11:13-04:00.*
