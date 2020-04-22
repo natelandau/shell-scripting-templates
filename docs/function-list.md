@@ -18,6 +18,7 @@
 * [bfl::is_integer](#bfl_is_integer)
 * [bfl::is_positive_integer](#bfl_is_positive_integer)
 * [bfl::join](#bfl_join)
+* [bfl::lorem](#bfl_lorem)
 * [bfl::print_args](#bfl_print_args)
 * [bfl::repeat](#bfl_repeat)
 * [bfl::send_mail_msg](#bfl_send_mail_msg)
@@ -489,6 +490,35 @@ string $joined_string
 bfl::join "," "foo" "bar" "baz"
 ```
 
+<a id="bfl_lorem"></a>
+
+## bfl::lorem
+
+Randomly extracts one or more sequential paragraphs from a given resource.
+
+#### Parameters
+
+int $paragraphs (optional)
+>The number of paragraphs to extract (default: 1).
+
+string $resource (optional)
+>The resource from which to extract the paragraphs (default: darwin).
+
+#### Return
+
+string $text
+>The extracted paragraphs.
+
+#### Examples
+
+```bash
+bfl::lorem
+bfl::lorem 2
+bfl::lorem 3 darwin
+bfl::lorem 3 mills
+bfl::lorem 3 muir
+```
+
 <a id="bfl_print_args"></a>
 
 ## bfl::print_args
@@ -726,4 +756,4 @@ bfl::warn "The foo is bar."
 ```
 
 ---
-*Last updated: 2020-04-01T14:11:13-04:00.*
+*Last updated: 2020-04-22T15:57:48-04:00.*
