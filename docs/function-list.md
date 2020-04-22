@@ -502,7 +502,7 @@ int $paragraphs (optional)
 >The number of paragraphs to extract (default: 1).
 
 string $resource (optional)
->The resource from which to extract the paragraphs (default: darwin).
+>The resource from which to extract the paragraphs (default: muir).
 
 #### Return
 
@@ -756,4 +756,4 @@ bfl::warn "The foo is bar."
 ```
 
 ---
-*Last updated: 2020-04-22T15:57:48-04:00.*
+*Last updated: 2020-04-22T16:33:52-04:00.*

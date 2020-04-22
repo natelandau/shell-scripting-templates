@@ -107,9 +107,9 @@ bfl::lorem() {
   text=$(sed -n "${first_paragraph_number}","${last_paragraph_number}"p "${resource_file}") ||
     bfl::die "Unable to extract paragraphs."
   # Add a blank line between each paragraph to create proper markdown.
-  text=$(awk '{print $0, "\n"}' <<< "${text}") ||
+  text=$(awk '{print $0"\n"}' <<< "${text}") ||
     bfl::die "Unable to add additional newline to each paragraph."
 
   # Print the return value.
-  printf "%b" "${text}"
+  printf "%s" "${text}"
 }
