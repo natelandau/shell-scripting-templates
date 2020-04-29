@@ -81,7 +81,7 @@ main() {
       name_of_color_constant="bfl_aes_${color}"
       ;;
     * )
-      bfl::warn "The specified color not is not supported." && usage
+      bfl::warn "The specified color is not supported." && usage
       ;;
   esac
 
