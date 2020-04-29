@@ -67,6 +67,7 @@ bfl::lorem() {
   declare first_paragraph_number
   declare last_paragraph_number
   declare maximum_first_paragraph_number
+  declare msg
   declare resource_directory
   declare resource_file
   declare resource_paragraph_count
@@ -76,7 +77,7 @@ bfl::lorem() {
     bfl::die "Unable to determine resource directory."
 
   # Select the resource file from which to extract paragraphs.
-  case "$resource" in
+  case "${resource}" in
     "darwin" )
       resource_file=${resource_directory}/the-orgin-of-species-by-charles-darwin.txt
       ;;
@@ -94,6 +95,17 @@ bfl::lorem() {
   # Determine number of paragraphs in the resource file (assumes one per line).
   resource_paragraph_count=$(wc -l < "${resource_file}") ||
     bfl::die "Unable to determine number of paragraphs in source file."
+
+  # Make sure number of requested paragraphs does not exceed maximum.
+  if [[ "${paragraphs}" -gt "${resource_paragraph_count}" ]]; then
+    msg=$(cat <<EOT
+The number of paragraphs requested (${paragraphs}) exceeds
+the number of paragraphs available (${resource_paragraph_count}) in the specified
+resource (${resource}).
+EOT
+    )
+    bfl::die "${msg}"
+  fi
 
   # Determine the highest paragraph number from which we can begin extraction.
   maximum_first_paragraph_number=$((resource_paragraph_count - paragraphs + 1))
