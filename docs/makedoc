@@ -23,7 +23,6 @@ Example:  $(basename "$0")
 EOT
   )
   printf "%s\\n" "${msg}"
-  exit 1
 }
 
 #------------------------------------------------------------------------------
@@ -40,7 +39,7 @@ main() {
   fi
 
   # Verify argument count.
-  bfl::verify_arg_count "$#" 0 0 || usage
+  bfl::verify_arg_count "$#" 0 0 || { usage; exit 1; }
 
   # Verify dependencies.
   bfl::verify_dependencies "grep" "sed"

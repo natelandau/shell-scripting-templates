@@ -26,7 +26,6 @@ Examples: $(basename "$0") "red"
 EOT
   )
   printf "%s\\n" "${msg}"
-  exit 1
 }
 
 #------------------------------------------------------------------------------
@@ -56,7 +55,7 @@ main() {
   fi
 
   # Verify argument count.
-  bfl::verify_arg_count "$#" 0 1 || usage
+  bfl::verify_arg_count "$#" 0 1 || { usage; exit 1; }
 
   # Verify dependencies.
   bfl::verify_dependencies "curl"
@@ -81,7 +80,7 @@ main() {
       name_of_color_constant="bfl_aes_${color}"
       ;;
     * )
-      bfl::warn "The specified color is not supported." && usage
+      bfl::warn "The specified color is not supported." && { usage; exit 1; }
       ;;
   esac
 

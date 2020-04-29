@@ -22,10 +22,10 @@ bfl::foo () {
 }
 ```
 
-The `bfl::verify_arg_count` function **does not** call `bfl::die` on error. Instead, `bfl::verify_arg_count` calls <code>return&nbsp;1</code> upon error. This exception allows the parent script to call a usage function when the argument count is incorrect. The usage function calls `exit 1` after displaying a usage message. For example:
+The `bfl::verify_arg_count` function **does not** call `bfl::die` on error. Instead, `bfl::verify_arg_count` calls <code>return&nbsp;1</code> upon error. This exception allows the parent script to call a usage function when the argument count is incorrect. For example:
 
 ```bash
-bfl::verify_arg_count "$#" 1 3 || usage
+bfl::verify_arg_count "$#" 1 3 || { usage; exit 1; }
 ```
 
 <a name="guidelines"></a>
@@ -35,7 +35,7 @@ bfl::verify_arg_count "$#" 1 3 || usage
 1\) Within the `main()` function of a script, if `bfl::verify_arg_count` fails, display the usage message. For example:
 
 ```bash
-bfl::verify_arg_count "$#" 1 3 || usage
+bfl::verify_arg_count "$#" 1 3 || { usage; exit 1; }
 ```
 
 2\) Within any other function, if `bfl::verify_arg_count` fails, exit 1. For example:

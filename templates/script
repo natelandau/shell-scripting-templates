@@ -27,7 +27,6 @@ Example:  $(basename "$0") "Fred" "George" # TODO
 EOT
   )
   printf "%s\\n" "${msg}"
-  exit 1
 }
 
 #------------------------------------------------------------------------------
@@ -62,7 +61,7 @@ main() {
   fi
 
   # Verify argument count.
-  bfl::verify_arg_count "$#" 2 2 || usage # TODO
+  bfl::verify_arg_count "$#" 2 2 || { usage; exit 1; } # TODO
 
   # Verify dependencies.
   bfl::verify_dependencies "printf" # TODO
