@@ -41,6 +41,7 @@
 #
 # For simple functions, positional arguments are generally sufficient. For
 # complex implementations consider getopt or getopts.
+#
 #-----
 #
 # The @return tag must be formatted as follows:
@@ -57,8 +58,8 @@
 #
 # For example, to capture the "return" value of this function from a script:
 #
-#   introduction=$(bfl::introduce "John" "25") \
-#     || bfl::die "Unable to create introduction."
+#   introduction=$(bfl::introduce "John" "25") ||
+#     bfl::die "Unable to create introduction."
 #
 # Note that we test the exit status of the command substitution, and in this
 # case call bfl::die with an error message upon failure.
@@ -78,11 +79,11 @@
 #
 #-----
 #
-# This silly example function has 167 lines (5592 bytes):
+# This silly example function has 171 lines (5539 bytes):
 #
 #   Shebang: 1 (not required)
-#   Comments: 140
-#   Blank: 10
+#   Comments: 143
+#   Blank: 11
 #   Code: 16
 #
 #   The shebang is not required in a sourced file. It is included in this
@@ -117,8 +118,9 @@
 #   7) To ensure a consistent structure and style for every function in the
 #      library, regardless of complexity.
 #
-# As of 8/14/2019, the average number of lines per library function is 45. If
-# you throw out the high and the low, the average is 41 lines per function.
+# As of April 29, 2020 the average number of lines per library function is 51.
+# If you throw out the high and the low, the average is 44 lines per function.
+#
 #-----
 #
 # @param string $name
@@ -155,10 +157,10 @@ bfl::introduce() {
   :
 
   # Verify argument values.
-  bfl::is_empty "$name" \
-    && bfl::die "Name is required."
-  bfl::is_positive_integer "${age}" \
-    || bfl::die "Expected positive integer, received ${age}."
+  bfl::is_empty "${name}" &&
+    bfl::die "Name is required."
+  bfl::is_positive_integer "${age}" ||
+    bfl::die "Expected positive integer, received ${age}."
 
   # Build the return value.
   introduction="${const1} ${name}. ${const2} ${age} ${const3}."

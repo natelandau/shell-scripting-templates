@@ -54,6 +54,9 @@ main() {
     exit 1
   fi
 
+  # Display usage message.
+  [[ "$1" = "-h" || "$1" = "--help" ]] && { usage; exit 0; }
+
   # Verify argument count.
   bfl::verify_arg_count "$#" 0 1 || { usage; exit 1; }
 
@@ -85,23 +88,23 @@ main() {
   esac
 
   # Get values to display.
-  date_now=$(date "+%A, %B %-d, %Y") \
-    || bfl::die "Unable to determine date."
-  host=$(hostname) \
-    || bfl::die "Unable to determine hostname ."
-  ip_address_private=$(ip route get 1 | head -n1 | cut -d' ' -f7) \
-    || bfl::die "Unable to determine private IP address."
-  ip_address_public=$(curl -s --max-time 5 https://ipinfo.io/ip) \
-    || bfl::die "Unable to determine public IP address."
-  time_now=$(date "+%-l:%M %p %Z") \
-    || bfl::die "Unable to determine time."
-  user=$(whoami) \
-    || bfl::die "Unable to determine user."
+  date_now=$(date "+%A, %B %-d, %Y") ||
+    bfl::die "Unable to determine date."
+  host=$(hostname) ||
+    bfl::die "Unable to determine hostname ."
+  ip_address_private=$(ip route get 1 | head -n1 | cut -d' ' -f7) ||
+    bfl::die "Unable to determine private IP address."
+  ip_address_public=$(curl -s --max-time 5 https://ipinfo.io/ip) ||
+    bfl::die "Unable to determine public IP address."
+  time_now=$(date "+%-l:%M %p %Z") ||
+    bfl::die "Unable to determine time."
+  user=$(whoami) ||
+    bfl::die "Unable to determine user."
 
   # Create border.
   width=$((21+${#date_now}))
-  border=$(bfl::repeat "=" "${width}") \
-    || bfl::die "Unable to create a repeated string."
+  border=$(bfl::repeat "=" "${width}") ||
+    bfl::die "Unable to create a repeated string."
 
   # Display the banner.
   printf "%b\\n" "${!name_of_color_constant}"   # Indirect variable expansion.
