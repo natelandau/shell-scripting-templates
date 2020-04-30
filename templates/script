@@ -60,6 +60,9 @@ main() {
     exit 1
   fi
 
+  # Display usage message if requested.
+  [[ "$#" -gt 0 && ("$1" = "-h" || "$1" = "--help") ]] && { usage; exit 0; }
+
   # Verify argument count.
   bfl::verify_arg_count "$#" 2 2 || { usage; exit 1; } # TODO
 

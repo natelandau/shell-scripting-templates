@@ -54,8 +54,8 @@ main() {
     exit 1
   fi
 
-  # Display usage message.
-  [[ "$1" = "-h" || "$1" = "--help" ]] && { usage; exit 0; }
+  # Display usage message if requested.
+  [[ "$#" -gt 0 && ("$1" = "-h" || "$1" = "--help") ]] && { usage; exit 0; }
 
   # Verify argument count.
   bfl::verify_arg_count "$#" 0 1 || { usage; exit 1; }
@@ -83,7 +83,7 @@ main() {
       name_of_color_constant="bfl_aes_${color}"
       ;;
     * )
-      bfl::warn "The specified color is not supported." && { usage; exit 1; }
+      bfl::error "The specified color is not supported." && { usage; exit 1; }
       ;;
   esac
 
