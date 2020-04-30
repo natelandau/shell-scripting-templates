@@ -54,9 +54,14 @@ bfl::verify_arg_count() {
   # Test.
   if [[ "${actual_arg_count}" -lt "${expected_arg_count_min}" || \
         "${actual_arg_count}" -gt "${expected_arg_count_max}" ]]; then
-    error_msg="Invalid number of arguments. Expected between "
-    error_msg+="${expected_arg_count_min} and ${expected_arg_count_max}, "
-    error_msg+="received ${actual_arg_count}."
+    if [[ "${expected_arg_count_min}" -eq "${expected_arg_count_max}" ]]; then
+      error_msg="Invalid number of arguments. Expected "
+      error_msg+="${expected_arg_count_min}, received ${actual_arg_count}."
+    else
+      error_msg="Invalid number of arguments. Expected between "
+      error_msg+="${expected_arg_count_min} and ${expected_arg_count_max}, "
+      error_msg+="received ${actual_arg_count}."
+    fi
     printf "%b\\n" "${bfl_aes_red}Error. ${error_msg}${bfl_aes_reset}" 1>&2
     return 1
   fi
