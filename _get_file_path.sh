@@ -10,7 +10,7 @@
 # Gets the canonical path to a file.
 #
 # @param string $path
-#   A relative path, absolute path, or symlink.
+#   A relative path, absolute path, or symbolic link.
 #
 # @return string $canonical_file_path
 #   The canonical path to the file.

@@ -10,7 +10,7 @@
 # Gets the file name, excluding extension.
 #
 # @param string $path
-#   A relative path, absolute path, or symlink.
+#   A relative path, absolute path, or symbolic link.
 #
 # @return string $file_name_without_extension
 #   The file name, excluding extension.

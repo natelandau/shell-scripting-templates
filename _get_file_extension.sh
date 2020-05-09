@@ -10,7 +10,7 @@
 # Gets the file extension.
 #
 # @param string $path
-#   A relative path, absolute path, or symlink.
+#   A relative path, absolute path, or symbolic link.
 #
 # @return string $file_extension
 #   The file extension, excluding the preceding period.

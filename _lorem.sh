@@ -28,7 +28,7 @@
 #   Valid resources:
 #   - darwin (The Origin of Species by Charles Darwin)
 #   - mills (The Rocky Mountain Wonderland by Enos Mills)
-#   - muir (Our Nataional Parks by John Muir)
+#   - muir (Our National Parks by John Muir)
 #
 # @return string $text
 #   The extracted paragraphs.
