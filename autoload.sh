@@ -67,12 +67,12 @@
 # This will only source file names that begin with an underscore.
 #------------------------------------------------------------------------------
 bfl::autoload() {
-  declare autoload_cannonical_path   # Canonical path to this file.
+  declare autoload_canonical_path   # Canonical path to this file.
   declare autoload_directory         # Directory in which this file resides.
   declare file
 
-  autoload_cannonical_path=$(readlink -e "${BASH_SOURCE[0]}") || exit 1
-  autoload_directory=$(dirname "${autoload_cannonical_path}") || exit 1
+  autoload_canonical_path=$(readlink -e "${BASH_SOURCE[0]}") || exit 1
+  autoload_directory=$(dirname "${autoload_canonical_path}") || exit 1
 
   for file in "${autoload_directory}"/_*; do
     source "${file}" || exit 1
