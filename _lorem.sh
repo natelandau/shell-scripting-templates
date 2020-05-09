@@ -63,7 +63,6 @@ bfl::lorem() {
   declare text
 
   # Declare all other variables (sorted by name).
-  declare i
   declare first_paragraph_number
   declare last_paragraph_number
   declare maximum_first_paragraph_number
@@ -79,7 +78,7 @@ bfl::lorem() {
   # Select the resource file from which to extract paragraphs.
   case "${resource}" in
     "darwin" )
-      resource_file=${resource_directory}/the-orgin-of-species-by-charles-darwin.txt
+      resource_file=${resource_directory}/the-origin-of-species-by-charles-darwin.txt
       ;;
     "mills" )
       resource_file=${resource_directory}/the-rocky-mountain-wonderland-by-enos-mills.txt
