@@ -72,9 +72,9 @@ main() {
 
     # Set the headers for each section. Need to do this each time through the
     # loop because one or more may be pluralized if there is more than one.
-    header_examples="#### Example"
-    header_params="#### Parameter"
-    header_returns="#### Return"
+    header_examples="Example"
+    header_params="Parameter"
+    header_returns="Return"
 
     # Find the function name (one line).
     func_name=$(grep -Eo -m1 "bfl::.+" "${file}" | sed 's/().*//') \
@@ -122,17 +122,16 @@ main() {
     func_examples="\\n${btx3}bash\\n${func_examples}\\n${btx3}\\n"
 
     # Add to the table of contents.
-    toc+="* [${func_name}](#${func_name//::/_})\\n"
+    toc+="* [${func_name}](#${func_name//::/})\\n"
 
     # Add to the body.
-    body+="<a id=\"${func_name//::/_}\"></a>\\n\\n"
     body+="## ${func_name}\\n\\n"
     body+="${func_summary}\\n\\n"
-    ! bfl::is_empty "${func_params}" && body+="${header_params}\\n"
+    ! bfl::is_empty "${func_params}" && body+="**${header_params}**\\n"
     ! bfl::is_empty "${func_params}" && body+="${func_params}\\n\\n"
-    ! bfl::is_empty "${func_returns}" && body+="${header_returns}\\n"
+    ! bfl::is_empty "${func_returns}" && body+="**${header_returns}**\\n"
     ! bfl::is_empty "${func_returns}" && body+="${func_returns}\\n\\n"
-    ! bfl::is_empty "${func_examples}" && body+="${header_examples}\\n"
+    ! bfl::is_empty "${func_examples}" && body+="**${header_examples}**\\n"
     ! bfl::is_empty "${func_examples}" && body+="${func_examples}\\n"
   done
 

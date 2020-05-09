@@ -2,6 +2,13 @@
 
 ## Coding Standards
 
+[Getting Started](#getting-started)  
+[Indenting and Whitespace](#indenting-and-whitespace)  
+[Naming Conventions](#naming-conventions)  
+[Syntax](#syntax)  
+[Other](#other)  
+[Library Functions](#library-functions)  
+
 ### Getting Started
 
 * When creating a new function for this library, please start with the
@@ -42,7 +49,8 @@ Guide](https://google.github.io/styleguide/shell.xml).
 * Use `printf` instead of `echo`.
 * Use `declare` instead of `local`.
 * Use `declare -r` instead of `readonly`.
-* Use `declare -g` when creating a global variable. Don't create global variables.
+* Use `declare -g` when creating a global variable. Don't create global
+variables.
 * Declare and assign on the same line.  
   `declare -r foo="$1"`
 * Declare and assign on separate lines when using command
@@ -102,8 +110,8 @@ From the [example function](../examples/_introduce.sh):
 #
 # For example, to capture the "return" value of this function from a script:
 #
-#   introduction=$(bfl::introduce "John" "25") \
-#     || bfl::die "Unable to create introduction."
+#   introduction=$(bfl::introduce "John" "25") ||
+#     bfl::die "Unable to create introduction."
 #
 # Note that we test the exit status of the command substitution, and in this
 # case call bfl::die with an error message upon failure.
@@ -112,11 +120,12 @@ From the [example function](../examples/_introduce.sh):
 # variable, then print the variable. Reference this variable name in the
 # function header's "@return" declaration.
 #
-# Although global variables are discouraged, if you choose to create a global
-# variable within this function:
+# Although discouraged, if you choose to create a global variable within the
+# library function:
 #
-#   a) Use "declare -g foo" syntax.
-#   b) Include a @return declaration in the function header. For example:
+#   a) Use "declare -g" syntax.
+#   b) Prepend `bfl_` to the variable name to avoid namespace collisions.
+#   c) Include a @return declaration in the function header. For example:
 #
 #   @return global string $foo
 #     The foo, which can either be "bar" or "baz".

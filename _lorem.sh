@@ -15,8 +15,8 @@
 # edited to remove:
 #
 #   1) Front matter
-#   2) End matter
-#   3) Foot notes
+#   2) Back matter
+#   3) Footnotes
 #   4) Cross references
 #   5) Captions
 #   6) Any paragraph less than or equal to 200 characters.

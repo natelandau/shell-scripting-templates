@@ -68,18 +68,19 @@
 # variable, then print the variable. Reference this variable name in the
 # function header's "@return" declaration.
 #
-# Although global variables are discouraged, if you choose to create a global
-# variable within this function:
+# Although discouraged, if you choose to create a global variable within the
+# library function:
 #
-#   a) Use "declare -g foo" syntax.
-#   b) Include a @return declaration in the function header. For example:
+#   a) Use "declare -g" syntax.
+#   b) Prepend `bfl_` to the variable name to avoid namespace collisions.
+#   c) Include a @return declaration in the function header. For example:
 #
 #   @return global string $foo
 #     The foo, which can either be "bar" or "baz".
 #
 #-----
 #
-# This silly example function has 171 lines (5539 bytes):
+# This silly example function has 171 lines (5599 bytes):
 #
 #   Shebang: 1 (not required)
 #   Comments: 143

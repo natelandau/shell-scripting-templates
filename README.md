@@ -9,8 +9,6 @@
 * [Templates](#templates)
 * [Documentation](#documentation)
 
-<a id="overview"></a>
-
 ## Overview
 
 The Bash Function Library is a collection of utility functions. The library is
@@ -26,8 +24,6 @@ on one or more of the others. Source the entire library by sourcing
 autoload.sh. See the comments in autoload.sh for an explanation of the loading
 process.
 
-<a id="installation"></a>
-
 ## Installation
 
 1\. Clone this repository into `${HOME}/.lib/bfl`.
@@ -36,7 +32,8 @@ process.
 git clone https://github.com/jmooring/bash-function-library.git "${HOME}/.lib/bfl"
 ```
 
-2\. Create a permanent environment variable containing the path to the autoloader.
+2\. Create a permanent environment variable containing the path to the
+autoloader.
 
 ```bash
 heredoc=$(cat<<EOT
@@ -66,8 +63,6 @@ else
   printf "Error. Unable to source BASH_FUNCTION_LIBRARY.\\n" 1>&2
 fi
 ```
-
-<a id="configuration"></a>
 
 ## Configuration
 
@@ -111,8 +106,6 @@ if ! source "${BASH_FUNCTION_LIBRARY}"; then
 fi
 ```
 
-<a id="examples"></a>
-
 ## Examples
 
 [examples/\_introduce.sh](examples/_introduce.sh)
@@ -121,9 +114,8 @@ fi
 
 [examples/session-info](examples/session-info)
 
-> This script leverages the Bash Function Library, displaying a banner with user and system information.
-
-<a id="templates"></a>
+> This script leverages the Bash Function Library, displaying a banner with
+user and system information.
 
 ## Templates
 
@@ -133,9 +125,8 @@ fi
 
 [templates/script](templates/script)
 
-> Use this template to create a script which leverages the Bash Function Library.
-
-<a id="documentation"></a>
+> Use this template to create a script which leverages the Bash Function
+Library.
 
 ## Documentation
 
