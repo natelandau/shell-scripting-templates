@@ -26,6 +26,7 @@
 # @param string $resource (optional)
 #   The resource from which to extract the paragraphs (default: muir).
 #   Valid resources:
+#   - burroughs (The Breath of Life)
 #   - darwin (The Origin of Species by Charles Darwin)
 #   - mills (The Rocky Mountain Wonderland by Enos Mills)
 #   - muir (Our National Parks by John Muir)
@@ -37,6 +38,8 @@
 #   bfl::lorem
 # @example
 #   bfl::lorem 2
+# @example
+#   bfl::lorem 3 burroughs
 # @example
 #   bfl::lorem 3 darwin
 # @example
@@ -77,6 +80,9 @@ bfl::lorem() {
 
   # Select the resource file from which to extract paragraphs.
   case "${resource}" in
+    "burroughs" )
+      resource_file=${resource_directory}/the-breath-of-life-by-john-burroughs.txt
+      ;;
     "darwin" )
       resource_file=${resource_directory}/the-origin-of-species-by-charles-darwin.txt
       ;;

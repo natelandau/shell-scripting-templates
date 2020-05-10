@@ -480,6 +480,7 @@ string $text
 ```bash
 bfl::lorem
 bfl::lorem 2
+bfl::lorem 3 burroughs
 bfl::lorem 3 darwin
 bfl::lorem 3 mills
 bfl::lorem 3 muir
@@ -700,4 +701,4 @@ bfl::warn "The foo is bar."
 ```
 
 ---
-*Last updated: 2020-05-09T22:09:05-04:00.*
+*Last updated: 2020-05-09T22:27:49-04:00.*
