@@ -149,9 +149,11 @@ declare_assertions() {
     'bfl::lorem|"1" "darwin" "a"|1'
     'bfl::lorem||0'
     'bfl::lorem|"2"|0'
+    'bfl::lorem|"1" "burroughs" |0'
     'bfl::lorem|"1" "darwin" |0'
     'bfl::lorem|"1" "mills" |0'
     'bfl::lorem|"1" "muir" |0'
+    'bfl::lorem|"1" "virgil" |0'
     'bfl::lorem|"1" "xxx" |1'
 
     'bfl::print_args||1'

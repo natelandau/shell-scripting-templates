@@ -30,6 +30,7 @@
 #   - darwin (The Origin of Species by Charles Darwin)
 #   - mills (The Rocky Mountain Wonderland by Enos Mills)
 #   - muir (Our National Parks by John Muir)
+#   - virgil (The Aeneid by Virgil)
 #
 # @return string $text
 #   The extracted paragraphs.
@@ -46,6 +47,8 @@
 #   bfl::lorem 3 mills
 # @example
 #   bfl::lorem 3 muir
+# @example
+#   bfl::lorem 3 virgil
 #------------------------------------------------------------------------------
 bfl::lorem() {
   # Verify argument count.
@@ -91,6 +94,9 @@ bfl::lorem() {
       ;;
     "muir" )
       resource_file=${resource_directory}/our-national-parks-by-john-muir.txt
+      ;;
+    "virgil" )
+      resource_file=${resource_directory}/the-aeneid-by-virgil.txt
       ;;
     * )
       bfl::die "Unknown resource."

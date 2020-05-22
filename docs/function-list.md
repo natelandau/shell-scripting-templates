@@ -484,6 +484,7 @@ bfl::lorem 3 burroughs
 bfl::lorem 3 darwin
 bfl::lorem 3 mills
 bfl::lorem 3 muir
+bfl::lorem 3 virgil
 ```
 
 ## bfl::print_args
@@ -701,4 +702,4 @@ bfl::warn "The foo is bar."
 ```
 
 ---
-*Last updated: 2020-05-09T22:27:49-04:00.*
+*Last updated: 2020-05-22T14:34:30-04:00.*
