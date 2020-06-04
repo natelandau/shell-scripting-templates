@@ -26,7 +26,7 @@
 # @param string $resource (optional)
 #   The resource from which to extract the paragraphs (default: muir).
 #   Valid resources:
-#   - burroughs (The Breath of Life)
+#   - burroughs (The Breath of Life by John Burroughs)
 #   - darwin (The Origin of Species by Charles Darwin)
 #   - mills (The Rocky Mountain Wonderland by Enos Mills)
 #   - muir (Our National Parks by John Muir)
