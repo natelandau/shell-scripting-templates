@@ -1,0 +1,149 @@
+# See https://git-scm.com/docs/gitattributes.
+
+#------------------------------------------------------------------------------
+# Text files.
+#
+# text
+#   - Converts line endings to LF in the repository.
+#
+# eol=lf
+#   - Normalizes line endings to LF on checkin and prevents conversion to CRLF
+#     when the file is checked out.
+#
+# whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+#   - Treats trailing whitespaces at the end of the line as an error.
+#   - Does not treat blank lines added at the end of file as an error.
+#   - Does not treat a space character that appears immediately before a tab
+#     character in the initial indent part of the line as an error.
+#   - Treats a tab character in the initial indent part of the line as an
+#     error.
+#   - Sets the tabwidth to 2.
+#
+# The whitespace configuration defines what diff and apply should consider
+# whitespace errors
+#   - Errors are exposed by default in 'git diff --color'.
+#   - Validate with 'git diff --check'.
+#   - Deny applying with 'git apply --whitespace=error-all'.
+#   - Fix automatically with 'git apply --whitespace=fix'.
+#------------------------------------------------------------------------------
+
+*.config  text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.css     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=css
+*.dist    text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.engine  text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=php
+*.htm     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=html
+*.html    text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=html
+*.inc     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=php
+*.install text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=php
+*.js      text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.json    text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.lock    text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.map     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.md      text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=markdown
+*.module  text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=php
+*.php     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=php
+*.po      text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.profile text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=php
+*.sass    text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.script  text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.scss    text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=css
+*.sh      text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.sql     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.svg     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.theme   text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=php
+*.toml    text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.twig    text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.txt     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.xml     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.yaml    text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.yml     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+
+#------------------------------------------------------------------------------
+# Binary files.
+#
+# binary
+#   - This is a macro for -text, -diff, -merge.
+#------------------------------------------------------------------------------
+
+# Archive.
+*.iso     binary
+*.tar     binary
+
+# Compressed.
+*.bz2     binary
+*.gz      binary
+
+# Compressed archive.
+*.phar    binary
+*.rar     binary
+*.tar.gz  binary
+*.tgz     binary
+*.zip     binary
+
+# Adobe.
+*.ai      binary
+*.eps     binary
+*.pdf     binary
+*.ps      binary
+*.psd     binary
+
+# Audio/video.
+*.mp3     binary
+*.mp4     binary
+*.oga     binary
+*.ogg     binary
+*.ogv     binary
+*.ogx     binary
+*.webm    binary
+
+# Fonts.
+*.eot     binary
+*.otf     binary
+*.ttf     binary
+*.woff    binary
+*.woff2   binary
+
+# Images.
+*.bmp     binary
+*.gif     binary
+*.ico     binary
+*.jpeg    binary
+*.jpg     binary
+*.png     binary
+*.svgz    binary
+*.tif     binary
+*.tiff    binary
+*.webp    binary
+
+# Libre Office.
+*.odb     binary
+*.odf     binary
+*.odg     binary
+*.odm     binary
+*.odp     binary
+*.ods     binary
+*.odt     binary
+*.otg     binary
+*.otp     binary
+*.ots     binary
+*.ott     binary
+
+# Microsoft Office.
+*.docx    binary
+*.dotx    binary
+*.potx    binary
+*.pptx    binary
+*.xlsx    binary
+*.xltx    binary
+
+# Microsoft Office (legacy).
+*.doc     binary
+*.dot     binary
+*.pot     binary
+*.ppt     binary
+*.xls     binary
+*.xlt     binary
+
+# Other.
+*.dll     binary
+*.exe     binary
