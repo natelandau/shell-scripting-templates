@@ -2,22 +2,22 @@
 
 #------------------------------------------------------------------------------
 # @file
-# Defines function: bfl::library_function(). #TODO
+# Defines function: bfl::library_function(). # TODO
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # @function
-# Does something. #TODO
+# Does something. # TODO
 #
-# Detailed description. Use multiple lines if needed. #TODO
+# Detailed description. Use multiple lines if needed. # TODO
 #
-# @param type $foo #TODO
-#   Description. #TODO
-# @param type $bar #TODO
-#   Description. #TODO
+# @param type $foo # TODO
+#   Description. # TODO
+# @param type $bar # TODO
+#   Description. # TODO
 #
-# @return type $baz #TODO
-#   Description. #TODO
+# @return type $baz # TODO
+#   Description. # TODO
 #
 # @example
 #   bfl::library_function "Fred" "George" # TODO

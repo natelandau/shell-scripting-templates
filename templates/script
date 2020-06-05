@@ -2,9 +2,9 @@
 
 #------------------------------------------------------------------------------
 # @file
-# Does something. #TODO
+# Does something. # TODO
 #
-# Detailed description. Use multiple lines if needed. #TODO
+# Detailed description. Use multiple lines if needed. # TODO
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ usage() {
   msg=$(cat <<EOT
 One sentence description. # TODO
 
-Detailed description. Use multiple lines if needed. #TODO
+Detailed description. Use multiple lines if needed. # TODO
 
 Usage:    $(basename "$0") foo bar # TODO
 
@@ -33,7 +33,7 @@ EOT
 # @function
 # Performs cleanup when script exits for any reason. Called by trap.
 #
-# Detailed description. Use multiple lines if needed. #TODO
+# Detailed description. Use multiple lines if needed. # TODO
 #------------------------------------------------------------------------------
 cleanup() {
   # TODO
@@ -44,12 +44,12 @@ cleanup() {
 # @function
 # Main function.
 #
-# Detailed description. Use multiple lines if needed. #TODO
+# Detailed description. Use multiple lines if needed. # TODO
 #
-# @param type $foo #TODO
-#   Description. #TODO
-# @param type $bar #TODO
-#   Description. #TODO
+# @param type $foo # TODO
+#   Description. # TODO
+# @param type $bar # TODO
+#   Description. # TODO
 #
 # shellcheck disable=1090
 #------------------------------------------------------------------------------
