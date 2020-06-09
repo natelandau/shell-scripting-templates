@@ -28,7 +28,7 @@ bfl::foo () {
 ```
 
 The `bfl::verify_arg_count` function **does not** call `bfl::die` on error.
-Instead, `bfl::verify_arg_count` calls `return&nbsp;1` upon error.
+Instead, `bfl::verify_arg_count` calls `return 1` upon error.
 This exception allows the parent script to call a usage function when the
 argument count is incorrect. For example:
 
