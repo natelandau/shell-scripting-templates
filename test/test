@@ -3,6 +3,10 @@
 #------------------------------------------------------------------------------
 # @file
 # Performs assertion testing of the functions in this library.
+#
+# This simple testing mechanism has no provision for the construction and
+# deconstruction of unit test scaffolding. Consequently, I am unable to provide
+# an affirmative assertion for bfl::is_apache_vhost.
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -59,10 +63,19 @@ declare_assertions() {
     'bfl::generate_password|"7"|1'
     'bfl::generate_password|"8"|0'
 
+    'bfl::get_directory_path||1'
+    'bfl::get_directory_path|""|1'
+    'bfl::get_directory_path|" "|1'
+    'bfl::get_directory_path|"a" "b"|1'
+    'bfl::get_directory_path|"/tmp"|0'
+    'bfl::get_directory_path|"/tmp/non-existent-directory"|1'
+    'bfl::get_directory_path|"/etc/host.conf"|1'
+
     'bfl::get_file_directory||1'
     'bfl::get_file_directory|""|1'
     'bfl::get_file_directory|" "|1'
     'bfl::get_file_directory|"a" "b"|1'
+    'bfl::get_file_directory|"/tmp"|1'
     'bfl::get_file_directory|"/tmp/non-existent-file.ext"|1'
     'bfl::get_file_directory|"/etc/host.conf"|0'
 
@@ -99,6 +112,17 @@ declare_assertions() {
     'bfl::inform|" "|0'
     'bfl::inform|"foo"|0'
     'bfl::inform|"foo" "bar"|1'
+
+    'bfl::is_apache_vhost||1'
+    'bfl::is_apache_vhost|""|1'
+    'bfl::is_apache_vhost|"" ""|1'
+    'bfl::is_apache_vhost|" " " "|1'
+    'bfl::is_apache_vhost|"a" "b"|1'
+    'bfl::is_apache_vhost|"a"|1'
+    'bfl::is_apache_vhost|"a" " "|1'
+    'bfl::is_apache_vhost|"a" "b"|1'
+    'bfl::is_apache_vhost|"a" "/etc/apache2/sites-enabled"|1'
+    'bfl::is_apache_vhost|"/tmp" "b"|1'
 
     'bfl::is_blank||1'
     'bfl::is_blank|""|0'

@@ -7,12 +7,14 @@
 * [bfl::error](#bflerror)
 * [bfl::find_nearest_integer](#bflfind_nearest_integer)
 * [bfl::generate_password](#bflgenerate_password)
+* [bfl::get_directory_path](#bflget_directory_path)
 * [bfl::get_file_directory](#bflget_file_directory)
 * [bfl::get_file_extension](#bflget_file_extension)
 * [bfl::get_file_name](#bflget_file_name)
 * [bfl::get_file_name_without_extension](#bflget_file_name_without_extension)
 * [bfl::get_file_path](#bflget_file_path)
 * [bfl::inform](#bflinform)
+* [bfl::is_apache_vhost](#bflis_apache_vhost)
 * [bfl::is_blank](#bflis_blank)
 * [bfl::is_empty](#bflis_empty)
 * [bfl::is_integer](#bflis_integer)
@@ -260,6 +262,26 @@ string $password
 bfl::generate_password "16"
 ```
 
+## bfl::get_directory_path
+
+Gets the canonical path to a directory.
+
+**Parameter**
+
+string $path
+>A relative path, absolute path, or symbolic link.
+
+**Return**
+
+string $canonical_directory_path
+>The canonical path to the directory.
+
+**Example**
+
+```bash
+bfl::get_directory_path "./foo"
+```
+
 ## bfl::get_file_directory
 
 Gets the canonical path to the directory in which a file resides.
@@ -373,6 +395,25 @@ string $msg (optional)
 
 ```bash
 bfl::inform "The foo is bar."
+```
+
+## bfl::is_apache_vhost
+
+Checks if the given path is the root of an Apache virtual host.
+
+**Parameters**
+
+string $path
+>A relative path, absolute path, or symbolic link.
+
+string $sites_enabled [optional]
+>Absolute path to Apache's "sites-enabled" directory.
+
+**Examples**
+
+```bash
+bfl::is_apache_vhost "./foo"
+bfl::is_apache_vhost "./foo" "/etc/apache2/sites-enabled"
 ```
 
 ## bfl::is_blank
@@ -702,4 +743,4 @@ bfl::warn "The foo is bar."
 ```
 
 ---
-*Last updated: 2020-05-22T14:34:30-04:00.*
+*Last updated: 2020-06-19T15:21:31-04:00.*
