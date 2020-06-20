@@ -126,7 +126,7 @@
 #
 # @param string $name
 #   The person's name.
-# @param integer $age
+# @param int $age
 #   The person's age.
 #
 # @return string $introduction

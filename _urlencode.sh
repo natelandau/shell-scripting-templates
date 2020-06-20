@@ -7,7 +7,9 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Percent-encodes a URL per https://tools.ietf.org/html/rfc3986#section-2.1.
+# Percent-encodes a URL.
+#
+# See <https://tools.ietf.org/html/rfc3986#section-2.1>.
 #
 # @param string $str
 #   The string to be encoded.

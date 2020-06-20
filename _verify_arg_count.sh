@@ -17,11 +17,11 @@
 # - bfl::verify_arg_count()
 # - bfl::is_integer()
 #
-# @param integer $actual_arg_count
+# @param int $actual_arg_count
 #   Actual number of arguments received.
-# @param integer $expected_arg_count_min
+# @param int $expected_arg_count_min
 #   Minimum number of arguments expected.
-# @param integer $expected_arg_count_max
+# @param int $expected_arg_count_max
 #   Maximum number of arguments expected.
 #
 # @example

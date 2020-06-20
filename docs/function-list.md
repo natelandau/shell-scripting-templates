@@ -248,7 +248,7 @@ Generates a random password.
 
 **Parameter**
 
-integer $pswd_length
+int $pswd_length
 >The length of the desired password.
 
 **Return**
@@ -491,7 +491,7 @@ list $pieces
 **Return**
 
 string $joined_string
->Example: "This is,a,test."
+>The joined string.
 
 **Example**
 
@@ -617,7 +617,7 @@ Converts seconds to the hh:mm:ss format.
 
 **Parameter**
 
-integer $seconds
+int $seconds
 >The number of seconds to convert.
 
 **Return**
@@ -673,7 +673,7 @@ bfl::trim " foo "
 
 ## bfl::urlencode
 
-Percent-encodes a URL per https://tools.ietf.org/html/rfc3986#section-2.1.
+Percent-encodes a URL.
 
 **Parameter**
 
@@ -697,13 +697,13 @@ Verifies the number of arguments received against expected values.
 
 **Parameters**
 
-integer $actual_arg_count
+int $actual_arg_count
 >Actual number of arguments received.
 
-integer $expected_arg_count_min
+int $expected_arg_count_min
 >Minimum number of arguments expected.
 
-integer $expected_arg_count_max
+int $expected_arg_count_max
 >Maximum number of arguments expected.
 
 **Example**
@@ -743,4 +743,4 @@ bfl::warn "The foo is bar."
 ```
 
 ---
-*Last updated: 2020-06-19T15:21:31-04:00.*
+*Last updated: 2020-06-20T15:38:20-04:00.*

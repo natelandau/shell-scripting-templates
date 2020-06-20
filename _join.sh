@@ -18,7 +18,7 @@
 #   The list of strings to be combined.
 #
 # @return string $joined_string
-#   Example: "This is,a,test."
+#   The joined string.
 #
 # @example
 #   bfl::join "," "foo" "bar" "baz"

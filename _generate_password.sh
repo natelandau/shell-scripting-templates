@@ -21,7 +21,7 @@
 # benign special character (i.e., it won't break quoted strings, doesn't
 # contain escape sequences, etc.).
 #
-# @param integer $pswd_length
+# @param int $pswd_length
 #   The length of the desired password.
 #
 # @return string $password

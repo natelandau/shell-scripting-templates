@@ -9,7 +9,7 @@
 # @function
 # Converts seconds to the hh:mm:ss format.
 #
-# @param integer $seconds
+# @param int $seconds
 #   The number of seconds to convert.
 #
 # @return string $hhmmss
