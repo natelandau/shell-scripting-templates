@@ -138,6 +138,34 @@ function System::Efi::get_least_entry() {
 }
 
 
+# Checks if PARTITION is used by the EFI bootloader
+#
+# @param String   PARTITION       Device path of the partition (e.g. '/dev/sda1')
+#
+# @return Boolean  true if PARTITION is used by the EFI bootloader, else false
+function System::Efi::is_boot_partition() {
+  local -r PARTITION="${1:-}"; shift
+
+  System::Partition::exists "${PARTITION}" || return 1
+
+  # EFI partitions have to be Fat32
+  local -r PARTITION_TYPE=$( blkid -o value -s TYPE "${PARTITION}" )
+  [[ ${PARTITION_TYPE} != "vfat" ]] && return 1
+
+  # And they have to contain an "EFI" folder
+  local -r TMP_MOUNT_DIR="$( mktemp -d )"
+  if test -d "${TMP_MOUNT_DIR}"; then
+    mount -t vfat "${PARTITION}" "${TMP_MOUNT_DIR}"
+    local -r RESULT=$( test -d "${TMP_MOUNT_DIR}/EFI" )$?
+
+    umount "${TMP_MOUNT_DIR}"
+    rm -rf "${TMP_MOUNT_DIR}"
+  fi
+
+  [[ "${RESULT}" -eq "0" ]]
+}
+
+
 # Checks if the sources of KERNEL exist in the local system
 #
 # @param String   KERNEL          Name of the kernel
@@ -152,7 +180,7 @@ function System::Kernel::exists() {
 
 # Returns the string representation of an array of all kernel sources available in '/usr/src' (lowest first, highest last)
 #
-# @return String  String representation of an array (e.g. "4.4.6-gentoo 4.4.39-gentoo")
+# @return String  String representation of an array (e.g. '( [0]="4.16.18-gentoo" [1]="4.17.13-gentoo" [2]="4.17.14-gentoo" )')
 function System::Kernel::get_available() {
   # List all kernel sources folders, sort their base names naturally (the lowest version first, the highest last) and remove the 'linux-' prefix
   local -r AVAILABLE_VERSIONS=( $( find /usr/src/ -maxdepth 1 -name 'linux-*' -type d -print0 | xargs --null --max-args=1 basename | sort --version-sort | sed -e 's/^linux-//' ) )
