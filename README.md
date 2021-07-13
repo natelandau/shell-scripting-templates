@@ -26,6 +26,7 @@ scriptTemplate.sh includes some helper functions to perform common tasks.
   * `_functionStack_` Prints the function stack in use to aid debugging
   * `_parseOptions_` Parse options and take user input (`-a`, `--some-flag`, and `--some-file [filename]` supported)
   * `_usage_` Prints help text when `-h` passed
+  * `_safeExit_` Used to exit gracefully, cleaning up all temporary files etc.
 
 ### Script Initialization
 The bottom of the script template file contains a block which initializes the script.  Comment, uncomment, or change the settings here for your needs
