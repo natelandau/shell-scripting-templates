@@ -121,6 +121,8 @@ Commonly used functions in many scripts
   * `_haveFunction_` Tests if a function exists
   * `_pauseScript_` Pause a script at any point and continue after user input
   * `_progressBar_` Prints a progress bar within a for/while loop
+  * `_rootAvailable_` Validate we have superuser access as root (via sudo if requested)
+  * `_runAsRoot_` Run the requested command as root (via sudo if requested)
   * `_seekConfirmation_` Seek user input for yes/no question
   * `_setPATH_` Add directories to $PATH so script can find executables
 

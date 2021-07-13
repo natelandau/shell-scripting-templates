@@ -230,6 +230,64 @@ _progressBar_() {
   tput cnorm
 }
 
+_rootAvailable_() {
+  # DESC: Validate we have superuser access as root (via sudo if requested)
+  # ARGS: $1 (optional): Set to any value to not attempt root access via sudo
+  # OUTS: None
+  # NOTE: https://github.com/ralish/bash-script-template
+
+  local superuser
+  if [[ ${EUID} -eq 0 ]]; then
+      superuser=true
+  elif [[ -z ${1-} ]]; then
+    if command -v sudo &>/dev/null; then
+      debug 'Sudo: Updating cached credentials ...'
+      if ! sudo -v; then
+        warning "Sudo: Couldn't acquire credentials ..."
+      else
+        local test_euid
+        test_euid="$(sudo -H -- "$BASH" -c 'printf "%s" "$EUID"')"
+        if [[ ${test_euid} -eq 0 ]]; then
+          superuser=true
+        fi
+      fi
+    fi
+  fi
+
+  if [[ -z ${superuser-} ]]; then
+      notice 'Unable to acquire superuser credentials.'
+      return 1
+  fi
+
+  info 'Successfully acquired superuser credentials.'
+  return 0
+}
+
+_runAsRoot_() {
+  # DESC: Run the requested command as root (via sudo if requested)
+  # ARGS: $1 (optional): Set to zero to not attempt execution via sudo
+  #       $@ (required): Passed through for execution as root user
+  # OUTS: None
+  # NOTE: https://github.com/ralish/bash-script-template
+
+  if [[ $# -eq 0 ]]; then
+      fatal 'Missing required argument to _runAsRoot_()!'
+  fi
+
+  if [[ ${1-} =~ ^0$ ]]; then
+      local skip_sudo=true
+      shift
+  fi
+
+  if [[ ${EUID} -eq 0 ]]; then
+    "$@"
+  elif [[ -z ${skip_sudo-} ]]; then
+    sudo -H -- "$@"
+  else
+    fatal "Unable to run requested command as root: $*"
+  fi
+}
+
 _seekConfirmation_() {
   # DESC:  Seek user input for yes/no question
   # ARGS:   $1 (Optional) - Question being asked
