@@ -1,255 +1,393 @@
 #!/usr/bin/env bash
 
-# ##################################################
-# My Generic BASH script template
-#
-version="1.0.0"               # Sets version variable
-#
-scriptTemplateVersion="1.5.0" # Version of scriptTemplate.sh that this script is based on
-#                               v1.1.0 -  Added 'debug' option
-#                               v1.1.1 -  Moved all shared variables to Utils
-#                                      -  Added $PASS variable when -p is passed
-#                               v1.2.0 -  Added 'checkDependencies' function to ensure needed
-#                                         Bash packages are installed prior to execution
-#                               v1.3.0 -  Can now pass CLI without an option to $args
-#                               v1.4.0 -  checkDependencies now checks gems and mac apps via
-#                                         Homebrew cask
-#                               v1.5.0 - Now has preferred IFS setting
-#                                      - Preset flags now respect true/false
-#                                      - Moved 'safeExit' function into template where it should
-#                                        have been all along.
-#
-# HISTORY:
-#
-# * DATE - v1.0.0  - First Creation
-#
-# ##################################################
+_mainScript_() {
 
-# Provide a variable with the location of this script.
-scriptPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+  info "Hello world"
 
-# Source Scripting Utilities
-# -----------------------------------
-# These shared utilities provide many functions which are needed to provide
-# the functionality in this boilerplate. This script will fail if they can
-# not be found.
-# -----------------------------------
+} # end _mainScript_
 
-utilsLocation="${scriptPath}/lib/utils.sh" # Update this path to find the utilities.
+# Set flags and default variables
+  # Script specific
 
-if [ -f "${utilsLocation}" ]; then
-  source "${utilsLocation}"
-else
-  echo "Please find the file util.sh and add a reference to it in this script. Exiting."
-  exit 1
-fi
+  # Common
+    LOGFILE="${HOME}/logs/$(basename "$0")"
+    QUIET=false
+    LOGLEVEL=ERROR
+    VERBOSE=false
+    FORCE=false
+    DRYRUN=false
+    declare -a args=()
+    now=$(LC_ALL=C date +"%m-%d-%Y %r")                   # Returns: 06-14-2015 10:34:40 PM
+    datestamp=$(LC_ALL=C date +%Y-%m-%d)                  # Returns: 2015-06-14
+    hourstamp=$(LC_ALL=C date +%r)                        # Returns: 10:34:40 PM
+    timestamp=$(LC_ALL=C date +%Y%m%d_%H%M%S)             # Returns: 20150614_223440
+    longdate=$(LC_ALL=C date +"%a, %d %b %Y %H:%M:%S %z") # Returns: Sun, 10 Jan 2016 20:47:53 -0500
+    gmtdate=$(LC_ALL=C date -u -R | sed 's/\+0000/GMT/')  # Returns: Wed, 13 Jan 2016 15:55:29 GMT
 
-# trapCleanup Function
-# -----------------------------------
-# Any actions that should be taken if the script is prematurely
-# exited.  Always call this function at the top of your script.
-# -----------------------------------
-function trapCleanup() {
-  echo ""
-  # Delete temp files, if any
-  if is_dir "${tmpDir}"; then
-    rm -r "${tmpDir}"
+# Colors
+  if tput setaf 1 &>/dev/null; then
+    bold=$(tput bold)
+    white=$(tput setaf 7)
+    reset=$(tput sgr0)
+    purple=$(tput setaf 171)
+    red=$(tput setaf 1)
+    green=$(tput setaf 76)
+    tan=$(tput setaf 3)
+    yellow=$(tput setaf 3)
+    blue=$(tput setaf 38)
+    underline=$(tput sgr 0 1)
+  else
+    bold="\033[4;37m"
+    white="\033[0;37m"
+    reset="\033[0m"
+    purple="\033[0;35m"
+    red="\033[0;31m"
+    green="\033[1;32m"
+    tan="\033[0;33m"
+    yellow="\033[0;33m"
+    blue="\033[0;34m"
+    underline="\033[4;37m"
   fi
-  die "Exit trapped. In function: '${FUNCNAME[*]}'"
-}
 
-# safeExit
-# -----------------------------------
-# Non destructive exit for when script exits naturally.
-# Usage: Add this function at the end of every script.
-# -----------------------------------
-function safeExit() {
-  # Delete temp files, if any
-  if is_dir "${tmpDir}"; then
-    rm -r "${tmpDir}"
+_alert_() {
+  # DESC:   Controls all printing of messages to log files and stdout.
+  # ARGS:   $1 (required) - The type of alert to print
+  #                         (success, header, notice, dryrun, debug, warning, error,
+  #                         fatal, info, input)
+  #         $2 (required) - The message to be printed to stdout and/or a log file
+  #         $3 (optional) - Pass '$LINENO' to print the line number where the _alert_ was triggered
+  # OUTS:   None
+  # USAGE:  [ALERTTYPE] "[MESSAGE]" "$LINENO"
+  # NOTES:  The colors of each alert type are set in this function
+  #         For specified alert types, the funcstac will be printed
+
+  local function_name color
+  local alertType="${1}"
+  local message="${2}"
+  local line="${3-}"
+
+  [ -z "${LOGFILE-}" ] && fatal "\$LOGFILE must be set"
+  [ ! -d "$(dirname "${LOGFILE}")" ] && mkdir -p "$(dirname "${LOGFILE}")"
+
+  if [ -z "${line}" ]; then
+    [[ "$1" =~ ^(fatal|error|debug|warning) && "${FUNCNAME[2]}" != "_trapCleanup_" ]] \
+      && message="${message} $(_functionStack_)"
+  else
+    [[ "$1" =~ ^(fatal|error|debug) && "${FUNCNAME[2]}" != "_trapCleanup_" ]] \
+      && message="${message} (line: $line) $(_functionStack_)"
   fi
-  trap - INT TERM EXIT
-  exit
-}
 
-# Set Flags
-# -----------------------------------
-# Flags which can be overridden by user input.
-# Default values are below
-# -----------------------------------
-quiet=false
-printLog=false
-verbose=false
-force=false
-strict=false
-debug=false
-args=()
+  if [ -n "${line}" ]; then
+    [[ "$1" =~ ^(warning|info|notice|dryrun) && "${FUNCNAME[2]}" != "_trapCleanup_" ]] \
+      && message="${message} (line: $line)"
+  fi
 
-# Set Temp Directory
-# -----------------------------------
-# Create temp directory with three random numbers and the process ID
-# in the name.  This directory is removed automatically at exit.
-# -----------------------------------
-tmpDir="/tmp/${scriptName}.$RANDOM.$RANDOM.$RANDOM.$$"
-(umask 077 && mkdir "${tmpDir}") || {
-  die "Could not create temporary directory! Exiting."
-}
+  if [[ "${alertType}" =~ ^(error|fatal) ]]; then
+    color="${bold}${red}"
+  elif [ "${alertType}" = "warning" ]; then
+    color="${red}"
+  elif [ "${alertType}" = "success" ]; then
+    color="${green}"
+  elif [ "${alertType}" = "debug" ]; then
+    color="${purple}"
+  elif [ "${alertType}" = "header" ]; then
+    color="${bold}${tan}"
+  elif [[ "${alertType}" =~ ^(input|notice) ]]; then
+    color="${bold}"
+  elif [ "${alertType}" = "dryrun" ]; then
+    color="${blue}"
+  else
+    color=""
+  fi
 
-# Logging
-# -----------------------------------
-# Log is only used when the '-l' flag is set.
-#
-# To never save a logfile change variable to '/dev/null'
-# Save to Desktop use: $HOME/Desktop/${scriptBasename}.log
-# Save to standard user log location use: $HOME/Library/Logs/${scriptBasename}.log
-# -----------------------------------
-logFile="$HOME/Library/Logs/${scriptBasename}.log"
+  _writeToScreen_() {
 
-# Check for Dependencies
-# -----------------------------------
-# Arrays containing package dependencies needed to execute this script.
-# The script will fail if dependencies are not installed.  For Mac users,
-# most dependencies can be installed automatically using the package
-# manager 'Homebrew'.  Mac applications will be installed using
-# Homebrew Casks. Ruby and gems via RVM.
-# -----------------------------------
-homebrewDependencies=()
-caskDependencies=()
-gemDependencies=()
+    ("${QUIET}") && return 0  # Print to console when script is not 'quiet'
+    [[ ${VERBOSE} == false && "${alertType}" =~ ^(debug|verbose) ]] && return 0
 
-function mainScript() {
-############## Begin Script Here ###################
-####################################################
+    if ! [[ -t 1 ]]; then  # Don't use colors on non-recognized terminals
+      color=""
+      reset=""
+    fi
 
-echo -n
+    echo -e "$(date +"%r") ${color}$(printf "[%7s]" "${alertType}") ${message}${reset}"
+  }
+  _writeToScreen_
 
-####################################################
-############### End Script Here ####################
-}
+  _writeToLog_() {
+ [[ "${alertType}" == "input" ]] && return 0
+    [[ "${LOGLEVEL}" =~ (off|OFF|Off) ]] && return 0
+    [[ ! -f "${LOGFILE}" ]] && touch "${LOGFILE}"
 
-############## Begin Options and Usage ###################
+    # Don't use colors in logs
+    if command -v gsed &>/dev/null; then
+      local cleanmessage="$(echo "${message}" | gsed -E 's/(\x1b)?\[(([0-9]{1,2})(;[0-9]{1,3}){0,2})?[mGK]//g')"
+    else
+      local cleanmessage="$(echo "${message}" | sed -E 's/(\x1b)?\[(([0-9]{1,2})(;[0-9]{1,3}){0,2})?[mGK]//g')"
+    fi
+    echo -e "$(date +"%b %d %R:%S") $(printf "[%7s]" "${alertType}") [$(/bin/hostname)] ${cleanmessage}" >>"${LOGFILE}"
+  }
 
-
-# Print usage
-usage() {
-  echo -n "${scriptName} [OPTION]... [FILE]...
-
-This is a script template.  Edit this description to print help to users.
-
- ${bold}Options:${reset}
-  -u, --username    Username for script
-  -p, --password    User password
-  --force           Skip all user interaction.  Implied 'Yes' to all actions.
-  -q, --quiet       Quiet (no output)
-  -l, --log         Print log to file
-  -s, --strict      Exit script with null variables.  i.e 'set -o nounset'
-  -v, --verbose     Output more information. (Items echoed to 'verbose')
-  -d, --debug       Runs script in BASH debug mode (set -x)
-  -h, --help        Display this help and exit
-      --version     Output version information and exit
-"
-}
-
-# Iterate over options breaking -ab into -a -b when needed and --foo=bar into
-# --foo bar
-optstring=h
-unset options
-while (($#)); do
-  case $1 in
-    # If option is of type -ab
-    -[!-]?*)
-      # Loop over each character starting with the second
-      for ((i=1; i < ${#1}; i++)); do
-        c=${1:i:1}
-
-        # Add current char to options
-        options+=("-$c")
-
-        # If option takes a required argument, and it's not the last char make
-        # the rest of the string its argument
-        if [[ $optstring = *"$c:"* && ${1:i+1} ]]; then
-          options+=("${1:i+1}")
-          break
-        fi
-      done
+  # Write specified log level data to logfile
+  case "${LOGLEVEL:-ERROR}" in
+    ALL|all|All)
+      _writeToLog_
       ;;
-
-    # If option is of type --foo=bar
-    --?*=*) options+=("${1%%=*}" "${1#*=}") ;;
-    # add --endopts for --
-    --) options+=(--endopts) ;;
-    # Otherwise, nothing special
-    *) options+=("$1") ;;
+    DEBUG|debug|Debug)
+      _writeToLog_
+      ;;
+    INFO|info|Info)
+      if [[ "${alertType}" =~ ^(die|error|fatal|warning|info|notice|success) ]]; then
+        _writeToLog_
+      fi
+      ;;
+    WARN|warn|Warn)
+      if [[ "${alertType}" =~ ^(die|error|fatal|warning) ]]; then
+        _writeToLog_
+      fi
+      ;;
+    ERROR|error|Error)
+      if [[ "${alertType}" =~ ^(die|error|fatal) ]]; then
+        _writeToLog_
+      fi
+      ;;
+    FATAL|fatal|Fatal)
+      if [[ "${alertType}" =~ ^(die|fatal) ]]; then
+        _writeToLog_
+      fi
+    ;;
+    OFF|off)
+      return 0
+    ;;
+    *)
+      if [[ "${alertType}" =~ ^(die|error|fatal) ]]; then
+        _writeToLog_
+      fi
+      ;;
   esac
-  shift
-done
-set -- "${options[@]}"
-unset options
 
-# Print help if no arguments were passed.
-# Uncomment to force arguments when invoking the script
-# [[ $# -eq 0 ]] && set -- "--help"
+} # /_alert_
 
-# Read the options and set stuff
-while [[ $1 = -?* ]]; do
-  case $1 in
-    -h|--help) usage >&2; safeExit ;;
-    --version) echo "$(basename $0) ${version}"; safeExit ;;
-    -u|--username) shift; username=${1} ;;
-    -p|--password) shift; echo "Enter Pass: "; stty -echo; read PASS; stty echo;
-      echo ;;
-    -v|--verbose) verbose=true ;;
-    -l|--log) printLog=true ;;
-    -q|--quiet) quiet=true ;;
-    -s|--strict) strict=true;;
-    -d|--debug) debug=true;;
-    --force) force=true ;;
-    --endopts) shift; break ;;
-    *) die "invalid option: '$1'." ;;
-  esac
-  shift
-done
+error() { _alert_ error "${1}" "${2-}"; }
+warning() { _alert_ warning "${1}" "${2-}"; }
+notice() { _alert_ notice "${1}" "${2-}"; }
+info() { _alert_ info "${1}" "${2-}"; }
+success() { _alert_ success "${1}" "${2-}"; }
+dryrun() { _alert_ dryrun "${1}" "${2-}"; }
+input() { _alert_ input "${1}" "${2-}"; }
+header() { _alert_ header "== ${1} ==" "${2-}"; }
+die() { _alert_ fatal "${1}" "${2-}"; _safeExit_ "1" ; }
+fatal() { _alert_ fatal "${1}" "${2-}"; _safeExit_ "1" ; }
+debug() { _alert_ debug "${1}" "${2-}"; }
+verbose() { _alert_ debug "${1}" "${2-}"; }
 
-# Store the remaining part as arguments.
-args+=("$@")
+_safeExit_() {
+  # DESC: Cleanup and exit from a script
+  # ARGS: $1 (optional) - Exit code (defaults to 0)
+  # OUTS: None
 
-############## End Options and Usage ###################
+  if [[ -d "${script_lock-}" ]]; then
+    if command rm -rf "${script_lock}"; then
+      debug "Removing script lock"
+    else
+      warning "Script lock could not be removed. Try manually deleting ${tan}'${lock_dir}'${red}"
+    fi
+  fi
 
+  if [[ -n "${tmpDir-}" && -d "${tmpDir-}" ]]; then
+    if [[ ${1-} == 1 && -n "$(ls "${tmpDir}")" ]]; then
+      command rm -r "${tmpDir}"
+    else
+      command rm -r "${tmpDir}"
+      debug "Removing temp directory"
+    fi
+  fi
 
+  trap - INT TERM EXIT
+  exit ${1:-0}
+}
 
+_trapCleanup_() {
+  # DESC:  Log errors and cleanup from script when an error is trapped
+  # ARGS:   $1 - Line number where error was trapped
+  #         $2 - Line number in function
+  #         $3 - Command executing at the time of the trap
+  #         $4 - Names of all shell functions currently in the execution call stack
+  #         $5 - Scriptname
+  #         $6 - $BASH_SOURCE
+  # OUTS:   None
 
-# ############# ############# #############
-# ##       TIME TO RUN THE SCRIPT        ##
-# ##                                     ##
-# ## You shouldn't need to edit anything ##
-# ## beneath this line                   ##
-# ##                                     ##
-# ############# ############# #############
+  local line=${1-} # LINENO
+  local linecallfunc=${2-}
+  local command="${3-}"
+  local funcstack="${4-}"
+  local script="${5-}"
+  local sourced="${6-}"
 
-# Trap bad exits with your cleanup function
-trap trapCleanup EXIT INT TERM
+  funcstack="'$(echo "$funcstack" | sed -E 's/ / < /g')'"
 
-# Set IFS to preferred implementation
-IFS=$'\n\t'
+  if [[ "${script##*/}" == "${sourced##*/}" ]]; then
+    fatal "${7-} command: '$command' (line: $line) [func: $(_functionStack_)]"
+  else
+    fatal "${7-} command: '$command' (func: ${funcstack} called at line $linecallfunc of '${script##*/}') (line: $line of '${sourced##*/}') "
+  fi
 
-# Exit on error. Append '||true' when you run the script if you expect an error.
-set -o errexit
+  _safeExit_ "1"
+}
 
-# Run in debug mode, if set
-if ${debug}; then set -x ; fi
+_makeTempDir_() {
+  # DESC:   Creates a temp directory to house temporary files
+  # ARGS:   $1 (Optional) - First characters/word of directory name
+  # OUTS:   $tmpDir       - Temporary directory
+  # USAGE:  _makeTempDir_ "$(basename "$0")"
 
-# Exit on empty variable
-if ${strict}; then set -o nounset ; fi
+  [ -d "${tmpDir:-}" ] && return 0
 
-# Bash will remember & return the highest exitcode in a chain of pipes.
-# This way you can catch the error in case mysqldump fails in `mysqldump |gzip`, for example.
-set -o pipefail
+  if [ -n "${1-}" ]; then
+    tmpDir="${TMPDIR:-/tmp/}${1}.$RANDOM.$RANDOM.$$"
+  else
+    tmpDir="${TMPDIR:-/tmp/}$(basename "$0").$RANDOM.$RANDOM.$RANDOM.$$"
+  fi
+  (umask 077 && mkdir "${tmpDir}") || {
+    fatal "Could not create temporary directory! Exiting."
+  }
+  debug "\$tmpDir=$tmpDir"
+}
 
-# Invoke the checkDependenices function to test for Bash packages.  Uncomment if needed.
-# checkDependencies
+_acquireScriptLock_() {
+  # DESC: Acquire script lock
+  # ARGS: $1 (optional) - Scope of script execution lock (system or user)
+  # OUTS: $script_lock - Path to the directory indicating we have the script lock
+  # NOTE: This lock implementation is extremely simple but should be reliable
+  #       across all platforms. It does *not* support locking a script with
+  #       symlinks or multiple hardlinks as there's no portable way of doing so.
+  #       If the lock was acquired it's automatically released in _safeExit_()
 
-# Run your script
-mainScript
+  local lock_dir
+  if [[ ${1-} == 'system' ]]; then
+    lock_dir="${TMPDIR:-/tmp/}$(basename "$0").lock"
+  else
+    lock_dir="${TMPDIR:-/tmp/}$(basename "$0").$UID.lock"
+  fi
 
-# Exit cleanlyd
-safeExit
+  if command mkdir "${lock_dir}" 2>/dev/null; then
+    readonly script_lock="${lock_dir}"
+    debug "Acquired script lock: ${tan}${script_lock}${purple}"
+  else
+    error "Unable to acquire script lock: ${tan}${lock_dir}${red}"
+    fatal "If you trust the script isn't running, delete the lock dir"
+  fi
+}
+
+_functionStack_() {
+  # DESC:   Prints the function stack in use
+  # ARGS:   None
+  # OUTS:   Prints [function]:[file]:[line]
+  # NOTE:   Does not print functions from the alert class
+  local _i
+  funcStackResponse=()
+  for ((_i = 1; _i < ${#BASH_SOURCE[@]}; _i++)); do
+    case "${FUNCNAME[$_i]}" in "_alert_" | "_trapCleanup_" | fatal | error | warning | verbose | debug | die) continue ;; esac
+    funcStackResponse+=("${FUNCNAME[$_i]}:$(basename ${BASH_SOURCE[$_i]}):${BASH_LINENO[$_i - 1]}")
+  done
+  printf "( "
+  printf %s "${funcStackResponse[0]}"
+  printf ' < %s' "${funcStackResponse[@]:1}"
+  printf ' )\n'
+}
+
+_parseOptions_() {
+  # Iterate over options
+  # breaking -ab into -a -b when needed and --foo=bar into --foo bar
+  optstring=h
+  unset options
+  while (($#)); do
+    case $1 in
+      # If option is of type -ab
+      -[!-]?*)
+        # Loop over each character starting with the second
+        for ((i = 1; i < ${#1}; i++)); do
+          c=${1:i:1}
+          options+=("-$c") # Add current char to options
+          # If option takes a required argument, and it's not the last char make
+          # the rest of the string its argument
+          if [[ $optstring == *"$c:"* && ${1:i+1} ]]; then
+            options+=("${1:i+1}")
+            break
+          fi
+        done
+        ;;
+      # If option is of type --foo=bar
+      --?*=*) options+=("${1%%=*}" "${1#*=}") ;;
+      # add --endopts for --
+      --) options+=(--endopts) ;;
+      # Otherwise, nothing special
+      *) options+=("$1") ;;
+    esac
+    shift
+  done
+  set -- "${options[@]}"
+  unset options
+
+  # Read the options and set stuff
+  while [[ ${1-} == -?* ]]; do
+    case $1 in
+      -h | --help)
+        _usage_ >&2
+        _safeExit_
+        ;;
+      -l | --loglevel)
+        shift
+        LOGLEVEL=${1}
+        ;;
+      -n | --dryrun) DRYRUN=true ;;
+      -v | --verbose) VERBOSE=true ;;
+      -q | --quiet) QUIET=true ;;
+      --force) FORCE=true ;;
+      --endopts)
+        shift
+        break
+        ;;
+      *) fatal "invalid option: '$1'." ;;
+    esac
+    shift
+  done
+  args+=("$@") # Store the remaining user input as arguments.
+}
+
+_usage_() {
+  cat <<EOF
+
+  ${bold}$(basename "$0") [OPTION]... [FILE]...${reset}
+
+  This is a script template.  Edit this description to print help to users.
+
+  ${bold}Options:${reset}
+    -h, --help        Display this help and exit
+    -l, --loglevel    One of: FATAL, ERROR, WARN, INFO, DEBUG, ALL, OFF  (Default is 'ERROR')
+
+      $ $(basename "$0") --loglevel 'WARN'
+
+    -n, --dryrun      Non-destructive. Makes no permanent changes.
+    -q, --quiet       Quiet (no output)
+    -v, --verbose     Output more information. (Items echoed to 'verbose')
+    --force           Skip all user interaction.  Implied 'Yes' to all actions.
+EOF
+}
+
+# Initialize and run the script
+trap '_trapCleanup_ ${LINENO} ${BASH_LINENO} "${BASH_COMMAND}" "${FUNCNAME[*]}" "${0}" "${BASH_SOURCE[0]}"' \
+  EXIT INT TERM SIGINT SIGQUIT
+set -o errtrace                           # Trap errors in subshells and functions
+set -o errexit                            # Exit on error. Append '||true' if you expect an error
+set -o pipefail                           # Use last non-zero exit code in a pipeline
+# shopt -s nullglob globstar              # Make `for f in *.txt` work when `*.txt` matches zero files
+IFS=$' \n\t'                              # Set IFS to preferred implementation
+# set -o xtrace                           # Run in debug mode
+set -o nounset                            # Disallow expansion of unset variables
+# [[ $# -eq 0 ]] && _parseOptions_ "-h"   # Force arguments when invoking the script
+_parseOptions_ "$@"                       # Parse arguments passed to script
+# _makeTempDir_ "$(basename "$0")"        # Create a temp directory '$tmpDir'
+# _acquireScriptLock_                     # Acquire script lock
+_mainScript_                              # Run the main logic script
+_safeExit_                                # Exit cleanly

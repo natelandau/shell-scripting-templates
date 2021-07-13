@@ -480,8 +480,9 @@ s/&#60;/</g
 s/&lt;/</g
 s/&#62;/>/g
 s/&gt;/>/g
-s/&#38;/&/g
-s/&amp;/&/g
+s/&#38;/\&/g
+s/&amp;/\&/g
+
 # http://www.w3schools.com/tags/ref_entities.asp
 # ^([^ \t]+)[ \t]+(&amp;[^;]*;)[ \t]+(&amp;[^;]*;).*$
 # s/\2/\1/g\ns/\3/\1/g
