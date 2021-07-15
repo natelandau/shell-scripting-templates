@@ -50,36 +50,28 @@ _mainScript_() {
   fi
 
 _alert_() {
-  # DESC:   Controls all printing of messages to log files and stdout.
+ # DESC:   Controls all printing of messages to log files and stdout.
   # ARGS:   $1 (required) - The type of alert to print
   #                         (success, header, notice, dryrun, debug, warning, error,
   #                         fatal, info, input)
   #         $2 (required) - The message to be printed to stdout and/or a log file
-  #         $3 (optional) - Pass '$LINENO' to print the line number where the _alert_ was triggered
+  #         $3 (optional) - Pass '${LINENO}' to print the line number where the _alert_ was triggered
   # OUTS:   None
-  # USAGE:  [ALERTTYPE] "[MESSAGE]" "$LINENO"
+  # USAGE:  [ALERTTYPE] "[MESSAGE]" "${LINENO}"
   # NOTES:  The colors of each alert type are set in this function
   #         For specified alert types, the funcstac will be printed
 
   local function_name color
   local alertType="${1}"
   local message="${2}"
-  local line="${3-}"
+  local line="${3-}"    # Optional line number
 
-  [ -z "${LOGFILE-}" ] && fatal "\$LOGFILE must be set"
-  [ ! -d "$(dirname "${LOGFILE}")" ] && mkdir -p "$(dirname "${LOGFILE}")"
-
-  if [ -z "${line}" ]; then
-    [[ "$1" =~ ^(fatal|error|debug|warning) && "${FUNCNAME[2]}" != "_trapCleanup_" ]] \
-      && message="${message} $(_functionStack_)"
-  else
-    [[ "$1" =~ ^(fatal|error|debug) && "${FUNCNAME[2]}" != "_trapCleanup_" ]] \
-      && message="${message} (line: $line) $(_functionStack_)"
-  fi
-
-  if [ -n "${line}" ]; then
-    [[ "$1" =~ ^(warning|info|notice|dryrun) && "${FUNCNAME[2]}" != "_trapCleanup_" ]] \
-      && message="${message} (line: $line)"
+  if [[ -n "${line}" && "${alertType}" =~ ^(fatal|error) && "${FUNCNAME[2]}" != "_trapCleanup_" ]]; then
+    message="${message} (line: ${line}) $(_functionStack_)"
+  elif [[ -n "${line}" && "${FUNCNAME[2]}" != "_trapCleanup_" ]]; then
+    message="${message} (line: ${line})"
+  elif [[ -z "${line}" && "${alertType}" =~ ^(fatal|error) && "${FUNCNAME[2]}" != "_trapCleanup_" ]]; then
+    message="${message} $(_functionStack_)"
   fi
 
   if [[ "${alertType}" =~ ^(error|fatal) ]]; then
@@ -115,8 +107,10 @@ _alert_() {
   _writeToScreen_
 
   _writeToLog_() {
- [[ "${alertType}" == "input" ]] && return 0
+    [[ "${alertType}" == "input" ]] && return 0
     [[ "${LOGLEVEL}" =~ (off|OFF|Off) ]] && return 0
+    [ -z "${LOGFILE-}" ] && fatal "\$LOGFILE must be set"
+    [ ! -d "$(dirname "${LOGFILE}")" ] && mkdir -p "$(dirname "${LOGFILE}")"
     [[ ! -f "${LOGFILE}" ]] && touch "${LOGFILE}"
 
     # Don't use colors in logs
