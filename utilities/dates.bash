@@ -335,7 +335,7 @@ _parseDate_() {
   debug "${tan}\$_parseDate_monthName: ${_parseDate_monthName}${purple}"
   debug "${tan}\$_parseDate_day:       ${_parseDate_day}${purple}"
   [[ -z ${_parseDate_hour:-} ]]    || debug "${tan}\$_parseDate_hour:     ${_parseDate_hour}${purple}"
-  [[ -z ${_parseDate_inute:-} ]]   || debug "${tan}\$_parseDate_minute:   ${_parseDate_minute}${purple}"
+  [[ -z ${_parseDate_minute:-} ]]   || debug "${tan}\$_parseDate_minute:   ${_parseDate_minute}${purple}"
 
   shopt -u nocasematch
 
