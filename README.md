@@ -90,7 +90,7 @@ _sourceHelperFiles_
 ```
 
 ## alerts.bash
-Basic alerting and setting colors functions (included in scriptTemplate.sh by default).  Print messages to stdout and to a user specified logfile using the following functions.
+Basic alerting, logging, and setting color functions (included in scriptTemplate.sh by default).  Print messages to stdout and to a user specified logfile using the following functions.
 
 ```bash
 debug "some text"     # Printed only when in Verbose mode
@@ -102,6 +102,12 @@ fatal "some text"     # Fatal errors. Exits the script
 success "some text"   # Prints a success message
 header "some text"    # Prints a header element
 ```
+
+Set the following variables for the alert functions to work.
+
+* `$LOGFILE` - Location of a log file
+* `$LOGLEVEL` - One of: FATAL, ERROR, WARN, INFO, DEBUG, ALL, OFF  (Default is 'ERROR')
+* `$QUIET` - If `true`, nothing will print to STDOUT (Logs files will still be populated)
 
 ## arrays.bash
 Common functions for working with BASH arrays.
