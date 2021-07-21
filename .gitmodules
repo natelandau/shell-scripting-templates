@@ -5,5 +5,5 @@
 	path = test/test_helper/bats-file
 	url = https://github.com/bats-core/bats-file
 [submodule "test/test_helper/bats-asser"]
-	path = test/test_helper/bats-asser
+	path = test/test_helper/bats-assert
 	url = https://github.com/ztombol/bats-assert
