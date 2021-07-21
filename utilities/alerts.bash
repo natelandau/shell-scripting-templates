@@ -149,3 +149,20 @@ die() { _alert_ fatal "${1}" "${2-}"; _safeExit_ "1" ; }
 fatal() { _alert_ fatal "${1}" "${2-}"; _safeExit_ "1" ; }
 debug() { _alert_ debug "${1}" "${2-}"; }
 verbose() { _alert_ debug "${1}" "${2-}"; }
+
+_functionStack_() {
+  # DESC:   Prints the function stack in use
+  # ARGS:   None
+  # OUTS:   Prints [function]:[file]:[line]
+  # NOTE:   Does not print functions from the alert class
+  local _i
+  funcStackResponse=()
+  for ((_i = 1; _i < ${#BASH_SOURCE[@]}; _i++)); do
+    case "${FUNCNAME[$_i]}" in "_alert_" | "_trapCleanup_" | fatal | error | warning | verbose | debug | die) continue ;; esac
+    funcStackResponse+=("${FUNCNAME[$_i]}:$(basename ${BASH_SOURCE[$_i]}):${BASH_LINENO[$_i - 1]}")
+  done
+  printf "( "
+  printf %s "${funcStackResponse[0]}"
+  printf ' < %s' "${funcStackResponse[@]:1}"
+  printf ' )\n'
+}

@@ -1,5 +1,5 @@
 # Shell Scripting Templates and Utilities
-A collection of shell scripting utilities and templates used to ease the creation of BASH scripts.
+A collection of shell scripting utilities and templates used to ease the creation of BASH scripts. [BATS](https://github.com/bats-core/bats-core) provides unit testing capabilities.  All tests are in the `tests/` repo.
 
 ## Bash Script Template Usage
 To create a new script, copy `scriptTemplate.sh` to a new file and make it executable `chmod 755 [newscript].sh`.  Place your custom script logic within the `_mainScript_` function at the top of the script.

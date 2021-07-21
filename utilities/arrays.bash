@@ -1,3 +1,4 @@
+
 _inArray_() {
   # DESC:   Determine if a value is in an array
   # ARGS:   $1 (Required) - Value to search for
@@ -74,7 +75,7 @@ _removeDupes_() {
   # DESC:   Removes duplicate array elements.
   # ARGS:   $1 (Required) - Input array
   # OUTS:   Prints de-duped elements to standard out
-  # USAGE:  _removeDups_ "${array@]}"
+  # USAGE:  _removeDups_ "${array[@]}"
   # NOTE:   List order may not stay the same.
   #         https://github.com/dylanaraps/pure-bash-bible
     declare -A tmp_array
