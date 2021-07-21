@@ -23,6 +23,7 @@ _listFiles_() {
   case "$t" in
     glob | Glob | g | G)
       while read -r fileMatch; do
+        e="$(realpath "${fileMatch}")"
         echo "${e}"
       done < <(find "${d}" -iname "${p}" -type f -maxdepth 1 | sort)
       ;;
@@ -37,7 +38,6 @@ _listFiles_() {
       return 1
       ;;
   esac
-
 }
 
 _backupFile_() {

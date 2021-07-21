@@ -3,7 +3,7 @@
 
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-file/load'
-load 'test_helper/bats-asser/load'
+load 'test_helper/bats-assert/load'
 
 ######## SETUP TESTS ########
 ROOTDIR="$(git rev-parse --show-toplevel)"
@@ -43,7 +43,7 @@ setup() {
   BATSLIB_FILE_PATH_REM="#${TEST_TEMP_DIR}"
   BATSLIB_FILE_PATH_ADD='<temp>'
 
-  pushd "${TESTDIR}" >&2
+  pushd "${TESTDIR}" &>/dev/null
 
   ######## DEFAUL FLAGS ########
   LOGFILE="${TESTDIR}/logs/log.txt"
@@ -55,7 +55,7 @@ setup() {
 }
 
 teardown() {
-  popd >&2
+  popd &>/dev/null
   temp_del "${TESTDIR}"
 }
 
@@ -83,23 +83,75 @@ _testBackupFile_() {
     assert_failure
   }
 
-  @test "_backupFile_: backup file" {
+  @test "_backupFile_: simple backup" {
     touch "testfile"
-    run _backupFile_ -d "testfile" "backup-files"
+    run _backupFile_ "testfile"
 
     assert_success
-    assert [ -f "backup-files/testfile" ]
+    assert_file_exist "testfile.bak"
+    assert_file_exist "testfile"
   }
 
-  @test "_backupFile_: default destination & rename" {
-    mkdir backup
-    touch "testfile" "backup/testfile"
+  @test "_backupFile_: backup and unique name" {
+    touch "testfile"
+    touch "testfile.bak"
+    run _backupFile_ "testfile"
+
+    assert_success
+    assert_file_exist "testfile.bak"
+    assert_file_exist "testfile"
+    assert_file_exist "testfile.bak.1"
+  }
+
+  @test "_backupFile_: move" {
+    touch "testfile"
+    run _backupFile_ -m "testfile"
+
+    assert_success
+    assert_file_exist "testfile.bak"
+    assert_file_not_exist "testfile"
+  }
+
+  @test "_backupFile_: directory" {
+    touch "testfile"
     run _backupFile_ -d "testfile"
 
     assert_success
-    assert [ -f "backup/testfile-2" ]
+    assert_file_exist "backup/testfile"
+    assert_file_exist "testfile"
   }
 
+  @test "_backupFile_: move to directory w/ custom name" {
+    touch "testfile"
+    run _backupFile_ -dm "testfile" "dir"
+
+    assert_success
+    assert_file_exist "dir/testfile"
+    assert_file_not_exist "testfile"
+  }
+
+}
+
+_testListFiles_() {
+  @test "_listFiles_: glob" {
+    touch yestest{1,2,3}.txt
+    touch notest{1,2,3}.txt
+    run _listFiles_ g "yestest*.txt" "${TESTDIR}"
+
+    assert_success
+    assert_output --partial "yestest1.txt"
+    refute_output --partial "notest1.txt"
+  }
+
+  @test "_listFiles_: regex" {
+    touch yestest{1,2,3}.txt
+    touch notest{1,2,3}.txt
+    run _listFiles_ regex ".*notest[0-9]\.txt" "${TESTDIR}"
+
+    assert_success
+    refute_output --partial "yestest1.txt"
+    assert_output --partial "notest1.txt"
+  }
 }
 
 
@@ -114,5 +166,5 @@ _testBackupFile_() {
 
 
 
-
 _testBackupFile_
+_testListFiles_

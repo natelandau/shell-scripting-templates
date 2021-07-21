@@ -3,7 +3,7 @@
 
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-file/load'
-load 'test_helper/bats-asser/load'
+load 'test_helper/bats-assert/load'
 
 ######## SETUP TESTS ########
 ROOTDIR="$(git rev-parse --show-toplevel)"
