@@ -1,4 +1,3 @@
-
 _listFiles_() {
   # DESC:  Find files in a directory.  Use either glob or regex
   # ARGS:  $1 (Required) - 'g|glob' or 'r|regex'
@@ -117,100 +116,86 @@ _backupFile_() {
   fi
 }
 
-_cleanFilename_() {
-  # DESC:   Cleans a filename of all non-alphanumeric (or user specified)
-  #         characters and overwrites original
-  # ARGS:   $1 (Required) - File to be cleaned
-  #         $2 (optional) - Additional characters to be cleaned separated by commas
-  # OUTS:   Overwrites file with new new and prints name of new file
-  # USAGE:  _cleanFilename_ "FILENAME.TXT" "^,&,*"
-  # NOTE:   IMPORTANT - This will overwrite the original file
-  #         IMPORTANT - All spaces and underscores will be replaced by dashes (-)
-
-  [[ $# -lt 1 ]] && fatal 'Missing required argument to _cleanFilename_()!'
-
-  local arrayToClean
-  local fileToClean="$(realpath "$1")"
-  local optionalUserInput="${2-}"
-
-  IFS=',' read -r -a arrayToClean <<<"$optionalUserInput"
-
-  [ ! -f "${fileToClean}" ] \
-    && {
-      warning "_cleanFileName_ ${fileToClean}: File doesn't exist"
-      return 1
-    }
-
-  local dir="$(realpath -d "${fileToClean}")"
-  local extension="${fileToClean##*.}"
-  local baseFileName="$(basename "${fileToClean%.*}")"
-
-  for i in "${arrayToClean[@]}"; do
-    baseFileName="$(echo "${baseFileName}" | sed "s/$i//g")"
-  done
-
-  baseFileName="$(echo "${baseFileName}" | tr -dc '[:alnum:]-_ ' | sed 's/ /-/g')"
-
-  local final="${dir}/${baseFileName}.${extension}"
-
-  if [ "${fileToClean}" != "${final}" ]; then
-    final="$(_uniqueFileName_ "${final}")"
-    if ${VERBOSE}; then
-      _execute_ "mv \"${fileToClean}\" \"${final}\""
-    else
-      _execute_ -q "mv \"${fileToClean}\" \"${final}\""
-    fi
-    echo "${final}"
-  else
-    echo "${fileToClean}"
-  fi
-
-}
-
 _parseFilename_() {
   # DESC:   Break a filename into its component parts which and place them into prefixed
-  #         variables (dir, basename, extension, full path, etc.)
-  #         with _parseFile...
-  # ARGS:   $1 (Required) - A file
-  # OUTS:   $_parsedFileFull    - File and its real path (ie, resolve symlinks)
-  #         $_parseFilePath     - Path to the file
-  #         $_parseFileName     - Name of the file WITH extension
-  #         $_parseFileBase     - Name of file WITHOUT extension
-  #         $_parseFileExt      - The extension of the file (from _ext_())
+  #         variables for use in your script. Run with VERBOSE=true to see the variables while
+  #         running your script.
+  # ARGS:   $1 (Required)       - File
+  # OPTS:   -n                  - optional flag for number of extension levels (Ex: -n2)
+  # OUTS:   $PARSE_FULL         - File and its real path (ie, resolve symlinks)
+  #         $PARSE_PATH         - Path to the file
+  #         $PARSE_BASE         - Name of the file WITH extension
+  #         $PARSE_BASENOEXT    - Name of file WITHOUT extension
+  #         $PARSE_EXT          - The extension of the file (from _ext_())
+  # USAGE:  _parseFilename_ "some/file.txt"
 
-  [[ $# -lt 1 ]] && fatal 'Missing required argument to _parseFilename_()!'
+  # Error handling
+  if [[ $# -lt 1 ]] \
+    || ! command -v dirname &>/dev/null \
+    || ! command -v basename &>/dev/null \
+    || ! command -v realpath &>/dev/null; then
+
+    fatal "Missing dependency or input to _parseFilename_()"
+    return 1
+  fi
+
+  local levels
+  local option
+  local exts
+  local ext
+  local i
+  local fn
+
+  unset OPTIND
+  while getopts ":n:" option; do
+    case ${option} in
+      n) levels=${OPTARG} ;;
+      *) continue ;;
+    esac
+  done && shift $((OPTIND - 1))
+
   local fileToParse="${1}"
 
+
   [[ -f "${fileToParse}" ]] || {
-    error "Can't locate good file to parse at: ${fileToParse}"
+    error "Can't locate a file to parse at: ${fileToParse}"
     return 1
   }
 
+  PARSE_FULL="$(realpath "${fileToParse}")" \
+    && debug "\${PARSE_FULL}: ${PARSE_FULL:-}"
+  PARSE_BASE=$(basename "${fileToParse}") \
+    && debug "\${PARSE_BASE}: ${PARSE_BASE-}"
+  PARSE_PATH="$(realpath "$(dirname "${fileToParse}")")" \
+    && debug "\${PARSE_PATH}: ${PARSE_PATH:-}"
 
-  # Ensure we are working with a real file, not a symlink
-  _parsedFileFull="$(realpath "${fileToParse}")" \
-    && debug "${tan}\${_parsedFileFull}: ${_parsedFileFull-}${purple}"
-
-  # use the basename of the userFile going forward since the path is now in $filePath
-  _parseFileName=$(basename "${fileToParse}") \
-    && debug "${tan}\$_parseFileName: ${_parseFileName}${purple}"
-
-  # Grab the filename without the extension
-  _parseFileBase="${_parseFileName%.*}" \
-    && debug "${tan}\$_parseFileBase: ${_parseFileBase}${purple}"
-
-  # Grab the extension
-  if [[ "${fileToParse}" =~ .*\.[a-zA-Z]{2,4}$ ]]; then
-    _parseFileExt="$(_ext_ "${_parseFileName}")"
-  else
-    _parseFileExt=".${_parseFileName##*.}"
+  # Detect some common multi-extensions
+  if [[ ! ${levels-} ]]; then
+    case $(tr '[:upper:]' '[:lower:]' <<<"${PARSE_BASE}") in
+      *.tar.gz | *.tar.bz2) levels=2 ;;
+    esac
   fi
-  debug "${tan}\$_parseFileExt: ${_parseFileExt}${purple}"
 
-  # Grab the directory
-  _parseFilePath="${_parsedFileFull%/*}" \
-    && debug "${tan}\${_parseFilePath}: ${_parseFilePath}${purple}"
+  # Find Extension
+  levels=${levels:-1}
+  fn="${PARSE_BASE}"
+  for ((i = 0; i < levels; i++)); do
+    ext=${fn##*.}
+    if [ $i == 0 ]; then
+      exts=${ext}${exts-}
+    else
+      exts=${ext}.${exts-}
+    fi
+    fn=${fn%.$ext}
+  done
+  if [[ "${exts}" == "${PARSE_BASE}" ]]; then
+    PARSE_EXT="" && debug "\${PARSE_EXT}: ${PARSE_EXT}"
+  else
+    PARSE_EXT="${exts}" && debug "\${PARSE_EXT}: ${PARSE_EXT}"
+  fi
 
+  PARSE_BASENOEXT="${PARSE_BASE%.$PARSE_EXT}" \
+    && debug "\${PARSE_BASENOEXT}: ${PARSE_BASENOEXT}"
 }
 
 _decryptFile_() {
@@ -272,60 +257,6 @@ _encryptFile_() {
   else
     _execute_ "openssl enc -aes-256-cbc -salt -in \"${fileToEncrypt}\" -out \"${encryptedFile}\" -k \"${PASS}\"" "Encrypt ${fileToEncrypt}"
   fi
-}
-
-_ext_() {
-  # DESC:   Extract the extension from a filename
-  # ARGS:   $1 (Required) - Input file
-  # OPTS:   -n            - optional flag for number of extension levels (Ex: -n2)
-  # OUTS:   Print extension to STDOUT
-  # USAGE:
-  #   _ext_     foo.txt     #==> txt
-  #   _ext_ -n2 foo.tar.gz  #==> tar.gz
-  #   _ext_     foo.tar.gz  #==> tar.gz
-  #   _ext_ -n1 foo.tar.gz  #==> gz
-
-  [[ $# -lt 1 ]] && fatal 'Missing required argument to _ext_()!'
-
-  local levels
-  local option
-  local filename
-  local exts
-  local ext
-  local fn
-  local i
-
-  unset OPTIND
-  while getopts ":n:" option; do
-    case $option in
-      n) levels=$OPTARG ;;
-      *) continue ;;
-    esac
-  done && shift $((OPTIND - 1))
-
-  filename=${1##*/}
-
-  [[ $filename == *.* ]] || return
-
-  fn=$filename
-
-  # Detect some common multi-extensions
-  if [[ ! ${levels-} ]]; then
-    case $(tr '[:upper:]' '[:lower:]' <<<"${filename}") in
-      *.tar.gz | *.tar.bz2) levels=2 ;;
-    esac
-  fi
-
-  levels=${levels:-1}
-
-  for ((i = 0; i < levels; i++)); do
-    ext=${fn##*.}
-    exts=${ext}${exts-}
-    fn=${fn%$ext}
-    [[ "$exts" == "${filename}" ]] && return
-  done
-
-  echo "$exts"
 }
 
 _extract_() {
@@ -526,7 +457,6 @@ _parseYAML_() {
   #
   # NOTE:   https://gist.github.com/DinoChiesa/3e3c3866b51290f31243
   #         https://gist.github.com/epiloque/8cf512c6d64641bde388
-
 
   local yamlFile="${1:?_parseYAML_ needs a file}"
   local prefix="${2-}"
