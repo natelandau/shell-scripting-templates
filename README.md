@@ -129,6 +129,7 @@ Commonly used functions in many scripts
   * `_progressBar_` Prints a progress bar within a for/while loop
   * `_rootAvailable_` Validate we have superuser access as root (via sudo if requested)
   * `_runAsRoot_` Run the requested command as root (via sudo if requested)
+  * `_safeExit_` Cleans up temporary files before exiting a script
   * `_seekConfirmation_` Seek user input for yes/no question
   * `_setPATH_` Add directories to $PATH so script can find executables
 
@@ -150,11 +151,9 @@ Common utilities for working with files.
 
   * `_listFiles_` Find files in a directory.  Use either glob or regex.
   * `_backupFile_` Creates a backup of a specified file with .bak extension or optionally to a specified directory.
-  * `_cleanFilename_` Cleans a filename of all non-alphanumeric (or user specified) characters and overwrites original
-  * `_parseFilename_` Break a filename into its component parts which and place them into prefixed variables (dir, basename, extension, full path, etc.)
+  * `_parseFilename_` Break a filename into its component parts which and place them into prefixed variables for use in your script (dir, basename, extension, path, etc.)
   * `_decryptFile_` Decrypts a file with `openssl`
   * `_encryptFile_` Encrypts a file with `openssl`
-  * `_ext_` Extract the extension from a filename
   * `_extract_` Extract a compressed file
   * `_json2yaml_` Convert JSON to YAML uses python
   * `_makeSymlink_` Creates a symlink and backs up a file which may be overwritten by the new symlink. If the exact same symlink already exists, nothing is done.

@@ -512,7 +512,7 @@ _sourceFile_() {
 
   [ ! -f "$c" ] \
     && {
-      fatal "Attempted to source '$c' Not found"
+      fatal "Attempted to source '$c'. Not found"
       return 1
     }
 

@@ -1,0 +1,29 @@
+# A list of tasty fruits
+fruits:
+  - Apple
+  - Orange
+  - Strawberry
+  - Mango
+
+# An single record
+employee:
+  name: Jimmy veloper
+  job: Developer
+  skill: Elite
+
+# Multiple records
+employees:
+  martin:
+    name: Martin D'vloper
+    job: Developer
+    skills:
+      - python
+      - perl
+      - pascal
+  tabitha:
+    name: Tabitha Bitumen
+    job: Developer
+    skills:
+      - lisp
+      - fortran
+      - erlang
