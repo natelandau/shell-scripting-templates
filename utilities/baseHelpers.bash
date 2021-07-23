@@ -333,3 +333,29 @@ _setPATH_() {
     fi
   done
 }
+
+_safeExit_() {
+  # DESC: Cleanup and exit from a script
+  # ARGS: $1 (optional) - Exit code (defaults to 0)
+  # OUTS: None
+
+  if [[ -d "${script_lock-}" ]]; then
+    if command rm -rf "${script_lock}"; then
+      debug "Removing script lock"
+    else
+      warning "Script lock could not be removed. Try manually deleting ${tan}'${lock_dir}'${red}"
+    fi
+  fi
+
+  if [[ -n "${tmpDir-}" && -d "${tmpDir-}" ]]; then
+    if [[ ${1-} == 1 && -n "$(ls "${tmpDir}")" ]]; then
+      command rm -r "${tmpDir}"
+    else
+      command rm -r "${tmpDir}"
+      debug "Removing temp directory"
+    fi
+  fi
+
+  trap - INT TERM EXIT
+  exit ${1:-0}
+}
