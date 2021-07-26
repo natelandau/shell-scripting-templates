@@ -218,7 +218,7 @@ _regex_() {
   #         $2 (Required) - Regex pattern
   # OUTS:   Prints string matching regex
   #         Returns error if no part of string did not match regex
-  # USAGE:  regex "#FFFFFF" '^(#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$' || echo "no match found"
+  # USAGE:  _regex_ "#FFFFFF" '^(#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$'
   # NOTE:   This example only prints the first matching group. When using multiple capture
   #         groups some modification is needed.
   #         https://github.com/dylanaraps/pure-bash-bible
