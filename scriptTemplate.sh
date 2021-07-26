@@ -334,6 +334,10 @@ _parseOptions_() {
         shift
         LOGLEVEL=${1}
         ;;
+      -L | --logfile)
+        shift
+        LOGFILE="${1}"
+        ;;
       -n | --dryrun) DRYRUN=true ;;
       -v | --verbose) VERBOSE=true ;;
       -q | --quiet) QUIET=true ;;
@@ -361,6 +365,8 @@ _usage_() {
     -l, --loglevel    One of: FATAL, ERROR, WARN, INFO, DEBUG, ALL, OFF  (Default is 'ERROR')
 
       $ $(basename "$0") --loglevel 'WARN'
+
+    -L, --logfile     Full PATH to logfile.  (Default is '${HOME}/logs/$(basename "$0")')
 
     -n, --dryrun      Non-destructive. Makes no permanent changes.
     -q, --quiet       Quiet (no output)
