@@ -126,7 +126,7 @@ _parseFilename_() {
   #         $PARSE_PATH         - Path to the file
   #         $PARSE_BASE         - Name of the file WITH extension
   #         $PARSE_BASENOEXT    - Name of file WITHOUT extension
-  #         $PARSE_EXT          - The extension of the file (from _ext_())
+  #         $PARSE_EXT          - The extension of the file
   # USAGE:  _parseFilename_ "some/file.txt"
 
   # Error handling
