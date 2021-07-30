@@ -64,7 +64,7 @@ _alert_() {
   local function_name color
   local alertType="${1}"
   local message="${2}"
-  local line="${3-}"    # Optional line number
+  local line="${3:-}"    # Optional line number
 
   if [[ -n "${line}" && "${alertType}" =~ ^(fatal|error) && "${FUNCNAME[2]}" != "_trapCleanup_" ]]; then
     message="${message} (line: ${line}) $(_functionStack_)"
@@ -109,7 +109,7 @@ _alert_() {
   _writeToLog_() {
     [[ "${alertType}" == "input" ]] && return 0
     [[ "${LOGLEVEL}" =~ (off|OFF|Off) ]] && return 0
-    [ -z "${LOGFILE-}" ] && fatal "\$LOGFILE must be set"
+    [ -z "${LOGFILE:-}" ] && fatal "\$LOGFILE must be set"
     [ ! -d "$(dirname "${LOGFILE}")" ] && mkdir -p "$(dirname "${LOGFILE}")"
     [[ ! -f "${LOGFILE}" ]] && touch "${LOGFILE}"
 
@@ -162,25 +162,25 @@ _alert_() {
 
 } # /_alert_
 
-error() { _alert_ error "${1}" "${2-}"; }
-warning() { _alert_ warning "${1}" "${2-}"; }
-notice() { _alert_ notice "${1}" "${2-}"; }
-info() { _alert_ info "${1}" "${2-}"; }
-success() { _alert_ success "${1}" "${2-}"; }
-dryrun() { _alert_ dryrun "${1}" "${2-}"; }
-input() { _alert_ input "${1}" "${2-}"; }
-header() { _alert_ header "== ${1} ==" "${2-}"; }
-die() { _alert_ fatal "${1}" "${2-}"; _safeExit_ "1" ; }
-fatal() { _alert_ fatal "${1}" "${2-}"; _safeExit_ "1" ; }
-debug() { _alert_ debug "${1}" "${2-}"; }
-verbose() { _alert_ debug "${1}" "${2-}"; }
+error() { _alert_ error "${1}" "${2:-}"; }
+warning() { _alert_ warning "${1}" "${2:-}"; }
+notice() { _alert_ notice "${1}" "${2:-}"; }
+info() { _alert_ info "${1}" "${2:-}"; }
+success() { _alert_ success "${1}" "${2:-}"; }
+dryrun() { _alert_ dryrun "${1}" "${2:-}"; }
+input() { _alert_ input "${1}" "${2:-}"; }
+header() { _alert_ header "== ${1} ==" "${2:-}"; }
+die() { _alert_ fatal "${1}" "${2:-}"; _safeExit_ "1" ; }
+fatal() { _alert_ fatal "${1}" "${2:-}"; _safeExit_ "1" ; }
+debug() { _alert_ debug "${1}" "${2:-}"; }
+verbose() { _alert_ debug "${1}" "${2:-}"; }
 
 _safeExit_() {
   # DESC: Cleanup and exit from a script
   # ARGS: $1 (optional) - Exit code (defaults to 0)
   # OUTS: None
 
-  if [[ -d "${script_lock-}" ]]; then
+  if [[ -d "${script_lock:-}" ]]; then
     if command rm -rf "${script_lock}"; then
       debug "Removing script lock"
     else
@@ -188,8 +188,8 @@ _safeExit_() {
     fi
   fi
 
-  if [[ -n "${tmpDir-}" && -d "${tmpDir-}" ]]; then
-    if [[ ${1-} == 1 && -n "$(ls "${tmpDir}")" ]]; then
+  if [[ -n "${tmpDir:-}" && -d "${tmpDir:-}" ]]; then
+    if [[ ${1:-} == 1 && -n "$(ls "${tmpDir}")" ]]; then
       command rm -r "${tmpDir}"
     else
       command rm -r "${tmpDir}"
@@ -211,19 +211,19 @@ _trapCleanup_() {
   #         $6 - $BASH_SOURCE
   # OUTS:   None
 
-  local line=${1-} # LINENO
-  local linecallfunc=${2-}
-  local command="${3-}"
-  local funcstack="${4-}"
-  local script="${5-}"
-  local sourced="${6-}"
+  local line=${1:-} # LINENO
+  local linecallfunc=${2:-}
+  local command="${3:-}"
+  local funcstack="${4:-}"
+  local script="${5:-}"
+  local sourced="${6:-}"
 
   funcstack="'$(echo "$funcstack" | sed -E 's/ / < /g')'"
 
   if [[ "${script##*/}" == "${sourced##*/}" ]]; then
-    fatal "${7-} command: '$command' (line: $line) [func: $(_functionStack_)]"
+    fatal "${7:-} command: '$command' (line: $line) [func: $(_functionStack_)]"
   else
-    fatal "${7-} command: '$command' (func: ${funcstack} called at line $linecallfunc of '${script##*/}') (line: $line of '${sourced##*/}') "
+    fatal "${7:-} command: '$command' (func: ${funcstack} called at line $linecallfunc of '${script##*/}') (line: $line of '${sourced##*/}') "
   fi
 
   _safeExit_ "1"
@@ -237,7 +237,7 @@ _makeTempDir_() {
 
   [ -d "${tmpDir:-}" ] && return 0
 
-  if [ -n "${1-}" ]; then
+  if [ -n "${1:-}" ]; then
     tmpDir="${TMPDIR:-/tmp/}${1}.$RANDOM.$RANDOM.$$"
   else
     tmpDir="${TMPDIR:-/tmp/}$(basename "$0").$RANDOM.$RANDOM.$RANDOM.$$"
@@ -258,7 +258,7 @@ _acquireScriptLock_() {
   #       If the lock was acquired it's automatically released in _safeExit_()
 
   local lock_dir
-  if [[ ${1-} == 'system' ]]; then
+  if [[ ${1:-} == 'system' ]]; then
     lock_dir="${TMPDIR:-/tmp/}$(basename "$0").lock"
   else
     lock_dir="${TMPDIR:-/tmp/}$(basename "$0").$UID.lock"
@@ -324,7 +324,7 @@ _parseOptions_() {
   unset options
 
   # Read the options and set stuff
-  while [[ ${1-} == -?* ]]; do
+  while [[ ${1:-} == -?* ]]; do
     case $1 in
       -h | --help)
         _usage_ >&2

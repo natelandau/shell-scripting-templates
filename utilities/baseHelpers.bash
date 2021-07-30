@@ -54,7 +54,7 @@ _execute_() {
       VERBOSE=$saveVerbose
       return 0
     fi
-    if [ -n "${2-}" ]; then
+    if [ -n "${2:-}" ]; then
       dryrun "${1} (${2})" "$(caller)"
     else
       dryrun "${1}" "$(caller)"
@@ -239,7 +239,7 @@ _rootAvailable_() {
   local superuser
   if [[ ${EUID} -eq 0 ]]; then
       superuser=true
-  elif [[ -z ${1-} ]]; then
+  elif [[ -z ${1:-} ]]; then
     if command -v sudo &>/dev/null; then
       debug 'Sudo: Updating cached credentials ...'
       if ! sudo -v; then
@@ -254,7 +254,7 @@ _rootAvailable_() {
     fi
   fi
 
-  if [[ -z ${superuser-} ]]; then
+  if [[ -z ${superuser:-} ]]; then
       notice 'Unable to acquire superuser credentials.'
       return 1
   fi
@@ -274,14 +274,14 @@ _runAsRoot_() {
       fatal 'Missing required argument to _runAsRoot_()!'
   fi
 
-  if [[ ${1-} =~ ^0$ ]]; then
+  if [[ ${1:-} =~ ^0$ ]]; then
       local skip_sudo=true
       shift
   fi
 
   if [[ ${EUID} -eq 0 ]]; then
     "$@"
-  elif [[ -z ${skip_sudo-} ]]; then
+  elif [[ -z ${skip_sudo:-} ]]; then
     sudo -H -- "$@"
   else
     fatal "Unable to run requested command as root: $*"
@@ -298,7 +298,7 @@ _seekConfirmation_() {
   #           something
   #         fi
 
-  input "${1-}"
+  input "${1:-}"
   if "${FORCE}"; then
     debug "Forcing confirmation with '--force' flag set"
     echo -e ""
@@ -339,7 +339,7 @@ _safeExit_() {
   # ARGS: $1 (optional) - Exit code (defaults to 0)
   # OUTS: None
 
-  if [[ -d "${script_lock-}" ]]; then
+  if [[ -d "${script_lock:-}" ]]; then
     if command rm -rf "${script_lock}"; then
       debug "Removing script lock"
     else
@@ -347,8 +347,8 @@ _safeExit_() {
     fi
   fi
 
-  if [[ -n "${tmpDir-}" && -d "${tmpDir-}" ]]; then
-    if [[ ${1-} == 1 && -n "$(ls "${tmpDir}")" ]]; then
+  if [[ -n "${tmpDir:-}" && -d "${tmpDir:-}" ]]; then
+    if [[ ${1:-} == 1 && -n "$(ls "${tmpDir}")" ]]; then
       command rm -r "${tmpDir}"
     else
       command rm -r "${tmpDir}"

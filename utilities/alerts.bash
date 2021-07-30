@@ -39,7 +39,7 @@ _alert_() {
   local function_name color
   local alertType="${1}"
   local message="${2}"
-  local line="${3-}"    # Optional line number
+  local line="${3:-}"    # Optional line number
 
   if [[ -n "${line}" && "${alertType}" =~ ^(fatal|error) && "${FUNCNAME[2]}" != "_trapCleanup_" ]]; then
     message="${message} (line: ${line}) $(_functionStack_)"
@@ -84,7 +84,7 @@ _alert_() {
   _writeToLog_() {
     [[ "${alertType}" == "input" ]] && return 0
     [[ "${LOGLEVEL}" =~ (off|OFF|Off) ]] && return 0
-    [ -z "${LOGFILE-}" ] && fatal "\$LOGFILE must be set"
+    [ -z "${LOGFILE:-}" ] && fatal "\$LOGFILE must be set"
     [ ! -d "$(dirname "${LOGFILE}")" ] && mkdir -p "$(dirname "${LOGFILE}")"
     [[ ! -f "${LOGFILE}" ]] && touch "${LOGFILE}"
 
@@ -137,18 +137,18 @@ esac
 
 } # /_alert_
 
-error() { _alert_ error "${1}" "${2-}"; }
-warning() { _alert_ warning "${1}" "${2-}"; }
-notice() { _alert_ notice "${1}" "${2-}"; }
-info() { _alert_ info "${1}" "${2-}"; }
-success() { _alert_ success "${1}" "${2-}"; }
-dryrun() { _alert_ dryrun "${1}" "${2-}"; }
-input() { _alert_ input "${1}" "${2-}"; }
-header() { _alert_ header "== ${1} ==" "${2-}"; }
-die() { _alert_ fatal "${1}" "${2-}"; _safeExit_ "1" ; }
-fatal() { _alert_ fatal "${1}" "${2-}"; _safeExit_ "1" ; }
-debug() { _alert_ debug "${1}" "${2-}"; }
-verbose() { _alert_ debug "${1}" "${2-}"; }
+error() { _alert_ error "${1}" "${2:-}"; }
+warning() { _alert_ warning "${1}" "${2:-}"; }
+notice() { _alert_ notice "${1}" "${2:-}"; }
+info() { _alert_ info "${1}" "${2:-}"; }
+success() { _alert_ success "${1}" "${2:-}"; }
+dryrun() { _alert_ dryrun "${1}" "${2:-}"; }
+input() { _alert_ input "${1}" "${2:-}"; }
+header() { _alert_ header "== ${1} ==" "${2:-}"; }
+die() { _alert_ fatal "${1}" "${2:-}"; _safeExit_ "1" ; }
+fatal() { _alert_ fatal "${1}" "${2:-}"; _safeExit_ "1" ; }
+debug() { _alert_ debug "${1}" "${2:-}"; }
+verbose() { _alert_ debug "${1}" "${2:-}"; }
 
 _functionStack_() {
   # DESC:   Prints the function stack in use

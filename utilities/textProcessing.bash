@@ -119,7 +119,7 @@ _stopWords_() {
     fi
 
     declare -a localStopWords=()
-    IFS=',' read -r -a localStopWords <<<"${2-}"
+    IFS=',' read -r -a localStopWords <<<"${2:-}"
 
     if [[ ${#localStopWords[@]} -gt 0 ]]; then
       for w in "${localStopWords[@]}"; do

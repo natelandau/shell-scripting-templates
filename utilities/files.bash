@@ -165,12 +165,12 @@ _parseFilename_() {
   PARSE_FULL="$(realpath "${fileToParse}")" \
     && debug "\${PARSE_FULL}: ${PARSE_FULL:-}"
   PARSE_BASE=$(basename "${fileToParse}") \
-    && debug "\${PARSE_BASE}: ${PARSE_BASE-}"
+    && debug "\${PARSE_BASE}: ${PARSE_BASE:-}"
   PARSE_PATH="$(realpath "$(dirname "${fileToParse}")")" \
     && debug "\${PARSE_PATH}: ${PARSE_PATH:-}"
 
   # Detect some common multi-extensions
-  if [[ ! ${levels-} ]]; then
+  if [[ ! ${levels:-} ]]; then
     case $(tr '[:upper:]' '[:lower:]' <<<"${PARSE_BASE}") in
       *.tar.gz | *.tar.bz2) levels=2 ;;
     esac
@@ -182,9 +182,9 @@ _parseFilename_() {
   for ((i = 0; i < levels; i++)); do
     ext=${fn##*.}
     if [ $i == 0 ]; then
-      exts=${ext}${exts-}
+      exts=${ext}${exts:-}
     else
-      exts=${ext}.${exts-}
+      exts=${ext}.${exts:-}
     fi
     fn=${fn%.$ext}
   done
@@ -273,7 +273,7 @@ _extract_() {
 
   [[ $# -lt 1 ]] && fatal 'Missing required argument to _extract_()!'
 
-  [[ "${2-}" == "v" ]] && vv="v"
+  [[ "${2:-}" == "v" ]] && vv="v"
 
   if [ -f "$1" ]; then
     case "$1" in
@@ -369,7 +369,7 @@ _makeSymlink_() {
 
   local s="$1"
   local d="$2"
-  local b="${3-}"
+  local b="${3:-}"
   local o
 
   # Fix files where $HOME is written as '~'
@@ -459,7 +459,7 @@ _parseYAML_() {
   #         https://gist.github.com/epiloque/8cf512c6d64641bde388
 
   local yamlFile="${1:?_parseYAML_ needs a file}"
-  local prefix="${2-}"
+  local prefix="${2:-}"
 
   [ ! -s "${yamlFile}" ] && return 1
 
@@ -558,14 +558,14 @@ _uniqueFileName_() {
     filename="${filename%.*}"
   fi
 
-  newfile="${directory}/${filename}${extension-}"
+  newfile="${directory}/${filename}${extension:-}"
 
   if [ -e "${newfile}" ]; then
     n=1
-    while [[ -e "${directory}/${filename}${extension-}${spacer}${n}" ]]; do
+    while [[ -e "${directory}/${filename}${extension:-}${spacer}${n}" ]]; do
       ((n++))
     done
-    newfile="${directory}/${filename}${extension-}${spacer}${n}"
+    newfile="${directory}/${filename}${extension:-}${spacer}${n}"
   fi
 
   echo "${newfile}"
