@@ -320,7 +320,7 @@ _parseOptions_() {
     esac
     shift
   done
-  set -- "${options[@]}"
+  set -- "${options[@]:-}"
   unset options
 
   # Read the options and set stuff
