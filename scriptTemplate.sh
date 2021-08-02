@@ -175,6 +175,10 @@ fatal() { _alert_ fatal "${1}" "${2:-}"; _safeExit_ "1" ; }
 debug() { _alert_ debug "${1}" "${2:-}"; }
 verbose() { _alert_ debug "${1}" "${2:-}"; }
 
+# ################################## Paste or write additional utility functions here
+
+
+# ################################## Common Functions for script template
 _safeExit_() {
   # DESC: Cleanup and exit from a script
   # ARGS: $1 (optional) - Exit code (defaults to 0)
