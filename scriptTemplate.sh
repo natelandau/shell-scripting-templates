@@ -6,7 +6,7 @@ _mainScript_() {
 
 } # end _mainScript_
 
-# Set flags and default variables
+# ################################## Flags and defaults
   # Script specific
 
   # Common
@@ -24,6 +24,10 @@ _mainScript_() {
     longdate=$(LC_ALL=C date +"%a, %d %b %Y %H:%M:%S %z") # Returns: Sun, 10 Jan 2016 20:47:53 -0500
     gmtdate=$(LC_ALL=C date -u -R | sed 's/\+0000/GMT/')  # Returns: Wed, 13 Jan 2016 15:55:29 GMT
 
+# ################################## Custom utility functions
+
+
+# ################################## Common Functions for script template
 # Colors
   if tput setaf 1 &>/dev/null; then
     bold=$(tput bold)
@@ -175,10 +179,6 @@ fatal() { _alert_ fatal "${1}" "${2:-}"; _safeExit_ "1" ; }
 debug() { _alert_ debug "${1}" "${2:-}"; }
 verbose() { _alert_ debug "${1}" "${2:-}"; }
 
-# ################################## Paste or write additional utility functions here
-
-
-# ################################## Common Functions for script template
 _safeExit_() {
   # DESC: Cleanup and exit from a script
   # ARGS: $1 (optional) - Exit code (defaults to 0)
