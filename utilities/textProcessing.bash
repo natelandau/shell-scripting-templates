@@ -73,9 +73,9 @@ _cleanString_() {
     && string="$(echo "${string}" | tr '[:lower:]' '[:upper:]')"
 
   if "${alphanumeric}" && "${us}"; then
-    string="$(echo "${string}" | tr -c '[:alnum:] -' ' ')"
+    string="$(echo "${string}" | tr -c '[:alnum:] -_' ' ')"
   elif "${alphanumeric}"; then
-    string="$(echo "${string}" | sed "s/[^a-zA-Z0-9 -]//g")"
+    string="$(echo "${string}" | sed "s/[^a-zA-Z0-9 -_]//g")"
   fi
 
   if "${replace}"; then
