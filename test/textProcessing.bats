@@ -93,10 +93,16 @@ _testCleanString_() {
     assert_output "I AM IN CAPS"
   }
 
-  @test "_cleanString_: remove spaces before/aftrer -_" {
-    run _cleanString_ "word - another- word- another-word"
+  @test "_cleanString_: remove spaces before/aftrer dashes" {
+    run _cleanString_ "word - another- word -another-word"
     assert_success
     assert_output "word-another-word-another-word"
+  }
+
+   @test "_cleanString_: remove spaces before/aftrer underscores" {
+    run _cleanString_ "word _ another_ word _another_word"
+    assert_success
+    assert_output "word_another_word_another_word"
   }
 
   @test "_cleanString_: alnum" {
