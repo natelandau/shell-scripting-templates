@@ -147,12 +147,12 @@ dryrun() { _alert_ dryrun "${1}" "${2:-}"; }
 input() { _alert_ input "${1}" "${2:-}"; }
 header() { _alert_ header "== ${1} ==" "${2:-}"; }
 die() {
-        _alert_ fatal "${1}" "${2:-}"
-                                       _safeExit_ "1"
+    _alert_ fatal "${1}" "${2:-}"
+    _safeExit_ "1"
 }
 fatal() {
-          _alert_ fatal "${1}" "${2:-}"
-                                         _safeExit_ "1"
+    _alert_ fatal "${1}" "${2:-}"
+    _safeExit_ "1"
 }
 debug() { _alert_ debug "${1}" "${2:-}"; }
 verbose() { _alert_ debug "${1}" "${2:-}"; }
