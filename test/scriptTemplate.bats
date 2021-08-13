@@ -1,5 +1,4 @@
 #!/usr/bin/env bats
-#shellcheck disable
 
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-file/load'
@@ -7,14 +6,16 @@ load 'test_helper/bats-assert/load'
 
 ######## SETUP TESTS ########
 ROOTDIR="$(git rev-parse --show-toplevel)"
-SCRIPT="${ROOTDIR}/scriptTemplate.sh"
+s="${ROOTDIR}/scriptTemplate.sh"
 
-if [ -f "${SCRIPT}" ]; then
-    base="$(basename "${SCRIPT}")"
+if [ -f "${s}" ]; then
+  base="$(basename "${s}")"
 else
-  echo "Can not find '${SCRIPT}" >&2
+  printf "No executable '${s}' found.\n" >&2
+  printf "Can not run tests.\n" >&2
   exit 1
 fi
+
 
 setup() {
 
@@ -24,12 +25,13 @@ setup() {
   BATSLIB_FILE_PATH_REM="#${TEST_TEMP_DIR}"
   BATSLIB_FILE_PATH_ADD='<temp>'
 
-  pushd "${TESTDIR}" &>/dev/null
+  s="$s --logfile=${TESTDIR}/logs/log.txt"  # Logs go to temp directory
 
+  pushd "${TESTDIR}" >&2
 }
 
 teardown() {
-  popd &>/dev/null
+  popd >&2
   temp_del "${TESTDIR}"
 }
 
@@ -42,7 +44,7 @@ teardown() {
 }
 
 @test "Fail - fail on bad args and create logfile" {
-  run "${SCRIPT}" --logfile="${TESTDIR}/logs/log.txt" -K
+  run $s -K
 
   assert_failure
   assert_output --partial "[  fatal] invalid option: '-K'"
@@ -53,14 +55,14 @@ teardown() {
 }
 
 @test "success" {
-  run "${SCRIPT}" --logfile="${TESTDIR}/logs/log.txt"
+  run $s
   assert_success
   assert_output --partial "[   info] Hello world"
   assert_file_not_exist "${TESTDIR}/logs/log.txt"
 }
 
 @test "success and INFO level log" {
-  run "${SCRIPT}" --logfile="${TESTDIR}/logs/log.txt" --loglevel=INFO
+  run $s --loglevel=INFO
   assert_success
   assert_output --partial "[   info] Hello world"
 
@@ -69,15 +71,24 @@ teardown() {
 }
 
 @test "Usage (-h)" {
-  run "${SCRIPT}" --logfile="${TESTDIR}/logs/log.txt" -h
+  run $s -h
 
   assert_success
   assert_line --partial --index 0 "$base [OPTION]... [FILE]..."
 }
 
 @test "Usage (--help)" {
-  run "${SCRIPT}" --logfile="${TESTDIR}/logs/log.txt" --help
+  run $s --help
 
   assert_success
   assert_line --partial --index 0 "$base [OPTION]... [FILE]..."
+}
+
+@test "quiet (-q)" {
+  run $s -q --loglevel=INFO
+  assert_success
+  assert_output ""
+
+  run cat "${TESTDIR}/logs/log.txt"
+  assert_line --index 0 --regexp "\[   info\].*Hello world"
 }
