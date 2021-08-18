@@ -3,7 +3,7 @@ _execute_() {
     # ARGS:  $1 (Required) - The command to be executed.  Quotation marks MUST be escaped.
     #        $2 (Optional) - String to display after command is executed
     # OPTS:  -v    Always print debug output from the execute function
-    #        -p    Pass a failed command with 'return 0'.  This effecively bypasses set -e.
+    #        -p    Pass a failed command with 'return 0'.  This effectively bypasses set -e.
     #        -e    Bypass _alert_ functions and use 'echo RESULT'
     #        -s    Use '_alert_ success' for successful output. (default is 'info')
     #        -q    Do not print output (QUIET mode)

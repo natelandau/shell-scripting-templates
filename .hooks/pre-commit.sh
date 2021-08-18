@@ -10,7 +10,7 @@ _mainScript_() {
         # ARGS:   $1 (Required) - File to check
         # OUTS:   None
         # USAGE:  Call the function
-        # NOTE:   Requires a file localed at `~/.git_stop_words` containing one word per line.
+        # NOTE:   Requires a file located at `~/.git_stop_words` containing one word per line.
 
         # Fail if any matching words are present in the diff
 
@@ -100,7 +100,7 @@ _mainScript_() {
                     success "yamllint passed: '${1}'"
             fi
         else
-            notice "No YAML linter installed.  Continuiing..."
+            notice "No YAML linter installed.  Continuing..."
         fi
     }
 

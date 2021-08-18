@@ -36,7 +36,7 @@ setup() {
 
   pushd "${TESTDIR}" >&2
 
-  ######## DEFAUL FLAGS ########
+  ######## DEFAULT FLAGS ########
   LOGFILE="${TESTDIR}/logs/log.txt"
   QUIET=false
   LOGLEVEL=ERROR

@@ -18,7 +18,7 @@ _cleanString_() {
     #           - leading white space
     #           - trailing white space
     #           - multiple spaces become a single space
-    #           - remove spaces before and aftrer -_
+    #           - remove spaces before and after -_
 
     local opt
     local lc=false

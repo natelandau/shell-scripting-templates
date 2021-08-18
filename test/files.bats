@@ -45,7 +45,7 @@ setup() {
 
   pushd "${TESTDIR}" &>/dev/null
 
-  ######## DEFAUL FLAGS ########
+  ######## DEFAULT FLAGS ########
   LOGFILE="${TESTDIR}/logs/log.txt"
   QUIET=false
   LOGLEVEL=OFF

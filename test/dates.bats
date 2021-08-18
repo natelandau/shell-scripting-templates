@@ -29,7 +29,7 @@ fi
 setup() {
 
   TESTDIR="$(temp_make)"
-  ######## DEFAUL FLAGS ########
+  ######## DEFAULT FLAGS ########
   LOGFILE="${TESTDIR}/logs/log.txt"
   QUIET=false
   LOGLEVEL=OFF

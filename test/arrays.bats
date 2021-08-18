@@ -33,7 +33,7 @@ setup() {
   B=(1 2 3 4 5 6)
   DUPES=(1 2 3 1 2 3)
 
-  ######## DEFAUL FLAGS ########
+  ######## DEFAULT FLAGS ########
   LOGFILE="${TESTDIR}/logs/log.txt"
   QUIET=false
   LOGLEVEL=ERROR

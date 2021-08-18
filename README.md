@@ -157,7 +157,7 @@ Common utilities for working with files.
   * `_extract_` Extract a compressed file
   * `_json2yaml_` Convert JSON to YAML uses python
   * `_makeSymlink_` Creates a symlink and backs up a file which may be overwritten by the new symlink. If the exact same symlink already exists, nothing is done.
-  * `_parseYAML_` Convert a YANML file into BASH variables for use in a shell script
+  * `_parseYAML_` Convert a YAML file into BASH variables for use in a shell script
   * `_readFile_` Prints each line of a file
   * `_sourceFile_` Source a file into a script
   * `_uniqueFileName_` Ensure a file to be created has a unique filename to avoid overwriting other files

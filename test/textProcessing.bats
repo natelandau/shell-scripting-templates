@@ -45,7 +45,7 @@ setup() {
 
   pushd "${TESTDIR}" &>/dev/null
 
-  ######## DEFAUL FLAGS ########
+  ######## DEFAULT FLAGS ########
   LOGFILE="${TESTDIR}/logs/log.txt"
   QUIET=false
   LOGLEVEL=OFF
@@ -93,13 +93,13 @@ _testCleanString_() {
     assert_output "I AM IN CAPS"
   }
 
-  @test "_cleanString_: remove spaces before/aftrer dashes" {
+  @test "_cleanString_: remove spaces before/after dashes" {
     run _cleanString_ "word - another- word -another-word"
     assert_success
     assert_output "word-another-word-another-word"
   }
 
-   @test "_cleanString_: remove spaces before/aftrer underscores" {
+   @test "_cleanString_: remove spaces before/after underscores" {
     run _cleanString_ "word _ another_ word _another_word"
     assert_success
     assert_output "word_another_word_another_word"
@@ -173,9 +173,9 @@ _testStopWords_() {
 _testStopWords_
 
 @test "_escape_" {
-  run _escape_ "Here is some / text to & be - escape'd"
+  run _escape_ "Here is some / text to & be - escaped"
   assert_success
-  assert_output "Here\ is\ some\ /\ text\ to\ &\ be\ -\ escape'd"
+  assert_output "Here\ is\ some\ /\ text\ to\ &\ be\ -\ escaped"
 }
 
 @test "_htmlEncode_" {

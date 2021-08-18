@@ -7,7 +7,7 @@ _listFiles_() {
     # NOTE:  Searches are NOT case sensitive and MUST be quoted
     # USAGE: _listFiles_ glob "*.txt" "some/backup/dir"
     #        _listFiles_ regex ".*\.txt" "some/backup/dir"
-    #        readarry -t array < <(_listFiles_ g "*.txt")
+    #        readarray -t array < <(_listFiles_ g "*.txt")
 
     [[ $# -lt 2 ]] && {
         error 'Missing required argument to _listFiles_()!'
@@ -446,7 +446,7 @@ _makeSymlink_() {
 }
 
 _parseYAML_() {
-    # DESC:   Convert a YANML file into BASH variables for use in a shell script
+    # DESC:   Convert a YAML file into BASH variables for use in a shell script
     # ARGS:   $1 (Required) - Source YAML file
     #         $2 (Required) - Prefix for the variables to avoid namespace collisions
     # OUTS:   Prints variables and arrays derived from YAML File
