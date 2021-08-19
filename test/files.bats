@@ -356,6 +356,21 @@ _testParseYAML_() {
   assert_output "hello world"
 }
 
+@test "_uniqueFileName_: no extension" {
+  touch "test"
+
+  run _uniqueFileName_ "test"
+  assert_output --regexp ".*/test\.1$"
+}
+
+@test "_uniqueFileName_: no extension - internal integer" {
+  touch "test"
+  touch "test.1"
+
+  run _uniqueFileName_ -i "test"
+  assert_output --regexp ".*/test\.2$"
+}
+
 @test "_uniqueFileName_: Count to 3" {
   touch "test.txt"
   touch "test.txt.1"
@@ -363,6 +378,15 @@ _testParseYAML_() {
 
   run _uniqueFileName_ "test.txt"
   assert_output --regexp ".*/test\.txt\.3$"
+}
+
+@test "_uniqueFileName_: internal integer" {
+  touch "test.txt"
+  touch "test.1.txt"
+  touch "test.2.txt"
+
+  run _uniqueFileName_ -i "test.txt"
+  assert_output --regexp ".*/test\.3\.txt$"
 }
 
 @test "_uniqueFileName_: Don't confuse existing numbers" {

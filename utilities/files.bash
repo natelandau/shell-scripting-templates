@@ -1,3 +1,4 @@
+
 _listFiles_() {
     # DESC:  Find files in a directory.  Use either glob or regex
     # ARGS:  $1 (Required) - 'g|glob' or 'r|regex'
@@ -45,7 +46,8 @@ _backupFile_() {
     # ARGS:   $1 (Required)   - Source file
     #         $2 (Optional)   - Destination dir name used only with -d flag (defaults to ./backup)
     # OPTS:   -d              - Move files to a backup direcory
-    #         -m              - Replaces copy (default) with move, effectively removing the
+    #         -m              - Replaces copy (default) with move, effectively removing
+    #                           the original file
     # OUTS:   None
     # USAGE:  _backupFile_ "sourcefile.txt" "some/backup/dir"
     # NOTE:   dotfiles have their leading '.' removed in their backup
@@ -53,15 +55,15 @@ _backupFile_() {
     local opt
     local OPTIND=1
     local useDirectory=false
-    local moveFile=false
+    local MOVE_FILE=false
 
     while getopts ":dDmM" opt; do
         case ${opt} in
             d | D) useDirectory=true ;;
-            m | M) moveFile=true ;;
+            m | M) MOVE_FILE=true ;;
             *)
                 {
-                    error "Unrecognized option '$1' passed to _makeSymlink_" "${LINENO}"
+                    error "Unrecognized option '${1}' passed to _backupFile_" "${LINENO}"
                     return 1
                 }
                 ;;
@@ -71,7 +73,7 @@ _backupFile_() {
 
     [[ $# -lt 1 ]] && fatal 'Missing required argument to _backupFile_()!'
 
-    local s="${1}"
+    local SOURCE_FILE="${1}"
     local d="${2:-backup}"
     local n # New filename (created by _uniqueFilename_)
 
@@ -86,9 +88,9 @@ _backupFile_() {
             warning "need function _uniqueFileName_"
             return 1
         }
-    [ ! -e "$s" ] \
+    [ ! -e "${SOURCE_FILE}" ] \
         && {
-            warning "Source '${s}' not found"
+            warning "Source '${SOURCE_FILE}' not found"
             return 1
         }
 
@@ -97,21 +99,20 @@ _backupFile_() {
         [ ! -d "${d}" ] \
             && _execute_ "mkdir -p \"${d}\"" "Creating backup directory"
 
-        if [ -e "$s" ]; then
-            n="$(basename "${s}")"
-            n="$(_uniqueFileName_ "${d}/${s#.}")"
-            if [ ${moveFile} == true ]; then
-                _execute_ "mv \"${s}\" \"${d}/${n##*/}\"" "Moving: '${s}' to '${d}/${n##*/}'"
+        if [ -e "${SOURCE_FILE}" ]; then
+            n="$(_uniqueFileName_ "${d}/${SOURCE_FILE#.}")"
+            if [ ${MOVE_FILE} == true ]; then
+                _execute_ "mv \"${SOURCE_FILE}\" \"${d}/${n##*/}\"" "Moving: '${SOURCE_FILE}' to '${d}/${n##*/}'"
             else
-                _execute_ "cp -R \"${s}\" \"${d}/${n##*/}\"" "Backing up: '${s}' to '${d}/${n##*/}'"
+                _execute_ "cp -R \"${SOURCE_FILE}\" \"${d}/${n##*/}\"" "Backing up: '${SOURCE_FILE}' to '${d}/${n##*/}'"
             fi
         fi
     else
-        n="$(_uniqueFileName_ "${s}.bak")"
-        if [ ${moveFile} == true ]; then
-            _execute_ "mv \"${s}\" \"${n}\"" "Moving '${s}' to '${n}'"
+        n="$(_uniqueFileName_ "${SOURCE_FILE}.bak")"
+        if [ ${MOVE_FILE} == true ]; then
+            _execute_ "mv \"${SOURCE_FILE}\" \"${n}\"" "Moving '${SOURCE_FILE}' to '${n}'"
         else
-            _execute_ "cp -R \"${s}\" \"${n}\"" "Backing up '${s}' to '${n}'"
+            _execute_ "cp -R \"${SOURCE_FILE}\" \"${n}\"" "Backing up '${SOURCE_FILE}' to '${n}'"
         fi
     fi
 }
@@ -520,11 +521,29 @@ _sourceFile_() {
 }
 
 _uniqueFileName_() {
-    # DESC:   Ensure a file to be created has a unique filename to avoid overwriting other files
+    # DESC:   Ensure a file to be created has a unique filename to avoid overwriting other
+    #         filenames by appending an integer to the filename if it already exists.
     # ARGS:   $1 (Required) - Name of file to be created
     #         $2 (Optional) - Separation characted (Defaults to a period '.')
     # OUTS:   Prints unique filename to STDOUT
+    # OPTS:  -i             - Places the unique integer before the file extension
     # USAGE:  _uniqueFileName_ "/some/dir/file.txt" "-"
+
+    local opt
+    local OPTIND=1
+    local INTERNAL_INTEGER=false
+    while getopts ":iI" opt; do
+        case ${opt} in
+            i | I) INTERNAL_INTEGER=true ;;
+            *)
+                {
+                    error "Unrecognized option '${1}' passed to _uniqueFileName_" "${LINENO}"
+                    return 1
+                }
+                ;;
+        esac
+    done
+    shift $((OPTIND - 1))
 
     local fullfile="${1:?_uniqueFileName_ needs a file}"
     local spacer="${2:-.}"
@@ -532,7 +551,7 @@ _uniqueFileName_() {
     local filename
     local extension
     local newfile
-    local n
+    local num
 
     if ! command -v realpath >/dev/null 2>&1; then
         error "We must have 'realpath' installed and available in \$PATH to run."
@@ -552,19 +571,29 @@ _uniqueFileName_() {
     filename="$(basename "${fullfile}")"
 
     # Extract extensions only when they exist
-    if [[ ${filename} =~ \.[a-zA-Z]{2,4}$ ]]; then
+    if [[ "${filename}" =~ \.[a-zA-Z]{2,4}$ ]]; then
         extension=".${filename##*.}"
         filename="${filename%.*}"
+    fi
+    if [[ "${filename}" == "${extension}" ]]; then
+        extension=""
     fi
 
     newfile="${directory}/${filename}${extension:-}"
 
     if [ -e "${newfile}" ]; then
-        n=1
-        while [[ -e "${directory}/${filename}${extension:-}${spacer}${n}" ]]; do
-            ((n++))
-        done
-        newfile="${directory}/${filename}${extension:-}${spacer}${n}"
+        num=1
+        if [ "${INTERNAL_INTEGER}" = true ]; then
+            while [[ -e "${directory}/${filename}${spacer}${num}${extension:-}" ]]; do
+                ((num++))
+            done
+            newfile="${directory}/${filename}${spacer}${num}${extension:-}"
+        else
+            while [[ -e "${directory}/${filename}${extension:-}${spacer}${num}" ]]; do
+                ((num++))
+            done
+            newfile="${directory}/${filename}${extension:-}${spacer}${num}"
+        fi
     fi
 
     echo "${newfile}"
