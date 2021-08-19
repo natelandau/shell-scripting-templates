@@ -1,3 +1,4 @@
+
 _monthToNumber_() {
     # DESC:   Convert a month name to a number
     # ARGS:   None
@@ -74,6 +75,8 @@ _parseDate_() {
     #               * DD MM YY        * MM DD YY
     # TODO:   Impelemt the following date formats
     #               * MMDDYY          * YYMMDD            * mon-DD-YY
+    # TODO:  Simplify and reduce the number of regex checks
+
 
     [[ $# -eq 0 ]] && {
         error 'Missing required argument to _parseDate_()!'
@@ -89,7 +92,7 @@ _parseDate_() {
     debug "_parseDate_() input ${tan}$date${purple}"
 
     # YYYY MM DD or YYYY-MM-DD
-    pat="(.*[^0-9]|^)((20[0-2][0-9])[-\.\/_ ]+([ 0-9]{1,2})[-\.\/_ ]+([ 0-9]{1,2}))([^0-9].*|$)"
+    pat="(.*[^0-9]|^)((20[0-2][0-9])[-\.\/_ ]+([0-9]{1,2})[-\.\/_ ]+([0-9]{1,2}))([^0-9].*|$)"
     if [[ ${date} =~ $pat ]]; then
         _parseDate_found="${BASH_REMATCH[2]}"
         _parseDate_year=$((10#${BASH_REMATCH[3]}))
@@ -126,7 +129,7 @@ _parseDate_() {
         debug "regex match: ${tan}DD Month, YYYY${purple}"
 
     # MM-DD-YYYY  or  DD-MM-YYYY
-    elif [[ ${date} =~ (.*[^0-9]|^)(([ 0-9]{1,2})[-\.\/_ ]+([ 0-9]{1,2})[-\.\/_ ]+(20[0-2][0-9]))([^0-9].*|$) ]]; then
+    elif [[ ${date} =~ (.*[^0-9]|^)(([0-9]{1,2})[-\.\/_ ]+([0-9]{1,2})[-\.\/_ ]+(20[0-2][0-9]))([^0-9].*|$) ]]; then
 
         if [[ $((10#${BASH_REMATCH[3]})) -lt 13 &&
             $((10#${BASH_REMATCH[4]})) -gt 12 &&
