@@ -1,26 +1,41 @@
-# Colors
 if tput setaf 1 &>/dev/null; then
     bold=$(tput bold)
-    white=$(tput setaf 7)
+    underline=$(tput smul)
+    reverse=$(tput rev)
     reset=$(tput sgr0)
-    purple=$(tput setaf 171)
-    red=$(tput setaf 1)
-    green=$(tput setaf 76)
-    tan=$(tput setaf 3)
-    yellow=$(tput setaf 3)
-    blue=$(tput setaf 38)
-    underline=$(tput sgr 0 1)
+
+    if [[ $(tput colors) -ge 256 ]] 2>/dev/null; then
+        white=$(tput setaf 231)
+        blue=$(tput setaf 51)
+        yellow=$(tput setaf 11)
+        tan=$(tput setaf 3)
+        green=$(tput setaf 82)
+        red=$(tput setaf 196)
+        purple=$(tput setaf 171)
+        gray=$(tput setaf 248)
+    else
+        white=$(tput setaf 7)
+        blue=$(tput setaf 38)
+        yellow=$(tput setaf 3)
+        tan=$(tput setaf 3)
+        green=$(tput setaf 2)
+        red=$(tput setaf 1)
+        purple=$(tput setaf 13)
+        gray=$(tput setaf 7)
+    fi
 else
     bold="\033[4;37m"
-    white="\033[0;37m"
     reset="\033[0m"
-    purple="\033[0;35m"
-    red="\033[0;31m"
-    green="\033[1;32m"
-    tan="\033[0;33m"
-    yellow="\033[0;33m"
-    blue="\033[0;34m"
     underline="\033[4;37m"
+    reverse=""
+    white="\033[0;37m"
+    blue="\033[0;34m"
+    yellow="\033[0;33m"
+    tan="\033[0;33m"
+    green="\033[1;32m"
+    red="\033[0;31m"
+    purple="\033[0;35m"
+    gray="\033[0;37m"
 fi
 
 _alert_() {
