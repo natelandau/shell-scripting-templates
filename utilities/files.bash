@@ -147,7 +147,7 @@ _parseFilename_() {
     local i
     local fn
 
-    unset OPTIND
+    local OPTIND=1
     while getopts ":n:" option; do
         case ${option} in
             n) levels=${OPTARG} ;;
@@ -165,7 +165,7 @@ _parseFilename_() {
     PARSE_FULL="$(realpath "${fileToParse}")" \
         && debug "\${PARSE_FULL}: ${PARSE_FULL:-}"
     PARSE_BASE=$(basename "${fileToParse}") \
-        && debug "\${PARSE_BASE}: ${PARSE_BASE:-}"
+        && debug "\${PARSE_BASE}: ${PARSE_BASE}"
     PARSE_PATH="$(realpath "$(dirname "${fileToParse}")")" \
         && debug "\${PARSE_PATH}: ${PARSE_PATH:-}"
 
@@ -575,7 +575,7 @@ _uniqueFileName_() {
         extension=".${filename##*.}"
         filename="${filename%.*}"
     fi
-    if [[ "${filename}" == "${extension}" ]]; then
+    if [[ "${filename}" == "${extension:-}" ]]; then
         extension=""
     fi
 
