@@ -34,9 +34,17 @@ setup() {
   VERBOSE=false
   FORCE=false
   DRYRUN=false
+
+  set -o errtrace
+  set -o nounset
+  set -o pipefail
 }
 
 teardown() {
+  set +o nounset
+  set +o errtrace
+  set +o pipefail
+
   popd >&2
   temp_del "${TESTDIR}"
 }
@@ -131,6 +139,7 @@ teardown() {
   run info "testing info"
   run debug "testing debug"
   run fatal "testing fatal"
+  set +o nounset
 
   assert_file_exist "${LOGFILE}"
   run cat "${LOGFILE}"
@@ -150,6 +159,7 @@ teardown() {
   run notice "testing notice"
   run info "testing info"
   run debug "testing debug"
+  set +o nounset
 
   assert_file_exist "${LOGFILE}"
   run cat "${LOGFILE}"
@@ -169,7 +179,7 @@ teardown() {
   run notice "testing notice"
   run info "testing info"
   run debug "testing debug"
-
+  set +o nounset
   assert_file_exist "${LOGFILE}"
   run cat "${LOGFILE}"
   assert_line --index 0 --regexp "[0-9]+:[0-9]+:[0-9]+ \[  error\] \[.*\] testing error"
@@ -188,7 +198,7 @@ teardown() {
   run notice "testing notice"
   run info "testing info"
   run debug "testing debug"
-
+  set +o nounset
   assert_file_exist "${LOGFILE}"
   run cat "${LOGFILE}"
   assert_line --index 0 --regexp "[0-9]+:[0-9]+:[0-9]+ \[  error\] \[.*\] testing error"
@@ -207,7 +217,7 @@ teardown() {
   run notice "testing notice"
   run info "testing info"
   run debug "testing debug"
-
+  set +o nounset
   assert_file_exist "${LOGFILE}"
   run cat "${LOGFILE}"
   assert_line --index 0 --regexp "[0-9]+:[0-9]+:[0-9]+ \[  error\] \[.*\] testing error"

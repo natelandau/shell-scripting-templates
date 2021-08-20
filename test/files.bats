@@ -53,10 +53,15 @@ setup() {
   FORCE=false
   DRYRUN=false
   PASS=123
-
+  set -o errtrace
+  set -o nounset
+  set -o pipefail
 }
 
 teardown() {
+  set +o nounset
+  set +o errtrace
+  set +o pipefail
   popd &>/dev/null
   temp_del "${TESTDIR}"
 }
@@ -191,9 +196,11 @@ _testParseFilename_() {
   }
 
   @test "_parseFilename_: file with one extension" {
+
     touch "testfile.txt"
     VERBOSE=true
     run _parseFilename_ "testfile.txt"
+    set +o nounset
 
     assert_success
     assert_line --index 0 --regexp "\[  debug\].*{PARSE_FULL}: /.*testfile\.txt$"
@@ -204,10 +211,11 @@ _testParseFilename_() {
   }
 
   @test "_parseFilename_: file with dots in name" {
+
     touch "testfile.for.testing.txt"
     VERBOSE=true
     run _parseFilename_ "testfile.for.testing.txt"
-
+    set +o nounset
     assert_success
     assert_line --index 0 --regexp "\[  debug\].*{PARSE_FULL}: /.*testfile\.for\.testing\.txt$"
     assert_line --index 1 --regexp "\[  debug\].*${PARSE_BASE}: testfile\.for\.testing\.txt$"
@@ -217,10 +225,11 @@ _testParseFilename_() {
   }
 
   @test "_parseFilename_: file with no extension" {
+
     touch "testfile"
     VERBOSE=true
     run _parseFilename_ "testfile"
-
+    set +o nounset
     assert_success
     assert_line --index 0 --regexp "\[  debug\].*{PARSE_FULL}: /.*testfile$"
     assert_line --index 1 --regexp "\[  debug\].*${PARSE_BASE}: testfile$"
@@ -230,9 +239,11 @@ _testParseFilename_() {
   }
 
   @test "_parseFilename_: file with tar.gz" {
+
     touch "testfile.tar.gz"
     VERBOSE=true
     run _parseFilename_ "testfile.tar.gz"
+    set +o nounset
 
     assert_success
     assert_line --index 0 --regexp "\[  debug\].*{PARSE_FULL}: /.*testfile\.tar\.gz$"
@@ -246,7 +257,7 @@ _testParseFilename_() {
     touch "testfile.tar.gzip.bzip"
     VERBOSE=true
     run _parseFilename_ -n3 "testfile.tar.gzip.bzip"
-
+    set +o nounset
     assert_success
     assert_line --index 0 --regexp "\[  debug\].*{PARSE_FULL}: /.*testfile\.tar\.gzip\.bzip$"
     assert_line --index 1 --regexp "\[  debug\].*${PARSE_BASE}: testfile\.tar\.gzip\.bzip$"

@@ -43,9 +43,16 @@ setup() {
   VERBOSE=false
   FORCE=false
   DRYRUN=false
+  set -o errtrace
+  set -o nounset
+  set -o pipefail
 }
 
 teardown() {
+  set +o nounset
+  set +o errtrace
+  set +o pipefail
+
   popd >&2
   temp_del "${TESTDIR}"
 }

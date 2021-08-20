@@ -33,13 +33,34 @@ setup() {
   B=(1 2 3 4 5 6)
   DUPES=(1 2 3 1 2 3)
 
+  TESTDIR="$(temp_make)"
+  curPath="${PWD}"
+
+  BATSLIB_FILE_PATH_REM="#${TEST_TEMP_DIR}"
+  BATSLIB_FILE_PATH_ADD='<temp>'
+
+  pushd "${TESTDIR}" &>/dev/null
+
   ######## DEFAULT FLAGS ########
   LOGFILE="${TESTDIR}/logs/log.txt"
   QUIET=false
-  LOGLEVEL=ERROR
+  LOGLEVEL=OFF
   VERBOSE=false
   FORCE=false
   DRYRUN=false
+
+  set -o errtrace
+  set -o nounset
+  set -o pipefail
+}
+
+teardown() {
+  set +o nounset
+  set +o errtrace
+  set +o pipefail
+
+  popd &>/dev/null
+  temp_del "${TESTDIR}"
 }
 
 ######## RUN TESTS ########
@@ -81,6 +102,7 @@ setup() {
 }
 
 @test "_setdiff_: Print elements not common to arrays" {
+  set +o nounset
   run _setdiff_ "${A[*]}" "${B[*]}"
   assert_output "one two three"
 
@@ -89,6 +111,7 @@ setup() {
 }
 
 @test "_removeDupes_: remove duplicates" {
+  set +o nounset
   run _removeDupes_ "${DUPES[@]}"
   assert_line --index 0 "3"
   assert_line --index 1 "2"
