@@ -157,11 +157,6 @@ _parseFilename_() {
 
     local fileToParse="${1}"
 
-    [[ -f ${fileToParse} ]] || {
-        error "Can't locate a file to parse at: ${fileToParse}"
-        return 1
-    }
-
     PARSE_FULL="$(realpath "${fileToParse}")" \
         && debug "\${PARSE_FULL}: ${PARSE_FULL:-}"
     PARSE_BASE=$(basename "${fileToParse}") \

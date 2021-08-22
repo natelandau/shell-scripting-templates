@@ -189,12 +189,6 @@ _testListFiles_() {
 
 _testParseFilename_() {
 
-  @test "_parseFilename_: fail with no file" {
-    run _parseFilename_ "somenonexistantfile"
-    assert_failure
-    assert_output --partial "Can't locate a file to parse"
-  }
-
   @test "_parseFilename_: file with one extension" {
 
     touch "testfile.txt"
