@@ -1,0 +1,68 @@
+{
+  // Place your dotfiles-private workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and
+  // description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope
+  // is left empty or omitted, the snippet gets applied to all languages. The prefix is what is
+  // used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+  // $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders.
+  // Placeholders with the same ids are connected.
+  // Example:
+  // "Print to console": {
+  // 	"scope": "javascript,typescript",
+  // 	"prefix": "log",
+  // 	"body": [
+  // 		"console.log('$1');",
+  // 		"$2"
+  // 	],
+  // 	"description": "Log output to console"
+  // }
+  "Comment block": {
+    "scope": "shellscript",
+    "prefix": "_c",
+    "body": [
+      "# DESC:$1",
+      "# ARGS:\t\t${2:None}",
+      "# OUTS:\t\t${3:None}",
+      "# USAGE:$4",
+      "# NOTE:$0"
+    ],
+    "description": "Comment block for a function"
+  },
+  "value": {
+    "scope": "shellscript",
+    "prefix": "_",
+    "body": ["\"\\${$0}\""],
+    "description": ""
+  },
+  "subshell": {
+    "scope": "shellscript",
+    "prefix": "__",
+    "body": ["\"\\$($0)\""],
+    "description": ""
+  },
+  "_function_() {}": {
+    "scope": "shellscript",
+    "prefix": "_f",
+    "body": [
+      "_${1:name}_() {",
+      "\t\t# DESC:$2",
+      "\t\t# ARGS:\t\t${3:None}",
+      "\t\t# OUTS:\t\t${4:None}",
+      "\t\t# USAGE:$5",
+      "\t\t# NOTE:$6",
+      "\t\t",
+      "\t\t echo \"Hello world\"",
+      "\t\t$0",
+      "}"
+    ],
+    "description": "Add a new function"
+  },
+  "while read loop": {
+    "scope": "shellscript",
+    "prefix": "_w",
+    "body": [
+      "while read -r ${1:VARIABLE}; do",
+      "\t\techo \"\\${${1:VARIABLE}}\"",
+      "done < <(COMMAND)"
+    ]
+  }
+}
