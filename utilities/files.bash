@@ -1,4 +1,3 @@
-
 _listFiles_() {
     # DESC:  Find files in a directory.  Use either glob or regex
     # ARGS:  $1 (Required) - 'g|glob' or 'r|regex'
@@ -326,8 +325,9 @@ _makeSymlink_() {
     # ARGS:   $1 (Required) - Source file
     #         $2 (Required) - Destination
     #         $3 (Optional) - Backup directory for files which may be overwritten (defaults to 'backup')
-    # OPTS:  -n             - Do not create a backup if target already exists
-    #        -s             - Use sudo when removing old files to make way for new symlinks
+    # OPTS:   -c             - Only report on new/changed symlinks.  Quiet when nothing done.
+    #         -n             - Do not create a backup if target already exists
+    #         -s             - Use sudo when removing old files to make way for new symlinks
     # OUTS:   None
     # USAGE:  _makeSymlink_ "/dir/someExistingFile" "/dir/aNewSymLink" "/dir/backup/location"
     # NOTE:   This function makes use of the _execute_ function
@@ -336,11 +336,13 @@ _makeSymlink_() {
     local OPTIND=1
     local backupOriginal=true
     local useSudo=false
+    local ONLY_SHOW_CHANGED=false
 
-    while getopts ":nNsS" opt; do
+    while getopts ":cCnNsS" opt; do
         case $opt in
             n | N) backupOriginal=false ;;
             s | S) useSudo=true ;;
+            c | C) ONLY_SHOW_CHANGED=true ;;
             *)
                 {
                     error "Unrecognized option '$1' passed to _makeSymlink_" "$LINENO"
@@ -403,7 +405,10 @@ _makeSymlink_() {
         o="$(realpath "${d}")"
 
         [[ ${o} == "${s}" ]] && {
-            if [ "${DRYRUN}" == true ]; then
+
+            if [ ${ONLY_SHOW_CHANGED} == true ]; then
+                debug "Symlink already exists: ${s} → ${d}"
+            elif [ "${DRYRUN}" == true ]; then
                 dryrun "Symlink already exists: ${s} → ${d}"
             else
                 info "Symlink already exists: ${s} → ${d}"
