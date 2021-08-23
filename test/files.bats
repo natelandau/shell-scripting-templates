@@ -300,6 +300,27 @@ _testMakeSymlink_() {
     assert_output --regexp "\[   info\] Symlink already exists: /.*/test\.txt → /.*/test2\.txt"
   }
 
+  @test "_makeSymlink_: Ignore already existing links - quiet" {
+    touch "test.txt"
+    ln -s "$(realpath test.txt)" "${TESTDIR}/test2.txt"
+    run _makeSymlink_ -c "$(realpath test.txt)" "${TESTDIR}/test2.txt"
+
+    assert_success
+    assert_link_exist "test2.txt"
+    assert_output ""
+  }
+
+  @test "_makeSymlink_: Ignore already existing links - dryrun" {
+    DRYRUN=true
+    touch "test.txt"
+    ln -s "$(realpath test.txt)" "${TESTDIR}/test2.txt"
+    run _makeSymlink_ "$(realpath test.txt)" "${TESTDIR}/test2.txt"
+
+    assert_success
+    assert_link_exist "test2.txt"
+    assert_output --regexp "\[ dryrun\] Symlink already exists: /.*/test\.txt → /.*/test2\.txt"
+  }
+
   @test "_makeSymlink_: Don't make backup" {
     touch "test.txt"
     touch "test2.txt"
