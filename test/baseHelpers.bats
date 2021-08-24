@@ -20,6 +20,7 @@ fi
 
 if test -f "${ALERTS}" >&2; then
   source "${ALERTS}"
+  _setColors_ #Set color constants
 else
   echo "Sourcefile not found: ${ALERTS}" >&2
   printf "Can not run tests.\n" >&2
@@ -43,6 +44,7 @@ setup() {
   VERBOSE=false
   FORCE=false
   DRYRUN=false
+
   set -o errtrace
   set -o nounset
   set -o pipefail

@@ -19,18 +19,19 @@ else
   exit 1
 fi
 
-if test -f "${BASEHELPERS}" >&2; then
-  source "${BASEHELPERS}"
+if test -f "${ALERTS}" >&2; then
+  source "${ALERTS}"
+  _setColors_ #Set color constants
 else
-  echo "Sourcefile not found: ${BASEHELPERS}" >&2
+  echo "Sourcefile not found: ${ALERTS}" >&2
   printf "Can not run tests.\n" >&2
   exit 1
 fi
 
-if test -f "${ALERTS}" >&2; then
-  source "${ALERTS}"
+if test -f "${BASEHELPERS}" >&2; then
+  source "${BASEHELPERS}"
 else
-  echo "Sourcefile not found: ${ALERTS}" >&2
+  echo "Sourcefile not found: ${BASEHELPERS}" >&2
   printf "Can not run tests.\n" >&2
   exit 1
 fi

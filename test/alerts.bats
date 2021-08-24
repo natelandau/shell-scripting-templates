@@ -35,6 +35,8 @@ setup() {
   FORCE=false
   DRYRUN=false
 
+  _setColors_ # Set Color Constants
+
   set -o errtrace
   set -o nounset
   set -o pipefail
