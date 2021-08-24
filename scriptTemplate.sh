@@ -174,7 +174,7 @@ _setColors_() {
 
         if [[ $(tput colors) -ge 256 ]] 2>/dev/null; then
             white=$(tput setaf 231)
-            blue=$(tput setaf 51)
+            blue=$(tput setaf 38)
             yellow=$(tput setaf 11)
             tan=$(tput setaf 3)
             green=$(tput setaf 82)
