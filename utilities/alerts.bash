@@ -16,7 +16,7 @@ _setColors_() {
             yellow=$(tput setaf 11)
             tan=$(tput setaf 3)
             green=$(tput setaf 82)
-            red=$(tput setaf 196)
+            red=$(tput setaf 1)
             purple=$(tput setaf 171)
             gray=$(tput setaf 248)
         else
