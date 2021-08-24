@@ -423,6 +423,7 @@ set -o pipefail                           # Use last non-zero exit code in a pip
 # shopt -s nullglob globstar              # Make `for f in *.txt` work when `*.txt` matches zero files
 IFS=$' \n\t'                              # Set IFS to preferred implementation
 # set -o xtrace                           # Run in debug mode
+_setColors_                               # Initialize color constants
 set -o nounset                            # Disallow expansion of unset variables
 # [[ $# -eq 0 ]] && _parseOptions_ "-h"   # Force arguments when invoking the script
 _parseOptions_ "$@"                       # Parse arguments passed to script
