@@ -13,7 +13,7 @@ _cleanString_() {
     #         -s  In combination with -a, replaces characters with a space
     # OUTS:   Prints result to STDOUT
     # USAGE:  _cleanString_ [OPT] [STRING] [CHARS TO REMOVE]
-    #         _cleanString_ -p " ,-" [STRING] [CHARS TO REMOVE]
+    #         _cleanString_ -lp " ,-" [STRING] [CHARS TO REMOVE]
     # NOTES:  Always cleaned:
     #           - leading white space
     #           - trailing white space
@@ -80,7 +80,7 @@ _cleanString_() {
     fi
 
     if "${replace}"; then
-        string="$(echo "${string}" | sed "s/${pairs[0]}/${pairs[1]}/g")"
+        string="$(echo "${string}" | sed -E "s/${pairs[0]}/${pairs[1]}/g")"
     fi
 
     # trim trailing/leading white space and duplicate dashes
