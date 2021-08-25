@@ -88,7 +88,7 @@ _cleanString_() {
     string="$(echo "${string}" | sed -E 's/([_\-]) /\1/g' | sed -E 's/ ([_\-])/\1/g')"
     string="$(echo "${string}" | awk '{$1=$1};1')"
 
-    printf "%s\n" "${string}"
+    echo "${string}"
 
 }
 
