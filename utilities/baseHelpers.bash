@@ -254,11 +254,11 @@ _rootAvailable_() {
     fi
 
     if [[ -z ${superuser:-} ]]; then
-        notice 'Unable to acquire superuser credentials.'
+        debug 'Unable to acquire superuser credentials.'
         return 1
     fi
 
-    info 'Successfully acquired superuser credentials.'
+    debug 'Successfully acquired superuser credentials.'
     return 0
 }
 
