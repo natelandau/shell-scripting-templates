@@ -17,7 +17,7 @@ _mainScript_() {
         STOP_WORD_FILE="${HOME}/.git_stop_words"
         GIT_DIFF_TEMP="${TMP_DIR}/diff.txt"
 
-        if [ -f "${STOP_WORD_FILE}" ]; then
+        if cat "${STOP_WORD_FILE}" | grep . | grep -v '# ' >"${TMP_DIR}/pattern_file.txt"; then
 
             if [[ $(basename "${STOP_WORD_FILE}") == "$(basename "${1}")" ]]; then
                 debug "Don't check stop words file for stop words. Skipping $(basename "${1}")"
@@ -25,18 +25,16 @@ _mainScript_() {
             fi
             debug "Checking for stop words"
 
-            # remove blank lines from stopwords file
-            cat "${STOP_WORD_FILE}" | sed '/^$/d' > "${TMP_DIR}/pattern_file.txt"
+            # remove blank lines and comments from stopwords file
 
             # Add diff to a temporary file
              git diff --cached -- "${1}" | grep '^+' >"${GIT_DIFF_TEMP}"
-
             if grep --file="${TMP_DIR}/pattern_file.txt" "${GIT_DIFF_TEMP}"; then
                 error "Found git stop word in '$(basename "${1}")'"
                 _safeExit_ 1
             fi
         else
-            debug "Could not find git stopwords file expected at '${STOP_WORD_FILE}'. Continuing..."
+            debug "Could not find git stopwords file expected at '${STOP_WORD_FILE}'. Or it was empty. Continuing..."
         fi
     }
 
