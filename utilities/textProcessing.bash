@@ -119,7 +119,8 @@ _stopWords_() {
     if [ -f "${sedFile}" ]; then
         string="$(echo "${string}" | ${SED_COMMAND} -f "${sedFile}")"
     else
-        debug "Missing sedfile in _stopWords_()"
+        error "Missing sedfile in _stopWords_()"
+        return 1
     fi
 
     declare -a localStopWords=()
