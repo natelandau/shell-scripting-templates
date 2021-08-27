@@ -110,7 +110,7 @@ _stopWords_() {
     elif sed --version | grep GNU &>/dev/null; then
         local SED_COMMAND="sed"
     else
-        error "Can not continue without gnu sed.  Use '${YELLOW}brew install gnu-sed${reset} on a Mac or install with your package manager'"
+        error "Can not continue without gnu sed.  Use '${yellow}brew install gnu-sed${reset} on a Mac or install with your package manager'"
         return 1
     fi
 
