@@ -18,7 +18,7 @@ _setColors_() {
             green=$(tput setaf 82)
             red=$(tput setaf 1)
             purple=$(tput setaf 171)
-            gray=$(tput setaf 248)
+            gray=$(tput setaf 250)
         else
             white=$(tput setaf 7)
             blue=$(tput setaf 38)
@@ -72,16 +72,20 @@ _alert_() {
 
     if [[ ${alertType} =~ ^(error|fatal) ]]; then
         color="${bold}${red}"
-    elif [ "${alertType}" = "warning" ]; then
+    elif [ "${alertType}" == "info" ]; then
+        color="${gray}"
+    elif [ "${alertType}" == "warning" ]; then
         color="${red}"
-    elif [ "${alertType}" = "success" ]; then
+    elif [ "${alertType}" == "success" ]; then
         color="${green}"
-    elif [ "${alertType}" = "debug" ]; then
+    elif [ "${alertType}" == "debug" ]; then
         color="${purple}"
-    elif [ "${alertType}" = "header" ]; then
+    elif [ "${alertType}" == "header" ]; then
         color="${bold}${tan}"
-    elif [[ ${alertType} =~ ^(input|notice) ]]; then
+    elif [ ${alertType} == "notice" ]; then
         color="${bold}"
+    elif [ ${alertType} == "input"  ]; then
+        color="${bold}${underline}"
     elif [ "${alertType}" = "dryrun" ]; then
         color="${blue}"
     else
@@ -168,6 +172,7 @@ success() { _alert_ success "${1}" "${2:-}"; }
 dryrun() { _alert_ dryrun "${1}" "${2:-}"; }
 input() { _alert_ input "${1}" "${2:-}"; }
 header() { _alert_ header "== ${1} ==" "${2:-}"; }
+debug() { _alert_ debug "${1}" "${2:-}"; }
 die() {
     _alert_ fatal "${1}" "${2:-}"
     _safeExit_ "1"
@@ -176,8 +181,6 @@ fatal() {
     _alert_ fatal "${1}" "${2:-}"
     _safeExit_ "1"
 }
-debug() { _alert_ debug "${1}" "${2:-}"; }
-verbose() { _alert_ debug "${1}" "${2:-}"; }
 
 _functionStack_() {
     # DESC:   Prints the function stack in use

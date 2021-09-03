@@ -72,15 +72,6 @@ teardown() {
   refute_output --partial "testing"
 }
 
-@test "_alert_: verbose" {
-  run verbose "testing"
-  refute_output --regexp "\[  debug\] testing"
-
-  VERBOSE=true
-  run verbose "testing"
-  assert_output --regexp "\[  debug\] testing"
-}
-
 @test "_alert_: warning" {
   run warning "testing"
   assert_output --regexp "\[warning\] testing"

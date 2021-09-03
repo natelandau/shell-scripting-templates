@@ -57,17 +57,32 @@ teardown() {
 @test "success" {
   run $s
   assert_success
-  assert_output --partial "[   info] Hello world"
-  assert_file_not_exist "${TESTDIR}/logs/log.txt"
+  assert_output --partial "[   info] This is info text"
+  assert_output --partial "[ notice] This is notice text"
+  assert_output --partial "[ dryrun] This is dryrun text"
+  assert_output --partial "[warning] This is warning text"
+  assert_output --partial "[  error] This is error text"
+  assert_output --partial "[success] This is success text"
+  assert_output --partial "[  input] This is input text"
+
+  assert_file_exist "${TESTDIR}/logs/log.txt"
+  run cat "${TESTDIR}/logs/log.txt"
+  assert_line --index 0 --regexp "\[  error\] \[.*\] This is error text \( _mainScript_:scriptTemplate.* \)"
+  assert_line --index 1 ""
 }
 
 @test "success and INFO level log" {
   run $s --loglevel=INFO
   assert_success
-  assert_output --partial "[   info] Hello world"
+  assert_output --partial "[   info] This is info text"
 
   run cat "${TESTDIR}/logs/log.txt"
-  assert_line --index 0 --regexp "\[   info\].*Hello world"
+  assert_line --index 0 --regexp "\[   info\].*This is info text"
+  assert_line --index 1 --regexp "\[ notice\].*This is notice text"
+  assert_line --index 2 --regexp "\[warning\].*This is warning text"
+  assert_line --index 3 --regexp "\[  error\].*This is error text"
+  assert_line --index 4 --regexp "\[success\].*This is success text"
+  assert_line --index 5 ""
 }
 
 @test "Usage (-h)" {
@@ -90,5 +105,11 @@ teardown() {
   assert_output ""
 
   run cat "${TESTDIR}/logs/log.txt"
-  assert_line --index 0 --regexp "\[   info\].*Hello world"
+  run cat "${TESTDIR}/logs/log.txt"
+  assert_line --index 0 --regexp "\[   info\].*This is info text"
+  assert_line --index 1 --regexp "\[ notice\].*This is notice text"
+  assert_line --index 2 --regexp "\[warning\].*This is warning text"
+  assert_line --index 3 --regexp "\[  error\].*This is error text"
+  assert_line --index 4 --regexp "\[success\].*This is success text"
+  assert_line --index 5 ""
 }

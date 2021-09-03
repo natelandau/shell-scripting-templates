@@ -107,7 +107,7 @@ _sourceHelperFiles_
 Basic alerting, logging, and setting color functions (included in `scriptTemplate.sh` by default). Print messages to stdout and to a user specified logfile using the following functions.
 
 ```bash
-debug "some text"     # Printed only when in Verbose mode
+debug "some text"     # Printed only when in verbose (-v) mode
 info "some text"      # Basic informational messages
 notice "some text"    # Messages which should be read. Brighter than 'info'
 warning "some text"   # Non-critical warnings
