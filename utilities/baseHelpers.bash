@@ -326,9 +326,11 @@ _setPATH_() {
     done
 
     for NEWPATH in "${NEWPATHS[@]}"; do
-        if ! echo "$PATH" | grep -Eq "(^|:)${NEWPATH}($|:)"; then
-            PATH="${NEWPATH}:${PATH}"
-            debug "Added '${tan}${NEWPATH}${purple}' to PATH"
+        if [ -d "${NEWPATH}" ]; then
+            if ! echo "$PATH" | grep -Eq "(^|:)${NEWPATH}($|:)"; then
+                PATH="${NEWPATH}:${PATH}"
+                debug "Added '${NEWPATH}' to PATH"
+            fi
         fi
     done
 }

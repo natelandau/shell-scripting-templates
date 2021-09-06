@@ -237,10 +237,11 @@ _testSeekConfirmation_() {
 
 _testSetPATH_() {
   @test "_setPATH_" {
-    _setPATH_ "/testing/from/bats" "/testing/again"
-    run echo "$PATH"
+    mkdir -p "${TESTDIR}/testing/from/bats"
+    _setPATH_ "${TESTDIR}/testing/from/bats" "${TESTDIR}/testing/again"
+    run echo "${PATH}"
     assert_output --regexp "/testing/from/bats"
-    assert_output --regexp "/testing/again"
+    refute_output --regexp "/testing/again"
   }
 }
 
