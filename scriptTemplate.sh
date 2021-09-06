@@ -176,6 +176,11 @@ _alert_() {
                 _writeToLog_
             fi
             ;;
+        NOTICE | notice | Notice)
+            if [[ ${alertType} =~ ^(die|error|fatal|warning|notice|success) ]]; then
+                _writeToLog_
+            fi
+            ;;
         WARN | warn | Warn)
             if [[ ${alertType} =~ ^(die|error|fatal|warning) ]]; then
                 _writeToLog_
@@ -413,7 +418,8 @@ _usage_() {
 
   ${bold}Options:${reset}
     -h, --help              Display this help and exit
-    --loglevel [LEVEL]      One of: FATAL, ERROR, WARN, INFO, DEBUG, ALL, OFF  (Default is 'ERROR')
+    --loglevel [LEVEL]      One of: FATAL, ERROR, WARN, INFO, NOTICE, DEBUG, ALL, OFF
+                            (Default is 'ERROR')
     --logfile [FILE]        Full PATH to logfile.  (Default is '${HOME}/logs/$(basename "$0").log')
     -n, --dryrun            Non-destructive. Makes no permanent changes.
     -q, --quiet             Quiet (no output)

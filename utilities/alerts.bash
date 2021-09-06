@@ -137,6 +137,11 @@ _alert_() {
                 _writeToLog_
             fi
             ;;
+        NOTICE | notice | Notice)
+            if [[ ${alertType} =~ ^(die|error|fatal|warning|notice|success) ]]; then
+                _writeToLog_
+            fi
+            ;;
         WARN | warn | Warn)
             if [[ ${alertType} =~ ^(die|error|fatal|warning) ]]; then
                 _writeToLog_
