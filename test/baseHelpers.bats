@@ -148,6 +148,15 @@ _testExecute_() {
     assert_file_not_exist "testfile.txt"
   }
 
+    @test "_execute_ -n: Good command" {
+    touch "testfile.txt"
+    run _execute_ -n "rm -v testfile.txt"
+
+    assert_success
+    assert_line --index 0 --partial "[ notice] rm -v testfile.txt"
+    assert_file_not_exist "testfile.txt"
+  }
+
   @test "_execute_ -ev: Good command" {
     touch "testfile.txt"
     run _execute_ -ve "rm -v testfile.txt"
