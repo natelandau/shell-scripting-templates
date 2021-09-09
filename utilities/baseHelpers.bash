@@ -3,6 +3,7 @@ _execute_() {
     # ARGS:  $1 (Required) - The command to be executed.  Quotation marks MUST be escaped.
     #        $2 (Optional) - String to display after command is executed
     # OPTS:  -v    Always print debug output from the execute function
+    #        -n    Use NOTICE level alerting (default is INFO)
     #        -p    Pass a failed command with 'return 0'.  This effectively bypasses set -e.
     #        -e    Bypass _alert_ functions and use 'echo RESULT'
     #        -s    Use '_alert_ success' for successful output. (default is 'info')
@@ -20,16 +21,18 @@ _execute_() {
     local ECHO_RESULT=false
     local SUCCESS_RESULT=false
     local QUIET_RESULT=false
+    local NOTICE_RESULT=false
     local opt
 
     local OPTIND=1
-    while getopts ":vVpPeEsSqQ" opt; do
+    while getopts ":vVpPeEsSqQnN" opt; do
         case $opt in
             v | V) LOCAL_VERBOSE=true ;;
             p | P) PASS_FAILURES=true ;;
             e | E) ECHO_RESULT=true ;;
             s | S) SUCCESS_RESULT=true ;;
             q | Q) QUIET_RESULT=true ;;
+            n | N) NOTICE_RESULT=true ;;
             *)
                 {
                     error "Unrecognized option '$1' passed to _execute_. Exiting."
@@ -64,6 +67,8 @@ _execute_() {
                 echo "${EXECUTE_MESSAGE}"
             elif "${SUCCESS_RESULT}"; then
                 success "${EXECUTE_MESSAGE}"
+            elif "${NOTICE_RESULT}"; then
+                notice "${EXECUTE_MESSAGE}"
             else
                 info "${EXECUTE_MESSAGE}"
             fi
@@ -87,6 +92,8 @@ _execute_() {
                 echo "${EXECUTE_MESSAGE}"
             elif "${SUCCESS_RESULT}"; then
                 success "${EXECUTE_MESSAGE}"
+            elif "${NOTICE_RESULT}"; then
+                notice "${EXECUTE_MESSAGE}"
             else
                 info "${EXECUTE_MESSAGE}"
             fi
