@@ -85,6 +85,19 @@ teardown() {
   assert_line --index 5 ""
 }
 
+@test "success and NOTICE level log" {
+  run $s --loglevel=NOTICE
+  assert_success
+  assert_output --partial "[   info] This is info text"
+
+  run cat "${TESTDIR}/logs/log.txt"
+  assert_line --index 0 --regexp "\[ notice\].*This is notice text"
+  assert_line --index 1 --regexp "\[warning\].*This is warning text"
+  assert_line --index 2 --regexp "\[  error\].*This is error text"
+  assert_line --index 3 --regexp "\[success\].*This is success text"
+  assert_line --index 4 ""
+}
+
 @test "Usage (-h)" {
   run $s -h
 

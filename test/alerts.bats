@@ -202,6 +202,24 @@ teardown() {
   assert_line --index 5 ""
 }
 
+@test "_alert_: logging NOTICE" {
+  LOGLEVEL=NOTICE
+  run error "testing error"
+  run error "testing error 2"
+  run warning "testing warning"
+  run notice "testing notice"
+  run info "testing info"
+  run debug "testing debug"
+  set +o nounset
+  assert_file_exist "${LOGFILE}"
+  run cat "${LOGFILE}"
+  assert_line --index 0 --regexp "[0-9]+:[0-9]+:[0-9]+ \[  error\] \[.*\] testing error"
+  assert_line --index 1 --regexp "[0-9]+:[0-9]+:[0-9]+ \[  error\] \[.*\] testing error 2"
+  assert_line --index 2 --regexp "[0-9]+:[0-9]+:[0-9]+ \[warning\] \[.*\] testing warning"
+  assert_line --index 3 --regexp "[0-9]+:[0-9]+:[0-9]+ \[ notice\] \[.*\] testing notice"
+  assert_line --index 4 ""
+}
+
 @test "_alert_: logging DEBUG" {
   LOGLEVEL=DEBUG
   run error "testing error"
