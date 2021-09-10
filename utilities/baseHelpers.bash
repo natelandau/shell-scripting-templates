@@ -63,7 +63,10 @@ _execute_() {
         fi
     elif ${VERBOSE}; then
         if eval "${CMD}"; then
-            if "${ECHO_RESULT}"; then
+            if "${QUIET_RESULT}"; then
+                VERBOSE=${SAVE_VERBOSE}
+                return 0
+            elif "${ECHO_RESULT}"; then
                 echo "${EXECUTE_MESSAGE}"
             elif "${SUCCESS_RESULT}"; then
                 success "${EXECUTE_MESSAGE}"
@@ -194,7 +197,7 @@ _progressBar_() {
 
     ($QUIET) && return
     ($VERBOSE) && return
-    [ ! -t 1 ] && return # Do nothing if the output is not a terminal
+    [ ! -t 1 ] && return  # Do nothing if the output is not a terminal
     [ $1 == 1 ] && return # Do nothing with a single element
 
     local width bar_char perc num bar progressBarLine barTitle n
@@ -304,6 +307,7 @@ _seekConfirmation_() {
     #           something
     #         fi
 
+    local yn
     input "${1:-}"
     if "${FORCE}"; then
         debug "Forcing confirmation with '--force' flag set"
@@ -355,7 +359,7 @@ _safeExit_() {
         fi
     fi
 
-    if [[ -n ${TMP_DIR:-} && -d ${TMP_DIR:-}   ]]; then
+    if [[ -n ${TMP_DIR:-} && -d ${TMP_DIR:-} ]]; then
         if [[ ${1:-} == 1 && -n "$(ls "${TMP_DIR}")" ]]; then
             command rm -r "${TMP_DIR}"
         else
