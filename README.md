@@ -101,7 +101,7 @@ _sourceHelperFiles_
 
 ## alerts.bash
 
-- `_setColors_` Sets color constants for alerting
+- `_setColors_` Sets color constants for alerting (**Note:** Colors default to a dark theme.)
 - `_alert_` Performs alerting functions including writing to a log file and printing to screen
 
 Basic alerting, logging, and setting color functions (included in `scriptTemplate.sh` by default). Print messages to stdout and to a user specified logfile using the following functions.
