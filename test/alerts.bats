@@ -84,7 +84,7 @@ teardown() {
 
 @test "_alert_: notice: with LINE" {
   run notice "testing" "$LINENO"
-  assert_output --regexp ".*\[ notice\] testing \(line: [0-9]{1,3}\)"
+  assert_output --regexp ".*\[ notice\] testing .*\(line: [0-9]{1,3}\)"
 }
 
 @test "_alert_: refute debug" {
@@ -100,7 +100,7 @@ teardown() {
 
 @test "_alert_: header" {
   run header "testing"
-  assert_output --regexp "\[ header\] == testing =="
+  assert_output --regexp "\[ header\] testing"
 }
 
 @test "_alert_: info" {
@@ -110,12 +110,12 @@ teardown() {
 
 @test "_alert_: fatal: with LINE" {
   run fatal "testing" "$LINENO"
-  assert_line --index 0 --regexp ".*\[  fatal\] testing \(line: [0-9]{1,3}\) \( run:.*\)"
+  assert_line --index 0 --regexp ".*\[  fatal\] testing .*\(line: [0-9]{1,3}\) \( run:.*\)"
 }
 
 @test "_alert_: error" {
   run error "testing"
-  assert_output --regexp  ".*\[  error\] testing \( run:.*\)"
+  assert_output --regexp  ".*\[  error\] testing .*\( run:.*\)"
 }
 
 @test "_alert_: input" {

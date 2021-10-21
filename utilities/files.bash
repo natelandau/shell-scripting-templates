@@ -1,65 +1,36 @@
-_listFiles_() {
-    # DESC:  Find files in a directory.  Use either glob or regex
-    # ARGS:  $1 (Required) - 'g|glob' or 'r|regex'
-    #        $2 (Required) - pattern to match
-    #        $3 (Optional) - directory
-    # OUTS:  Prints files to STDOUT
-    # NOTE:  Searches are NOT case sensitive and MUST be quoted
-    # USAGE: _listFiles_ glob "*.txt" "some/backup/dir"
-    #        _listFiles_ regex ".*\.txt" "some/backup/dir"
-    #        readarray -t array < <(_listFiles_ g "*.txt")
-
-    [[ $# -lt 2 ]] && {
-        error 'Missing required argument to _listFiles_()!'
-        return 1
-    }
-
-    local t="${1}"
-    local p="${2}"
-    local d="${3:-.}"
-    local fileMatch e
-
-    case "$t" in
-        glob | Glob | g | G)
-            while read -r fileMatch; do
-                e="$(realpath "${fileMatch}")"
-                echo "${e}"
-            done < <(find "${d}" -iname "${p}" -type f -maxdepth 1 | sort)
-            ;;
-        regex | Regex | r | R)
-            while read -r fileMatch; do
-                e="$(realpath "${fileMatch}")"
-                echo "${e}"
-            done < <(find "${d}" -iregex "${p}" -type f -maxdepth 1 | sort)
-            ;;
-        *)
-            echo "Could not determine if search was glob or regex"
-            return 1
-            ;;
-    esac
-}
+# Functions for manipulating files
 
 _backupFile_() {
-    # DESC:   Creates a backup of a specified file with .bak extension or
-    #         optionally to a specified directory
-    # ARGS:   $1 (Required)   - Source file
+    # DESC:
+    #         Creates a backup of a specified file with .bak extension or optionally to a
+    #         specified directory
+    # ARGS:
+    #         $1 (Required)   - Source file
     #         $2 (Optional)   - Destination dir name used only with -d flag (defaults to ./backup)
-    # OPTS:   -d              - Move files to a backup direcory
-    #         -m              - Replaces copy (default) with move, effectively removing
-    #                           the original file
-    # OUTS:   None
-    # USAGE:  _backupFile_ "sourcefile.txt" "some/backup/dir"
-    # NOTE:   dotfiles have their leading '.' removed in their backup
+    # OPTS:
+    #         -d  - Move files to a backup direcory
+    #         -m  - Replaces copy (default) with move, effectively removing the original file
+    # REQUIRES:
+    #         _execute_
+    #         _createUniqueFilename_
+    # OUTS:
+    #         0 - Success
+    #         1 - Error
+    #         filesystem: Backup of files
+    # USAGE:
+    #         _backupFile_ "sourcefile.txt" "some/backup/dir"
+    # NOTE:
+    #         Dotfiles have their leading '.' removed in their backup
 
     local opt
     local OPTIND=1
-    local useDirectory=false
-    local MOVE_FILE=false
+    local _useDirectory=false
+    local _moveFile=false
 
     while getopts ":dDmM" opt; do
         case ${opt} in
-            d | D) useDirectory=true ;;
-            m | M) MOVE_FILE=true ;;
+            d | D) _useDirectory=true ;;
+            m | M) _moveFile=true ;;
             *)
                 {
                     error "Unrecognized option '${1}' passed to _backupFile_" "${LINENO}"
@@ -70,209 +41,256 @@ _backupFile_() {
     done
     shift $((OPTIND - 1))
 
-    [[ $# -lt 1 ]] && fatal 'Missing required argument to _backupFile_()!'
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    local SOURCE_FILE="${1}"
-    local d="${2:-backup}"
-    local n # New filename (created by _uniqueFilename_)
+    local _fileToBackup="${1}"
+    local _backupDir="${2:-backup}"
+    local _newFilename
 
     # Error handling
     [ ! "$(declare -f "_execute_")" ] \
         && {
-            warning "need function _execute_"
-            return 1
+            fatal "_backupFile_ needs function _execute_"
         }
-    [ ! "$(declare -f "_uniqueFileName_")" ] \
+    [ ! "$(declare -f "_createUniqueFilename_")" ] \
         && {
-            warning "need function _uniqueFileName_"
-            return 1
+            fatal "_backupFile_ needs function _createUniqueFilename_"
         }
-    [ ! -e "${SOURCE_FILE}" ] \
+    [ ! -e "${_fileToBackup}" ] \
         && {
-            warning "Source '${SOURCE_FILE}' not found"
+            debug "Source '${_fileToBackup}' not found"
             return 1
         }
 
-    if [ ${useDirectory} == true ]; then
+    if [ ${_useDirectory} == true ]; then
 
-        [ ! -d "${d}" ] \
-            && _execute_ "mkdir -p \"${d}\"" "Creating backup directory"
+        [ ! -d "${_backupDir}" ] \
+            && _execute_ "mkdir -p \"${_backupDir}\"" "Creating backup directory"
 
-        if [ -e "${SOURCE_FILE}" ]; then
-            n="$(_uniqueFileName_ "${d}/${SOURCE_FILE#.}")"
-            if [ ${MOVE_FILE} == true ]; then
-                _execute_ "mv \"${SOURCE_FILE}\" \"${d}/${n##*/}\"" "Moving: '${SOURCE_FILE}' to '${d}/${n##*/}'"
-            else
-                _execute_ "cp -R \"${SOURCE_FILE}\" \"${d}/${n##*/}\"" "Backing up: '${SOURCE_FILE}' to '${d}/${n##*/}'"
-            fi
+        _newFilename="$(_createUniqueFilename_ "${_backupDir}/${_fileToBackup#.}")"
+        if [ ${_moveFile} == true ]; then
+            _execute_ "mv \"${_fileToBackup}\" \"${_backupDir}/${_newFilename##*/}\"" "Moving: '${_fileToBackup}' to '${_backupDir}/${_newFilename##*/}'"
+        else
+            _execute_ "cp -R \"${_fileToBackup}\" \"${_backupDir}/${_newFilename##*/}\"" "Backing up: '${_fileToBackup}' to '${_backupDir}/${_newFilename##*/}'"
         fi
     else
-        n="$(_uniqueFileName_ "${SOURCE_FILE}.bak")"
-        if [ ${MOVE_FILE} == true ]; then
-            _execute_ "mv \"${SOURCE_FILE}\" \"${n}\"" "Moving '${SOURCE_FILE}' to '${n}'"
+        _newFilename="$(_createUniqueFilename_ "${_fileToBackup}.bak")"
+        if [ ${_moveFile} == true ]; then
+            _execute_ "mv \"${_fileToBackup}\" \"${_newFilename}\"" "Moving '${_fileToBackup}' to '${_newFilename}'"
         else
-            _execute_ "cp -R \"${SOURCE_FILE}\" \"${n}\"" "Backing up '${SOURCE_FILE}' to '${n}'"
+            _execute_ "cp -R \"${_fileToBackup}\" \"${_newFilename}\"" "Backing up '${_fileToBackup}' to '${_newFilename}'"
         fi
     fi
 }
 
-_parseFilename_() {
-    # DESC:   Break a filename into its component parts which and place them into prefixed
-    #         variables for use in your script. Run with VERBOSE=true to see the variables while
-    #         running your script.
-    # ARGS:   $1 (Required)       - File
-    # OPTS:   -n                  - optional flag for number of extension levels (Ex: -n2)
-    # OUTS:   $PARSE_FULL         - File and its real path (ie, resolve symlinks)
-    #         $PARSE_PATH         - Path to the file
-    #         $PARSE_BASE         - Name of the file WITH extension
-    #         $PARSE_BASENOEXT    - Name of file WITHOUT extension
-    #         $PARSE_EXT          - The extension of the file
-    # USAGE:  _parseFilename_ "some/file.txt"
+_createUniqueFilename_() {
+    # DESC:
+    #         Ensure a file to be created has a unique filename to avoid overwriting other
+    #         filenames by incrementing a number at the end of the filename
+    # ARGS:
+    #         $1 (Required) - Name of file to be created
+    #         $2 (Optional) - Separation characted (Defaults to a period '.')
+    # OUTS:
+    #         stdout: Unique name of file
+    #         0 if successful
+    #         1 if not successful
+    # OPTS:
+    #         -i:   Places the unique integer before the file extension
+    # USAGE:
+    #         _createUniqueFilename_ "/some/dir/file.txt" --> /some/dir/file.txt.1
+    #         _createUniqueFilename_ -i"/some/dir/file.txt" "-" --> /some/dir/file-1.txt
+    #         echo "line" > "$(_createUniqueFilename_ "/some/dir/file.txt")"
 
-    # Error handling
-    if [[ $# -lt 1 ]] \
-        || ! command -v dirname &>/dev/null \
-        || ! command -v basename &>/dev/null \
-        || ! command -v realpath &>/dev/null; then
+    [[ $# -lt 1 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-        fatal "Missing dependency or input to _parseFilename_()"
-        return 1
+    local opt
+    local OPTIND=1
+    local _internalInteger=false
+    while getopts ":iI" opt; do
+        case ${opt} in
+            i | I) _internalInteger=true ;;
+            *)
+                {
+                    error "Unrecognized option '${1}' passed to _createUniqueFilename_" "${LINENO}"
+                    return 1
+                }
+                ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+
+    local _fullFile="${1}"
+    local _spacer="${2:-.}"
+    local _filePath
+    local _originalFile
+    local _extension
+    local _newFilename
+    local _num
+    local _levels
+    local _fn
+    local _ext
+    local i
+
+    if ! command -v realpath >/dev/null 2>&1; then
+        error "We must have 'realpath' installed and available in \$PATH to run."
+        if [[ $OSTYPE == "darwin"* ]]; then
+            notice "Install coreutils using homebrew and rerun this script."
+            info "\t$ brew install coreutils"
+        fi
+        _safeExit_ 1
     fi
 
-    local levels
-    local option
-    local exts
-    local ext
-    local i
-    local fn
+    # Find directories with realpath if input is an actual file
+    if [ -e "${_fullFile}" ]; then
+        _fullFile="$(realpath "${_fullFile}")"
+    fi
 
-    local OPTIND=1
-    while getopts ":n:" option; do
-        case ${option} in
-            n) levels=${OPTARG} ;;
-            *) continue ;;
-        esac
-    done && shift $((OPTIND - 1))
-
-    local fileToParse="${1}"
-
-    PARSE_FULL="$(realpath "${fileToParse}")" \
-        && debug "\${PARSE_FULL}: ${PARSE_FULL:-}"
-    PARSE_BASE=$(basename "${fileToParse}") \
-        && debug "\${PARSE_BASE}: ${PARSE_BASE}"
-    PARSE_PATH="$(realpath "$(dirname "${fileToParse}")")" \
-        && debug "\${PARSE_PATH}: ${PARSE_PATH:-}"
+    _filePath="$(dirname "${_fullFile}")"
+    _originalFile="$(basename "${_fullFile}")"
 
     # Detect some common multi-extensions
-    if [[ ! ${levels:-} ]]; then
-        case $(tr '[:upper:]' '[:lower:]' <<<"${PARSE_BASE}") in
-            *.tar.gz | *.tar.bz2) levels=2 ;;
-        esac
-    fi
+    case $(tr '[:upper:]' '[:lower:]' <<<"${_originalFile}") in
+        *.tar.gz | *.tar.bz2) _levels=2 ;;
+        *) _levels=1 ;;
+    esac
 
     # Find Extension
-    levels=${levels:-1}
-    fn="${PARSE_BASE}"
-    for ((i = 0; i < levels; i++)); do
-        ext=${fn##*.}
+    _fn="${_originalFile}"
+    for ((i = 0; i < _levels; i++)); do
+        _ext=${_fn##*.}
         if [ $i == 0 ]; then
-            exts=${ext}${exts:-}
+            _extension=${_ext}${_extension:-}
         else
-            exts=${ext}.${exts:-}
+            _extension=${_ext}.${_extension:-}
         fi
-        fn=${fn%.$ext}
+        _fn=${_fn%.$_ext}
     done
-    if [[ ${exts} == "${PARSE_BASE}" ]]; then
-        PARSE_EXT="" && debug "\${PARSE_EXT}: ${PARSE_EXT}"
+    debug "_extension: ${_extension}"
+    if [[ ${_extension} == "${_originalFile}" ]]; then
+        _extension=""
     else
-        PARSE_EXT="${exts}" && debug "\${PARSE_EXT}: ${PARSE_EXT}"
+        _originalFile="${_originalFile%.$_extension}" && debug "_originalFile: ${_originalFile}"
+        _extension=".${_extension}"
     fi
 
-    PARSE_BASENOEXT="${PARSE_BASE%.$PARSE_EXT}" \
-        && debug "\${PARSE_BASENOEXT}: ${PARSE_BASENOEXT}"
+    _newFilename="${_filePath}/${_originalFile}${_extension:-}" && debug "_newFilename: ${_newFilename}"
+
+    if [ -e "${_newFilename}" ]; then
+        _num=1
+        if [ "${_internalInteger}" = true ]; then
+            while [[ -e "${_filePath}/${_originalFile}${_spacer}${_num}${_extension:-}" ]]; do
+                ((_num++))
+            done
+            _newFilename="${_filePath}/${_originalFile}${_spacer}${_num}${_extension:-}"
+        else
+            while [[ -e "${_filePath}/${_originalFile}${_extension:-}${_spacer}${_num}" ]]; do
+                ((_num++))
+            done
+            _newFilename="${_filePath}/${_originalFile}${_extension:-}${_spacer}${_num}"
+        fi
+    fi
+
+    echo "${_newFilename}"
+    return 0
 }
 
 _decryptFile_() {
-    # DESC:   Decrypts a file with openSSL
-    # ARGS:   $1 (Required) - File to be decrypted
+    # DESC:
+    #         Decrypts a file with openSSL
+    # ARGS:
+    #         $1 (Required) - File to be decrypted
     #         $2 (Optional) - Name of output file (defaults to $1.decrypt)
-    # OUTS:   None
-    # USAGE:  _decryptFile_ "somefile.txt.enc" "decrypted_somefile.txt"
-    # NOTE:   If a variable '$PASS' has a value, we will use that as the password
-    #         to decrypt the file. Otherwise we will ask
+    # OUTS:
+    #         0 - Success
+    #         1 - Error
+    # REQUIRES:
+    #         _execute_
+    # USAGE:
+    #         _decryptFile_ "somefile.txt.enc" "decrypted_somefile.txt"
+    # NOTE:
+    #         If a global variable '$PASS' has a value, we will use that as the password to decrypt
+    #         the file. Otherwise we will ask
 
-    [[ $# -lt 1 ]] && fatal 'Missing required argument to _decryptFile_()!'
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    local fileToDecrypt decryptedFile defaultName
-    fileToDecrypt="${1:?_decryptFile_ needs a file}"
-    defaultName="${fileToDecrypt%.enc}"
-    decryptedFile="${2:-$defaultName.decrypt}"
+    local _fileToDecrypt="${1:?_decryptFile_ needs a file}"
+    local _defaultName="${_fileToDecrypt%.enc}"
+    local _decryptedFile="${2:-$_defaultName.decrypt}"
 
-    [ ! "$(declare -f "_execute_")" ] \
-        && {
-            echo "need function _execute_"
-            return 1
-        }
+    [ ! "$(declare -f "_execute_")" ] && fatal "need function _execute_"
 
-    [ ! -f "$fileToDecrypt" ] && return 1
+    if ! command -v openssl &>/dev/null; then
+        fatal "openssl not found"
+    fi
 
-    if [ -z "${PASS}" ]; then
-        _execute_ "openssl enc -aes-256-cbc -d -in \"${fileToDecrypt}\" -out \"${decryptedFile}\"" "Decrypt ${fileToDecrypt}"
+    [ ! -f "${_fileToDecrypt}" ] && return 1
+
+    if [ -z "${PASS:-}" ]; then
+        _execute_ "openssl enc -aes-256-cbc -d -in \"${_fileToDecrypt}\" -out \"${_decryptedFile}\"" "Decrypt ${_fileToDecrypt}"
     else
-        _execute_ "openssl enc -aes-256-cbc -d -in \"${fileToDecrypt}\" -out \"${decryptedFile}\" -k \"${PASS}\"" "Decrypt ${fileToDecrypt}"
+        _execute_ "openssl enc -aes-256-cbc -d -in \"${_fileToDecrypt}\" -out \"${_decryptedFile}\" -k \"${PASS}\"" "Decrypt ${_fileToDecrypt}"
     fi
 }
 
 _encryptFile_() {
-    # DESC:   Encrypts a file using openSSL
-    # ARGS:   $1 (Required) - Input file
+    # DESC:
+    #         Encrypts a file using openSSL
+    # ARGS:
+    #         $1 (Required) - Input file
     #         $2 (Optional) - Name of output file (defaults to $1.enc)
-    # OUTS:   None
-    # USAGE:  _encryptFile_ "somefile.txt" "encrypted_somefile.txt"
-    # NOTE:   If a variable '$PASS' has a value, we will use that as the password
-    #         for the encrypted file. Otherwise we will ask.
+    # OUTS:
+    #         None
+    # REQUIRE:
+    #         _execute_
+    # USAGE:
+    #         _encryptFile_ "somefile.txt" "encrypted_somefile.txt"
+    # NOTE:
+    #         If a variable '$PASS' has a value, we will use that as the password
+    #         for the encrypted file. Otherwise ask.
 
-    local fileToEncrypt encryptedFile defaultName
+    local _fileToEncrypt="${1:?_encodeFile_ needs a file}"
+    local _defaultName="${_fileToEncrypt%.decrypt}"
+    local _encryptedFile="${2:-$_defaultName.enc}"
 
-    fileToEncrypt="${1:?_encodeFile_ needs a file}"
-    defaultName="${fileToEncrypt%.decrypt}"
-    encryptedFile="${2:-$defaultName.enc}"
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    [ ! -f "$fileToEncrypt" ] && return 1
+    [ ! -f "${_fileToEncrypt}" ] && return 1
 
-    [ ! "$(declare -f "_execute_")" ] \
-        && {
-            echo "need function _execute_"
-            return 1
-        }
+    [ ! "$(declare -f "_execute_")" ] && fatal "need function _execute_"
 
-    if [ -z "${PASS}" ]; then
-        _execute_ "openssl enc -aes-256-cbc -salt -in \"${fileToEncrypt}\" -out \"${encryptedFile}\"" "Encrypt ${fileToEncrypt}"
+    if ! command -v openssl &>/dev/null; then
+        fatal "openssl not found"
+    fi
+
+    if [ -z "${PASS:-}" ]; then
+        _execute_ "openssl enc -aes-256-cbc -salt -in \"${_fileToEncrypt}\" -out \"${_encryptedFile}\"" "Encrypt ${_fileToEncrypt}"
     else
-        _execute_ "openssl enc -aes-256-cbc -salt -in \"${fileToEncrypt}\" -out \"${encryptedFile}\" -k \"${PASS}\"" "Encrypt ${fileToEncrypt}"
+        _execute_ "openssl enc -aes-256-cbc -salt -in \"${_fileToEncrypt}\" -out \"${_encryptedFile}\" -k \"${PASS}\"" "Encrypt ${_fileToEncrypt}"
     fi
 }
 
-_extract_() {
-    # DESC:   Extract a compressed file
-    # ARGS:   $1 (Required) - Input file
+_extractArchive_() {
+    # DESC:
+    #         Extract a compressed file
+    # ARGS:
+    #         $1 (Required) - Input file
     #         $2 (optional) - Input 'v' to show verbose output
-    # OUTS:   None
+    # OUTS:
+    #         0 - Success
+    #         1 - Error
 
-    local filename
-    local foldername
-    local fullpath
-    local didfolderexist
-    local vv
+    local _vv
 
-    [[ $# -lt 1 ]] && fatal 'Missing required argument to _extract_()!'
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    [[ ${2:-} == "v" ]] && vv="v"
+    [[ ${2:-} == "v" ]] && _vv="v"
 
     if [ -f "$1" ]; then
         case "$1" in
-            *.tar.bz2 | *.tbz | *.tbz2) tar "x${vv}jf" "$1" ;;
-            *.tar.gz | *.tgz) tar "x${vv}zf" "$1" ;;
+            *.tar.bz2 | *.tbz | *.tbz2) tar "x${_vv}jf" "$1" ;;
+            *.tar.gz | *.tgz) tar "x${_vv}zf" "$1" ;;
             *.tar.xz)
                 xz --decompress "$1"
                 set -- "$@" "${1:0:-3}"
@@ -282,7 +300,7 @@ _extract_() {
                 set -- "$@" "${1:0:-2}"
                 ;;
             *.bz2) bunzip2 "$1" ;;
-            *.deb) dpkg-deb -x${vv} "$1" "${1:0:-4}" ;;
+            *.deb) dpkg-deb -x${_vv} "$1" "${1:0:-4}" ;;
             *.pax.gz)
                 gunzip "$1"
                 set -- "$@" "${1:0:-3}"
@@ -291,8 +309,8 @@ _extract_() {
             *.pax) pax -r -f "$1" ;;
             *.pkg) pkgutil --expand "$1" "${1:0:-4}" ;;
             *.rar) unrar x "$1" ;;
-            *.rpm) rpm2cpio "$1" | cpio -idm${vv} ;;
-            *.tar) tar "x${vv}f" "$1" ;;
+            *.rpm) rpm2cpio "$1" | cpio -idm${_vv} ;;
+            *.tar) tar "x${_vv}f" "$1" ;;
             *.txz)
                 mv "$1" "${1:0:-4}.tar.xz"
                 set -- "$@" "${1:0:-4}.tar.xz"
@@ -306,52 +324,255 @@ _extract_() {
     else
         return 1
     fi
-    shift
+}
 
+_fileName_() {
+    # DESC:
+    #					Get only the filename from a string
+    # ARGS:
+    #					$1 (Required) - Input string
+    # OUTS:
+    #					0 - Success
+    #					1 - Failure
+    #					stdout: Filename with extension
+    # USAGE:
+    #					_fileName_ "some/path/to/file.txt" --> "file.txt"
+    #					_fileName_ "some/path/to/file" --> "file"
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+    printf "%s" "${1##*/}"
+
+}
+
+_fileBasename_() {
+    # DESC:
+    #					Gets the basename of a file from a file name
+    # ARGS:
+    #					$1 (Required) - Input string path
+    # OUTS:
+    #					0 - Success
+    #					1 - Failure
+    #					stdout: Filename basename (no extension or path)
+    # USAGE:
+    #					_fileBasename_ "some/path/to/file.txt" --> "file"
+
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+
+    local _file
+    local _basename
+    _file="${1##*/}"
+    _basename="${_file%.*}"
+
+    printf "%s" "${_basename}"
+}
+
+_fileExtension_() {
+    # DESC:
+    #					Gets an extension from a file name. Finds a few common double extensions (tar.gz, tar.bz2, log.1)
+    # ARGS:
+    #					$1 (Required) - Input string path
+    # OUTS:
+    #					0 - Success
+    #					1 - If no extension found in filename
+    #					stdout: extension (without the .)
+    # USAGE:
+    #					_fileExtension_ "some/path/to/file.txt" --> "txt"
+
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+
+    local _file
+    local _extension
+    local _levels
+    local _ext
+    local _exts
+    _file="${1##*/}"
+
+    # Detect some common multi-extensions
+    if [[ -z ${_levels:-} ]]; then
+        case $(tr '[:upper:]' '[:lower:]' <<<"${_file}") in
+            *.tar.gz | *.tar.bz2 | *.log.[0-9]) _levels=2 ;;
+            *) _levels=1 ;;
+        esac
+    fi
+
+    _fn="$_file"
+    for ((i = 0; i < _levels; i++)); do
+        _ext=${_fn##*.}
+        if [ $i == 0 ]; then
+            _exts=${_ext}${_exts:-}
+        else
+            _exts=${_ext}.${_exts:-}
+        fi
+        _fn=${_fn%.$_ext}
+    done
+    debug "_exts: $_exts"
+    [[ ${_file} == "${_exts}" ]] && return 1
+
+    printf "%s" "${_exts}"
+
+}
+
+_fileDirectory_() {
+    # DESC:
+    #					Finds the directory name from a file path
+    # ARGS:
+    #					$1 (Required) - Input string path
+    # OUTS:
+    #					0 - Success
+    #					1 - Failure
+    #					stdout: Directory path
+    # USAGE:
+    #					_fileDirectory_ "some/path/to/file.txt" --> "some/path/to"
+    # CREDIT:
+    #         https://github.com/labbots/bash-utility/
+
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+
+    local _tmp=${1:-.}
+
+    [[ ${_tmp} != *[!/]* ]] && { printf '/\n' && return; }
+    _tmp="${_tmp%%"${_tmp##*[!/]}"}"
+
+    [[ ${_tmp} != */* ]] && { printf '.\n' && return; }
+    _tmp=${_tmp%/*} && _tmp="${_tmp%%"${_tmp##*[!/]}"}"
+
+    printf '%s' "${_tmp:-/}"
+}
+
+_fileAbsPath_() {
+    # DESC:
+    #					Gets the absolute path of a file or directory
+    # ARGS:
+    #					$1 (Required) - Relative path to a file or directory
+    # OUTS:
+    #					0 - Success
+    #					1 - If file/directory does not exist
+    #					stdout: String relative or absolute path to file/directory
+    # USAGE:
+    #					_fileAbsPath_ "../path/to/file.md" --> /home/user/docs/path/to/file.md
+    # CREDIT:
+    #         https://github.com/labbots/bash-utility/
+
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+
+    local _input="${1}"
+    if [[ -f ${_input} ]]; then
+        printf "%s/%s\n" "$(cd "$(_fileDirectory_ "${_input}")" && pwd)" "${_input##*/}"
+    elif [[ -d ${_input} ]]; then
+        printf "%s\n" "$(cd "${_input}" && pwd)"
+    else
+        return 1
+    fi
+}
+
+_fileContains_() {
+    # DESC:
+    #					Searches a file for a given pattern using default grep patterns
+    # ARGS:
+    #					$1 (Required) - Input file
+    #					$2 (Required) - Pattern to search for
+    # OUTS:
+    #					0 - Pattern found in file
+    #					1 - Pattern not found in file
+    # USAGE:
+    #					_fileContains_ "./file.sh" "^[:alpha:]*"
+
+    [[ $# -lt 2 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+
+    local _file="$1"
+    local _text="$2"
+    grep -q "${_text}" "${_file}"
 }
 
 _json2yaml_() {
-    # DESC:   Convert JSON to YAML
-    # ARGS:   $1 (Required) - JSON file
-    # OUTS:   None
+    # DESC:
+    #         Convert JSON to YAML
+    # ARGS:
+    #         $1 (Required) - JSON file
+    # OUTS:
+    #         stdout: YAML from the JSON input
 
-    python -c 'import sys, yaml, json; yaml.safe_dump(json.load(sys.stdin), sys.stdout, default_flow_style=False)' <"${1:?_json2yaml_ needs a file}"
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+
+    python -c 'import sys, yaml, json; yaml.safe_dump(json.load(sys.stdin), sys.stdout, default_flow_style=False)' <"${1}"
+}
+
+_listFiles_() {
+    # DESC:
+    #         Find files in a directory.  Use either glob or regex
+    # ARGS:
+    #         $1 (Required) - 'g|glob' or 'r|regex'
+    #         $2 (Required) - pattern to match
+    #         $3 (Optional) - directory (defaults to .)
+    # OUTS:
+    #         stdout: List of files
+    # NOTE:
+    #         Searches are NOT case sensitive and MUST be quoted
+    # USAGE:
+    #         _listFiles_ glob "*.txt" "some/backup/dir"
+    #         _listFiles_ regex ".*\.txt" "some/backup/dir"
+    #         readarray -t array < <(_listFiles_ g "*.txt")
+
+    [[ $# -lt 2 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+
+    local _searchType="${1}"
+    local _pattern="${2}"
+    local _directory="${3:-.}"
+    local _fileMatch e
+
+    case "${_searchType}" in
+        [Gg]*)
+            while read -r _fileMatch; do
+                printf "%s\n" "$(realpath "${_fileMatch}")"
+            done < <(find "${_directory}" -iname "${_pattern}" -type f -maxdepth 1 | sort)
+            ;;
+        [Rr]*)
+            while read -r _fileMatch; do
+                printf "%s\n" "$(realpath "${_fileMatch}")"
+            done < <(find "${_directory}" -iregex "${_pattern}" -type f -maxdepth 1 | sort)
+            ;;
+        *)
+            fatal "_listFiles_: Could not determine if search was glob or regex"
+            ;;
+    esac
 }
 
 _makeSymlink_() {
-    # DESC:   Creates a symlink and backs up a file which may be overwritten by the new symlink. If the
+    # DESC:
+    #         Creates a symlink and backs up a file which may be overwritten by the new symlink. If the
     #         exact same symlink already exists, nothing is done.
     #         Default behavior will create a backup of a file to be overwritten
-    # ARGS:   $1 (Required) - Source file
+    # ARGS:
+    #         $1 (Required) - Source file
     #         $2 (Required) - Destination
-    #         $3 (Optional) - Backup directory for files which may be overwritten (defaults to 'backup')
-    # OPTS:   -c             - Only report on new/changed symlinks.  Quiet when nothing done.
-    #         -n             - Do not create a backup if target already exists
-    #         -s             - Use sudo when removing old files to make way for new symlinks
-    # OUTS:   None
-    # USAGE:  _makeSymlink_ "/dir/someExistingFile" "/dir/aNewSymLink" "/dir/backup/location"
-    # NOTE:   This function makes use of the _execute_ function
+    # OPTS:
+    #         -c  - Only report on new/changed symlinks.  Quiet when nothing done.
+    #         -n  - Do not create a backup if target already exists
+    #         -s  - Use sudo when removing old files to make way for new symlinks
+    # OUTS:
+    #         0 - Success
+    #         1 - Error
+    #         Filesystem: Create's symlink if required
+    # USAGE:
+    #         _makeSymlink_ "/dir/someExistingFile" "/dir/aNewSymLink" "/dir/backup/location"
 
     local opt
     local OPTIND=1
-    local backupOriginal=true
-    local useSudo=false
-    local ONLY_SHOW_CHANGED=false
+    local _backupOriginal=true
+    local _useSudo=false
+    local _onlyShowChanged=false
 
     while getopts ":cCnNsS" opt; do
         case $opt in
-            n | N) backupOriginal=false ;;
-            s | S) useSudo=true ;;
-            c | C) ONLY_SHOW_CHANGED=true ;;
-            *)
-                {
-                    error "Unrecognized option '$1' passed to _makeSymlink_" "$LINENO"
-                    return 1
-                }
-                ;;
+            n | N) _backupOriginal=false ;;
+            s | S) _useSudo=true ;;
+            c | C) _onlyShowChanged=true ;;
+            *) fatal "Missing required argument to ${FUNCNAME[0]}" ;;
         esac
     done
     shift $((OPTIND - 1))
+
+    [ ! "$(declare -f "_backupFile_")" ] && fatal "${FUNCNAME[0]} needs function _backupFile_"
+    [ ! "$(declare -f "_execute_")" ] && fatal "${FUNCNAME[0]} needs function _execute_"
 
     if ! command -v realpath >/dev/null 2>&1; then
         error "We must have 'realpath' installed and available in \$PATH to run."
@@ -362,248 +583,262 @@ _makeSymlink_() {
         _safeExit_ 1
     fi
 
-    [[ $# -lt 2 ]] && fatal 'Missing required argument to _makeSymlink_()!'
+    [[ $# -lt 2 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    local s="$1"
-    local d="$2"
-    local b="${3:-}"
-    local o
+    local _sourceFile="$1"
+    local _destinationFile="$2"
+    local _originalFile
 
     # Fix files where $HOME is written as '~'
-    d="${d/\~/$HOME}"
-    s="${s/\~/$HOME}"
-    b="${b/\~/$HOME}"
+    _destinationFile="${_destinationFile/\~/$HOME}"
+    _sourceFile="${_sourceFile/\~/$HOME}"
 
-    [ ! -e "$s" ] \
+    [ ! -e "$_sourceFile" ] \
         && {
-            error "'$s' not found"
+            error "'${_sourceFile}' not found"
             return 1
         }
-    [ -z "$d" ] \
+    [ -z "${_destinationFile}" ] \
         && {
-            error "'${d}' not specified"
-            return 1
-        }
-    [ ! "$(declare -f "_execute_")" ] \
-        && {
-            echo "need function _execute_"
-            return 1
-        }
-    [ ! "$(declare -f "_backupFile_")" ] \
-        && {
-            echo "need function _backupFile_"
+            error "'${_destinationFile}' not specified"
             return 1
         }
 
     # Create destination directory if needed
-    [ ! -d "${d%/*}" ] \
-        && _execute_ "mkdir -p \"${d%/*}\""
+    [ ! -d "${_destinationFile%/*}" ] \
+        && _execute_ "mkdir -p \"${_destinationFile%/*}\""
 
-    if [ ! -e "${d}" ]; then
-        _execute_ "ln -fs \"${s}\" \"${d}\"" "symlink ${s} → ${d}"
-    elif [ -h "${d}" ]; then
-        o="$(realpath "${d}")"
+    if [ ! -e "${_destinationFile}" ]; then
+        _execute_ "ln -fs \"${_sourceFile}\" \"${_destinationFile}\"" "symlink ${_sourceFile} → ${_destinationFile}"
+    elif [ -h "${_destinationFile}" ]; then
+        _originalFile="$(realpath "${_destinationFile}")"
 
-        [[ ${o} == "${s}" ]] && {
-
-            if [ ${ONLY_SHOW_CHANGED} == true ]; then
-                debug "Symlink already exists: ${s} → ${d}"
+        [[ ${_originalFile} == "${_sourceFile}" ]] && {
+            if [ ${_onlyShowChanged} == true ]; then
+                debug "Symlink already exists: ${_sourceFile} → ${_destinationFile}"
             elif [ "${DRYRUN}" == true ]; then
-                dryrun "Symlink already exists: ${s} → ${d}"
+                dryrun "Symlink already exists: ${_sourceFile} → ${_destinationFile}"
             else
-                info "Symlink already exists: ${s} → ${d}"
+                info "Symlink already exists: ${_sourceFile} → ${_destinationFile}"
             fi
             return 0
         }
 
-        if [[ ${backupOriginal} == true ]]; then
-            _backupFile_ "${d}" "${b:-backup}"
+        if [[ ${_backupOriginal} == true ]]; then
+            _backupFile_ "${_destinationFile}"
         fi
         if [[ ${DRYRUN} == false ]]; then
-            if [[ ${useSudo} == true ]]; then
-                command rm -rf "${d}"
+            if [[ ${_useSudo} == true ]]; then
+                command rm -rf "${_destinationFile}"
             else
-                command rm -rf "${d}"
+                command rm -rf "${_destinationFile}"
             fi
         fi
-        _execute_ "ln -fs \"${s}\" \"${d}\"" "symlink ${s} → ${d}"
-    elif [ -e "${d}" ]; then
-        if [[ ${backupOriginal} == true ]]; then
-            _backupFile_ "${d}" "${b:-backup}"
+        _execute_ "ln -fs \"${_sourceFile}\" \"${_destinationFile}\"" "symlink ${_sourceFile} → ${_destinationFile}"
+    elif [ -e "${_destinationFile}" ]; then
+        if [[ ${_backupOriginal} == true ]]; then
+            _backupFile_ "${_destinationFile}"
         fi
         if [[ ${DRYRUN} == false ]]; then
-            if [[ ${useSudo} == true ]]; then
-                sudo command rm -rf "${d}"
+            if [[ ${_useSudo} == true ]]; then
+                sudo command rm -rf "${_destinationFile}"
             else
-                command rm -rf "${d}"
+                command rm -rf "${_destinationFile}"
             fi
         fi
-        _execute_ "ln -fs \"${s}\" \"${d}\"" "symlink ${s} → ${d}"
+        _execute_ "ln -fs \"${_sourceFile}\" \"${_destinationFile}\"" "symlink ${_sourceFile} → ${_destinationFile}"
     else
-        warning "Error linking: ${s} → ${d}"
+        warning "Error linking: ${_sourceFile} → ${_destinationFile}"
         return 1
     fi
     return 0
 }
 
+_parseFilename_() {
+    # DESC:
+    #         Break a filename into its component parts which and place them into prefixed
+    #         variables for use in your script. Run with VERBOSE=true to see the variables while
+    #         running your script.
+    # ARGS:
+    #         $1 (Required) - Path to file to parse. (Must exist in filesystem)
+    # OPTS:
+    #         -n  - optional flag for number of extension levels (Ex: -n2)
+    # OUTS:
+    #         0 - Success
+    #         1 - Error
+    #         Variables created
+    #             $PARSE_FULL         - File and its real path (ie, resolve symlinks)
+    #             $PARSE_PATH         - Path to the file
+    #             $PARSE_BASE         - Name of the file WITH extension
+    #             $PARSE_BASENOEXT    - Name of file WITHOUT extension
+    #             $PARSE_EXT          - The extension of the file
+    # USAGE:
+    #         _parseFilename_ "some/file.txt"
+
+    # Error handling
+    if [[ $# -lt 1 ]] \
+        || ! command -v dirname &>/dev/null \
+        || ! command -v basename &>/dev/null \
+        || ! command -v realpath &>/dev/null; then
+        fatal "Missing dependency or input to ${FUNCNAME[0]}"
+    fi
+
+    local _levels
+    local option
+    local _exts
+    local _ext
+    local i
+    local _fn
+
+    local OPTIND=1
+    while getopts ":n:" option; do
+        case ${option} in
+            n) _levels=${OPTARG} ;;
+            *) continue ;;
+        esac
+    done && shift $((OPTIND - 1))
+
+    local _fileToParse="${1}"
+
+    if [ ! -f "${_fileToParse}" ]; then
+        debug "_parseFile_: Could not find file: ${_fileToParse}"
+        return 1
+    fi
+
+    PARSE_FULL="$(realpath "${_fileToParse}")" \
+        && debug "\${PARSE_FULL}: ${PARSE_FULL:-}"
+    PARSE_BASE=$(basename "${_fileToParse}") \
+        && debug "\${PARSE_BASE}: ${PARSE_BASE}"
+    PARSE_PATH="$(realpath "$(dirname "${_fileToParse}")")" \
+        && debug "\${PARSE_PATH}: ${PARSE_PATH:-}"
+
+    # Detect some common multi-extensions
+    if [[ -z ${_levels:-} ]]; then
+        case $(tr '[:upper:]' '[:lower:]' <<<"${PARSE_BASE}") in
+            *.tar.gz | *.tar.bz2 | *.log.[0-9]) _levels=2 ;;
+            *) _levels=1 ;;
+        esac
+    fi
+
+    # Find Extension
+    _fn="${PARSE_BASE}"
+    for ((i = 0; i < _levels; i++)); do
+        _ext=${_fn##*.}
+        if [ $i == 0 ]; then
+            _exts=${_ext}${_exts:-}
+        else
+            _exts=${_ext}.${_exts:-}
+        fi
+        _fn=${_fn%.$_ext}
+    done
+    if [[ ${_exts} == "${PARSE_BASE}" ]]; then
+        PARSE_EXT="" && debug "\${PARSE_EXT}: ${PARSE_EXT}"
+    else
+        PARSE_EXT="${_exts}" && debug "\${PARSE_EXT}: ${PARSE_EXT}"
+    fi
+
+    PARSE_BASENOEXT="${PARSE_BASE%.$PARSE_EXT}" \
+        && debug "\${PARSE_BASENOEXT}: ${PARSE_BASENOEXT}"
+}
+
 _parseYAML_() {
-    # DESC:   Convert a YAML file into BASH variables for use in a shell script
-    # ARGS:   $1 (Required) - Source YAML file
+    # DESC:
+    #         Convert a YAML file into BASH variables for use in a shell script
+    # ARGS:
+    #         $1 (Required) - Source YAML file
     #         $2 (Required) - Prefix for the variables to avoid namespace collisions
-    # OUTS:   Prints variables and arrays derived from YAML File
-    # USAGE:  To source into a script
+    # OUTS:
+    #         Prints variables and arrays derived from YAML File
+    # USAGE:
+    #         To source into a script
     #         _parseYAML_ "sample.yml" "CONF_" > tmp/variables.txt
     #         source "tmp/variables.txt"
     #
-    # NOTE:   https://gist.github.com/DinoChiesa/3e3c3866b51290f31243
+    # NOTE:
+    #         https://gist.github.com/DinoChiesa/3e3c3866b51290f31243
     #         https://gist.github.com/epiloque/8cf512c6d64641bde388
 
-    local yamlFile="${1:?_parseYAML_ needs a file}"
-    local prefix="${2:-}"
+    [[ $# -lt 2 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    [ ! -s "${yamlFile}" ] && return 1
+    local _yamlFile="${1}"
+    local _prefix="${2:-}"
 
-    local s='[[:space:]]*'
-    local w='[a-zA-Z0-9_]*'
-    local fs="$(echo @ | tr @ '\034')"
-    sed -ne "s|^\(${s}\)\(${w}\)${s}:${s}\"\(.*\)\"${s}\$|\1${fs}\2${fs}\3|p" \
-        -e "s|^\(${s}\)\(${w}\)${s}[:-]${s}\(.*\)${s}\$|\1${fs}\2${fs}\3|p" "${yamlFile}" \
-        | awk -F"${fs}" '{
+    [ ! -s "${_yamlFile}" ] && return 1
+
+    local _s='[[:space:]]*'
+    local _w='[a-zA-Z0-9_]*'
+    local _fs="$(echo @ | tr @ '\034')"
+    sed -ne "s|^\(${_s}\)\(${_w}\)${_s}:${_s}\"\(.*\)\"${_s}\$|\1${_fs}\2${_fs}\3|p" \
+        -e "s|^\(${_s}\)\(${_w}\)${_s}[:-]${_s}\(.*\)${_s}\$|\1${_fs}\2${_fs}\3|p" "${_yamlFile}" \
+        | awk -F"${_fs}" '{
     indent = length($1)/2;
     if (length($2) == 0) { conj[indent]="+";} else {conj[indent]="";}
     vname[indent] = $2;
     for (i in vname) {if (i > indent) {delete vname[i]}}
     if (length($3) > 0) {
             vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
-            printf("%s%s%s%s=(\"%s\")\n", "'"${prefix}"'",vn, $2, conj[indent-1],$3);
+            printf("%s%s%s%s=(\"%s\")\n", "'"${_prefix}"'",vn, $2, conj[indent-1],$3);
     }
   }' | sed 's/_=/+=/g' | sed 's/[[:space:]]*#.*"/"/g'
 }
 
 _readFile_() {
-    # DESC:   Prints each line of a file
-    # ARGS:   $1 (Required) - Input file
-    # OUTS:   Prints contents of file
+    # DESC:
+    #         Prints each line of a file
+    # ARGS:
+    #         $1 (Required) - Input file
+    # OUTS:
+    #         Prints contents of file
+    # USAGE:
+    #         _readFile_ "file.txt"
 
-    [[ $# -lt 1 ]] && fatal 'Missing required argument to _readFile_()!'
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    local result
-    local c="$1"
+    local _result
+    local _fileToRead="$1"
 
-    [ ! -f "$c" ] \
+    [ ! -f "$_fileToRead" ] \
         && {
             echo "'$c' not found"
             return 1
         }
 
     while read -r result; do
-        echo "${result}"
-    done <"${c}"
+        printf "%s\n" "${result}"
+    done <"${_fileToRead}"
 }
 
 _sourceFile_() {
-    # DESC:   Source a file into a script
-    # ARGS:   $1 (Required) - File to be sourced
-    # OUTS:   None
+    # DESC:
+    #         Source a file into a script safely.  Will exit script if the file does not exist.
+    # ARGS:
+    #         $1 (Required) - File to be sourced
+    # OUTS:
+    #         0 if file sourced successfully
+    #         exit script if file not sourced
 
-    [[ $# -lt 1 ]] && fatal 'Missing required argument to _sourceFile_()!'
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    local c="$1"
+    local _fileToSource="$1"
 
-    [ ! -f "${c}" ] \
-        && {
-            fatal "Attempted to source '$c'. Not found"
-            return 1
-        }
+    [ ! -f "${_fileToSource}" ] && fatal "Attempted to source '${_fileToSource}'. Not found"
 
-    source "${c}"
-    return 0
-}
-
-_uniqueFileName_() {
-    # DESC:   Ensure a file to be created has a unique filename to avoid overwriting other
-    #         filenames by appending an integer to the filename if it already exists.
-    # ARGS:   $1 (Required) - Name of file to be created
-    #         $2 (Optional) - Separation characted (Defaults to a period '.')
-    # OUTS:   Prints unique filename to STDOUT
-    # OPTS:  -i             - Places the unique integer before the file extension
-    # USAGE:  _uniqueFileName_ "/some/dir/file.txt" "-"
-
-    local opt
-    local OPTIND=1
-    local INTERNAL_INTEGER=false
-    while getopts ":iI" opt; do
-        case ${opt} in
-            i | I) INTERNAL_INTEGER=true ;;
-            *)
-                {
-                    error "Unrecognized option '${1}' passed to _uniqueFileName_" "${LINENO}"
-                    return 1
-                }
-                ;;
-        esac
-    done
-    shift $((OPTIND - 1))
-
-    local fullfile="${1:?_uniqueFileName_ needs a file}"
-    local spacer="${2:-.}"
-    local directory
-    local filename
-    local extension
-    local newfile
-    local num
-
-    if ! command -v realpath >/dev/null 2>&1; then
-        error "We must have 'realpath' installed and available in \$PATH to run."
-        if [[ $OSTYPE == "darwin"* ]]; then
-            notice "Install coreutils using homebrew and rerun this script."
-            info "\t$ brew install coreutils"
-        fi
-        _safeExit_ 1
+    if source "${_fileToSource}"; then
+        return 0
+    else
+        fatal "Failed to source: ${_fileToSource}"
     fi
-
-    # Find directories with realpath if input is an actual file
-    if [ -e "${fullfile}" ]; then
-        fullfile="$(realpath "${fullfile}")"
-    fi
-
-    directory="$(dirname "${fullfile}")"
-    filename="$(basename "${fullfile}")"
-
-    # Extract extensions only when they exist
-    if [[ "${filename}" =~ \.[a-zA-Z]{2,4}$ ]]; then
-        extension=".${filename##*.}"
-        filename="${filename%.*}"
-    fi
-    if [[ "${filename}" == "${extension:-}" ]]; then
-        extension=""
-    fi
-
-    newfile="${directory}/${filename}${extension:-}"
-
-    if [ -e "${newfile}" ]; then
-        num=1
-        if [ "${INTERNAL_INTEGER}" = true ]; then
-            while [[ -e "${directory}/${filename}${spacer}${num}${extension:-}" ]]; do
-                ((num++))
-            done
-            newfile="${directory}/${filename}${spacer}${num}${extension:-}"
-        else
-            while [[ -e "${directory}/${filename}${extension:-}${spacer}${num}" ]]; do
-                ((num++))
-            done
-            newfile="${directory}/${filename}${extension:-}${spacer}${num}"
-        fi
-    fi
-
-    echo "${newfile}"
-    return 0
 }
 
 _yaml2json_() {
-    # DESC:   Convert a YAML file to JSON
-    # ARGS:   $1 (Required) - Input YAML file
-    # OUTS:   None
+    # DESC:
+    #         Convert a YAML file to JSON
+    # ARGS:
+    #         $1 (Required) - Input YAML file
+    # OUTS:
+    #         stdout: JSON
+
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
     python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' <"${1:?_yaml2json_ needs a file}"
 }

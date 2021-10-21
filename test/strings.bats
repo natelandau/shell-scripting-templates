@@ -7,8 +7,8 @@ load 'test_helper/bats-assert/load'
 
 ######## SETUP TESTS ########
 ROOTDIR="$(git rev-parse --show-toplevel)"
-SOURCEFILE="${ROOTDIR}/utilities/textProcessing.bash"
-BASEHELPERS="${ROOTDIR}/utilities/baseHelpers.bash"
+SOURCEFILE="${ROOTDIR}/utilities/strings.bash"
+BASEHELPERS="${ROOTDIR}/utilities/misc.bash"
 ALERTS="${ROOTDIR}/utilities/alerts.bash"
 
 if test -f "${SOURCEFILE}" >&2; then
@@ -75,6 +75,35 @@ teardown() {
   assert_success
   assert_output ""
 }
+
+@test "_splitString_" {
+  run _splitString_ "a,b,cd" ","
+  assert_success
+  assert_line --index 0 "a"
+  assert_line --index 1 "b"
+  assert_line --index 2 "cd"
+}
+
+@test "_stringContains_: success" {
+  run _stringContains_ "hello world!" "lo"
+  assert_success
+}
+
+@test "_stringContains_: failure" {
+  run _stringContains_ "hello world!" "zebra"
+  assert_failure
+}
+
+@test "_stringRegex_: success" {
+  run _stringRegex_ "hello world!" "[a-z].*!$"
+  assert_success
+}
+
+@test "_stringRegex_: failure" {
+  run _stringRegex_ "hello world!" "^.*[0-9]+"
+  assert_failure
+}
+
 
 _testCleanString_() {
 
@@ -160,46 +189,46 @@ _testCleanString_
 
 _testStopWords_() {
 
-  @test "_stopWords_: success" {
-    run _stopWords_ "A string to be parsed"
+  @test "_stripStopwords_: success" {
+    run _stripStopwords_ "A string to be parsed"
     assert_success
     assert_output "string parsed"
   }
 
-  @test "_stopWords_: success w/ user terms" {
-    run _stopWords_ "A string to be parsed to help pass this test being performed by bats" "bats,string"
+  @test "_stripStopwords_: success w/ user terms" {
+    run _stripStopwords_ "A string to be parsed to help pass this test being performed by bats" "bats,string"
     assert_success
     assert_output "parsed pass performed"
   }
 
-  @test "_stopWords_: No changes" {
-    run _stopWords_ "string parsed pass performed"
+  @test "_stripStopwords_: No changes" {
+    run _stripStopwords_ "string parsed pass performed"
     assert_success
     assert_output "string parsed pass performed"
   }
 
-  @test "_stopWords_: fail" {
-    run _stopWords_
+  @test "_stripStopwords_: fail" {
+    run _stripStopwords_
     assert_failure
   }
 
 }
 _testStopWords_
 
-@test "_escape_" {
-  run _escape_ "Here is some / text to & be - escaped"
+@test "_escapeString_" {
+  run _escapeString_ "Here is some / text to & be - escaped"
   assert_success
   assert_output "Here\ is\ some\ /\ text\ to\ &\ be\ -\ escaped"
 }
 
-@test "_htmlEncode_" {
-  run _htmlEncode_ "Here's some text& to > be h?t/M(l• en™codeç£§¶d"
+@test "_encodeHTML_" {
+  run _encodeHTML_ "Here's some text& to > be h?t/M(l• en™codeç£§¶d"
   assert_success
   assert_output "Here's some text&amp; to &gt; be h?t/M(l&bull; en&trade;code&ccedil;&pound;&sect;&para;d"
 }
 
-@test "_htmlDecode_" {
-  run _htmlDecode_ "&clubs;Here's some text &amp; to &gt; be h?t/M(l&bull; en&trade;code&ccedil;&pound;&sect;&para;d"
+@test "_decodeHTML_" {
+  run _decodeHTML_ "&clubs;Here's some text &amp; to &gt; be h?t/M(l&bull; en&trade;code&ccedil;&pound;&sect;&para;d"
   assert_success
   assert_output "♣Here's some text & to > be h?t/M(l• en™codeç£§¶d"
 }
@@ -232,27 +261,27 @@ _testStopWords_
   assert_output "MAKE THIS UPPERCASE"
 }
 
-@test "_urlEncode_" {
-  run _urlEncode_ "Here's some.text%that&needs_to-be~encoded+a*few@more(characters)"
+@test "_encodeURL_" {
+  run _encodeURL_ "Here's some.text%that&needs_to-be~encoded+a*few@more(characters)"
   assert_success
   assert_output "Here%27s%20some.text%25that%26needs_to-be~encoded%2Ba%2Afew%40more%28characters%29"
 }
 
-@test "_urlDecode_" {
-  run _urlDecode_ "Here%27s%20some.text%25that%26needs_to-be~encoded%2Ba%2Afew%40more%28characters%29"
+@test "_decodeURL_" {
+  run _decodeURL_ "Here%27s%20some.text%25that%26needs_to-be~encoded%2Ba%2Afew%40more%28characters%29"
   assert_success
   assert_output "Here's some.text%that&needs_to-be~encoded+a*few@more(characters)"
 }
 
-@test "_regex_: success" {
-  run _regex_ "#FFFFFF" '^(#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$' || echo "no match found"
+@test "_regexCapture_: success" {
+  run _regexCapture_ "#FFFFFF" '^(#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$' || echo "no match found"
 
   assert_success
   assert_output "#FFFFFF"
 }
 
-@test "_regex_: failure" {
-  run _regex_ "gggggg" '^(#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$'
+@test "_regexCapture_: failure" {
+  run _regexCapture_ "gggggg" '^(#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$'
 
   assert_failure
 }

@@ -7,8 +7,8 @@ load 'test_helper/bats-assert/load'
 
 ######## SETUP TESTS ########
 ROOTDIR="$(git rev-parse --show-toplevel)"
-SOURCEFILE="${ROOTDIR}/utilities/numbers.bash"
-BASEHELPERS="${ROOTDIR}/utilities/baseHelpers.bash"
+SOURCEFILE="${ROOTDIR}/utilities/debug.bash"
+BASEHELPERS="${ROOTDIR}/utilities/misc.bash"
 ALERTS="${ROOTDIR}/utilities/alerts.bash"
 
 if test -f "${SOURCEFILE}" >&2; then
@@ -53,7 +53,7 @@ setup() {
   VERBOSE=false
   FORCE=false
   DRYRUN=false
-
+  PASS=123
   set -o errtrace
   set -o nounset
   set -o pipefail
@@ -63,7 +63,6 @@ teardown() {
   set +o nounset
   set +o errtrace
   set +o pipefail
-
   popd &>/dev/null
   temp_del "${TESTDIR}"
 }
@@ -76,33 +75,28 @@ teardown() {
   assert_output ""
 }
 
-@test "_convertSecs_: Seconds to human readable" {
-
-  run _fromSeconds_ "9255"
+@test "_printAnsi_" {
+  testString="$(tput bold)$(tput setaf 9)This is bold red text$(tput sgr0).$(tput setaf 10)This is green text$(tput sgr0)"
+  run _printAnsi_ "${testString}"
   assert_success
-  assert_output "02:34:15"
+  assert_output "\e[1m\e[91mThis is bold red text\e(B\e[m.\e[92mThis is green text\e(B\e[m"
 }
 
-@test "_toSeconds_: HH MM SS to Seconds" {
-  run _toSeconds_ 12 3 33
+@test "_printArray_: Array" {
+  testArray=(1 2 3)
+  run _printArray_ "testArray"
   assert_success
-  assert_output "43413"
+  assert_line --index 0 "0 = 1"
+  assert_line --index 1 "1 = 2"
+  assert_line --index 2 "2 = 3"
 }
 
-@test "_countdown_: custom message, default wait" {
-  run _countdown_ 10 0 "something"
-  assert_line --index 0 --partial "something 10"
-  assert_line --index 9 --partial "something 1"
-}
+@test "_printArray_: Associative array" {
+  declare -A assoc_array
+  assoc_array=([foo]=bar [baz]=foobar)
+  run _printArray_ "assoc_array"
+  assert_success
+  assert_line --index 0 "foo = bar"
+  assert_line --index 1 "baz = foobar"
 
-@test "_countdown_: default message, custom wait" {
-  run _countdown_ 5 0
-  assert_line --index 0 --partial "... 5"
-  assert_line --index 4 --partial "... 1"
-}
-
-@test "_countdown_: all defaults" {
-  run _countdown_
-  assert_line --index 0 --partial "... 10"
-  assert_line --index 9 --partial "... 1"
 }

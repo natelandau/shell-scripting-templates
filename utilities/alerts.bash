@@ -1,16 +1,22 @@
-_setColors_() {
-    # DESC: Sets colors use for alerts.
-    # ARGS:		None
-    # OUTS:		None
-    # USAGE:  echo "${blue}Some text${reset}"
+# Functions for providing alerts to the user and logging them
 
-    if tput setaf 1 &>/dev/null; then
+_setColors_() {
+    # DESC:
+    #         Sets colors use for alerts.
+    # ARGS:
+    #         None
+    # OUTS:
+    #         None
+    # USAGE:
+    #         echo "${blue}Some text${reset}"
+
+    if tput setaf 1 >/dev/null 2>&1; then
         bold=$(tput bold)
         underline=$(tput smul)
         reverse=$(tput rev)
         reset=$(tput sgr0)
 
-        if [[ $(tput colors) -ge 256 ]] 2>/dev/null; then
+        if [[ $(tput colors) -ge 256 ]] >/dev/null 2>&1; then
             white=$(tput setaf 231)
             blue=$(tput setaf 38)
             yellow=$(tput setaf 11)
@@ -46,68 +52,75 @@ _setColors_() {
 }
 
 _alert_() {
-    # DESC:   Controls all printing of messages to log files and stdout.
-    # ARGS:   $1 (required) - The type of alert to print
+    # DESC:
+    #         Controls all printing of messages to log files and stdout.
+    # ARGS:
+    #         $1 (required) - The type of alert to print
     #                         (success, header, notice, dryrun, debug, warning, error,
     #                         fatal, info, input)
     #         $2 (required) - The message to be printed to stdout and/or a log file
     #         $3 (optional) - Pass '${LINENO}' to print the line number where the _alert_ was triggered
-    # OUTS:   None
-    # USAGE:  [ALERTTYPE] "[MESSAGE]" "${LINENO}"
-    # NOTES:  The colors of each alert type are set in this function
-    #         For specified alert types, the funcstac will be printed
+    # OUTS:
+    #         stdout: The message is printed to stdout
+    #         log file: The message is printed to a log file
+    # USAGE:
+    #         [_alertType] "[MESSAGE]" "${LINENO}"
+    # NOTES:
+    #         - The colors of each alert type are set in this function
+    #         - For specified alert types, the funcstac will be printed
 
-    local function_name color
-    local alertType="${1}"
-    local message="${2}"
-    local line="${3:-}"  # Optional line number
+    local _color
+    local _alertType="${1}"
+    local _message="${2}"
+    local _line="${3:-}" # Optional line number
 
-    if [[ -n ${line} && ${alertType} =~ ^(fatal|error) && ${FUNCNAME[2]} != "_trapCleanup_"     ]]; then
-        message="${message} (line: ${line}) $(_functionStack_)"
-    elif [[ -n ${line} && ${FUNCNAME[2]} != "_trapCleanup_"   ]]; then
-        message="${message} (line: ${line})"
-    elif [[ -z ${line} && ${alertType} =~ ^(fatal|error) && ${FUNCNAME[2]} != "_trapCleanup_"     ]]; then
-        message="${message} $(_functionStack_)"
+    [[ $# -lt 2 ]] && fatal 'Missing required argument to _alert_'
+
+    if [[ -n ${_line} && ${_alertType} =~ ^(fatal|error) && ${FUNCNAME[2]} != "_trapCleanup_" ]]; then
+        _message="${_message} ${gray}(line: ${_line}) $(_printFuncStack_)"
+    elif [[ -n ${_line} && ${FUNCNAME[2]} != "_trapCleanup_" ]]; then
+        _message="${_message} ${gray}(line: ${_line})"
+    elif [[ -z ${_line} && ${_alertType} =~ ^(fatal|error) && ${FUNCNAME[2]} != "_trapCleanup_" ]]; then
+        _message="${_message} ${gray}$(_printFuncStack_)"
     fi
 
-    if [[ ${alertType} =~ ^(error|fatal) ]]; then
-        color="${bold}${red}"
-    elif [ "${alertType}" == "info" ]; then
-        color="${gray}"
-    elif [ "${alertType}" == "warning" ]; then
-        color="${red}"
-    elif [ "${alertType}" == "success" ]; then
-        color="${green}"
-    elif [ "${alertType}" == "debug" ]; then
-        color="${purple}"
-    elif [ "${alertType}" == "header" ]; then
-        color="${bold}${tan}"
-    elif [ ${alertType} == "notice" ]; then
-        color="${bold}"
-    elif [ ${alertType} == "input"  ]; then
-        color="${bold}${underline}"
-    elif [ "${alertType}" = "dryrun" ]; then
-        color="${blue}"
+    if [[ ${_alertType} =~ ^(error|fatal) ]]; then
+        _color="${bold}${red}"
+    elif [ "${_alertType}" == "info" ]; then
+        _color="${gray}"
+    elif [ "${_alertType}" == "warning" ]; then
+        _color="${red}"
+    elif [ "${_alertType}" == "success" ]; then
+        _color="${green}"
+    elif [ "${_alertType}" == "debug" ]; then
+        _color="${purple}"
+    elif [ "${_alertType}" == "header" ]; then
+        _color="${bold}${white}${underline}"
+    elif [ ${_alertType} == "notice" ]; then
+        _color="${bold}"
+    elif [ ${_alertType} == "input" ]; then
+        _color="${bold}${underline}"
+    elif [ "${_alertType}" = "dryrun" ]; then
+        _color="${blue}"
     else
-        color=""
+        _color=""
     fi
 
     _writeToScreen_() {
-
         ("${QUIET}") && return 0 # Print to console when script is not 'quiet'
-        [[ ${VERBOSE} == false && ${alertType} =~ ^(debug|verbose) ]] && return 0
+        [[ ${VERBOSE} == false && ${_alertType} =~ ^(debug|verbose) ]] && return 0
 
-        if ! [[ -t 1 ]]; then # Don't use colors on non-recognized terminals
-            color=""
+        if ! [[ -t 1 || -z ${TERM:-} ]]; then # Don't use colors on non-recognized terminals
+            _color=""
             reset=""
         fi
 
-        echo -e "$(date +"%r") ${color}$(printf "[%7s]" "${alertType}") ${message}${reset}"
+        printf "%s ${_color}[%7s] %s${reset}\n" "$(date +"%r")" "${_alertType}" "${_message}"
     }
     _writeToScreen_
 
     _writeToLog_() {
-        [[ ${alertType} == "input" ]] && return 0
+        [[ ${_alertType} == "input" ]] && return 0
         [[ ${LOGLEVEL} =~ (off|OFF|Off) ]] && return 0
         if [ -z "${LOGFILE:-}" ]; then
             LOGFILE="$(pwd)/$(basename "$0").log"
@@ -116,12 +129,9 @@ _alert_() {
         [[ ! -f ${LOGFILE} ]] && touch "${LOGFILE}"
 
         # Don't use colors in logs
-        if command -v gsed &>/dev/null; then
-            local cleanmessage="$(echo "${message}" | gsed -E 's/(\x1b)?\[(([0-9]{1,2})(;[0-9]{1,3}){0,2})?[mGK]//g')"
-        else
-            local cleanmessage="$(echo "${message}" | sed -E 's/(\x1b)?\[(([0-9]{1,2})(;[0-9]{1,3}){0,2})?[mGK]//g')"
-        fi
-        echo -e "$(date +"%b %d %R:%S") $(printf "[%7s]" "${alertType}") [$(/bin/hostname)] ${cleanmessage}" >>"${LOGFILE}"
+        local cleanmessage="$(echo "${_message}" | sed -E 's/(\x1b)?\[(([0-9]{1,2})(;[0-9]{1,3}){0,2})?[mGK]//g')"
+        # Print message to log file
+        printf "%s [%7s] %s %s\n" "$(date +"%b %d %R:%S")" "${_alertType}" "[$(/bin/hostname)]" "${cleanmessage}" >>"${LOGFILE}"
     }
 
     # Write specified log level data to logfile
@@ -133,27 +143,27 @@ _alert_() {
             _writeToLog_
             ;;
         INFO | info | Info)
-            if [[ ${alertType} =~ ^(die|error|fatal|warning|info|notice|success) ]]; then
+            if [[ ${_alertType} =~ ^(error|fatal|warning|info|notice|success) ]]; then
                 _writeToLog_
             fi
             ;;
         NOTICE | notice | Notice)
-            if [[ ${alertType} =~ ^(die|error|fatal|warning|notice|success) ]]; then
+            if [[ ${_alertType} =~ ^(error|fatal|warning|notice|success) ]]; then
                 _writeToLog_
             fi
             ;;
         WARN | warn | Warn)
-            if [[ ${alertType} =~ ^(die|error|fatal|warning) ]]; then
+            if [[ ${_alertType} =~ ^(error|fatal|warning) ]]; then
                 _writeToLog_
             fi
             ;;
         ERROR | error | Error)
-            if [[ ${alertType} =~ ^(die|error|fatal) ]]; then
+            if [[ ${_alertType} =~ ^(error|fatal) ]]; then
                 _writeToLog_
             fi
             ;;
         FATAL | fatal | Fatal)
-            if [[ ${alertType} =~ ^(die|fatal) ]]; then
+            if [[ ${_alertType} =~ ^fatal ]]; then
                 _writeToLog_
             fi
             ;;
@@ -161,7 +171,7 @@ _alert_() {
             return 0
             ;;
         *)
-            if [[ ${alertType} =~ ^(die|error|fatal) ]]; then
+            if [[ ${_alertType} =~ ^(error|fatal) ]]; then
                 _writeToLog_
             fi
             ;;
@@ -176,30 +186,117 @@ info() { _alert_ info "${1}" "${2:-}"; }
 success() { _alert_ success "${1}" "${2:-}"; }
 dryrun() { _alert_ dryrun "${1}" "${2:-}"; }
 input() { _alert_ input "${1}" "${2:-}"; }
-header() { _alert_ header "== ${1} ==" "${2:-}"; }
+header() { _alert_ header "${1}" "${2:-}"; }
 debug() { _alert_ debug "${1}" "${2:-}"; }
-die() {
-    _alert_ fatal "${1}" "${2:-}"
-    _safeExit_ "1"
-}
 fatal() {
     _alert_ fatal "${1}" "${2:-}"
     _safeExit_ "1"
 }
 
-_functionStack_() {
-    # DESC:   Prints the function stack in use
-    # ARGS:   None
-    # OUTS:   Prints [function]:[file]:[line]
-    # NOTE:   Does not print functions from the alert class
+_printFuncStack_() {
+    # DESC:
+    #         Prints the function stack in use. Used for debugging, and error reporting.
+    # ARGS:
+    #         None
+    # OUTS:
+    #         stdout: Prints [function]:[file]:[line]
+    # NOTE:
+    #         Does not print functions from the alert class
     local _i
-    funcStackResponse=()
+    _funcStackResponse=()
     for ((_i = 1; _i < ${#BASH_SOURCE[@]}; _i++)); do
-        case "${FUNCNAME[$_i]}" in "_alert_" | "_trapCleanup_" | fatal | error | warning | notice | info | verbose | debug | dryrun | header | success | die) continue ;; esac
-        funcStackResponse+=("${FUNCNAME[$_i]}:$(basename ${BASH_SOURCE[$_i]}):${BASH_LINENO[_i - 1]}")
+        case "${FUNCNAME[$_i]}" in "_alert_" | "_trapCleanup_" | fatal | error | warning | notice | info | debug | dryrun | header | success) continue ;; esac
+        _funcStackResponse+=("${FUNCNAME[$_i]}:$(basename ${BASH_SOURCE[$_i]}):${BASH_LINENO[_i - 1]}")
     done
     printf "( "
-    printf %s "${funcStackResponse[0]}"
-    printf ' < %s' "${funcStackResponse[@]:1}"
+    printf %s "${_funcStackResponse[0]}"
+    printf ' < %s' "${_funcStackResponse[@]:1}"
     printf ' )\n'
+}
+
+_centerOutput_() {
+    # DESC:
+    #					Prints text centered in the terminal window with an optional fill character
+    # ARGS:
+    #         $1 (required): Text to center
+    #         $2 (optional): Fill character
+    # OUTS:
+    #					0 - Success
+    #					1 - Failure
+    #					stdout:
+    # USAGE:
+    #					_centerOutput_ "Text to print in the center" "-"
+    # CREDIT:
+    #         https://github.com/labbots/bash-utility
+
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+    local _input="${1}"
+    local _symbol="${2:- }"
+    local _filler
+    local _out
+    local _no_ansi_out
+    local i
+
+    _no_ansi_out=$(_stripANSI_ "${_input}")
+    declare -i _str_len=${#_no_ansi_out}
+    declare -i _filler_len="$(((COLUMNS - _str_len) / 2))"
+
+    [[ -n ${_symbol} ]] && _symbol="${_symbol:0:1}"
+    for ((i = 0; i < _filler_len; i++)); do
+        _filler+="${_symbol}"
+    done
+
+    _out="${_filler}${_input}${_filler}"
+    [[ $(((COLUMNS - _str_len) % 2)) -ne 0 ]] && _out+="${_symbol}"
+    printf "%s\n" "${_out}"
+}
+
+_columnizeOutput_() {
+    # DESC:
+    #         Creates a column output for key/value pairs with line wrapping for the right column (value). Attempts to wrap at a sane line length (~100 cols) on larger screens.
+    # ARGS:
+    #         $1 (required): Left padding of table
+    #         $2 (required): Width of first column
+    #         $3 (required): Key name (left column text)
+    #         $4 (required): Long value (right column text. Wraps around if too long)
+    # OUTS:
+    #         stdout: Prints the columnized output
+    # NOTE:
+    #         Long text or ANSI colors in the first column may create display issues
+    # USAGE:
+    #         _columnizeOutput_ 0 30 10 "Key" "Long value text"
+
+    [[ $# -lt 5 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+
+    local _leftIndent=$1
+    local _leftColumn=$2
+    local _key="$3"
+    local _value="$4"
+    local _line
+    local _rightIndent
+
+    if [ "$(tput cols)" -gt 180 ]; then
+        _rightIndent=80
+    elif [ "$(tput cols)" -gt 160 ]; then
+        _rightIndent=60
+    elif [ "$(tput cols)" -gt 130 ]; then
+        _rightIndent=30
+    elif [ "$(tput cols)" -gt 120 ]; then
+        _rightIndent=20
+    elif [ "$(tput cols)" -gt 110 ]; then
+        _rightIndent=10
+    else
+        _rightIndent=0
+    fi
+    local _rightWrapLength=$(($(tput cols) - _leftColumn - _leftIndent - _rightIndent))
+
+    local _first_line=0
+    while read -r _line; do
+        if [[ ${_first_line} -eq 0 ]]; then
+            _first_line=1
+        else
+            _key=" "
+        fi
+        printf "%-${_leftIndent}s%-${_leftColumn}b %b\n" "" "${_key}" "${_line}"
+    done <<<"$(fold -w${_rightWrapLength} -s <<<"${_value}")"
 }

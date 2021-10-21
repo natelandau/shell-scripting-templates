@@ -7,7 +7,7 @@ load 'test_helper/bats-assert/load'
 
 ######## SETUP TESTS ########
 ROOTDIR="$(git rev-parse --show-toplevel)"
-SOURCEFILE="${ROOTDIR}/utilities/baseHelpers.bash"
+SOURCEFILE="${ROOTDIR}/utilities/misc.bash"
 ALERTS="${ROOTDIR}/utilities/alerts.bash"
 
 if test -f "${SOURCEFILE}" >&2; then
@@ -67,18 +67,6 @@ teardown() {
   assert_output ""
 }
 
-_testCheckBinary_() {
-  @test "_checkBinary_: true" {
-    run _checkBinary_ "vi"
-    assert_success
-  }
-
-  @test "_checkBinary_: false" {
-    run _checkBinary_ "someNonexistantBinary"
-    assert_failure
-  }
-}
-
 _testExecute_() {
   @test "_execute_: Debug command" {
     DRYRUN=true
@@ -91,7 +79,7 @@ _testExecute_() {
     run _execute_
 
     assert_failure
-    assert_output --regexp "_execute_ needs a command$"
+    assert_output --regexp "\[  fatal\] Missing required argument to _execute_"
   }
 
   @test "_execute_: Bad command" {
@@ -167,97 +155,65 @@ _testExecute_() {
     assert_file_not_exist "testfile.txt"
   }
 }
-
-_testFindBaseDirectory_() {
-  @test "_findBaseDir_" {
-    run _findBaseDir_
-    assert_output --regexp "^/usr/local/Cellar/bats-core/[0-9]\.[0-9]\.[0-9]"
-  }
-}
-
-_testHaveFunction_() {
-
-  @test "_haveFunction_: Success" {
-    run _haveFunction_ "_haveFunction_"
-
-    assert_success
-  }
-
-  @test "_haveFunction_: Failure" {
-    run _haveFunction_ "_someUndefinedFunction_"
-
-    assert_failure
-  }
-}
-
-_testProgressBar_() {
-  @test "_progressBar_: verbose" {
-    verbose=true
-    run _progressBar_ 100
-
-    assert_success
-    assert_output ""
-    verbose=false
-  }
-
-  @test "_progressBar_: quiet" {
-    quiet=true
-    run _progressBar_ 100
-
-    assert_success
-    assert_output ""
-    quiet=false
-  }
-}
-
-_testSeekConfirmation_() {
-  @test "_seekConfirmation_: yes" {
-    run _seekConfirmation_ 'test' <<<"y"
-
-    assert_success
-    assert_output --partial "[  input] test"
-  }
-
-  @test "_seekConfirmation_: no" {
-    run _seekConfirmation_ 'test' <<<"n"
-
-    assert_failure
-    assert_output --partial "[  input] test"
-  }
-
-  @test "_seekConfirmation_: Force" {
-    FORCE=true
-
-    run _seekConfirmation_ "test"
-    assert_success
-    assert_output --partial "test"
-  }
-
-  @test "_seekConfirmation_: Quiet" {
-    QUIET=true
-    run _seekConfirmation_ 'test' <<<"y"
-
-    assert_success
-    refute_output --partial "test"
-
-    quiet=false
-  }
-}
-
-_testSetPATH_() {
-  @test "_setPATH_" {
-    mkdir -p "${TESTDIR}/testing/from/bats"
-    _setPATH_ "${TESTDIR}/testing/from/bats" "${TESTDIR}/testing/again"
-    run echo "${PATH}"
-    assert_output --regexp "/testing/from/bats"
-    refute_output --regexp "/testing/again"
-  }
-}
-
-_testCheckBinary_
 _testExecute_
-_testFindBaseDirectory_
-_testHaveFunction_
-_testProgressBar_
-_testSeekConfirmation_
-_testSetPATH_
+
+@test "_findBaseDir_" {
+  run _findBaseDir_
+  assert_output --regexp "^/usr/local/Cellar/bats-core/[0-9]\.[0-9]\.[0-9]"
+}
+
+@test "_generateUUID_" {
+  run _generateUUID_
+  assert_success
+  assert_output --regexp "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+}
+
+@test "_makeProgressBar_: verbose" {
+  verbose=true
+  run _makeProgressBar_ 100
+
+  assert_success
+  assert_output ""
+  verbose=false
+}
+
+@test "_makeProgressBar_: quiet" {
+  quiet=true
+  run _makeProgressBar_ 100
+
+  assert_success
+  assert_output ""
+  quiet=false
+}
+
+@test "_seekConfirmation_: yes" {
+  run _seekConfirmation_ 'test' <<<"y"
+
+  assert_success
+  assert_output --partial "[  input] test"
+}
+
+@test "_seekConfirmation_: no" {
+  run _seekConfirmation_ 'test' <<<"n"
+
+  assert_failure
+  assert_output --partial "[  input] test"
+}
+
+@test "_seekConfirmation_: Force" {
+  FORCE=true
+
+  run _seekConfirmation_ "test"
+  assert_success
+  assert_output --partial "test"
+}
+
+@test "_seekConfirmation_: Quiet" {
+  QUIET=true
+  run _seekConfirmation_ 'test' <<<"y"
+
+  assert_success
+  refute_output --partial "test"
+
+  quiet=false
+}

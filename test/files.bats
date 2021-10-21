@@ -8,7 +8,7 @@ load 'test_helper/bats-assert/load'
 ######## SETUP TESTS ########
 ROOTDIR="$(git rev-parse --show-toplevel)"
 SOURCEFILE="${ROOTDIR}/utilities/files.bash"
-BASEHELPERS="${ROOTDIR}/utilities/baseHelpers.bash"
+BASEHELPERS="${ROOTDIR}/utilities/misc.bash"
 ALERTS="${ROOTDIR}/utilities/alerts.bash"
 
 if test -f "${SOURCEFILE}" >&2; then
@@ -260,9 +260,6 @@ _testParseFilename_() {
     assert_line --index 3 --regexp "\[  debug\].*${PARSE_EXT}: tar\.gzip\.bzip$"
     assert_line --index 4 --regexp "\[  debug\].*${PARSE_BASENOEXT}: testfile$"
   }
-
-  # _parseFilename_ "test.tar.gz"
-  # _parseFilename_ "test.tar.gzip"
 }
 
 _testMakeSymlink_() {
@@ -338,7 +335,7 @@ _testMakeSymlink_() {
 _testParseYAML_() {
 
   @test "_parseYAML: success" {
-    run _parseYAML_ "$YAML1"
+    run _parseYAML_ "$YAML1" ""
     assert_success
     assert_output "$( cat "$YAML1parse")"
   }
@@ -383,57 +380,138 @@ _testParseYAML_() {
   assert_output "hello world"
 }
 
-@test "_uniqueFileName_: no extension" {
+@test "_createUniqueFilename_: no extension" {
   touch "test"
 
-  run _uniqueFileName_ "test"
+  run _createUniqueFilename_ "test"
   assert_output --regexp ".*/test\.1$"
 }
 
-@test "_uniqueFileName_: no extension - internal integer" {
+@test "_createUniqueFilename_: no extension - internal integer" {
   touch "test"
   touch "test.1"
 
-  run _uniqueFileName_ -i "test"
+  run _createUniqueFilename_ -i "test"
   assert_output --regexp ".*/test\.2$"
 }
 
-@test "_uniqueFileName_: Count to 3" {
+@test "_createUniqueFilename_: Count to 3" {
   touch "test.txt"
   touch "test.txt.1"
   touch "test.txt.2"
 
-  run _uniqueFileName_ "test.txt"
+  run _createUniqueFilename_ "test.txt"
   assert_output --regexp ".*/test\.txt\.3$"
 }
 
-@test "_uniqueFileName_: internal integer" {
+@test "_createUniqueFilename_: internal integer" {
   touch "test.txt"
   touch "test.1.txt"
   touch "test.2.txt"
 
-  run _uniqueFileName_ -i "test.txt"
+  run _createUniqueFilename_ -i "test.txt"
   assert_output --regexp ".*/test\.3\.txt$"
 }
 
-@test "_uniqueFileName_: Don't confuse existing numbers" {
+@test "_createUniqueFilename_: two extensions" {
+  touch "test.tar.gz"
+  touch "test.1.tar.gz"
+  touch "test.2.tar.gz"
+
+  run _createUniqueFilename_ -i "test.tar.gz"
+  assert_output --regexp ".*/test\.3\.tar.gz$"
+}
+
+@test "_createUniqueFilename_: Don't confuse existing numbers" {
   touch "test-2.txt"
 
-  run _uniqueFileName_ "test-2.txt"
+  run _createUniqueFilename_ "test-2.txt"
   assert_output --regexp ".*/test-2\.txt\.1$"
 }
 
-@test "_uniqueFileName_: User specified separator" {
+@test "_createUniqueFilename_: User specified separator" {
   touch "test.txt"
 
-  run _uniqueFileName_ "test.txt" " "
+  run _createUniqueFilename_ "test.txt" " "
   assert_output --regexp ".*/test\.txt 1$"
 }
 
-@test "_uniqueFileName_: failure" {
-  run _uniqueFileName_
+@test "_createUniqueFilename_: failure" {
+  run _createUniqueFilename_
 
   assert_failure
+}
+
+@test "_fileName_: with extension" {
+  run _fileName_ "./path/to/file/test.txt"
+  assert_success
+  assert_output "test.txt"
+}
+
+@test "_fileName_: without extension" {
+  run _fileName_ "path/to/file/test"
+  assert_success
+  assert_output "test"
+}
+
+@test "_fileBasename_" {
+  run _fileBasename_ "path/to/file/test.txt"
+  assert_success
+  assert_output "test"
+}
+
+@test "_fileExtension_: simple extension" {
+    run _fileExtension_ "path/to/file/test.txt"
+  assert_success
+  assert_output "txt"
+}
+
+@test "_fileExtension_: no extension" {
+    run _fileExtension_ "path/to/file/test"
+  assert_failure
+}
+
+@test "_fileExtension_: two level extension" {
+  run _fileExtension_ "path/to/file/test.tar.bz2"
+  assert_success
+  assert_output "tar.bz2"
+}
+
+@test "_fileDirectory_" {
+  run _fileDirectory_ "path/to/file/test.txt"
+  assert_success
+  assert_output "path/to/file"
+}
+
+@test "_fileAbsPath_: file" {
+  touch "./test.txt"
+  run _fileAbsPath_ "./test.txt"
+  assert_success
+  assert_output --regexp "/.*/files\.bats.*/test\.txt$"
+}
+
+@test "_fileAbsPath_: directory" {
+  mkdir "./testdir"
+  run _fileAbsPath_ "./testdir"
+  assert_success
+  assert_output --regexp "/.*/files\.bats.*/testdir$"
+}
+
+@test "_fileAbsPath_: fail when not found" {
+  run _fileAbsPath_ "./test.txt"
+  assert_failure
+}
+
+@test "_fileContains_: No match" {
+  echo "some text" > "./test.txt"
+  run _fileContains_ "./test.txt" "nothing here"
+  assert_failure
+}
+
+@test "_fileContains_: Pattern matched" {
+  echo "some text" > "./test.txt"
+  run _fileContains_ "./test.txt" "some*"
+  assert_success
 }
 
 _testBackupFile_
