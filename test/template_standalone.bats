@@ -6,7 +6,7 @@ load 'test_helper/bats-assert/load'
 
 ######## SETUP TESTS ########
 ROOTDIR="$(git rev-parse --show-toplevel)"
-s="${ROOTDIR}/standaloneTemplate.sh"
+s="${ROOTDIR}/template_standalone.sh"
 
 if [ -f "${s}" ]; then
   base="$(basename "${s}")"
@@ -67,7 +67,7 @@ teardown() {
 
   assert_file_exist "${TESTDIR}/logs/log.txt"
   run cat "${TESTDIR}/logs/log.txt"
-  assert_line --index 0 --regexp "\[  error\] \[.*\] This is error text \( _mainScript_:standaloneTemplate.* \)"
+  assert_line --index 0 --regexp "\[  error\] \[.*\] This is error text \( _mainScript_:${base}.* \)"
   assert_line --index 1 ""
 }
 
