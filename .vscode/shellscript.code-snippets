@@ -60,7 +60,7 @@
       "\t\t#\t\t\t\t\t\t\t 1:  Failure",
       "\t\t#\t\t\t\t\tstdout:  ",
       "\t\t# USAGE:",
-      "\t\t#\t\t\t\t\t${1:name} \"@\"",
+      "\t\t#\t\t\t\t\t_${1:name}_ \"@\"",
       "\t\t",
       "\t\t [[ $# == 0 ]] && fatal \"Missing required argument to ${FUNCNAME[0]}\"",
       "\t\t",

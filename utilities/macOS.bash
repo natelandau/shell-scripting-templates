@@ -62,14 +62,20 @@ _useGNUutils_() {
     #					GNU utilities can be added to MacOS using Homebrew
 
     [ ! "$(declare -f "_setPATH_")" ] && fatal "${FUNCNAME[0]} needs function _setPATH_"
+    [ ! "$(declare -f "_detectOS_")" ] && fatal "${FUNCNAME[0]} needs function _detectOS_"
 
-    if _setPATH_ \
-        "/usr/local/opt/gnu-tar/libexec/gnubin" \
-        "/usr/local/opt/coreutils/libexec/gnubin" \
-        "/usr/local/opt/gnu-sed/libexec/gnubin" \
-        "/usr/local/opt/grep/libexec/gnubin"; then
-        return 0
+    if [[ $(_detectOS_) == mac ]]; then
+        if _setPATH_ \
+            "/usr/local/opt/gnu-tar/libexec/gnubin" \
+            "/usr/local/opt/coreutils/libexec/gnubin" \
+            "/usr/local/opt/gnu-sed/libexec/gnubin" \
+            "/usr/local/opt/grep/libexec/gnubin"; then
+            return 0
+        else
+            return 1
+        fi
     else
-        return 1
+        # Always return 0 on non-MacOS
+        return 0
     fi
 }

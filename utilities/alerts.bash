@@ -300,3 +300,22 @@ _columnizeOutput_() {
         printf "%-${_leftIndent}s%-${_leftColumn}b %b\n" "" "${_key}" "${_line}"
     done <<<"$(fold -w${_rightWrapLength} -s <<<"${_value}")"
 }
+
+_clearLine_() {
+    # DESC:
+    #					Clears output in the terminal on the specified line number.
+    # ARGS:
+    #					$1 (Optional): Line number to clear. (Defaults to 1)
+    # OUTS:
+    #							 0:  Success
+    #							 1:  Failure
+    # USAGE:
+    #					_clearLine_ "2"
+
+    [ ! "$(declare -f "_isTerminal_")" ] && fatal "${FUNCNAME[0]} needs function _isTerminal_"
+
+    if _isTerminal_; then
+        local _line=${1:-1}
+        printf "\033[%sA\033[2K" "${_line}"
+    fi
+}
