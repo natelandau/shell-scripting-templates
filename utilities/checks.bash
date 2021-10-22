@@ -202,7 +202,8 @@ _isDir_() {
     #					0 - Input is a directory
     #					1 - Input is not a directory
     # USAGE:
-    #					_varIsDir_ "${var}"
+    #         _varIsDir_ "${var}"
+    #         (_isDir_ "${var}") && echo "Is a directory" || echo "Not a directory"
     # NOTES:
     #
 

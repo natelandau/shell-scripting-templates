@@ -51,7 +51,9 @@ _printArray_() {
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
+    local _arrayName="${1}"
     declare -n _arr="${1}"
+    printf "${underline}Printing contents of \${%s${reset}[@]}\n" "${_arrayName}"
     for _k in "${!_arr[@]}"; do
         printf "%s = %s\n" "$_k" "${_arr[$_k]}"
     done

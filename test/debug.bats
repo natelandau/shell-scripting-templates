@@ -86,9 +86,9 @@ teardown() {
   testArray=(1 2 3)
   run _printArray_ "testArray"
   assert_success
-  assert_line --index 0 "0 = 1"
-  assert_line --index 1 "1 = 2"
-  assert_line --index 2 "2 = 3"
+  assert_line --index 1 "0 = 1"
+  assert_line --index 2 "1 = 2"
+  assert_line --index 3 "2 = 3"
 }
 
 @test "_printArray_: Associative array" {
@@ -96,7 +96,7 @@ teardown() {
   assoc_array=([foo]=bar [baz]=foobar)
   run _printArray_ "assoc_array"
   assert_success
-  assert_line --index 0 "foo = bar"
-  assert_line --index 1 "baz = foobar"
+  assert_line --index 1 "foo = bar"
+  assert_line --index 2 "baz = foobar"
 
 }
