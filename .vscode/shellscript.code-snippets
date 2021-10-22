@@ -9,7 +9,7 @@
   // "Print to console": {
   // 	"scope": "javascript,typescript",
   // 	"prefix": "log",
-  // 	"body": [
+  // 	"body":
   // 		"console.log('$1');",
   // 		"$2"
   // 	],
@@ -19,18 +19,17 @@
     "scope": "shellscript",
     "prefix": "_c",
     "body": [
-      "# DESC:",
-      "#\t\t\t\t\t$1",
-      "# ARGS:",
-      "#\t\t\t\t\t$2",
-      "# OUTS:",
-      "#\t\t\t\t\t0 - Success",
-      "#\t\t\t\t\t1 - Failure",
-      "#\t\t\t\t\tstdout: $4",
-      "# USAGE:",
-      "#\t\t\t\t\t$4",
-      "# NOTES:",
-      "#\t\t\t\t\t$5"
+      "\t\t# DESC:",
+      "\t\t#\t\t\t\t\t$1",
+      "\t\t# ARGS:",
+      "\t\t#\t\t\t\t\t\\$1 (Required):\t",
+      "\t\t#\t\t\t\t\t\\$2 (Optional):\t",
+      "\t\t# OUTS:",
+      "\t\t#\t\t\t\t\t\t\t 0:  Success",
+      "\t\t#\t\t\t\t\t\t\t 1:  Failure",
+      "\t\t#\t\t\t\t\tstdout:  ",
+      "\t\t# USAGE:",
+      "\t\t#\t\t\t\t\t_nameOfFunc_ \"@\""
     ],
     "description": "Comment block for a function"
   },
@@ -54,18 +53,17 @@
       "\t\t# DESC:",
       "\t\t#\t\t\t\t\t$2",
       "\t\t# ARGS:",
-      "\t\t#\t\t\t\t\t$3",
+      "\t\t#\t\t\t\t\t\\$1 (Required):\t",
+      "\t\t#\t\t\t\t\t\\$2 (Optional):\t",
       "\t\t# OUTS:",
-      "\t\t#\t\t\t\t\t0 - Success",
-      "\t\t#\t\t\t\t\t1 - Failure",
-      "\t\t#\t\t\t\t\tstdout: $4",
+      "\t\t#\t\t\t\t\t\t\t 0:  Success",
+      "\t\t#\t\t\t\t\t\t\t 1:  Failure",
+      "\t\t#\t\t\t\t\tstdout:  ",
       "\t\t# USAGE:",
-      "\t\t#\t\t\t\t\t_${1:name}_ ",
-      "\t\t# NOTES:",
-      "\t\t#\t\t\t\t\t$5",
+      "\t\t#\t\t\t\t\t${1:name} \"@\"",
       "\t\t",
       "\t\t [[ $# == 0 ]] && fatal \"Missing required argument to ${FUNCNAME[0]}\"",
-      "\t\t$6",
+      "\t\t",
       "}"
     ],
     "description": "Add a new function"
