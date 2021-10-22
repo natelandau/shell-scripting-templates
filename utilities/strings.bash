@@ -236,6 +236,8 @@ _regexCapture_() {
     # ARGS:
     #         $1 (Required) - Input String
     #         $2 (Required) - Regex pattern
+    # OPTIONS:
+    #         -i (Optional) - Ignore case
     # OUTS:
     #         0 - Regex matched
     #         1 - Regex did not match
@@ -247,6 +249,20 @@ _regexCapture_() {
     #         groups some modification is needed.
     # CREDIT:
     #         https://github.com/dylanaraps/pure-bash-bible
+
+    local opt
+    local OPTIND=1
+    while getopts ":iI" opt; do
+        case ${opt} in
+            i | I)
+                #shellcheck disable=SC2064
+                trap "$(shopt -p nocasematch)" RETURN # reset nocasematch when function exits
+                shopt -s nocasematch                  # Use case-insensitive regex
+                ;;
+            *) fatal "Unrecognized option '${1}' passed to ${FUNCNAME[0]}. Exiting." ;;
+        esac
+    done
+    shift $((OPTIND - 1))
 
     [[ $# -lt 2 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
@@ -300,11 +316,27 @@ _stringContains_() {
     # ARGS:
     #					$1 (Required) - String to be tested
     #         $2 (Required) - Substring to be tested for
+    # OPTIONS:
+    #          -i (Optional) - Ignore case
     # OUTS:
     #					0 - Search pattern found
     #					1 - Pattern not found
     # USAGE:
     #					_stringContains_ "Hello World!" "lo"
+
+    local opt
+    local OPTIND=1
+    while getopts ":iI" opt; do
+        case ${opt} in
+            i | I)
+                #shellcheck disable=SC2064
+                trap "$(shopt -p nocasematch)" RETURN # reset nocasematch when function exits
+                shopt -s nocasematch                  # Use case-insensitive searching
+                ;;
+            *) fatal "Unrecognized option '${1}' passed to ${FUNCNAME[0]}. Exiting." ;;
+        esac
+    done
+    shift $((OPTIND - 1))
 
     [[ $# -lt 2 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
@@ -321,11 +353,28 @@ _stringRegex_() {
     # ARGS:
     #					$1 (Required) - String to be tested
     #         $2 (Required) - Regex pattern to be tested for
+    # OPTIONS:
+    #          -i (Optional) - Ignore case
     # OUTS:
     #					0 - Search pattern found
     #					1 - Pattern not found
     # USAGE:
     #					_stringContains_ "HELLO" "^[A-Z]*$"
+    #         _stringContains_ -i "HELLO" "^[a-z]*$"
+
+    local opt
+    local OPTIND=1
+    while getopts ":iI" opt; do
+        case ${opt} in
+            i | I)
+                #shellcheck disable=SC2064
+                trap "$(shopt -p nocasematch)" RETURN # reset nocasematch when function exits
+                shopt -s nocasematch                  # Use case-insensitive regex
+                ;;
+            *) fatal "Unrecognized option '${1}' passed to ${FUNCNAME[0]}. Exiting." ;;
+        esac
+    done
+    shift $((OPTIND - 1))
 
     [[ $# -lt 2 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 

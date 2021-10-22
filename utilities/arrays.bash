@@ -98,7 +98,7 @@ _forEachValidate_() {
 
 _forEachFind_() {
     # DESC:
-    #					Iterates over elements, returning the first value that is validated by a function
+    #					Iterates over elements, returning success and printing the first value that is validated by a function
     # ARGS:
     #					$1 (Required) - Function name to pass each item to for validation. (Must return 0 on success)
     # OUTS:
@@ -236,6 +236,8 @@ _inArray_() {
     # ARGS:
     #         $1 (Required) - Value to search for
     #         $2 (Required) - Array written as ${ARRAY[@]}
+    # OPTIONS:
+    #         -i (Optional) - Ignore case
     # OUTS:
     #         0 if true
     #         1 if untrue
@@ -248,11 +250,14 @@ _inArray_() {
     [[ $# -lt 2 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
     local opt
-    local _case_insensitive=false
     local OPTIND=1
     while getopts ":iI" opt; do
         case ${opt} in
-            i | I) _case_insensitive=true ;;
+            i | I)
+                #shellcheck disable=SC2064
+                trap "$(shopt -p nocasematch)" RETURN # reset nocasematch when function exits
+                shopt -s nocasematch                  # Use case-insensitive regex
+                ;;
             *) fatal "Unrecognized option '${1}' passed to ${FUNCNAME[0]}. Exiting." ;;
         esac
     done
@@ -262,11 +267,7 @@ _inArray_() {
     local _value="${1}"
     shift
     for _array_item in "$@"; do
-        if [ ${_case_insensitive} = true ]; then
-            _value="$(echo "${_value}" | tr '[:upper:]' '[:lower:]')"
-            _array_item="$(echo "${_array_item}" | tr '[:upper:]' '[:lower:]')"
-        fi
-        [[ ${_array_item} == "${_value}" ]] && return 0
+        [[ ${_array_item} =~ ^${_value}$ ]] && return 0
     done
     return 1
 }

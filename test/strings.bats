@@ -57,6 +57,7 @@ setup() {
   set -o errtrace
   set -o nounset
   set -o pipefail
+  shopt -u nocasematch
 }
 
 teardown() {
@@ -90,18 +91,28 @@ teardown() {
 }
 
 @test "_stringContains_: failure" {
-  run _stringContains_ "hello world!" "zebra"
+  run _stringContains_ "hello world!" "LO"
   assert_failure
 }
 
+@test "_stringContains_: success, case insensitive" {
+  run _stringContains_ -i "hello world!" "LO"
+  assert_success
+}
+
 @test "_stringRegex_: success" {
-  run _stringRegex_ "hello world!" "[a-z].*!$"
+  run _stringRegex_ "hello world!" "^h[a-z ]+!$"
   assert_success
 }
 
 @test "_stringRegex_: failure" {
-  run _stringRegex_ "hello world!" "^.*[0-9]+"
+  run _stringRegex_ "Hello World!" "^h[a-z ]+!$"
   assert_failure
+}
+
+@test "_stringRegex_: success, case insensitive" {
+  run _stringRegex_ -i "Hello World!" "^h[a-z ]+!$"
+  assert_success
 }
 
 
@@ -280,8 +291,21 @@ _testStopWords_
   assert_output "#FFFFFF"
 }
 
-@test "_regexCapture_: failure" {
+@test "_regexCapture_: success, case insensitive" {
+  run _regexCapture_ -i "#FFFFFF" '^(#?([a-f0-9]{6}|[a-f0-9]{3}))$' || echo "no match found"
+
+  assert_success
+  assert_output "#FFFFFF"
+}
+
+@test "_regexCapture_: failure, no match found" {
   run _regexCapture_ "gggggg" '^(#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$'
+
+  assert_failure
+}
+
+@test "_regexCapture_: failure, would only match with case insensitive" {
+  run _regexCapture_ "#FFFFFF" '^(#?([a-f0-9]{6}|[a-f0-9]{3}))$' || echo "no match found"
 
   assert_failure
 }

@@ -115,6 +115,11 @@ _isEmail_() {
     #					_isEmail_ "somename+test@gmail.com"
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+
+    #shellcheck disable=SC2064
+    trap "$(shopt -p nocasematch)" RETURN # reset nocasematch when function exits
+    shopt -s nocasematch                  # Use case-insensitive regex
+
     local _emailRegex
     _emailRegex="^[a-z0-9!#\$%&'*+/=?^_\`{|}~-]+(\.[a-z0-9!#$%&'*+/=?^_\`{|}~-]+)*@([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z0-9]([a-z0-9-]*[a-z0-9])?\$"
     [[ ${1} =~ ${_emailRegex} ]] && return 0 || return 1

@@ -228,7 +228,9 @@ _parseDate_() {
     PARSE_DATE_FOUND="" PARSE_DATE_YEAR="" PARSE_DATE_MONTH="" PARSE_DATE_MONTH_NAME=""
     PARSE_DATE_DAY="" PARSE_DATE_HOUR="" PARSE_DATE_MINUTE=""
 
-    shopt -s nocasematch #Use case-insensitive regex
+    #shellcheck disable=SC2064
+    trap "$(shopt -p nocasematch)" RETURN # reset nocasematch when function exits
+    shopt -s nocasematch                  # Use case-insensitive regex
 
     debug "_parseDate_() input ${tan}$date${purple}"
 

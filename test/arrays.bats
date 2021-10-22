@@ -91,7 +91,12 @@ teardown() {
 }
 
 @test "_inArray_: success" {
-  run _inArray_ one "${A[@]}"
+  run _inArray_ "one" "${A[@]}"
+  assert_success
+}
+
+@test "_inArray_: success and ignore case" {
+  run _inArray_ -i "ONE" "${A[@]}"
   assert_success
 }
 
