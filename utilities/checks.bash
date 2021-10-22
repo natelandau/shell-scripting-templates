@@ -1,6 +1,6 @@
 # Functions for validating common use-cases
 
-_binaryExists_() {
+_commandExists_() {
     # DESC:
     #         Check if a binary exists in the search PATH
     # ARGS:
@@ -9,7 +9,7 @@ _binaryExists_() {
     #         0 if true
     #         1 if false
     # USAGE:
-    #         (_binaryExists_ ffmpeg ) && [SUCCESS] || [FAILURE]
+    #         (_commandExists_ ffmpeg ) && [SUCCESS] || [FAILURE]
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
     if ! command -v "$1" >/dev/null 2>&1; then

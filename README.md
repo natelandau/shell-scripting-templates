@@ -176,7 +176,7 @@ Utility functions for working with arrays.
 
 Functions for validating common use-cases
 
-- **`_binaryExists_`** Check if a binary exists in the PATH
+- **`_commandExists_`** Check if a command or binary exists in the PATH
 - **`_functionExists_`** Tests if a function is available in current scope
 - **`_isInternetAvailable_`** Checks if Internet connections are possible
 - **`_isAlpha_`** Validate that a given variable contains only alphabetic characters

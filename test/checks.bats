@@ -86,13 +86,13 @@ teardown() {
   assert_failure
 }
 
-@test "_binaryExists_: true" {
-  run _binaryExists_ "vi"
+@test "_commandExists_: true" {
+  run _commandExists_ "vi"
   assert_success
 }
 
-@test "_binaryExists_: false" {
-  run _binaryExists_ "someNonexistantBinary"
+@test "_commandExists_: false" {
+  run _commandExists_ "someNonexistantBinary"
   assert_failure
 }
 
