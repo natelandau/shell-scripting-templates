@@ -115,7 +115,7 @@ _alert_() {
             reset=""
         fi
 
-        printf "%s ${_color}[%7s] %s${reset}\n" "$(date +"%r")" "${_alertType}" "${_message}"
+        printf "${_color}[%7s] %s${reset}\n" "${_alertType}" "${_message}"
     }
     _writeToScreen_
 

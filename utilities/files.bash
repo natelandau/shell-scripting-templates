@@ -339,7 +339,7 @@ _fileName_() {
     #					_fileName_ "some/path/to/file.txt" --> "file.txt"
     #					_fileName_ "some/path/to/file" --> "file"
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
-    printf "%s" "${1##*/}"
+    printf "%s\n" "${1##*/}"
 
 }
 
@@ -404,16 +404,15 @@ _fileExtension_() {
         fi
         _fn=${_fn%.$_ext}
     done
-    debug "_exts: $_exts"
     [[ ${_file} == "${_exts}" ]] && return 1
 
     printf "%s" "${_exts}"
 
 }
 
-_fileDirectory_() {
+_filePath_() {
     # DESC:
-    #					Finds the directory name from a file path
+    #					Finds the directory name from a file path. If it exists on filesystem, print absolute path.  If a string, remove the filename and return the path
     # ARGS:
     #					$1 (Required) - Input string path
     # OUTS:
@@ -421,47 +420,24 @@ _fileDirectory_() {
     #					1 - Failure
     #					stdout: Directory path
     # USAGE:
-    #					_fileDirectory_ "some/path/to/file.txt" --> "some/path/to"
+    #					_fileDir_ "some/path/to/file.txt" --> "some/path/to"
     # CREDIT:
     #         https://github.com/labbots/bash-utility/
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    local _tmp=${1:-.}
+    local _tmp=${1}
 
-    [[ ${_tmp} != *[!/]* ]] && { printf '/\n' && return; }
-    _tmp="${_tmp%%"${_tmp##*[!/]}"}"
-
-    [[ ${_tmp} != */* ]] && { printf '.\n' && return; }
-    _tmp=${_tmp%/*} && _tmp="${_tmp%%"${_tmp##*[!/]}"}"
-
-    printf '%s' "${_tmp:-/}"
-}
-
-_fileAbsPath_() {
-    # DESC:
-    #					Gets the absolute path of a file or directory
-    # ARGS:
-    #					$1 (Required) - Relative path to a file or directory
-    # OUTS:
-    #					0 - Success
-    #					1 - If file/directory does not exist
-    #					stdout: String relative or absolute path to file/directory
-    # USAGE:
-    #					_fileAbsPath_ "../path/to/file.md" --> /home/user/docs/path/to/file.md
-    # CREDIT:
-    #         https://github.com/labbots/bash-utility/
-
-    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
-
-    local _input="${1}"
-    if [[ -f ${_input} ]]; then
-        printf "%s/%s\n" "$(cd "$(_fileDirectory_ "${_input}")" && pwd)" "${_input##*/}"
-    elif [[ -d ${_input} ]]; then
-        printf "%s\n" "$(cd "${_input}" && pwd)"
+    if [ -e "${_tmp}" ]; then
+        _tmp="$(dirname "$(realpath "${_tmp}")")"
     else
-        return 1
+        [[ ${_tmp} != *[!/]* ]] && { printf '/\n' && return; }
+        _tmp="${_tmp%%"${_tmp##*[!/]}"}"
+
+        [[ ${_tmp} != */* ]] && { printf '.\n' && return; }
+        _tmp=${_tmp%/*} && _tmp="${_tmp%%"${_tmp##*[!/]}"}"
     fi
+    printf '%s' "${_tmp:-/}"
 }
 
 _fileContains_() {
@@ -523,12 +499,12 @@ _listFiles_() {
         [Gg]*)
             while read -r _fileMatch; do
                 printf "%s\n" "$(realpath "${_fileMatch}")"
-            done < <(find "${_directory}" -iname "${_pattern}" -type f -maxdepth 1 | sort)
+            done < <(find "${_directory}" -maxdepth 1 -iname "${_pattern}" -type f | sort)
             ;;
         [Rr]*)
             while read -r _fileMatch; do
                 printf "%s\n" "$(realpath "${_fileMatch}")"
-            done < <(find "${_directory}" -iregex "${_pattern}" -type f -maxdepth 1 | sort)
+            done < <(find "${_directory}" -maxdepth 1 -iregex "${_pattern}" -type f | sort)
             ;;
         *)
             fatal "_listFiles_: Could not determine if search was glob or regex"
@@ -652,93 +628,6 @@ _makeSymlink_() {
         return 1
     fi
     return 0
-}
-
-_parseFilename_() {
-    # DESC:
-    #         Break a filename into its component parts which and place them into prefixed
-    #         variables for use in your script. Run with VERBOSE=true to see the variables while
-    #         running your script.
-    # ARGS:
-    #         $1 (Required) - Path to file to parse. (Must exist in filesystem)
-    # OPTS:
-    #         -n  - optional flag for number of extension levels (Ex: -n2)
-    # OUTS:
-    #         0 - Success
-    #         1 - Error
-    #         Variables created
-    #             $PARSE_FULL         - File and its real path (ie, resolve symlinks)
-    #             $PARSE_PATH         - Path to the file
-    #             $PARSE_BASE         - Name of the file WITH extension
-    #             $PARSE_BASENOEXT    - Name of file WITHOUT extension
-    #             $PARSE_EXT          - The extension of the file
-    # USAGE:
-    #         _parseFilename_ "some/file.txt"
-
-    # Error handling
-    if [[ $# -lt 1 ]] \
-        || ! command -v dirname &>/dev/null \
-        || ! command -v basename &>/dev/null \
-        || ! command -v realpath &>/dev/null; then
-        fatal "Missing dependency or input to ${FUNCNAME[0]}"
-    fi
-
-    local _levels
-    local option
-    local _exts
-    local _ext
-    local i
-    local _fn
-
-    local OPTIND=1
-    while getopts ":n:" option; do
-        case ${option} in
-            n) _levels=${OPTARG} ;;
-            *) continue ;;
-        esac
-    done && shift $((OPTIND - 1))
-
-    local _fileToParse="${1}"
-
-    if [ ! -f "${_fileToParse}" ]; then
-        debug "_parseFile_: Could not find file: ${_fileToParse}"
-        return 1
-    fi
-
-    PARSE_FULL="$(realpath "${_fileToParse}")" \
-        && debug "\${PARSE_FULL}: ${PARSE_FULL:-}"
-    PARSE_BASE=$(basename "${_fileToParse}") \
-        && debug "\${PARSE_BASE}: ${PARSE_BASE}"
-    PARSE_PATH="$(realpath "$(dirname "${_fileToParse}")")" \
-        && debug "\${PARSE_PATH}: ${PARSE_PATH:-}"
-
-    # Detect some common multi-extensions
-    if [[ -z ${_levels:-} ]]; then
-        case $(tr '[:upper:]' '[:lower:]' <<<"${PARSE_BASE}") in
-            *.tar.gz | *.tar.bz2 | *.log.[0-9]) _levels=2 ;;
-            *) _levels=1 ;;
-        esac
-    fi
-
-    # Find Extension
-    _fn="${PARSE_BASE}"
-    for ((i = 0; i < _levels; i++)); do
-        _ext=${_fn##*.}
-        if [ $i == 0 ]; then
-            _exts=${_ext}${_exts:-}
-        else
-            _exts=${_ext}.${_exts:-}
-        fi
-        _fn=${_fn%.$_ext}
-    done
-    if [[ ${_exts} == "${PARSE_BASE}" ]]; then
-        PARSE_EXT="" && debug "\${PARSE_EXT}: ${PARSE_EXT}"
-    else
-        PARSE_EXT="${_exts}" && debug "\${PARSE_EXT}: ${PARSE_EXT}"
-    fi
-
-    PARSE_BASENOEXT="${PARSE_BASE%.$PARSE_EXT}" \
-        && debug "\${PARSE_BASENOEXT}: ${PARSE_BASENOEXT}"
 }
 
 _parseYAML_() {

@@ -232,7 +232,7 @@ _parseDate_() {
     trap "$(shopt -p nocasematch)" RETURN # reset nocasematch when function exits
     shopt -s nocasematch                  # Use case-insensitive regex
 
-    debug "_parseDate_() input ${tan}$date${purple}"
+    debug "_parseDate_() input ${tan}${_stringToTest}${purple}"
 
     # YYYY MM DD or YYYY-MM-DD
     _pat="(.*[^0-9]|^)((20[0-2][0-9])[-\.\/_ ]+([0-9]{1,2})[-\.\/_ ]+([0-9]{1,2}))([^0-9].*|$)"

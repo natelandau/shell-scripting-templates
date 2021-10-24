@@ -188,80 +188,6 @@ _testListFiles_() {
   }
 }
 
-_testParseFilename_() {
-
-  @test "_parseFilename_: file with one extension" {
-
-    touch "testfile.txt"
-    VERBOSE=true
-    run _parseFilename_ "testfile.txt"
-    set +o nounset
-
-    assert_success
-    assert_line --index 0 --regexp "\[  debug\].*{PARSE_FULL}: /.*testfile\.txt$"
-    assert_line --index 1 --regexp "\[  debug\].*${PARSE_BASE}: testfile\.txt$"
-    assert_line --index 2 --regexp "\[  debug\].*${PARSE_PATH}: /.*"
-    assert_line --index 3 --regexp "\[  debug\].*${PARSE_EXT}: txt$"
-    assert_line --index 4 --regexp "\[  debug\].*${PARSE_BASENOEXT}: testfile$"
-  }
-
-  @test "_parseFilename_: file with dots in name" {
-
-    touch "testfile.for.testing.txt"
-    VERBOSE=true
-    run _parseFilename_ "testfile.for.testing.txt"
-    set +o nounset
-    assert_success
-    assert_line --index 0 --regexp "\[  debug\].*{PARSE_FULL}: /.*testfile\.for\.testing\.txt$"
-    assert_line --index 1 --regexp "\[  debug\].*${PARSE_BASE}: testfile\.for\.testing\.txt$"
-    assert_line --index 2 --regexp "\[  debug\].*${PARSE_PATH}: /.*"
-    assert_line --index 3 --regexp "\[  debug\].*${PARSE_EXT}: txt$"
-    assert_line --index 4 --regexp "\[  debug\].*${PARSE_BASENOEXT}: testfile\.for\.testing$"
-  }
-
-  @test "_parseFilename_: file with no extension" {
-
-    touch "testfile"
-    VERBOSE=true
-    run _parseFilename_ "testfile"
-    set +o nounset
-    assert_success
-    assert_line --index 0 --regexp "\[  debug\].*{PARSE_FULL}: /.*testfile$"
-    assert_line --index 1 --regexp "\[  debug\].*${PARSE_BASE}: testfile$"
-    assert_line --index 2 --regexp "\[  debug\].*${PARSE_PATH}: /.*"
-    assert_line --index 3 --regexp "\[  debug\].*${PARSE_EXT}: $"
-    assert_line --index 4 --regexp "\[  debug\].*${PARSE_BASENOEXT}: testfile$"
-  }
-
-  @test "_parseFilename_: file with tar.gz" {
-
-    touch "testfile.tar.gz"
-    VERBOSE=true
-    run _parseFilename_ "testfile.tar.gz"
-    set +o nounset
-
-    assert_success
-    assert_line --index 0 --regexp "\[  debug\].*{PARSE_FULL}: /.*testfile\.tar\.gz$"
-    assert_line --index 1 --regexp "\[  debug\].*${PARSE_BASE}: testfile\.tar\.gz$"
-    assert_line --index 2 --regexp "\[  debug\].*${PARSE_PATH}: /.*"
-    assert_line --index 3 --regexp "\[  debug\].*${PARSE_EXT}: tar\.gz$"
-    assert_line --index 4 --regexp "\[  debug\].*${PARSE_BASENOEXT}: testfile$"
-  }
-
-  @test "_parseFilename_: file with three extensions" {
-    touch "testfile.tar.gzip.bzip"
-    VERBOSE=true
-    run _parseFilename_ -n3 "testfile.tar.gzip.bzip"
-    set +o nounset
-    assert_success
-    assert_line --index 0 --regexp "\[  debug\].*{PARSE_FULL}: /.*testfile\.tar\.gzip\.bzip$"
-    assert_line --index 1 --regexp "\[  debug\].*${PARSE_BASE}: testfile\.tar\.gzip\.bzip$"
-    assert_line --index 2 --regexp "\[  debug\].*${PARSE_PATH}: /.*"
-    assert_line --index 3 --regexp "\[  debug\].*${PARSE_EXT}: tar\.gzip\.bzip$"
-    assert_line --index 4 --regexp "\[  debug\].*${PARSE_BASENOEXT}: testfile$"
-  }
-}
-
 _testMakeSymlink_() {
 
   @test "_makeSymlink_: Fail with no source fire" {
@@ -477,29 +403,17 @@ _testParseYAML_() {
   assert_output "tar.bz2"
 }
 
-@test "_fileDirectory_" {
-  run _fileDirectory_ "path/to/file/test.txt"
+@test "_filePath_: does not exist" {
+  run _filePath_ "path/to/file/test.txt"
   assert_success
   assert_output "path/to/file"
 }
 
-@test "_fileAbsPath_: file" {
+@test "_filePath_: exists" {
   touch "./test.txt"
-  run _fileAbsPath_ "./test.txt"
+  run _filePath_ "./test.txt"
   assert_success
-  assert_output --regexp "/.*/files\.bats.*/test\.txt$"
-}
-
-@test "_fileAbsPath_: directory" {
-  mkdir "./testdir"
-  run _fileAbsPath_ "./testdir"
-  assert_success
-  assert_output --regexp "/.*/files\.bats.*/testdir$"
-}
-
-@test "_fileAbsPath_: fail when not found" {
-  run _fileAbsPath_ "./test.txt"
-  assert_failure
+  assert_output --regexp "^/.*/files\.bats-"
 }
 
 @test "_fileContains_: No match" {
@@ -516,6 +430,5 @@ _testParseYAML_() {
 
 _testBackupFile_
 _testListFiles_
-_testParseFilename_
 _testMakeSymlink_
 _testParseYAML_

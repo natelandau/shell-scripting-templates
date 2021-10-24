@@ -225,16 +225,14 @@ Functions for working with files.
 - **`_decryptFile_`** Decrypts a file with `openssl`
 - **`_encryptFile_`** Encrypts a file with `openssl`
 - **`_extractArchive_`** Extract a compressed file
-- **`_fileAbsPath_`** Finds the absolute path to a relative file or directory
 - **`_fileBasename_`** Gets the basename of a file from a file name
 - **`_fileContains_`** Tests whether a file contains a given pattern
-- **`_fileDirectory_`** Finds the directory name from a file path
+- **`_filePath_`** Gets the absolute path to a file
 - **`_fileExtension_`** Gets the extension of a file
 - **`_fileName_`** Prints a filename from a path
 - **`_json2yaml_`** Convert JSON to YAML uses python
 - **`_listFiles_`** Find files in a directory. Use either glob or regex.
 - **`_makeSymlink_`** Creates a symlink and backs up a file which may be overwritten by the new symlink. If the exact same symlink already exists, nothing is done.
-- **`_parseFilename_`** Break a filename into its component parts which and place them into global variables for use in your script (dir, basename, extension, path, etc.)
 - **`_parseYAML_`** Convert a YAML file into BASH variables for use in a shell script
 - **`_readFile_`** Prints each line of a file
 - **`_sourceFile_`** Source a file into a script

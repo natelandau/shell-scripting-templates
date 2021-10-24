@@ -10,6 +10,7 @@ _commandExists_() {
     #         1 if false
     # USAGE:
     #         (_commandExists_ ffmpeg ) && [SUCCESS] || [FAILURE]
+
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
     if ! command -v "$1" >/dev/null 2>&1; then
@@ -50,8 +51,6 @@ _isAlpha_() {
     #					1 - Input contains non-alphabetic characters
     # USAGE:
     #					_isAlpha_ "${var}"
-    # NOTES:
-    #
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
     local _re='^[[:alpha:]]+$'
@@ -71,8 +70,6 @@ _isAlphaNum_() {
     #					1 - Input contains alpha-numeric characters
     # USAGE:
     #					_isAlphaNum_ "${var}"
-    # NOTES:
-    #
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
     local _re='^[[:alnum:]]+$'
@@ -92,8 +89,6 @@ _isAlphaDash_() {
     #					1 - Input is not only alpha-numeric or dash or underscore characters
     # USAGE:
     #					_isAlphaDash_ "${var}"
-    # NOTES:
-    #
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
     local _re='^[[:alnum:]_-]+$'
@@ -136,8 +131,6 @@ _isInternetAvailable_() {
     #					stdout:
     # USAGE:
     #					_isInternetAvailable_
-    # NOTES:
-    #
 
     local _checkInternet
     if [[ -t 1 || -z ${TERM} ]]; then
@@ -298,7 +291,7 @@ _varIsTrue_() {
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    [[ ${1} == true || ${1} -eq 0 ]] && return 0 || return 1
+    [[ ${1} == "true" || ${1} == 0 ]] && return 0 || return 1
 }
 
 _varIsFalse_() {
@@ -314,7 +307,7 @@ _varIsFalse_() {
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    [[ ${1} == false || ${1} -eq 1 ]] && return 0 || return 1
+    [[ ${1} == false || ${1} == 1 ]] && return 0 || return 1
 }
 
 _varIsEmpty_() {
