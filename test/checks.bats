@@ -106,6 +106,21 @@ teardown() {
   assert_failure
 }
 
+@test "_isFQDN_: true" {
+  run _isFQDN_ "some.domain.com"
+  assert_success
+}
+
+@test "_isFQDN_: false" {
+  run _isFQDN_ "testing"
+  assert_failure
+}
+
+@test "_isFQDN_: false2" {
+  run _isFQDN_ "192.168.1.1"
+  assert_failure
+}
+
 @test "_isIPv4_: true" {
   run _isIPv4_ "192.168.1.1"
   assert_success
