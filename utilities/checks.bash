@@ -120,6 +120,28 @@ _isEmail_() {
     [[ ${1} =~ ${_emailRegex} ]] && return 0 || return 1
 }
 
+_isFQDN_() {
+    # DESC:
+    #					Determines if a given input is a fully qualified domain name
+    # ARGS:
+    #					$1 (Required):	String to validate
+    # OUTS:
+    #					0:  Successfully validated as FQDN
+    #					1:  Failed to validate as FQDN
+    # USAGE:
+    #					_isFQDN_ "some.domain.com"
+
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+
+    local _input="${1}"
+
+    if printf "${_input}" | grep -Pq '(?=^.{4,253}$)(^(?:[a-zA-Z0-9](?:(?:[a-zA-Z0-9\-]){0,61}[a-zA-Z0-9])?\.)+([a-zA-Z]{2,}|xn--[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$)'; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 _isInternetAvailable_() {
     # DESC:
     #         Check if internet connection is available

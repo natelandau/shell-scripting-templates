@@ -184,6 +184,7 @@ Functions for validating common use-cases
 - **`_isAlphaNum_`** Validate that a given variable contains only alpha-numeric characters
 - **`_isDir_`** Validate that a given input points to a valid directory
 - **`_isEmail_`** Validates that an input is a valid email address
+- **`_isFQDN_`** Determines if a given input is a fully qualified domain name
 - **`_isFile_`** Validate that a given input points to a valid file
 - **`_isIPv4_`** Validates that an input is a valid IPv4 address
 - **`_isIPv6_`** Validates that an input is a valid IPv6 address

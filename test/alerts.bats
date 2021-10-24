@@ -100,7 +100,7 @@ teardown() {
 
 @test "_alert_: header" {
   run header "testing"
-  assert_output --regexp "\[ header\] testing"
+  assert_output --regexp "testing"
 }
 
 @test "_alert_: info" {

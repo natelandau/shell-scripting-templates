@@ -115,7 +115,11 @@ _alert_() {
             reset=""
         fi
 
-        printf "${_color}[%7s] %s${reset}\n" "${_alertType}" "${_message}"
+        if [[ ${_alertType} == header ]]; then
+            printf "${_color}%s${reset}\n" "${_message}"
+        else
+            printf "${_color}[%7s] %s${reset}\n" "${_alertType}" "${_message}"
+        fi
     }
     _writeToScreen_
 
