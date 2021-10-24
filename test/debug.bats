@@ -84,19 +84,31 @@ teardown() {
 
 @test "_printArray_: Array" {
   testArray=(1 2 3)
+  VERBOSE=true
   run _printArray_ "testArray"
   assert_success
-  assert_line --index 1 "0 = 1"
-  assert_line --index 2 "1 = 2"
-  assert_line --index 3 "2 = 3"
+  assert_line --index 1 "[  debug] 0 = 1"
+  assert_line --index 2 "[  debug] 1 = 2"
+  assert_line --index 3 "[  debug] 2 = 3"
+}
+
+@test "_printArray_: don't print unless verbose mode" {
+  testArray=(1 2 3)
+  VERBOSE=false
+  run _printArray_ "testArray"
+  assert_success
+  refute_output --partial "[  debug] 0 = 1"
+  refute_output --partial "[  debug] 1 = 2"
+  refute_output --partial "[  debug] 2 = 3"
 }
 
 @test "_printArray_: Associative array" {
   declare -A assoc_array
+  VERBOSE=true
   assoc_array=([foo]=bar [baz]=foobar)
   run _printArray_ "assoc_array"
   assert_success
-  assert_line --index 1 "foo = bar"
-  assert_line --index 2 "baz = foobar"
+  assert_line --index 1 "[  debug] foo = bar"
+  assert_line --index 2 "[  debug] baz = foobar"
 
 }

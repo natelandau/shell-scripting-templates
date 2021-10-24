@@ -38,7 +38,7 @@ _printAnsi_() {
 
 _printArray_() {
     # DESC:
-    #         Prints the content of array as key value pairs for easier debugging
+    #         Prints the content of array as key value pairs for easier debugging. Only prints in verbose mode.
     # ARGS:
     #         $1 (Required) - String variable name of the array
     # OUTS:
@@ -53,8 +53,10 @@ _printArray_() {
 
     local _arrayName="${1}"
     declare -n _arr="${1}"
-    printf "${underline}Printing contents of \${%s${reset}[@]}\n" "${_arrayName}"
+    [[ ${VERBOSE} != true ]] && return 0
+    debug "Printing contents of \${${_arrayName}[@]}"
+
     for _k in "${!_arr[@]}"; do
-        printf "%s = %s\n" "$_k" "${_arr[$_k]}"
+        debug "${_k} = ${_arr[$_k]}"
     done
 }
