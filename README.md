@@ -20,7 +20,7 @@ To create a new script, copy one of the script templates to a new file and make 
 
 There are two templates located at the root level of this repository.
 
-- **`template_source_utils.sh`** - A lean template which attempts to source all the utility functions from this repository. You will need to update the path to the utilities folder sent to `_sourceUtilities_` at the bottom of the script. This template will not function correctly if the utilities are not found.
+- **`template.sh`** - A lean template which attempts to source all the utility functions from this repository. You will need to update the path to the utilities folder sent to `_sourceUtilities_` at the bottom of the script. This template will not function correctly if the utilities are not found.
 - **`template_standalone.sh`** - For portability, the standalone template does not assume that this repository is available. Copy and paste the individual utility functions under the `### Custom utility functions` line.
 
 ### Code Organization
@@ -119,13 +119,13 @@ Within the `utilities` folder are many BASH functions meant to ease development 
 
 You can copy any complete function from the Utilities and place it into your script. Copy it beneath the `### Custom utility functions` line.
 
-#### 2. Source all the utility files by using scriptTemplate.sh
+#### 2. Source all the utility files by using template.sh
 
-`scriptTemplate.sh` contains a function to source all the utility files into the script. Beware, this will require a full path to the location of this repository and will result in a script that will not be portable to other systems.
+`template.sh` contains a function to source all the utility files into the script. Beware, this will require a full path to the location of this repository and will result in a script that will not be portable to other systems.
 
 ## alerts.bash
 
-- - **`_columnizeOutput_`** Creates a column output for key/value pairs with line wrapping for the right column (value)
+- **`_columnizeOutput_`** Creates a column output for key/value pairs with line wrapping for the right column (value)
 - -**`_printFuncStack_`** Prints the function stack in use. Used for debugging, and error reporting
 - **`_alert_`** Performs alerting functions including writing to a log file and printing to screen
 - **`_centerOutput_`** Prints text in the center of the terminal window
