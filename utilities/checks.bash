@@ -343,7 +343,7 @@ _varIsEmpty_() {
     # USAGE
     #					_varIsEmpty_ "${var}"
 
-    [[ -z ${1} || ${1} == "null" ]] && return 0 || return 1
+    [[ -z ${1:-} || ${1:-} == "null" ]] && return 0 || return 1
 }
 
 _isIPv6_() {
