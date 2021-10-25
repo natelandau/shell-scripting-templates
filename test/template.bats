@@ -1,5 +1,4 @@
 #!/usr/bin/env bats
-#shellcheck disable
 
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-file/load'
@@ -7,25 +6,16 @@ load 'test_helper/bats-assert/load'
 
 ######## SETUP TESTS ########
 ROOTDIR="$(git rev-parse --show-toplevel)"
-SOURCEFILE="${ROOTDIR}/utilities/template_utils.bash"
-ALERTS="${ROOTDIR}/utilities/alerts.bash"
+s="${ROOTDIR}/template.sh"
 
-if test -f "${SOURCEFILE}" >&2; then
-  source "${SOURCEFILE}"
+if [ -f "${s}" ]; then
+  base="$(basename "${s}")"
 else
-  echo "Sourcefile not found: ${SOURCEFILE}" >&2
+  printf "No executable '${s}' found.\n" >&2
   printf "Can not run tests.\n" >&2
   exit 1
 fi
 
-if test -f "${ALERTS}" >&2; then
-  source "${ALERTS}"
-  _setColors_ #Set color constants
-else
-  echo "Sourcefile not found: ${ALERTS}" >&2
-  printf "Can not run tests.\n" >&2
-  exit 1
-fi
 
 setup() {
 
@@ -35,59 +25,104 @@ setup() {
   BATSLIB_FILE_PATH_REM="#${TEST_TEMP_DIR}"
   BATSLIB_FILE_PATH_ADD='<temp>'
 
+  s="$s --logfile=${TESTDIR}/logs/log.txt"  # Logs go to temp directory
+
   pushd "${TESTDIR}" >&2
-
-  ######## DEFAULT FLAGS ########
-  LOGFILE="${TESTDIR}/logs/log.txt"
-  QUIET=false
-  LOGLEVEL=ERROR
-  VERBOSE=false
-  FORCE=false
-  DRYRUN=false
-
-  set -o errtrace
-  set -o nounset
-  set -o pipefail
 }
 
 teardown() {
-  set +o nounset
-  set +o errtrace
-  set +o pipefail
-
   popd >&2
   temp_del "${TESTDIR}"
 }
 
-######## RUN TESTS ########
-@test "Sanity..." {
-  run true
 
+######## RUN TESTS ##########
+@test "sanity" {
+  run true
+  assert_success
+  assert [ "$output" = "" ]
+}
+
+@test "Fail - fail on bad args and create logfile" {
+  run $s -K
+
+  assert_failure
+  assert_output --partial "[  fatal] invalid option: -K"
+  assert_file_exist "${TESTDIR}/logs/log.txt"
+
+  run cat "${TESTDIR}/logs/log.txt"
+  assert_line --index 0 --regexp "\[  fatal\] .* invalid option: -K \(.*"
+}
+
+@test "success" {
+  run $s
+  assert_success
+  assert_output --partial "[   info] This is info text"
+  assert_output --partial "[ notice] This is notice text"
+  assert_output --partial "[ dryrun] This is dryrun text"
+  assert_output --partial "[warning] This is warning text"
+  assert_output --partial "[  error] This is error text"
+  assert_output --partial "[success] This is success text"
+  assert_output --partial "[  input] This is input text"
+
+  assert_file_exist "${TESTDIR}/logs/log.txt"
+  run cat "${TESTDIR}/logs/log.txt"
+  assert_line --index 0 --regexp "\[  error\] \[.*\] This is error text \( _mainScript_:${base}.* \)"
+  assert_line --index 1 ""
+}
+
+@test "success and INFO level log" {
+  run $s --loglevel=INFO
+  assert_success
+  assert_output --partial "[   info] This is info text"
+
+  run cat "${TESTDIR}/logs/log.txt"
+  assert_line --index 0 --regexp "\[   info\].*This is info text"
+  assert_line --index 1 --regexp "\[ notice\].*This is notice text"
+  assert_line --index 2 --regexp "\[warning\].*This is warning text"
+  assert_line --index 3 --regexp "\[  error\].*This is error text"
+  assert_line --index 4 --regexp "\[success\].*This is success text"
+  assert_line --index 5 ""
+}
+
+@test "success and NOTICE level log" {
+  run $s --loglevel=NOTICE
+  assert_success
+  assert_output --partial "[   info] This is info text"
+
+  run cat "${TESTDIR}/logs/log.txt"
+  assert_line --index 0 --regexp "\[ notice\].*This is notice text"
+  assert_line --index 1 --regexp "\[warning\].*This is warning text"
+  assert_line --index 2 --regexp "\[  error\].*This is error text"
+  assert_line --index 3 --regexp "\[success\].*This is success text"
+  assert_line --index 4 ""
+}
+
+@test "Usage (-h)" {
+  run $s -h
+
+  assert_success
+  assert_line --partial --index 0 "$base [OPTION]... [FILE]..."
+}
+
+@test "Usage (--help)" {
+  run $s --help
+
+  assert_success
+  assert_line --partial --index 0 "$base [OPTION]... [FILE]..."
+}
+
+@test "quiet (-q)" {
+  run $s -q --loglevel=INFO
   assert_success
   assert_output ""
-}
 
-@test "_setPATH_: fail on dir not found" {
-  mkdir -p "${TESTDIR}/testing/from/bats"
-  mkdir -p "${TESTDIR}/testing/from/bats_again"
-  run _setPATH_ "${TESTDIR}/testing/from/bats" "${TESTDIR}/testing/again" "${TESTDIR}/testing/from/bats_again"
-  assert_failure
-}
-
-@test "_setPATH_: success" {
-  mkdir -p "${TESTDIR}/testing/from/bats"
-  mkdir -p "${TESTDIR}/testing/from/bats_again"
-  _setPATH_ "${TESTDIR}/testing/from/bats" "${TESTDIR}/testing/from/bats_again"
-
-  run echo "${PATH}"
-  assert_output --regexp "/testing/from/bats"
-  refute_output --regexp "/testing/again"
-  assert_output --regexp "/testing/from/bats_again"
-}
-
-@test "_makeTempDir_" {
-  VERBOSE=true
-  run _makeTempDir_
-  assert_success
-  assert_output --regexp "\\\$TMP_DIR=/.*\.[0-9]+\.[0-9]+\.[0-9]+$"
+  run cat "${TESTDIR}/logs/log.txt"
+  run cat "${TESTDIR}/logs/log.txt"
+  assert_line --index 0 --regexp "\[   info\].*This is info text"
+  assert_line --index 1 --regexp "\[ notice\].*This is notice text"
+  assert_line --index 2 --regexp "\[warning\].*This is warning text"
+  assert_line --index 3 --regexp "\[  error\].*This is error text"
+  assert_line --index 4 --regexp "\[success\].*This is success text"
+  assert_line --index 5 ""
 }

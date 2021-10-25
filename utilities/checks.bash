@@ -278,26 +278,25 @@ _rootAvailable_() {
     if [[ ${EUID} -eq 0 ]]; then
         _superuser=true
     elif [[ -z ${1:-} ]]; then
-        if command -v sudo >/dev/null 2>&1; then
-            debug 'Sudo: Updating cached credentials ...'
-            if ! sudo -v; then
-                warning "Sudo: Couldn't acquire credentials ..."
+        debug 'Sudo: Updating cached credentials ...'
+        if sudo -v; then
+            if [[ $(sudo -H -- "$BASH" -c 'printf "%s" "$EUID"') -eq 0 ]]; then
+                _superuser=true
             else
-                _testEUID="$(sudo -H -- "$BASH" -c 'printf "%s" "$EUID"')"
-                if [[ ${_testEUID} -eq 0 ]]; then
-                    _superuser=true
-                fi
+                _superuser=false
             fi
+        else
+            _superuser=false
         fi
     fi
 
-    if [[ -z ${superuser:-} ]]; then
+    if [[ ${_superuser} == true ]]; then
+        debug 'Successfully acquired superuser credentials.'
+        return 0
+    else
         debug 'Unable to acquire superuser credentials.'
         return 1
     fi
-
-    debug 'Successfully acquired superuser credentials.'
-    return 0
 }
 
 _varIsTrue_() {

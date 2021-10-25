@@ -318,8 +318,10 @@ _clearLine_() {
 
     [ ! "$(declare -f "_isTerminal_")" ] && fatal "${FUNCNAME[0]} needs function _isTerminal_"
 
+    local i
     if _isTerminal_; then
-        local _line=${1:-1}
-        printf "\033[%sA\033[2K" "${_line}"
+        for ((i = 0; i < $1; i++)); do
+            printf "\033[A\033[2K"
+        done
     fi
 }

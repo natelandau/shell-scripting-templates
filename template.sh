@@ -13,7 +13,6 @@ _mainScript_() {
     input "This is input text"
 
 }
-
 #/_mainsScript_()
 
 # ################################## Flags and defaults

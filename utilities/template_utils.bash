@@ -112,7 +112,7 @@ _setPATH_() {
             fi
         else
             debug "_setPATH_: can not find: ${_newPath}"
-            return 1
+            return 0
         fi
     done
     return 0

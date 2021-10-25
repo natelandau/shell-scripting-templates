@@ -14,7 +14,6 @@ _mainScript_() {
     input "This is input text"
 
 }
-
 # end _mainScript_
 
 # ################################## Flags and defaults
@@ -32,8 +31,6 @@ declare -a ARGS=()
 # ################################## Custom utility functions (Pasted from repository)
 
 # ################################## Functions required for this template to work
-
-# Functions for providing alerts to the user and printing them to the log
 
 _setColors_() {
     # DESC:
@@ -401,7 +398,7 @@ _setPATH_() {
             fi
         else
             debug "_setPATH_: can not find: ${_newPath}"
-            return 1
+            return 0
         fi
     done
     return 0
