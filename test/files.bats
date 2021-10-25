@@ -186,6 +186,11 @@ _testListFiles_() {
     run _listFiles_ "g"
     assert_failure
   }
+
+  @test "_listFiles: fail when no files found" {
+    run _listFiles_ regex ".*notest[0-9]\.txt" "${TESTDIR}"
+    assert_failure
+  }
 }
 
 _testMakeSymlink_() {

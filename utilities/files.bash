@@ -480,12 +480,14 @@ _listFiles_() {
     #         $2 (Required) - pattern to match
     #         $3 (Optional) - directory (defaults to .)
     # OUTS:
+    #         0: if files found
+    #         1: if no files found
     #         stdout: List of files
     # NOTE:
     #         Searches are NOT case sensitive and MUST be quoted
     # USAGE:
     #         _listFiles_ glob "*.txt" "some/backup/dir"
-    #         _listFiles_ regex ".*\.txt" "some/backup/dir"
+    #         _listFiles_ regex ".*\.[sha256|md5|txt]" "some/backup/dir"
     #         readarray -t array < <(_listFiles_ g "*.txt")
 
     [[ $# -lt 2 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
@@ -494,22 +496,30 @@ _listFiles_() {
     local _pattern="${2}"
     local _directory="${3:-.}"
     local _fileMatch e
+    declare -a _matchedFiles=()
 
     case "${_searchType}" in
         [Gg]*)
             while read -r _fileMatch; do
-                printf "%s\n" "$(realpath "${_fileMatch}")"
+                _matchedFiles+=("$(realpath "${_fileMatch}")")
             done < <(find "${_directory}" -maxdepth 1 -iname "${_pattern}" -type f | sort)
             ;;
         [Rr]*)
             while read -r _fileMatch; do
-                printf "%s\n" "$(realpath "${_fileMatch}")"
-            done < <(find "${_directory}" -maxdepth 1 -iregex "${_pattern}" -type f | sort)
+                _matchedFiles+=("$(realpath "${_fileMatch}")")
+            done < <(find "${_directory}" -maxdepth 1 -regextype posix-extended -iregex "${_pattern}" -type f | sort)
             ;;
         *)
             fatal "_listFiles_: Could not determine if search was glob or regex"
             ;;
     esac
+
+    if [[ ${#_matchedFiles[@]} -gt 0 ]]; then
+        printf "%s\n" "${_matchedFiles[@]}"
+        return 0
+    else
+        return 1
+    fi
 }
 
 _makeSymlink_() {
