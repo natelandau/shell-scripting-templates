@@ -516,7 +516,12 @@ _parseOptions_() {
         esac
         shift
     done
-    ARGS+=("$@") # Store the remaining user input as arguments.
+
+    if [[ -z ${*} || ${*} == null ]]; then
+        ARGS=()
+    else
+        ARGS+=("$@") # Store the remaining user input as arguments.
+    fi
 }
 
 _usage_() {
