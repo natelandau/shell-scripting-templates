@@ -133,15 +133,6 @@ _createUniqueFilename_() {
     local _ext
     local i
 
-    if ! command -v realpath >/dev/null 2>&1; then
-        error "We must have 'realpath' installed and available in \$PATH to run."
-        if [[ $OSTYPE == "darwin"* ]]; then
-            notice "Install coreutils using homebrew and rerun this script."
-            info "\t$ brew install coreutils"
-        fi
-        _safeExit_ 1
-    fi
-
     # Find directories with realpath if input is an actual file
     if [ -e "${_fullFile}" ]; then
         _fullFile="$(realpath "${_fullFile}")"
@@ -149,6 +140,10 @@ _createUniqueFilename_() {
 
     _filePath="$(dirname "${_fullFile}")"
     _originalFile="$(basename "${_fullFile}")"
+
+    #shellcheck disable=SC2064
+    trap "$(shopt -p nocasematch)" RETURN # reset nocasematch when function exits
+    shopt -s nocasematch                  # Use case-insensitive regex
 
     # Detect some common multi-extensions
     case $(tr '[:upper:]' '[:lower:]' <<<"${_originalFile}") in
@@ -167,15 +162,15 @@ _createUniqueFilename_() {
         fi
         _fn=${_fn%.$_ext}
     done
-    debug "_extension: ${_extension}"
+
     if [[ ${_extension} == "${_originalFile}" ]]; then
         _extension=""
     else
-        _originalFile="${_originalFile%.$_extension}" && debug "_originalFile: ${_originalFile}"
+        _originalFile="${_originalFile%.$_extension}"
         _extension=".${_extension}"
     fi
 
-    _newFilename="${_filePath}/${_originalFile}${_extension:-}" && debug "_newFilename: ${_newFilename}"
+    _newFilename="${_filePath}/${_originalFile}${_extension:-}"
 
     if [ -e "${_newFilename}" ]; then
         _num=1
@@ -340,7 +335,6 @@ _fileName_() {
     #					_fileName_ "some/path/to/file" --> "file"
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
     printf "%s\n" "${1##*/}"
-
 }
 
 _fileBasename_() {
@@ -412,7 +406,8 @@ _fileExtension_() {
 
 _filePath_() {
     # DESC:
-    #					Finds the directory name from a file path. If it exists on filesystem, print absolute path.  If a string, remove the filename and return the path
+    #					Finds the directory name from a file path. If it exists on filesystem, print
+    #         absolute path.  If a string, remove the filename and return the path
     # ARGS:
     #					$1 (Required) - Input string path
     # OUTS:

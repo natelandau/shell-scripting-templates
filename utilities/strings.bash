@@ -89,7 +89,7 @@ _cleanString_() {
         _string="$(echo "${_string}" | sed -E "s/${_pairs[0]}/${_pairs[1]}/g")"
     fi
 
-    # trim trailing/leading white space and duplicate dashes
+    # trim trailing/leading white space and duplicate dashes & spaces
     _string="$(echo "${_string}" | tr -s '-' | tr -s '_')"
     _string="$(echo "${_string}" | sed -E 's/([_\-]) /\1/g' | sed -E 's/ ([_\-])/\1/g')"
     _string="$(echo "${_string}" | awk '{$1=$1};1')"
@@ -232,7 +232,7 @@ _ltrim_() {
 
 _regexCapture_() {
     # DESC:
-    #         Use regex to validate and parse strings
+    #         Use regex to capture a group of text from a string
     # ARGS:
     #         $1 (Required) - Input String
     #         $2 (Required) - Regex pattern
@@ -243,7 +243,9 @@ _regexCapture_() {
     #         1 - Regex did not match
     #         stdout: Prints string matching regex
     # USAGE:
-    #         _regex_ "#FFFFFF" '^(#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$'
+    #         HEXCODE=$(_regex_ "background-color: #FFFFFF;" '^(#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$')
+    #         $ printf "%s\n" "${HEXCODE}"
+    #         $ #FFFFFF
     # NOTE:
     #         This example only prints the first matching group. When using multiple capture
     #         groups some modification is needed.
@@ -462,14 +464,18 @@ _stripANSI_() {
 
 _trim_() {
     # DESC:
-    #         Removes all leading/trailing whitespace. Used through a pipe or here string.
+    #         Removes all leading/trailing whitespace and reduces internal duplicate spaces
+    #         to a single space.
     # ARGS:
-    #         None
+    #         $1 (Required) - String to be trimmed
     # OUTS:
-    #         None
+    #         stdout: Prints string with leading/trailing whitespace removed
     # USAGE:
     #         text=$(_trim_ <<<"$1")
     #         echo "STRING" | _trim_
+    # NOTE:
+    #         Used through a pipe or here string.
+
     awk '{$1=$1;print}'
 }
 

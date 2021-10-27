@@ -41,20 +41,24 @@ _printArray_() {
     #         Prints the content of array as key value pairs for easier debugging. Only prints in verbose mode.
     # ARGS:
     #         $1 (Required) - String variable name of the array
+    #         $2 (Optional) - Line number where _printArray_ is called
     # OUTS:
-    #         stdout: Formatted key value of array.one
+    #         stdout: Formatted key value of array
     # USAGE:
     #         testArray=("1" "2" "3" "4")
-    #         _printArray_ "testArray"
+    #         _printArray_ "testArray" ${LINENO}
     # CREDIT:
     #         https://github.com/labbots/bash-utility/blob/master/src/debug.sh
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
     local _arrayName="${1}"
+    local _lineNumber="${2:-}"
     declare -n _arr="${1}"
+
     [[ ${VERBOSE} != true ]] && return 0
-    debug "Printing contents of \${${_arrayName}[@]}"
+
+    debug "Printing contents of \${${_arrayName}[@]}" "${_lineNumber}"
 
     for _k in "${!_arr[@]}"; do
         debug "${_k} = ${_arr[$_k]}"
