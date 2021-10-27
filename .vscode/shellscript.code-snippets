@@ -33,18 +33,6 @@
     ],
     "description": "Comment block for a function"
   },
-  "value": {
-    "scope": "shellscript",
-    "prefix": "_",
-    "body": ["\"\\${$0}\""],
-    "description": ""
-  },
-  "subshell": {
-    "scope": "shellscript",
-    "prefix": "__",
-    "body": ["\"\\$($0)\""],
-    "description": ""
-  },
   "_function_() {}": {
     "scope": "shellscript",
     "prefix": "_f",
@@ -67,6 +55,18 @@
       "}"
     ],
     "description": "Add a new function"
+  },
+  "value": {
+    "scope": "shellscript",
+    "prefix": "_",
+    "body": ["\"\\${$0}\""],
+    "description": ""
+  },
+  "subshell": {
+    "scope": "shellscript",
+    "prefix": "__",
+    "body": ["\"\\$($0)\""],
+    "description": ""
   },
   "while read loop": {
     "scope": "shellscript",
