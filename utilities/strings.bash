@@ -65,36 +65,36 @@ _cleanString_() {
     IFS=',' read -r -a _arrayToClean <<<"${_userChars}"
 
     # trim trailing/leading white space and duplicate spaces/tabs
-    _string="$(echo "${_string}" | awk '{$1=$1};1')"
+    _string="$(printf "%s" "${_string}" | awk '{$1=$1};1')"
 
     local i
     for i in "${_arrayToClean[@]}"; do
         debug "cleaning: $i"
-        _string="$(echo "${_string}" | sed "s/$i//g")"
+        _string="$(printf "%s" "${_string}" | sed "s/$i//g")"
     done
 
     ("${_lc}") \
-        && _string="$(echo "${_string}" | tr '[:upper:]' '[:lower:]')"
+        && _string="$(printf "%s" "${_string}" | tr '[:upper:]' '[:lower:]')"
 
     ("${_uc}") \
-        && _string="$(echo "${_string}" | tr '[:lower:]' '[:upper:]')"
+        && _string="$(printf "%s" "${_string}" | tr '[:lower:]' '[:upper:]')"
 
     if "${_alphanumeric}" && "${_us}"; then
-        _string="$(echo "${_string}" | tr -c '[:alnum:]_ -' ' ')"
+        _string="$(printf "%s" "${_string}" | tr -c '[:alnum:]_ -' ' ')"
     elif "${_alphanumeric}"; then
-        _string="$(echo "${_string}" | sed "s/[^a-zA-Z0-9_ \-]//g")"
+        _string="$(printf "%s" "${_string}" | sed "s/[^a-zA-Z0-9_ \-]//g")"
     fi
 
     if "${_replace}"; then
-        _string="$(echo "${_string}" | sed -E "s/${_pairs[0]}/${_pairs[1]}/g")"
+        _string="$(printf "%s" "${_string}" | sed -E "s/${_pairs[0]}/${_pairs[1]}/g")"
     fi
 
     # trim trailing/leading white space and duplicate dashes & spaces
-    _string="$(echo "${_string}" | tr -s '-' | tr -s '_')"
-    _string="$(echo "${_string}" | sed -E 's/([_\-]) /\1/g' | sed -E 's/ ([_\-])/\1/g')"
-    _string="$(echo "${_string}" | awk '{$1=$1};1')"
+    _string="$(printf "%s" "${_string}" | tr -s '-' | tr -s '_')"
+    _string="$(printf "%s" "${_string}" | sed -E 's/([_\-]) /\1/g' | sed -E 's/ ([_\-])/\1/g')"
+    _string="$(printf "%s" "${_string}" | awk '{$1=$1};1')"
 
-    echo "${_string}"
+    printf "%s\n" "${_string}"
 
 }
 
@@ -158,7 +158,7 @@ _encodeHTML_() {
     _sedFile="${HOME}/.sed/htmlEncode.sed"
 
     [ -f "${_sedFile}" ] \
-        && { echo "${1}" | sed -f "${_sedFile}"; } \
+        && { printf "%s" "${1}" | sed -f "${_sedFile}"; } \
         || return 1
 }
 
@@ -181,7 +181,7 @@ _encodeURL_() {
 
     for ((i = 0; i < ${#1}; i++)); do
         if [[ ${1:i:1} =~ ^[a-zA-Z0-9\.\~_-]$ ]]; then
-            printf "${1:i:1}"
+            printf "%s" "${1:i:1}"
         else
             printf '%%%02X' "'${1:i:1}"
         fi
@@ -212,7 +212,7 @@ _lower_() {
     #         None
     # USAGE:
     #         text=$(_lower_ <<<"$1")
-    #         echo "STRING" | _lower_
+    #         printf "STRING" | _lower_
     tr '[:upper:]' '[:lower:]'
 }
 
@@ -225,7 +225,7 @@ _ltrim_() {
     #         None
     # USAGE:
     #         text=$(_ltrim_ <<<"$1")
-    #         echo "STRING" | _ltrim_
+    #         printf "STRING" | _ltrim_
     local _char=${1:-[:space:]}
     sed "s%^[${_char//%/\\%}]*%%"
 }
@@ -285,7 +285,7 @@ _rtrim_() {
     #         None
     # USAGE:
     #         text=$(_rtrim_ <<<"$1")
-    #         echo "STRING" | _rtrim_
+    #         printf "STRING" | _rtrim_
     local _char=${1:-[:space:]}
     sed "s%[${_char//%/\\%}]*$%%"
 }
@@ -414,7 +414,7 @@ _stripStopwords_() {
     local _w
 
     if [ -f "${_sedFile}" ]; then
-        _string="$(echo "${_string}" | sed -f "${_sedFile}")"
+        _string="$(printf "%s" "${_string}" | sed -f "${_sedFile}")"
     else
         fatal "_stripStopwords_: Missing sedfile expected at: ${_sedFile}"
     fi
@@ -424,12 +424,12 @@ _stripStopwords_() {
 
     if [[ ${#_localStopWords[@]} -gt 0 ]]; then
         for _w in "${_localStopWords[@]}"; do
-            _string="$(echo "${_string}" | sed -E "s/\b${_w}\b//gI")"
+            _string="$(printf "%s" "${_string}" | sed -E "s/\b${_w}\b//gI")"
         done
     fi
 
     # Remove double spaces and trim left/right
-    _string="$(echo "${_string}" | sed -E 's/[ ]{2,}/ /g' | _trim_)"
+    _string="$(printf "%s" "${_string}" | sed -E 's/[ ]{2,}/ /g' | _trim_)"
 
     printf "%s\n" "${_string}"
 
@@ -472,7 +472,7 @@ _trim_() {
     #         stdout: Prints string with leading/trailing whitespace removed
     # USAGE:
     #         text=$(_trim_ <<<"$1")
-    #         echo "STRING" | _trim_
+    #         printf "%s" "STRING" | _trim_
     # NOTE:
     #         Used through a pipe or here string.
 
@@ -488,6 +488,6 @@ _upper_() {
     #         None
     # USAGE:
     #         text=$(_upper_ <<<"$1")
-    #         echo "STRING" | _upper_
+    #         printf "%s" "STRING" | _upper_
     tr '[:lower:]' '[:upper:]'
 }

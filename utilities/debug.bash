@@ -31,7 +31,7 @@ _printAnsi_() {
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    #echo $(tr -dc '[:print:]'<<<$1)
+    #printf "%s\n" "$(tr -dc '[:print:]'<<<$1)"
     printf "%s\n" "${1//$'\e'/\\e}"
 
 }

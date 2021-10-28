@@ -31,7 +31,8 @@ _guiInput_() {
     #         https://github.com/herrbischoff/awesome-osx-command-line/blob/master/functions.md
     if _haveScriptableFinder_; then
         local _guiPrompt="${1:-Password:}"
-        local _guiInput=$(
+        local _guiInput
+        _guiInput=$(
             osascript &>/dev/null <<GUI_INPUT_MESSAGE
       tell application "System Events"
           activate
@@ -39,7 +40,7 @@ _guiInput_() {
       end tell
 GUI_INPUT_MESSAGE
         )
-        echo -n "${_guiInput}"
+        printf "%s\n" "${_guiInput}"
     else
         error "No GUI input without macOS"
         return 1

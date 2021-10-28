@@ -99,7 +99,7 @@ _createUniqueFilename_() {
     # USAGE:
     #         _createUniqueFilename_ "/some/dir/file.txt" --> /some/dir/file.txt.1
     #         _createUniqueFilename_ -i"/some/dir/file.txt" "-" --> /some/dir/file-1.txt
-    #         echo "line" > "$(_createUniqueFilename_ "/some/dir/file.txt")"
+    #         printf "%s" "line" > "$(_createUniqueFilename_ "/some/dir/file.txt")"
 
     [[ $# -lt 1 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
@@ -155,7 +155,7 @@ _createUniqueFilename_() {
     _fn="${_originalFile}"
     for ((i = 0; i < _levels; i++)); do
         _ext=${_fn##*.}
-        if [ $i == 0 ]; then
+        if [[ $i == 0 ]]; then
             _extension=${_ext}${_extension:-}
         else
             _extension=${_ext}.${_extension:-}
@@ -187,7 +187,7 @@ _createUniqueFilename_() {
         fi
     fi
 
-    echo "${_newFilename}"
+    printf "%s\n" "${_newFilename}"
     return 0
 }
 
@@ -391,7 +391,7 @@ _fileExtension_() {
     _fn="$_file"
     for ((i = 0; i < _levels; i++)); do
         _ext=${_fn##*.}
-        if [ $i == 0 ]; then
+        if [[ $i == 0 ]]; then
             _exts=${_ext}${_exts:-}
         else
             _exts=${_ext}.${_exts:-}
@@ -490,7 +490,7 @@ _listFiles_() {
     local _searchType="${1}"
     local _pattern="${2}"
     local _directory="${3:-.}"
-    local _fileMatch e
+    local _fileMatch
     declare -a _matchedFiles=()
 
     case "${_searchType}" in
@@ -661,7 +661,9 @@ _parseYAML_() {
 
     local _s='[[:space:]]*'
     local _w='[a-zA-Z0-9_]*'
-    local _fs="$(echo @ | tr @ '\034')"
+    local _fs
+    _fs="$(printf @ | tr @ '\034')"
+
     sed -ne "s|^\(${_s}\)\(${_w}\)${_s}:${_s}\"\(.*\)\"${_s}\$|\1${_fs}\2${_fs}\3|p" \
         -e "s|^\(${_s}\)\(${_w}\)${_s}[:-]${_s}\(.*\)${_s}\$|\1${_fs}\2${_fs}\3|p" "${_yamlFile}" \
         | awk -F"${_fs}" '{
@@ -693,12 +695,12 @@ _readFile_() {
 
     [ ! -f "$_fileToRead" ] \
         && {
-            echo "'$c' not found"
+            error "'${_fileToRead}' not found"
             return 1
         }
 
-    while read -r result; do
-        printf "%s\n" "${result}"
+    while read -r _result; do
+        printf "%s\n" "${_result}"
     done <"${_fileToRead}"
 }
 
@@ -716,7 +718,7 @@ _sourceFile_() {
     local _fileToSource="$1"
 
     [ ! -f "${_fileToSource}" ] && fatal "Attempted to source '${_fileToSource}'. Not found"
-
+    # shellcheck disable=SC1090
     if source "${_fileToSource}"; then
         return 0
     else

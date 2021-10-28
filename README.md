@@ -77,7 +77,7 @@ IFS=$' \n\t'
 # set -o xtrace
 
 # Source utility functions
-_sourceUtilities_ "${HOME}/repos/shell-scripting-templates/utilities"
+_sourceUtilities_
 
 # Initialize color constants
 _setColors_
@@ -117,11 +117,11 @@ Within the `utilities` folder are many BASH functions meant to ease development 
 
 #### 1. Copy and paste into standaloneTemplate.sh
 
-You can copy any complete function from the Utilities and place it into your script. Copy it beneath the `### Custom utility functions` line.
+You can copy any complete function from the Utilities and place it into your script. Copy it beneath the `### Custom utility functions` line. Scripts created this way are fully portable among systems
 
 #### 2. Source all the utility files by using template.sh
 
-`template.sh` contains a function to source all the utility files into the script. Beware, this will require a full path to the location of this repository and will result in a script that will not be portable to other systems.
+`template.sh` contains a function to source all the utility files into the script. Beware, that you'll need to update the paths within the `_sourceUtilities_` function to ensure your script can find this repository.
 
 ## alerts.bash
 
@@ -304,14 +304,14 @@ Functions required to allow the script template and alert functions to be used
 
 # Coding conventions
 
-Where possible, I follow [defensive BASH programming](https://kfirlavi.herokuapp.com/blog/2012/11/14/defensive-bash-programming/) principles.
-
 - Function names use camel case surrounded by underscores: `_nameOfFunction_`
 - Local variable names use camel case with a starting underscore: `_localVariable`
 - Global variables are in ALL_CAPS with underscores seperating words
 - Exceptions to the variable an function naming rules are made for alerting functions and colors to ease my speed of programming. (Breaking years of habits is hard...) I.e. `notice "Some log item: ${blue}blue text${reset}` Where `notice` is a function and `$blue` and `$reset` are global variables but are lowercase.
-- Variables are always surrounded by quotes and brackets `"${1}"` (It's verbose, but a safe practice)
+- Variables are always surrounded by quotes and brackets `"${1}"` (Overly verbose true, but a safe practice)
 - Formatting is provided by [shfmt](https://github.com/mvdan/sh) using 4 spaces for indentation
+- All scripts and functions are fully [Shellcheck](https://github.com/koalaman/shellcheck) compliant
+- Where possible, I follow [defensive BASH programming](https://kfirlavi.herokuapp.com/blog/2012/11/14/defensive-bash-programming/) principles.
 
 ## A Note on Code Reuse and Prior Art
 

@@ -1,4 +1,5 @@
 # Functions for providing alerts to the user and logging them
+# shellcheck disable=SC2034,SC2154
 
 _setColors_() {
     # DESC:
@@ -8,7 +9,7 @@ _setColors_() {
     # OUTS:
     #         None
     # USAGE:
-    #         echo "${blue}Some text${reset}"
+    #         printf "%s\n" "${blue}Some text${reset}"
 
     if tput setaf 1 >/dev/null 2>&1; then
         bold=$(tput bold)
@@ -39,6 +40,7 @@ _setColors_() {
         bold="\033[4;37m"
         reset="\033[0m"
         underline="\033[4;37m"
+        # shellcheck disable=SC2034
         reverse=""
         white="\033[0;37m"
         blue="\033[0;34m"
@@ -96,9 +98,9 @@ _alert_() {
         _color="${purple}"
     elif [ "${_alertType}" == "header" ]; then
         _color="${bold}${white}${underline}"
-    elif [ ${_alertType} == "notice" ]; then
+    elif [ "${_alertType}" == "notice" ]; then
         _color="${bold}"
-    elif [ ${_alertType} == "input" ]; then
+    elif [ "${_alertType}" == "input" ]; then
         _color="${bold}${underline}"
     elif [ "${_alertType}" = "dryrun" ]; then
         _color="${blue}"
@@ -133,9 +135,10 @@ _alert_() {
         [[ ! -f ${LOGFILE} ]] && touch "${LOGFILE}"
 
         # Don't use colors in logs
-        local cleanmessage="$(echo "${_message}" | sed -E 's/(\x1b)?\[(([0-9]{1,2})(;[0-9]{1,3}){0,2})?[mGK]//g')"
+        local _cleanmessage
+        _cleanmessage="$(printf "%s" "${_message}" | sed -E 's/(\x1b)?\[(([0-9]{1,2})(;[0-9]{1,3}){0,2})?[mGK]//g')"
         # Print message to log file
-        printf "%s [%7s] %s %s\n" "$(date +"%b %d %R:%S")" "${_alertType}" "[$(/bin/hostname)]" "${cleanmessage}" >>"${LOGFILE}"
+        printf "%s [%7s] %s %s\n" "$(date +"%b %d %R:%S")" "${_alertType}" "[$(/bin/hostname)]" "${_cleanmessage}" >>"${LOGFILE}"
     }
 
     # Write specified log level data to logfile
@@ -210,7 +213,7 @@ _printFuncStack_() {
     _funcStackResponse=()
     for ((_i = 1; _i < ${#BASH_SOURCE[@]}; _i++)); do
         case "${FUNCNAME[$_i]}" in "_alert_" | "_trapCleanup_" | fatal | error | warning | notice | info | debug | dryrun | header | success) continue ;; esac
-        _funcStackResponse+=("${FUNCNAME[$_i]}:$(basename ${BASH_SOURCE[$_i]}):${BASH_LINENO[_i - 1]}")
+        _funcStackResponse+=("${FUNCNAME[$_i]}:$(basename "${BASH_SOURCE[$_i]}"):${BASH_LINENO[_i - 1]}")
     done
     printf "( "
     printf %s "${_funcStackResponse[0]}"

@@ -40,7 +40,7 @@ _setColors_() {
     # OUTS:
     #         None
     # USAGE:
-    #         echo "${blue}Some text${reset}"
+    #         printf "%s\n" "${blue}Some text${reset}"
 
     if tput setaf 1 >/dev/null 2>&1; then
         bold=$(tput bold)
@@ -71,6 +71,7 @@ _setColors_() {
         bold="\033[4;37m"
         reset="\033[0m"
         underline="\033[4;37m"
+        # shellcheck disable=SC2034
         reverse=""
         white="\033[0;37m"
         blue="\033[0;34m"
@@ -128,9 +129,9 @@ _alert_() {
         _color="${purple}"
     elif [ "${_alertType}" == "header" ]; then
         _color="${bold}${white}${underline}"
-    elif [ ${_alertType} == "notice" ]; then
+    elif [ "${_alertType}" == "notice" ]; then
         _color="${bold}"
-    elif [ ${_alertType} == "input" ]; then
+    elif [ "${_alertType}" == "input" ]; then
         _color="${bold}${underline}"
     elif [ "${_alertType}" = "dryrun" ]; then
         _color="${blue}"
@@ -165,9 +166,10 @@ _alert_() {
         [[ ! -f ${LOGFILE} ]] && touch "${LOGFILE}"
 
         # Don't use colors in logs
-        local cleanmessage="$(echo "${_message}" | sed -E 's/(\x1b)?\[(([0-9]{1,2})(;[0-9]{1,3}){0,2})?[mGK]//g')"
+        local _cleanmessage
+        _cleanmessage="$(printf "%s" "${_message}" | sed -E 's/(\x1b)?\[(([0-9]{1,2})(;[0-9]{1,3}){0,2})?[mGK]//g')"
         # Print message to log file
-        printf "%s [%7s] %s %s\n" "$(date +"%b %d %R:%S")" "${_alertType}" "[$(/bin/hostname)]" "${cleanmessage}" >>"${LOGFILE}"
+        printf "%s [%7s] %s %s\n" "$(date +"%b %d %R:%S")" "${_alertType}" "[$(/bin/hostname)]" "${_cleanmessage}" >>"${LOGFILE}"
     }
 
     # Write specified log level data to logfile
@@ -242,7 +244,7 @@ _printFuncStack_() {
     _funcStackResponse=()
     for ((_i = 1; _i < ${#BASH_SOURCE[@]}; _i++)); do
         case "${FUNCNAME[$_i]}" in "_alert_" | "_trapCleanup_" | fatal | error | warning | notice | info | debug | dryrun | header | success) continue ;; esac
-        _funcStackResponse+=("${FUNCNAME[$_i]}:$(basename ${BASH_SOURCE[$_i]}):${BASH_LINENO[_i - 1]}")
+        _funcStackResponse+=("${FUNCNAME[$_i]}:$(basename "${BASH_SOURCE[$_i]}"):${BASH_LINENO[_i - 1]}")
     done
     printf "( "
     printf %s "${_funcStackResponse[0]}"
@@ -276,7 +278,7 @@ _safeExit_() {
     fi
 
     trap - INT TERM EXIT
-    exit ${1:-0}
+    exit "${1:-0}"
 }
 
 _trapCleanup_() {
@@ -290,7 +292,7 @@ _trapCleanup_() {
     #         $5:  Scriptname
     #         $6:  $BASH_SOURCE
     # USAGE:
-    #         trap '_trapCleanup_ ${LINENO} ${BASH_LINENO} "${BASH_COMMAND}" "${FUNCNAME[*]}" "${0}" "${BASH_SOURCE[0]}"' EXIT INT TERM SIGINT SIGQUIT SIGTERM
+    #         trap '_trapCleanup_ ${LINENO} ${BASH_LINENO} "${BASH_COMMAND}" "${FUNCNAME[*]}" "${0}" "${BASH_SOURCE[0]}"' EXIT INT TERM SIGINT SIGQUIT SIGTERM ERR
     # OUTS:
     #         Exits script with error code 1
 
@@ -302,7 +304,9 @@ _trapCleanup_() {
     local _sourced="${6:-}"
 
     if [[ "$(declare -f "fatal")" && "$(declare -f "_printFuncStack_")" ]]; then
-        _funcstack="'$(echo "${_funcstack}" | sed -E 's/ / < /g')'"
+
+        _funcstack="'$(printf "%s" "${_funcstack}" | sed -E 's/ / < /g')'"
+
         if [[ ${_script##*/} == "${_sourced##*/}" ]]; then
             fatal "${7:-} command: '${_command}' (line: ${_line}) [func: $(_printFuncStack_)]"
         else
@@ -391,7 +395,7 @@ _setPATH_() {
 
     for _newPath in "$@"; do
         if [ -d "${_newPath}" ]; then
-            if ! echo "${PATH}" | grep -Eq "(^|:)${_newPath}($|:)"; then
+            if ! printf "%s" "${PATH}" | grep -Eq "(^|:)${_newPath}($|:)"; then
                 if PATH="${_newPath}:${PATH}"; then
                     debug "Added '${_newPath}' to PATH"
                 else
@@ -481,6 +485,7 @@ _parseOptions_() {
     unset _options
 
     # Read the options and set stuff
+    # shellcheck disable=SC2034
     while [[ ${1:-} == -?* ]]; do
         case $1 in
             # Custom options

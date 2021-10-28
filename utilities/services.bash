@@ -37,8 +37,9 @@ _httpStatus_() {
     local _status
 
     #      __________ get the CODE which is numeric:
+    # shellcheck disable=SC1083
     _code=$(curl --write-out %{http_code} --silent --connect-timeout "${_timeout}" \
-        --no-keepalive ${_curlops} --output /dev/null ${_url})
+        --no-keepalive "${_curlops}" --output /dev/null "${_url}")
 
     #      __________ get the STATUS (from code) which is human interpretable:
     case $_code in
@@ -88,11 +89,11 @@ _httpStatus_() {
     esac
 
     case ${_flag} in
-        --status) echo "${_code} ${_status}" ;;
-        -s) echo "${_code} ${_status}" ;;
-        --code) echo "${_code}" ;;
-        -c) echo "${_code}" ;;
-        *) echo " _httpStatus_: bad flag" && _safeExit_ ;;
+        --status) printf "%s %s\n" "${_code}" "${_status}" ;;
+        -s) printf "%s %s\n" "${_code}" "${_status}" ;;
+        --code) printf "%s\n" "${_code}" ;;
+        -c) printf "%s\n" "${_code}" ;;
+        *) printf "%s\n" "_httpStatus_: bad flag" && _safeExit_ ;;
     esac
 
     IFS="${_saveIFS}"
@@ -117,6 +118,7 @@ _pushover_() {
     [[ $# -lt 4 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
     local _pushoverURL="https://api.pushover.net/1/messages.json"
+    local _messageTitle="${1}"
     local _message="${2}"
     local _apiKey="${3}"
     local _userKey="${4}"

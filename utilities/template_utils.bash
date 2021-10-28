@@ -1,4 +1,5 @@
 # Functions required to allow the script template and alert functions to be used
+# shellcheck disable=SC2154
 
 _acquireScriptLock_() {
     # DESC:
@@ -69,7 +70,7 @@ _safeExit_() {
         if command rm -rf "${SCRIPT_LOCK}"; then
             debug "Removing script lock"
         else
-            warning "Script lock could not be removed. Try manually deleting ${yellow}'${LOCK_DIR}'"
+            warning "Script lock could not be removed. Try manually deleting ${tan}'${LOCK_DIR}'"
         fi
     fi
 
@@ -83,7 +84,7 @@ _safeExit_() {
     fi
 
     trap - INT TERM EXIT
-    exit ${1:-0}
+    exit "${1:-0}"
 }
 
 _setPATH_() {
@@ -101,7 +102,7 @@ _setPATH_() {
 
     for _newPath in "$@"; do
         if [ -d "${_newPath}" ]; then
-            if ! echo "${PATH}" | grep -Eq "(^|:)${_newPath}($|:)"; then
+            if ! printf "%s" "${PATH}" | grep -Eq "(^|:)${_newPath}($|:)"; then
                 if PATH="${_newPath}:${PATH}"; then
                     debug "Added '${_newPath}' to PATH"
                 else

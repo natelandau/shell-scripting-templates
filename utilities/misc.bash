@@ -174,7 +174,7 @@ _execute_() {
     #         -v    Always print output from the execute function to STDOUT
     #         -n    Use NOTICE level alerting (default is INFO)
     #         -p    Pass a failed command with 'return 0'.  This effectively bypasses set -e.
-    #         -e    Bypass _alert_ functions and use 'echo RESULT'
+    #         -e    Bypass _alert_ functions and use 'printf RESULT'
     #         -s    Use '_alert_ success' for successful output. (default is 'info')
     #         -q    Do not print output (QUIET mode)
     # OUTS:
@@ -312,7 +312,7 @@ _findBaseDir_() {
         _source="$(readlink "${_source}")"
         [[ ${_source} != /* ]] && _source="${_dir}/${_source}" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
     done
-    printf "%s/n" "$(cd -P "$(dirname "${_source}")" && pwd)"
+    printf "%s\n" "$(cd -P "$(dirname "${_source}")" && pwd)"
 }
 
 _generateUUID_() {
@@ -370,8 +370,8 @@ _makeProgressBar_() {
     [[ $# == 0 ]] && return # Do nothing if no arguments are passed
     (${QUIET}) && return
     (${VERBOSE}) && return
-    [ ! -t 1 ] && return    # Do nothing if the output is not a terminal
-    [ ${1} == 1 ] && return # Do nothing with a single element
+    [ ! -t 1 ] && return      # Do nothing if the output is not a terminal
+    [[ ${1} == 1 ]] && return # Do nothing with a single element
 
     local n="${1}"
     local _width=30
@@ -390,7 +390,7 @@ _makeProgressBar_() {
     tput civis # Hide the cursor
     trap 'tput cnorm; exit 1' SIGINT
 
-    if [ ! "${progressBarProgress}" -eq $n ]; then
+    if [[ ! ${progressBarProgress} -eq $n ]]; then
         #echo "progressBarProgress: $progressBarProgress"
         # Compute the percentage.
         _percentage=$((progressBarProgress * 100 / $1))
@@ -455,7 +455,7 @@ _seekConfirmation_() {
     #         0 if answer is "yes"
     #         1 if answer is "no"
     # USAGE:
-    #         _seekConfirmation_ "Do something?" && echo "okay" || echo "not okay"
+    #         _seekConfirmation_ "Do something?" && printf "okay" || printf "not okay"
     #         OR
     #         if _seekConfirmation_ "Answer this question"; then
     #           something
@@ -467,7 +467,7 @@ _seekConfirmation_() {
     input "${1}"
     if "${FORCE}"; then
         debug "Forcing confirmation with '--force' flag set"
-        echo -e ""
+        printf "%s\n" " "
         return 0
     else
         while true; do

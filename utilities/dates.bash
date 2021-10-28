@@ -46,7 +46,7 @@ _countdown_() {
         else
             echo "${_message} ${ii}"
         fi
-        sleep ${_sleepTime}
+        sleep "${_sleepTime}"
     done
 }
 
@@ -120,7 +120,7 @@ _fromSeconds_() {
     ((_h = ${1} / 3600))
     ((_m = (${1} % 3600) / 60))
     ((_s = ${1} % 60))
-    printf "%02d:%02d:%02d\n" ${_h} ${_m} ${_s}
+    printf "%02d:%02d:%02d\n" "${_h}" "${_m}" "${_s}"
 }
 
 _monthToNumber_() {
@@ -135,7 +135,9 @@ _monthToNumber_() {
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    local _mon="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+    local _mon
+    _mon="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+
     case "${_mon}" in
         january | jan | ja) echo 1 ;;
         february | feb | fe) echo 2 ;;
@@ -232,7 +234,7 @@ _parseDate_() {
     trap "$(shopt -p nocasematch)" RETURN # reset nocasematch when function exits
     shopt -s nocasematch                  # Use case-insensitive regex
 
-    debug "_parseDate_() input ${tan}${_stringToTest}${purple}"
+    debug "_parseDate_() input: ${_stringToTest}"
 
     # YYYY MM DD or YYYY-MM-DD
     _pat="(.*[^0-9]|^)((20[0-2][0-9])[-\.\/_ ]+([0-9]{1,2})[-\.\/_ ]+([0-9]{1,2}))([^0-9].*|$)"
@@ -242,25 +244,25 @@ _parseDate_() {
         PARSE_DATE_MONTH=$((10#${BASH_REMATCH[4]}))
         PARSE_DATE_MONTH_NAME="$(_numberToMonth_ "${PARSE_DATE_MONTH}")"
         PARSE_DATE_DAY=$((10#${BASH_REMATCH[5]}))
-        debug "regex match: ${tan}YYYY-MM-DD${purple}"
+        debug "regex match: YYYY-MM-DD "
 
     # Month DD, YYYY
     elif [[ ${_stringToTest} =~ ((january|jan|ja|february|feb|fe|march|mar|ma|april|apr|ap|may|june|jun|july|jul|ju|august|aug|september|sep|october|oct|november|nov|december|dec)[-\./_ ]+([0-9]{1,2})(nd|rd|th|st)?,?[-\./_ ]+(20[0-2][0-9]))([^0-9].*|$) ]]; then
         PARSE_DATE_FOUND="${BASH_REMATCH[1]:-}"
-        PARSE_DATE_MONTH=$(_monthToNumber_ ${BASH_REMATCH[2]:-})
+        PARSE_DATE_MONTH=$(_monthToNumber_ "${BASH_REMATCH[2]:-}")
         PARSE_DATE_MONTH_NAME="$(_numberToMonth_ "${PARSE_DATE_MONTH:-}")"
         PARSE_DATE_DAY=$((10#${BASH_REMATCH[3]:-}))
         PARSE_DATE_YEAR=$((10#${BASH_REMATCH[5]:-}))
-        debug "regex match: ${tan}Month DD, YYYY${purple}"
+        debug "regex match: Month DD, YYYY"
 
     # Month DD, YY
     elif [[ ${_stringToTest} =~ ((january|jan|ja|february|feb|fe|march|mar|ma|april|apr|ap|may|june|jun|july|jul|ju|august|aug|september|sep|october|oct|november|nov|december|dec)[-\./_ ]+([0-9]{1,2})(nd|rd|th|st)?,?[-\./_ ]+([0-9]{2}))([^0-9].*|$) ]]; then
         PARSE_DATE_FOUND="${BASH_REMATCH[1]}"
-        PARSE_DATE_MONTH=$(_monthToNumber_ ${BASH_REMATCH[2]})
+        PARSE_DATE_MONTH=$(_monthToNumber_ "${BASH_REMATCH[2]}")
         PARSE_DATE_MONTH_NAME="$(_numberToMonth_ "${PARSE_DATE_MONTH}")"
         PARSE_DATE_DAY=$((10#${BASH_REMATCH[3]}))
         PARSE_DATE_YEAR="20$((10#${BASH_REMATCH[5]}))"
-        debug "regex match: ${tan}Month DD, YY${purple}"
+        debug "regex match: Month DD, YY"
 
     #  DD Month YYYY
     elif [[ ${_stringToTest} =~ (.*[^0-9]|^)(([0-9]{2})[-\./_ ]+(january|jan|ja|february|feb|fe|march|mar|ma|april|apr|ap|may|june|jun|july|jul|ju|august|aug|september|sep|october|oct|november|nov|december|dec),?[-\./_ ]+(20[0-2][0-9]))([^0-9].*|$) ]]; then
@@ -269,7 +271,7 @@ _parseDate_() {
         PARSE_DATE_MONTH="$(_monthToNumber_ "${BASH_REMATCH[4]}")"
         PARSE_DATE_MONTH_NAME="$(_numberToMonth_ "${PARSE_DATE_MONTH}")"
         PARSE_DATE_YEAR=$((10#"${BASH_REMATCH[5]}"))
-        debug "regex match: ${tan}DD Month, YYYY${purple}"
+        debug "regex match: DD Month, YYYY"
 
     # MM-DD-YYYY  or  DD-MM-YYYY
     elif [[ ${_stringToTest} =~ (.*[^0-9]|^)(([0-9]{1,2})[-\.\/_ ]+([0-9]{1,2})[-\.\/_ ]+(20[0-2][0-9]))([^0-9].*|$) ]]; then
@@ -283,7 +285,7 @@ _parseDate_() {
             PARSE_DATE_MONTH=$((10#${BASH_REMATCH[3]}))
             PARSE_DATE_MONTH_NAME="$(_numberToMonth_ "${PARSE_DATE_MONTH}")"
             PARSE_DATE_DAY=$((10#${BASH_REMATCH[4]}))
-            debug "regex match: ${tan}MM-DD-YYYY${purple}"
+            debug "regex match: MM-DD-YYYY"
         elif [[ $((10#${BASH_REMATCH[3]})) -gt 12 &&
             $((10#${BASH_REMATCH[3]})) -lt 32 &&
             $((10#${BASH_REMATCH[4]})) -lt 13 ]] \
@@ -293,7 +295,7 @@ _parseDate_() {
             PARSE_DATE_MONTH=$((10#${BASH_REMATCH[4]}))
             PARSE_DATE_MONTH_NAME="$(_numberToMonth_ "${PARSE_DATE_MONTH}")"
             PARSE_DATE_DAY=$((10#${BASH_REMATCH[3]}))
-            debug "regex match: ${tan}DD-MM-YYYY${purple}"
+            debug "regex match: DD-MM-YYYY"
         elif [[ $((10#${BASH_REMATCH[3]})) -lt 32 &&
             $((10#${BASH_REMATCH[4]})) -lt 13 ]] \
             ; then
@@ -302,7 +304,7 @@ _parseDate_() {
             PARSE_DATE_MONTH=$((10#${BASH_REMATCH[3]}))
             PARSE_DATE_MONTH_NAME="$(_numberToMonth_ "${PARSE_DATE_MONTH}")"
             PARSE_DATE_DAY=$((10#${BASH_REMATCH[4]}))
-            debug "regex match: ${tan}MM-DD-YYYY${purple}"
+            debug "regex match: MM-DD-YYYY"
         else
             shopt -u nocasematch
             return 1
@@ -319,7 +321,7 @@ _parseDate_() {
             PARSE_DATE_MONTH=$((10#${BASH_REMATCH[3]}))
             PARSE_DATE_MONTH_NAME="$(_numberToMonth_ "${PARSE_DATE_MONTH}")"
             PARSE_DATE_DAY=$((10#${BASH_REMATCH[4]}))
-            debug "regex match: ${tan}MM-DD-YYYY${purple}"
+            debug "regex match: MM-DD-YYYY"
         elif [[ $((10#${BASH_REMATCH[3]})) -gt 12 &&
             $((10#${BASH_REMATCH[3]})) -lt 32 &&
             $((10#${BASH_REMATCH[4]})) -lt 13 ]] \
@@ -329,7 +331,7 @@ _parseDate_() {
             PARSE_DATE_MONTH=$((10#${BASH_REMATCH[4]}))
             PARSE_DATE_MONTH_NAME="$(_numberToMonth_ "${PARSE_DATE_MONTH}")"
             PARSE_DATE_DAY=$((10#${BASH_REMATCH[3]}))
-            debug "regex match: ${tan}DD-MM-YYYY${purple}"
+            debug "regex match: DD-MM-YYYY"
         elif [[ $((10#${BASH_REMATCH[3]})) -lt 32 &&
             $((10#${BASH_REMATCH[4]})) -lt 13 ]] \
             ; then
@@ -338,7 +340,7 @@ _parseDate_() {
             PARSE_DATE_MONTH=$((10#${BASH_REMATCH[3]}))
             PARSE_DATE_MONTH_NAME="$(_numberToMonth_ "${PARSE_DATE_MONTH}")"
             PARSE_DATE_DAY=$((10#${BASH_REMATCH[4]}))
-            debug "regex match: ${tan}MM-DD-YYYY${purple}"
+            debug "regex match: MM-DD-YYYY"
         else
             shopt -u nocasematch
             return 1
@@ -349,9 +351,9 @@ _parseDate_() {
         PARSE_DATE_FOUND="${BASH_REMATCH[1]}"
         PARSE_DATE_DAY="1"
         PARSE_DATE_MONTH="$(_monthToNumber_ "${BASH_REMATCH[2]}")"
-        PARSE_DATE_MONTH_NAME="$(_numberToMonth_ $PARSE_DATE_MONTH)"
+        PARSE_DATE_MONTH_NAME="$(_numberToMonth_ "${PARSE_DATE_MONTH}")"
         PARSE_DATE_YEAR="$((10#${BASH_REMATCH[3]}))"
-        debug "regex match: ${tan}Month, YYYY${purple}"
+        debug "regex match: Month, YYYY"
 
     # YYYYMMDDHHMM
     elif [[ ${_stringToTest} =~ (.*[^0-9]|^)((20[0-2][0-9])([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2}))([^0-9].*|$) ]]; then
@@ -362,7 +364,7 @@ _parseDate_() {
         PARSE_DATE_YEAR="$((10#${BASH_REMATCH[3]}))"
         PARSE_DATE_HOUR="$((10#${BASH_REMATCH[6]}))"
         PARSE_DATE_MINUTE="$((10#${BASH_REMATCH[7]}))"
-        debug "regex match: ${tan}YYYYMMDDHHMM${purple}"
+        debug "regex match: YYYYMMDDHHMM"
 
     # YYYYMMDDHH            1      2        3         4         5         6
     elif [[ ${_stringToTest} =~ (.*[^0-9]|^)((20[0-2][0-9])([0-9]{2})([0-9]{2})([0-9]{2}))([^0-9].*|$) ]]; then
@@ -373,7 +375,7 @@ _parseDate_() {
         PARSE_DATE_YEAR="$((10#${BASH_REMATCH[3]}))"
         PARSE_DATE_HOUR="${BASH_REMATCH[6]}"
         PARSE_DATE_MINUTE="00"
-        debug "regex match: ${tan}YYYYMMDDHHMM${purple}"
+        debug "regex match: YYYYMMDDHHMM"
 
     # MMDDYYYY or YYYYMMDD or DDMMYYYY
     #                        1     2    3         4         5         6
@@ -389,7 +391,7 @@ _parseDate_() {
             PARSE_DATE_MONTH="$((10#${BASH_REMATCH[3]}))"
             PARSE_DATE_MONTH_NAME="$(_numberToMonth_ "${PARSE_DATE_MONTH}")"
             PARSE_DATE_YEAR="${BASH_REMATCH[5]}${BASH_REMATCH[6]}"
-            debug "regex match: ${tan}MMDDYYYY${purple}"
+            debug "regex match: MMDDYYYY"
         # DDMMYYYY
         elif [[ $((10#${BASH_REMATCH[5]})) -eq 20 &&
             $((10#${BASH_REMATCH[3]})) -gt 12 &&
@@ -401,7 +403,7 @@ _parseDate_() {
             PARSE_DATE_MONTH="$((10#${BASH_REMATCH[4]}))"
             PARSE_DATE_MONTH_NAME="$(_numberToMonth_ "${PARSE_DATE_MONTH}")"
             PARSE_DATE_YEAR="${BASH_REMATCH[5]}${BASH_REMATCH[6]}"
-            debug "regex match: ${tan}DDMMYYYY${purple}"
+            debug "regex match: DDMMYYYY"
         # YYYYMMDD
         elif [[ $((10#${BASH_REMATCH[3]})) -eq 20 &&
             $((10#${BASH_REMATCH[6]})) -gt 12 &&
@@ -413,7 +415,7 @@ _parseDate_() {
             PARSE_DATE_MONTH="$((10#${BASH_REMATCH[5]}))"
             PARSE_DATE_MONTH_NAME="$(_numberToMonth_ "${PARSE_DATE_MONTH}")"
             PARSE_DATE_YEAR="${BASH_REMATCH[3]}${BASH_REMATCH[4]}"
-            debug "regex match: ${tan}YYYYMMDD${purple}"
+            debug "regex match: YYYYMMDD"
         # YYYYDDMM
         elif [[ $((10#${BASH_REMATCH[3]})) -eq 20 &&
             $((10#${BASH_REMATCH[5]})) -gt 12 &&
@@ -425,7 +427,7 @@ _parseDate_() {
             PARSE_DATE_MONTH="$((10#${BASH_REMATCH[6]}))"
             PARSE_DATE_MONTH_NAME="$(_numberToMonth_ "${PARSE_DATE_MONTH}")"
             PARSE_DATE_YEAR="${BASH_REMATCH[3]}${BASH_REMATCH[4]}"
-            debug "regex match: ${tan}YYYYMMDD${purple}"
+            debug "regex match: YYYYMMDD"
         # Assume YYYMMDD
         elif [[ $((10#${BASH_REMATCH[3]})) -eq 20 &&
             $((10#${BASH_REMATCH[6]})) -lt 32 &&
@@ -436,7 +438,7 @@ _parseDate_() {
             PARSE_DATE_MONTH="$((10#${BASH_REMATCH[5]}))"
             PARSE_DATE_MONTH_NAME="$(_numberToMonth_ "${PARSE_DATE_MONTH}")"
             PARSE_DATE_YEAR="${BASH_REMATCH[3]}${BASH_REMATCH[4]}"
-            debug "regex match: ${tan}YYYYMMDD${purple}"
+            debug "regex match: YYYYMMDD"
         else
             shopt -u nocasematch
             return 1
@@ -485,13 +487,13 @@ _parseDate_() {
         return 1
     }
 
-    debug "${tan}\$PARSE_DATE_FOUND:     ${PARSE_DATE_FOUND}${purple}"
-    debug "${tan}\$PARSE_DATE_YEAR:      ${PARSE_DATE_YEAR}${purple}"
-    debug "${tan}\$PARSE_DATE_MONTH:     ${PARSE_DATE_MONTH}${purple}"
-    debug "${tan}\$PARSE_DATE_MONTH_NAME: ${PARSE_DATE_MONTH_NAME}${purple}"
-    debug "${tan}\$PARSE_DATE_DAY:       ${PARSE_DATE_DAY}${purple}"
-    [[ -z ${PARSE_DATE_HOUR:-} ]] || debug "${tan}\$PARSE_DATE_HOUR:     ${PARSE_DATE_HOUR}${purple}"
-    [[ -z ${PARSE_DATE_MINUTE:-} ]] || debug "${tan}\$PARSE_DATE_MINUTE:   ${PARSE_DATE_MINUTE}${purple}"
+    debug "\$PARSE_DATE_FOUND:     ${PARSE_DATE_FOUND}"
+    debug "\$PARSE_DATE_YEAR:      ${PARSE_DATE_YEAR}"
+    debug "\$PARSE_DATE_MONTH:     ${PARSE_DATE_MONTH}"
+    debug "\$PARSE_DATE_MONTH_NAME: ${PARSE_DATE_MONTH_NAME}"
+    debug "\$PARSE_DATE_DAY:       ${PARSE_DATE_DAY}"
+    [[ -z ${PARSE_DATE_HOUR:-} ]] || debug "\$PARSE_DATE_HOUR:     ${PARSE_DATE_HOUR}"
+    [[ -z ${PARSE_DATE_MINUTE:-} ]] || debug "\$PARSE_DATE_MINUTE:   ${PARSE_DATE_MINUTE}"
 
     shopt -u nocasematch
 
@@ -527,7 +529,8 @@ _readableUnixTimestamp_() {
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
     local _timestamp="${1}"
     local _format="${2:-"%F %T"}"
-    local _out="$(date -d "@${_timestamp}" +"${_format}")" || return 1
+    local _out
+    _out="$(date -d "@${_timestamp}" +"${_format}")" || return 1
     printf "%s\n" "${_out}"
 }
 
@@ -559,7 +562,7 @@ _toSeconds_() {
 
     if [[ $1 =~ [0-9]{1,2}(:|,|-|_|,| |[hHmMsS])[0-9]{1,2}(:|,|-|_|,| |[hHmMsS])[0-9]{1,2} ]]; then
         _saveIFS="${IFS}"
-        IFS=":,;-_, HhMmSs" read -r h m s <<<"$1"
+        IFS=":,;-_, HhMmSs" read -r _h _m _s <<<"$1"
         IFS="${_saveIFS}"
     else
         _h="$1"

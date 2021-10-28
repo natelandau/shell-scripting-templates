@@ -190,7 +190,7 @@ _forEachReject_() {
         fi
         declare -i _ret=$?
         if [[ ${_ret} -ne 0 ]]; then
-            echo "${_it}"
+            printf "%s\n" "${_it}"
         fi
     done
 }
@@ -211,7 +211,7 @@ _forEachSome_() {
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
     local _func="${1}"
-    local _IFS=$'\n'
+    local IFS=$'\n'
     while read -r _it; do
 
         if [[ ${_func} == *"$"* ]]; then

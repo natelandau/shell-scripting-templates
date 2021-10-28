@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck source-path=SCRIPTDIR/../shell-scripting-templates/utilities
 
 _mainScript_() {
     # Replace everything in _mainScript_() with your script's code
@@ -52,7 +53,9 @@ _trapCleanup_() {
     local _sourced="${6:-}"
 
     if [[ "$(declare -f "fatal")" && "$(declare -f "_printFuncStack_")" ]]; then
-        _funcstack="'$(echo "${_funcstack}" | sed -E 's/ / < /g')'"
+
+        _funcstack="'$(printf "%s" "${_funcstack}" | sed -E 's/ / < /g')'"
+
         if [[ ${_script##*/} == "${_sourced##*/}" ]]; then
             fatal "${7:-} command: '${_command}' (line: ${_line}) [func: $(_printFuncStack_)]"
         else
@@ -69,58 +72,123 @@ _trapCleanup_() {
     fi
 }
 
+_findBaseDir_() {
+    # DESC:
+    #         Locates the real directory of the script being run. Similar to GNU readlink -n
+    # ARGS:
+    #         None
+    # OUTS:
+    #         stdout: prints result
+    # USAGE:
+    #         baseDir="$(_findBaseDir_)"
+    #         cp "$(_findBaseDir_ "somefile.txt")" "other_file.txt"
+
+    local _source
+    local _dir
+
+    # Is file sourced?
+    [[ $_ != "$0" ]] \
+        && _source="${BASH_SOURCE[1]}" \
+        || _source="${BASH_SOURCE[0]}"
+
+    while [ -h "${_source}" ]; do # Resolve $SOURCE until the file is no longer a symlink
+        _dir="$(cd -P "$(dirname "${_source}")" && pwd)"
+        _source="$(readlink "${_source}")"
+        [[ ${_source} != /* ]] && _source="${_dir}/${_source}" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+    done
+    printf "%s\n" "$(cd -P "$(dirname "${_source}")" && pwd)"
+}
+
 _sourceUtilities_() {
     # DESC:
-    #					Sources bash utility functions
+    #         Sources utility functions.  Absolute paths are required for shellcheck to correctly
+    #         parse the sourced files
     # ARGS:
-    #					$1 (required): Directories or files containing utility functions
+    #					NONE
     # OUTS:
-    #					0 if success
-    #         1 if failure
+    #					 0:  Success
+    #					 1:  Failure
     # USAGE:
-    #					_sourceHelperFiles_ "/path/to/dir" "path/to/file.sh"
+    #					_sourceUtilities_
 
-    local _filesSourced=true
+    local _utilsPath
+    _utilsPath="$(_findBaseDir_)/../shell-scripting-templates/utilities/"
 
-    [[ $# == 0 ]] && _filesSourced=false
-
-    local _fileToSource
-    local _location
-    if [ ${_filesSourced} == true ]; then
-        for _location in "$@"; do
-            if [[ -d ${_location} ]]; then
-                for _fileToSource in "${_location}"/*.{sh,bash}; do
-                    if [[ -f ${_fileToSource} ]]; then
-                        if ! source "${_fileToSource}"; then
-                            _filesSourced=false
-                            break 2
-                        fi
-                    else
-                        _filesSourced=false
-                        break 2
-                    fi
-                done
-            elif [[ -f ${_location} ]] && [[ ${_location} =~ .*\.(sh|bash)$ ]]; then
-                if ! source "${_fileToSource}"; then
-                    _filesSourced=false
-                    break
-                fi
-            else
-                _filesSourced=false
-                break
-            fi
-        done
+    if [ -f "${_utilsPath}/alerts.bash" ]; then
+        source "${_utilsPath}/alerts.bash"
+    else
+        printf "%s\n" "ERROR: alerts.bash not found"
+        exit 1
     fi
 
-    if [ ${_filesSourced} == true ]; then
-        return 0
+    if [ -f "${_utilsPath}/arrays.bash" ]; then
+        source "${_utilsPath}/arrays.bash"
     else
-        printf "%s\n" "ERROR: Invalid argument to ${FUNCNAME[0]}: ${_location}"
-        if [ "$(declare -f "_safeExit_")" ]; then
-            _safeExit_ 1
-        else
-            exit 1
-        fi
+        printf "%s\n" "ERROR: arrays.bash not found"
+        exit 1
+    fi
+
+    if [ -f "${_utilsPath}/checks.bash" ]; then
+        source "${_utilsPath}/checks.bash"
+    else
+        printf "%s\n" "ERROR: checks.bash not found"
+        exit 1
+    fi
+
+    if [ -f "${_utilsPath}/dates.bash" ]; then
+        source "${_utilsPath}/dates.bash"
+    else
+        printf "%s\n" "ERROR: dates.bash not found"
+        exit 1
+    fi
+
+    if [ -f "${_utilsPath}/debug.bash" ]; then
+        source "${_utilsPath}/debug.bash"
+    else
+        printf "%s\n" "ERROR: debug.bash not found"
+        exit 1
+    fi
+
+    if [ -f "${_utilsPath}/files.bash" ]; then
+        source "${_utilsPath}/files.bash"
+    else
+        printf "%s\n" "ERROR: files.bash not found"
+        exit 1
+    fi
+
+    if [ -f "${_utilsPath}/macOS.bash" ]; then
+        source "${_utilsPath}/macOS.bash"
+    else
+        printf "%s\n" "ERROR: macOS.bash not found"
+        exit 1
+    fi
+
+    if [ -f "${_utilsPath}/misc.bash" ]; then
+        source "${_utilsPath}/misc.bash"
+    else
+        printf "%s\n" "ERROR: misc.bash not found"
+        exit 1
+    fi
+
+    if [ -f "${_utilsPath}/services.bash" ]; then
+        source "${_utilsPath}/services.bash"
+    else
+        printf "%s\n" "ERROR: services.bash not found"
+        exit 1
+    fi
+
+    if [ -f "${_utilsPath}/strings.bash" ]; then
+        source "${_utilsPath}/strings.bash"
+    else
+        printf "%s\n" "ERROR: strings.bash not found"
+        exit 1
+    fi
+
+    if [ -f "${_utilsPath}/template_utils.bash" ]; then
+        source "${_utilsPath}/template_utils.bash"
+    else
+        printf "%s\n" "ERROR: template_utils.bash not found"
+        exit 1
     fi
 
 }
@@ -170,6 +238,7 @@ _parseOptions_() {
     unset _options
 
     # Read the options and set stuff
+    # shellcheck disable=SC2034
     while [[ ${1:-} == -?* ]]; do
         case $1 in
             # Custom options
@@ -268,7 +337,7 @@ IFS=$' \n\t'
 # set -o xtrace
 
 # Source utility functions
-_sourceUtilities_ "${HOME}/repos/shell-scripting-templates/utilities"
+_sourceUtilities_
 
 # Initialize color constants
 _setColors_

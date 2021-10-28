@@ -135,7 +135,7 @@ _isFQDN_() {
 
     local _input="${1}"
 
-    if printf "${_input}" | grep -Pq '(?=^.{4,253}$)(^(?:[a-zA-Z0-9](?:(?:[a-zA-Z0-9\-]){0,61}[a-zA-Z0-9])?\.)+([a-zA-Z]{2,}|xn--[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$)'; then
+    if printf "%s" "${_input}" | grep -Pq '(?=^.{4,253}$)(^(?:[a-zA-Z0-9](?:(?:[a-zA-Z0-9\-]){0,61}[a-zA-Z0-9])?\.)+([a-zA-Z]{2,}|xn--[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$)'; then
         return 0
     else
         return 1
@@ -218,7 +218,7 @@ _isDir_() {
     #					1 - Input is not a directory
     # USAGE:
     #         _varIsDir_ "${var}"
-    #         (_isDir_ "${var}") && echo "Is a directory" || echo "Not a directory"
+    #         (_isDir_ "${var}") && printf "Is a directory" || printf "Not a directory"
     # NOTES:
     #
 
@@ -274,7 +274,7 @@ _rootAvailable_() {
     #         https://github.com/ralish/bash-script-template
 
     local _superuser
-    local _testEUID
+
     if [[ ${EUID} -eq 0 ]]; then
         _superuser=true
     elif [[ -z ${1:-} ]]; then
