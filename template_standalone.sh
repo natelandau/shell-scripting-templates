@@ -52,7 +52,6 @@ _setColors_() {
             white=$(tput setaf 231)
             blue=$(tput setaf 38)
             yellow=$(tput setaf 11)
-            tan=$(tput setaf 3)
             green=$(tput setaf 82)
             red=$(tput setaf 1)
             purple=$(tput setaf 171)
@@ -61,7 +60,6 @@ _setColors_() {
             white=$(tput setaf 7)
             blue=$(tput setaf 38)
             yellow=$(tput setaf 3)
-            tan=$(tput setaf 3)
             green=$(tput setaf 2)
             red=$(tput setaf 1)
             purple=$(tput setaf 13)
@@ -76,7 +74,6 @@ _setColors_() {
         white="\033[0;37m"
         blue="\033[0;34m"
         yellow="\033[0;33m"
-        tan="\033[0;33m"
         green="\033[1;32m"
         red="\033[0;31m"
         purple="\033[0;35m"
@@ -241,10 +238,17 @@ _printFuncStack_() {
     # NOTE:
     #         Does not print functions from the alert class
     local _i
-    _funcStackResponse=()
+    declare -a _funcStackResponse=()
     for ((_i = 1; _i < ${#BASH_SOURCE[@]}; _i++)); do
-        case "${FUNCNAME[$_i]}" in "_alert_" | "_trapCleanup_" | fatal | error | warning | notice | info | debug | dryrun | header | success) continue ;; esac
-        _funcStackResponse+=("${FUNCNAME[$_i]}:$(basename "${BASH_SOURCE[$_i]}"):${BASH_LINENO[_i - 1]}")
+        case "${FUNCNAME[${_i}]}" in
+            _alert_ | _trapCleanup_ | fatal | error | warning | notice | info | debug | dryrun | header | success)
+                continue
+                ;;
+            *)
+                _funcStackResponse+=("${FUNCNAME[${_i}]}:$(basename "${BASH_SOURCE[${_i}]}"):${BASH_LINENO[_i - 1]}")
+                ;;
+        esac
+
     done
     printf "( "
     printf %s "${_funcStackResponse[0]}"
@@ -264,7 +268,7 @@ _safeExit_() {
         if command rm -rf "${SCRIPT_LOCK}"; then
             debug "Removing script lock"
         else
-            warning "Script lock could not be removed. Try manually deleting ${tan}'${LOCK_DIR}'"
+            warning "Script lock could not be removed. Try manually deleting ${yellow}'${SCRIPT_LOCK}'"
         fi
     fi
 
@@ -303,7 +307,7 @@ _trapCleanup_() {
     local _script="${5:-}"
     local _sourced="${6:-}"
 
-    if [[ "$(declare -f "fatal")" && "$(declare -f "_printFuncStack_")" ]]; then
+    if declare -f "fatal" &>/dev/null && declare -f "_printFuncStack_" &>/dev/null; then
 
         _funcstack="'$(printf "%s" "${_funcstack}" | sed -E 's/ / < /g')'"
 
@@ -316,7 +320,7 @@ _trapCleanup_() {
         printf "%s\n" "Fatal error trapped. Exiting..."
     fi
 
-    if [ "$(declare -f "_safeExit_")" ]; then
+    if declare -f _safeExit_ &>/dev/null; then
         _safeExit_ 1
     else
         exit 1
@@ -346,6 +350,7 @@ _makeTempDir_() {
     debug "\$TMP_DIR=${TMP_DIR}"
 }
 
+# shellcheck disable=SC2120
 _acquireScriptLock_() {
     # DESC:
     #         Acquire script lock to prevent running the same script a second time before the
@@ -362,18 +367,18 @@ _acquireScriptLock_() {
     if [[ ${1:-} == 'system' ]]; then
         _lockDir="${TMPDIR:-/tmp/}$(basename "$0").lock"
     else
-        _lockDir="${TMPDIR:-/tmp/}$(basename "$0").$UID.lock"
+        _lockDir="${TMPDIR:-/tmp/}$(basename "$0").${UID}.lock"
     fi
 
-    if command mkdir "${LOCK_DIR}" 2>/dev/null; then
+    if command mkdir "${_lockDir}" 2>/dev/null; then
         readonly SCRIPT_LOCK="${_lockDir}"
         debug "Acquired script lock: ${yellow}${SCRIPT_LOCK}${purple}"
     else
-        if [ "$(declare -f "_safeExit_")" ]; then
-            error "Unable to acquire script lock: ${tan}${LOCK_DIR}${red}"
+        if declare -f "_safeExit_" &>/dev/null; then
+            error "Unable to acquire script lock: ${yellow}${_lockDir}${red}"
             fatal "If you trust the script isn't running, delete the lock dir"
         else
-            printf "%s\n" "ERROR: Could not acquire script lock. If you trust the script isn't running, delete: ${LOCK_DIR}"
+            printf "%s\n" "ERROR: Could not acquire script lock. If you trust the script isn't running, delete: ${_lockDir}"
             exit 1
         fi
 
@@ -426,7 +431,7 @@ _useGNUutils_() {
     # NOTES:
     #					GNU utilities can be added to MacOS using Homebrew
 
-    [ ! "$(declare -f "_setPATH_")" ] && fatal "${FUNCNAME[0]} needs function _setPATH_"
+    ! declare -f "_setPATH_" &>/dev/null && fatal "${FUNCNAME[0]} needs function _setPATH_"
 
     if _setPATH_ \
         "/usr/local/opt/gnu-tar/libexec/gnubin" \
@@ -466,7 +471,7 @@ _parseOptions_() {
                     _options+=("-${_c}") # Add current char to options
                     # If option takes a required argument, and it's not the last char make
                     # the rest of the string its argument
-                    if [[ ${_optstring} == *"${_c}:"* && ${1:i+1} ]]; then
+                    if [[ ${_optstring} == *"${_c}:"* && -n ${1:i+1} ]]; then
                         _options+=("${1:i+1}")
                         break
                     fi
@@ -512,10 +517,10 @@ _parseOptions_() {
                 break
                 ;;
             *)
-                if [ "$(declare -f "_safeExit_")" ]; then
+                if declare -f _safeExit_ &>/dev/null; then
                     fatal "invalid option: $1"
                 else
-                    printf "%s\n" "Invalid option: $1"
+                    printf "%s\n" "ERROR: Invalid option: $1"
                     exit 1
                 fi
                 ;;

@@ -231,7 +231,7 @@ _parseDate_() {
     PARSE_DATE_DAY="" PARSE_DATE_HOUR="" PARSE_DATE_MINUTE=""
 
     #shellcheck disable=SC2064
-    trap "$(shopt -p nocasematch)" RETURN # reset nocasematch when function exits
+    trap '$(shopt -p nocasematch)' RETURN # reset nocasematch when function exits
     shopt -s nocasematch                  # Use case-insensitive regex
 
     debug "_parseDate_() input: ${_stringToTest}"
@@ -446,7 +446,7 @@ _parseDate_() {
 
     # # MMDD or DDYY
     # elif [[ "${_stringToTest}" =~ .*(([0-9]{2})([0-9]{2})).* ]]; then
-    #     debug "regex match: ${tan}MMDD or DDMM${purple}"
+    #     debug "regex match: MMDD or DDMM"
     #     PARSE_DATE_FOUND="${BASH_REMATCH[1]}"
 
     #    # Figure out if days are months or vice versa
@@ -496,17 +496,6 @@ _parseDate_() {
     [[ -z ${PARSE_DATE_MINUTE:-} ]] || debug "\$PARSE_DATE_MINUTE:   ${PARSE_DATE_MINUTE}"
 
     shopt -u nocasematch
-
-    # Output results for BATS tests
-    if [ "${automated_test_in_progress:-}" ]; then
-        echo "PARSE_DATE_FOUND: ${PARSE_DATE_FOUND}"
-        echo "PARSE_DATE_YEAR: ${PARSE_DATE_YEAR}"
-        echo "PARSE_DATE_MONTH: ${PARSE_DATE_MONTH}"
-        echo "PARSE_DATE_MONTH_NAME: ${PARSE_DATE_MONTH_NAME}"
-        echo "PARSE_DATE_DAY: ${PARSE_DATE_DAY}"
-        echo "PARSE_DATE_HOUR: ${PARSE_DATE_HOUR}"
-        echo "PARSE_DATE_MINUTE: ${PARSE_DATE_MINUTE}"
-    fi
 }
 
 _readableUnixTimestamp_() {
@@ -570,5 +559,5 @@ _toSeconds_() {
         _s="$3"
     fi
 
-    printf "%s\n" "$((10#$_h * 3600 + 10#$_m * 60 + 10#$_s))"
+    printf "%s\n" "$((10#${_h} * 3600 + 10#${_m} * 60 + 10#${_s}))"
 }

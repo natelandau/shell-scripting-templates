@@ -14,6 +14,7 @@ _mainScript_() {
     input "This is input text"
 
 }
+
 #/_mainsScript_()
 
 # ################################## Flags and defaults
@@ -52,7 +53,7 @@ _trapCleanup_() {
     local _script="${5:-}"
     local _sourced="${6:-}"
 
-    if [[ "$(declare -f "fatal")" && "$(declare -f "_printFuncStack_")" ]]; then
+    if declare -f "fatal" &>/dev/null && declare -f "_printFuncStack_" &>/dev/null; then
 
         _funcstack="'$(printf "%s" "${_funcstack}" | sed -E 's/ / < /g')'"
 
@@ -65,7 +66,7 @@ _trapCleanup_() {
         printf "%s\n" "Fatal error trapped. Exiting..."
     fi
 
-    if [ "$(declare -f "_safeExit_")" ]; then
+    if declare -f _safeExit_ &>/dev/null; then
         _safeExit_ 1
     else
         exit 1
@@ -87,9 +88,11 @@ _findBaseDir_() {
     local _dir
 
     # Is file sourced?
-    [[ $_ != "$0" ]] \
-        && _source="${BASH_SOURCE[1]}" \
-        || _source="${BASH_SOURCE[0]}"
+    if [[ ${_} != "${0}" ]]; then
+        _source="${BASH_SOURCE[1]}"
+    else
+        _source="${BASH_SOURCE[0]}"
+    fi
 
     while [ -h "${_source}" ]; do # Resolve $SOURCE until the file is no longer a symlink
         _dir="$(cd -P "$(dirname "${_source}")" && pwd)"
@@ -104,93 +107,92 @@ _sourceUtilities_() {
     #         Sources utility functions.  Absolute paths are required for shellcheck to correctly
     #         parse the sourced files
     # ARGS:
-    #					NONE
+    #					$1 (Required):  Absolute path to the directory containing the utilities
     # OUTS:
     #					 0:  Success
     #					 1:  Failure
     # USAGE:
-    #					_sourceUtilities_
+    #					_sourceUtilities_ "$(_findBaseDir_)/../../shell-scripting-templates/utilities"
 
     local _utilsPath
-    _utilsPath="$(_findBaseDir_)/../shell-scripting-templates/utilities/"
+    _utilsPath="${1}"
 
     if [ -f "${_utilsPath}/alerts.bash" ]; then
         source "${_utilsPath}/alerts.bash"
     else
-        printf "%s\n" "ERROR: alerts.bash not found"
+        printf "%s\n" "ERROR: ${_utilsPath}/alerts.bash not found"
         exit 1
     fi
 
     if [ -f "${_utilsPath}/arrays.bash" ]; then
         source "${_utilsPath}/arrays.bash"
     else
-        printf "%s\n" "ERROR: arrays.bash not found"
+        printf "%s\n" "ERROR: ${_utilsPath}/arrays.bash not found"
         exit 1
     fi
 
     if [ -f "${_utilsPath}/checks.bash" ]; then
         source "${_utilsPath}/checks.bash"
     else
-        printf "%s\n" "ERROR: checks.bash not found"
+        printf "%s\n" "ERROR: ${_utilsPath}/checks.bash not found"
         exit 1
     fi
 
     if [ -f "${_utilsPath}/dates.bash" ]; then
         source "${_utilsPath}/dates.bash"
     else
-        printf "%s\n" "ERROR: dates.bash not found"
+        printf "%s\n" "ERROR: ${_utilsPath}/dates.bash not found"
         exit 1
     fi
 
     if [ -f "${_utilsPath}/debug.bash" ]; then
         source "${_utilsPath}/debug.bash"
     else
-        printf "%s\n" "ERROR: debug.bash not found"
+        printf "%s\n" "ERROR: ${_utilsPath}/debug.bash not found"
         exit 1
     fi
 
     if [ -f "${_utilsPath}/files.bash" ]; then
         source "${_utilsPath}/files.bash"
     else
-        printf "%s\n" "ERROR: files.bash not found"
+        printf "%s\n" "ERROR: ${_utilsPath}/files.bash not found"
         exit 1
     fi
 
     if [ -f "${_utilsPath}/macOS.bash" ]; then
         source "${_utilsPath}/macOS.bash"
     else
-        printf "%s\n" "ERROR: macOS.bash not found"
+        printf "%s\n" "ERROR: ${_utilsPath}/macOS.bash not found"
         exit 1
     fi
 
     if [ -f "${_utilsPath}/misc.bash" ]; then
         source "${_utilsPath}/misc.bash"
     else
-        printf "%s\n" "ERROR: misc.bash not found"
+        printf "%s\n" "ERROR: ${_utilsPath}/misc.bash not found"
         exit 1
     fi
 
     if [ -f "${_utilsPath}/services.bash" ]; then
         source "${_utilsPath}/services.bash"
     else
-        printf "%s\n" "ERROR: services.bash not found"
+        printf "%s\n" "ERROR: ${_utilsPath}/services.bash not found"
         exit 1
     fi
 
     if [ -f "${_utilsPath}/strings.bash" ]; then
         source "${_utilsPath}/strings.bash"
     else
-        printf "%s\n" "ERROR: strings.bash not found"
+        printf "%s\n" "ERROR: ${_utilsPath}/strings.bash not found"
         exit 1
     fi
 
     if [ -f "${_utilsPath}/template_utils.bash" ]; then
         source "${_utilsPath}/template_utils.bash"
     else
-        printf "%s\n" "ERROR: template_utils.bash not found"
+        printf "%s\n" "ERROR: ${_utilsPath}/template_utils.bash not found"
         exit 1
     fi
-
 }
 
 _parseOptions_() {
@@ -219,7 +221,7 @@ _parseOptions_() {
                     _options+=("-${_c}") # Add current char to options
                     # If option takes a required argument, and it's not the last char make
                     # the rest of the string its argument
-                    if [[ ${_optstring} == *"${_c}:"* && ${1:i+1} ]]; then
+                    if [[ ${_optstring} == *"${_c}:"* && -n ${1:i+1} ]]; then
                         _options+=("${1:i+1}")
                         break
                     fi
@@ -265,10 +267,10 @@ _parseOptions_() {
                 break
                 ;;
             *)
-                if [ "$(declare -f "_safeExit_")" ]; then
+                if declare -f _safeExit_ &>/dev/null; then
                     fatal "invalid option: $1"
                 else
-                    printf "%s\n" "Invalid option: $1"
+                    printf "%s\n" "ERROR: Invalid option: $1"
                     exit 1
                 fi
                 ;;
@@ -337,7 +339,7 @@ IFS=$' \n\t'
 # set -o xtrace
 
 # Source utility functions
-_sourceUtilities_
+_sourceUtilities_ "$(_findBaseDir_)/../shell-scripting-templates/utilities"
 
 # Initialize color constants
 _setColors_

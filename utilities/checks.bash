@@ -112,7 +112,7 @@ _isEmail_() {
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
     #shellcheck disable=SC2064
-    trap "$(shopt -p nocasematch)" RETURN # reset nocasematch when function exits
+    trap '$(shopt -p nocasematch)' RETURN # reset nocasematch when function exits
     shopt -s nocasematch                  # Use case-insensitive regex
 
     local _emailRegex
@@ -280,7 +280,7 @@ _rootAvailable_() {
     elif [[ -z ${1:-} ]]; then
         debug 'Sudo: Updating cached credentials ...'
         if sudo -v; then
-            if [[ $(sudo -H -- "$BASH" -c 'printf "%s" "$EUID"') -eq 0 ]]; then
+            if [[ $(sudo -H -- "${BASH}" -c 'printf "%s" "$EUID"') -eq 0 ]]; then
                 _superuser=true
             else
                 _superuser=false

@@ -48,34 +48,29 @@ _backupFile_() {
     local _newFilename
 
     # Error handling
-    [ ! "$(declare -f "_execute_")" ] \
-        && {
-            fatal "_backupFile_ needs function _execute_"
-        }
-    [ ! "$(declare -f "_createUniqueFilename_")" ] \
-        && {
-            fatal "_backupFile_ needs function _createUniqueFilename_"
-        }
+    declare -f _execute_ &>/dev/null || fatal "_backupFile_ needs function _execute_"
+    declare -f _createUniqueFilename_ &>/dev/null || fatal "_backupFile_ needs function _createUniqueFilename_"
+
     [ ! -e "${_fileToBackup}" ] \
         && {
             debug "Source '${_fileToBackup}' not found"
             return 1
         }
 
-    if [ ${_useDirectory} == true ]; then
+    if [[ ${_useDirectory} == true ]]; then
 
         [ ! -d "${_backupDir}" ] \
             && _execute_ "mkdir -p \"${_backupDir}\"" "Creating backup directory"
 
         _newFilename="$(_createUniqueFilename_ "${_backupDir}/${_fileToBackup#.}")"
-        if [ ${_moveFile} == true ]; then
+        if [[ ${_moveFile} == true ]]; then
             _execute_ "mv \"${_fileToBackup}\" \"${_backupDir}/${_newFilename##*/}\"" "Moving: '${_fileToBackup}' to '${_backupDir}/${_newFilename##*/}'"
         else
             _execute_ "cp -R \"${_fileToBackup}\" \"${_backupDir}/${_newFilename##*/}\"" "Backing up: '${_fileToBackup}' to '${_backupDir}/${_newFilename##*/}'"
         fi
     else
         _newFilename="$(_createUniqueFilename_ "${_fileToBackup}.bak")"
-        if [ ${_moveFile} == true ]; then
+        if [[ ${_moveFile} == true ]]; then
             _execute_ "mv \"${_fileToBackup}\" \"${_newFilename}\"" "Moving '${_fileToBackup}' to '${_newFilename}'"
         else
             _execute_ "cp -R \"${_fileToBackup}\" \"${_newFilename}\"" "Backing up '${_fileToBackup}' to '${_newFilename}'"
@@ -110,10 +105,8 @@ _createUniqueFilename_() {
         case ${opt} in
             i | I) _internalInteger=true ;;
             *)
-                {
-                    error "Unrecognized option '${1}' passed to _createUniqueFilename_" "${LINENO}"
-                    return 1
-                }
+                error "Unrecognized option '${1}' passed to ${FUNCNAME[0]}" "${LINENO}"
+                return 1
                 ;;
         esac
     done
@@ -142,7 +135,7 @@ _createUniqueFilename_() {
     _originalFile="$(basename "${_fullFile}")"
 
     #shellcheck disable=SC2064
-    trap "$(shopt -p nocasematch)" RETURN # reset nocasematch when function exits
+    trap '$(shopt -p nocasematch)' RETURN # reset nocasematch when function exits
     shopt -s nocasematch                  # Use case-insensitive regex
 
     # Detect some common multi-extensions
@@ -155,18 +148,18 @@ _createUniqueFilename_() {
     _fn="${_originalFile}"
     for ((i = 0; i < _levels; i++)); do
         _ext=${_fn##*.}
-        if [[ $i == 0 ]]; then
+        if [[ ${i} == 0 ]]; then
             _extension=${_ext}${_extension:-}
         else
             _extension=${_ext}.${_extension:-}
         fi
-        _fn=${_fn%.$_ext}
+        _fn=${_fn%.${_ext}}
     done
 
     if [[ ${_extension} == "${_originalFile}" ]]; then
         _extension=""
     else
-        _originalFile="${_originalFile%.$_extension}"
+        _originalFile="${_originalFile%.${_extension}}"
         _extension=".${_extension}"
     fi
 
@@ -212,9 +205,9 @@ _decryptFile_() {
 
     local _fileToDecrypt="${1:?_decryptFile_ needs a file}"
     local _defaultName="${_fileToDecrypt%.enc}"
-    local _decryptedFile="${2:-$_defaultName.decrypt}"
+    local _decryptedFile="${2:-${_defaultName}.decrypt}"
 
-    [ ! "$(declare -f "_execute_")" ] && fatal "need function _execute_"
+    declare -f _execute_ &>/dev/null || fatal "${FUNCNAME[0]} needs function _execute_"
 
     if ! command -v openssl &>/dev/null; then
         fatal "openssl not found"
@@ -247,13 +240,13 @@ _encryptFile_() {
 
     local _fileToEncrypt="${1:?_encodeFile_ needs a file}"
     local _defaultName="${_fileToEncrypt%.decrypt}"
-    local _encryptedFile="${2:-$_defaultName.enc}"
+    local _encryptedFile="${2:-${_defaultName}.enc}"
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
     [ ! -f "${_fileToEncrypt}" ] && return 1
 
-    [ ! "$(declare -f "_execute_")" ] && fatal "need function _execute_"
+    declare -f _execute_ &>/dev/null || fatal "${FUNCNAME[0]} needs function _execute_"
 
     if ! command -v openssl &>/dev/null; then
         fatal "openssl not found"
@@ -295,7 +288,7 @@ _extractArchive_() {
                 set -- "$@" "${1:0:-2}"
                 ;;
             *.bz2) bunzip2 "$1" ;;
-            *.deb) dpkg-deb -x${_vv} "$1" "${1:0:-4}" ;;
+            *.deb) dpkg-deb -x"${_vv}" "$1" "${1:0:-4}" ;;
             *.pax.gz)
                 gunzip "$1"
                 set -- "$@" "${1:0:-3}"
@@ -304,7 +297,7 @@ _extractArchive_() {
             *.pax) pax -r -f "$1" ;;
             *.pkg) pkgutil --expand "$1" "${1:0:-4}" ;;
             *.rar) unrar x "$1" ;;
-            *.rpm) rpm2cpio "$1" | cpio -idm${_vv} ;;
+            *.rpm) rpm2cpio "$1" | cpio -idm"${_vv}" ;;
             *.tar) tar "x${_vv}f" "$1" ;;
             *.txz)
                 mv "$1" "${1:0:-4}.tar.xz"
@@ -388,15 +381,15 @@ _fileExtension_() {
         esac
     fi
 
-    _fn="$_file"
+    _fn="${_file}"
     for ((i = 0; i < _levels; i++)); do
         _ext=${_fn##*.}
-        if [[ $i == 0 ]]; then
+        if [[ ${i} == 0 ]]; then
             _exts=${_ext}${_exts:-}
         else
             _exts=${_ext}.${_exts:-}
         fi
-        _fn=${_fn%.$_ext}
+        _fn=${_fn%.${_ext}}
     done
     [[ ${_file} == "${_exts}" ]] && return 1
 
@@ -543,7 +536,7 @@ _makeSymlink_() {
     local _onlyShowChanged=false
 
     while getopts ":cCnNsS" opt; do
-        case $opt in
+        case ${opt} in
             n | N) _backupOriginal=false ;;
             s | S) _useSudo=true ;;
             c | C) _onlyShowChanged=true ;;
@@ -552,12 +545,12 @@ _makeSymlink_() {
     done
     shift $((OPTIND - 1))
 
-    [ ! "$(declare -f "_backupFile_")" ] && fatal "${FUNCNAME[0]} needs function _backupFile_"
-    [ ! "$(declare -f "_execute_")" ] && fatal "${FUNCNAME[0]} needs function _execute_"
+    declare -f _execute_ &>/dev/null || fatal "${FUNCNAME[0]} needs function _execute_"
+    declare -f _backupFile_ &>/dev/null || fatal "${FUNCNAME[0]} needs function _backupFile_"
 
     if ! command -v realpath >/dev/null 2>&1; then
         error "We must have 'realpath' installed and available in \$PATH to run."
-        if [[ $OSTYPE == "darwin"* ]]; then
+        if [[ ${OSTYPE} == "darwin"* ]]; then
             notice "Install coreutils using homebrew and rerun this script."
             info "\t$ brew install coreutils"
         fi
@@ -571,10 +564,10 @@ _makeSymlink_() {
     local _originalFile
 
     # Fix files where $HOME is written as '~'
-    _destinationFile="${_destinationFile/\~/$HOME}"
-    _sourceFile="${_sourceFile/\~/$HOME}"
+    _destinationFile="${_destinationFile/\~/${HOME}}"
+    _sourceFile="${_sourceFile/\~/${HOME}}"
 
-    [ ! -e "$_sourceFile" ] \
+    [ ! -e "${_sourceFile}" ] \
         && {
             error "'${_sourceFile}' not found"
             return 1
@@ -595,9 +588,9 @@ _makeSymlink_() {
         _originalFile="$(realpath "${_destinationFile}")"
 
         [[ ${_originalFile} == "${_sourceFile}" ]] && {
-            if [ ${_onlyShowChanged} == true ]; then
+            if [[ ${_onlyShowChanged} == true ]]; then
                 debug "Symlink already exists: ${_sourceFile} → ${_destinationFile}"
-            elif [ "${DRYRUN}" == true ]; then
+            elif [[ ${DRYRUN:-} == true ]]; then
                 dryrun "Symlink already exists: ${_sourceFile} → ${_destinationFile}"
             else
                 info "Symlink already exists: ${_sourceFile} → ${_destinationFile}"
@@ -693,7 +686,7 @@ _readFile_() {
     local _result
     local _fileToRead="$1"
 
-    [ ! -f "$_fileToRead" ] \
+    [ ! -f "${_fileToRead}" ] \
         && {
             error "'${_fileToRead}' not found"
             return 1

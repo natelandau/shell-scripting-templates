@@ -71,7 +71,7 @@ _detectLinuxDistro_() {
 
     local _distro
     if [[ -f /etc/os-release ]]; then
-        # shellcheck disable=SC1091
+        # shellcheck disable=SC1091,SC2154
         . "/etc/os-release"
         _distro="${NAME}"
     elif type lsb_release >/dev/null 2>&1; then
@@ -79,7 +79,7 @@ _detectLinuxDistro_() {
         _distro=$(lsb_release -si)
     elif [[ -f /etc/lsb-release ]]; then
         # For some versions of Debian/Ubuntu without lsb_release command
-        # shellcheck disable=SC1091
+        # shellcheck disable=SC1091,SC2154
         . /etc/lsb-release
         _distro="${DISTRIB_ID}"
     elif [[ -f /etc/debian_version ]]; then
@@ -111,7 +111,7 @@ _detectMacOSVersion_() {
     # CREDIT:
     #         https://github.com/labbots/bash-utility
 
-    [ ! "$(declare -f "_detectOS_")" ] && fatal "${FUNCNAME[0]} needs function _detectOS_"
+    declare -f _detectOS_ &>/dev/null || fatal "${FUNCNAME[0]} needs function _detectOS_"
 
     if [[ "$(_detectOS_)" == "mac" ]]; then
         local _mac_version
@@ -198,7 +198,7 @@ _execute_() {
 
     local OPTIND=1
     while getopts ":vVpPeEsSqQnN" opt; do
-        case $opt in
+        case ${opt} in
             v | V) _localVerbose=true ;;
             p | P) _passFailures=true ;;
             e | E) _echoResult=true ;;
@@ -225,7 +225,7 @@ _execute_() {
         VERBOSE=true
     fi
 
-    if "${DRYRUN}"; then
+    if "${DRYRUN:-}"; then
         if "${_quietMode}"; then
             VERBOSE=${_saveVerbose}
             return 0
@@ -235,7 +235,7 @@ _execute_() {
         else
             dryrun "${1}" "$(caller)"
         fi
-    elif ${VERBOSE}; then
+    elif ${VERBOSE:-}; then
         if eval "${_command}"; then
             if "${_quietMode}"; then
                 VERBOSE=${_saveVerbose}
@@ -274,7 +274,7 @@ _execute_() {
             fi
         else
             if "${_quietMode}"; then
-                VERBOSE=$_saveVerbose
+                VERBOSE=${_saveVerbose}
             elif "${_echoResult}"; then
                 printf "%s\n" "error: ${_executeMessage}"
             else
@@ -303,9 +303,11 @@ _findBaseDir_() {
     local _dir
 
     # Is file sourced?
-    [[ $_ != "$0" ]] \
-        && _source="${BASH_SOURCE[1]}" \
-        || _source="${BASH_SOURCE[0]}"
+    if [[ ${_} != "${0}" ]]; then
+        _source="${BASH_SOURCE[1]}"
+    else
+        _source="${BASH_SOURCE[0]}"
+    fi
 
     while [ -h "${_source}" ]; do # Resolve $SOURCE until the file is no longer a symlink
         _dir="$(cd -P "$(dirname "${_source}")" && pwd)"
@@ -337,9 +339,9 @@ _generateUUID_() {
     for ((n = 0; n < 16; ++n)); do
         _b="$((RANDOM % 256))"
 
-        case "$n" in
+        case "${n}" in
             6) printf '4%x' "$((_b % 16))" ;;
-            8) printf '%c%x' "${_c:$RANDOM%${#_c}:1}" "$((_b % 16))" ;;
+            8) printf '%c%x' "${_c:${RANDOM}%${#_c}:1}" "$((_b % 16))" ;;
 
             3 | 5 | 7 | 9)
                 printf '%02x-' "${_b}"
@@ -368,8 +370,8 @@ _makeProgressBar_() {
     #         done
 
     [[ $# == 0 ]] && return # Do nothing if no arguments are passed
-    (${QUIET}) && return
-    (${VERBOSE}) && return
+    (${QUIET:-}) && return
+    (${VERBOSE:-}) && return
     [ ! -t 1 ] && return      # Do nothing if the output is not a terminal
     [[ ${1} == 1 ]] && return # Do nothing with a single element
 
@@ -390,7 +392,7 @@ _makeProgressBar_() {
     tput civis # Hide the cursor
     trap 'tput cnorm; exit 1' SIGINT
 
-    if [[ ! ${progressBarProgress} -eq $n ]]; then
+    if [[ ! ${progressBarProgress} -eq ${n} ]]; then
         #echo "progressBarProgress: $progressBarProgress"
         # Compute the percentage.
         _percentage=$((progressBarProgress * 100 / $1))
@@ -398,8 +400,8 @@ _makeProgressBar_() {
         _num=$((progressBarProgress * _width / $1))
         # Create the progress bar string.
         _bar=""
-        if [ ${_num} -gt 0 ]; then
-            _bar=$(printf "%0.s${_barCharacter}" $(seq 1 ${_num}))
+        if [[ ${_num} -gt 0 ]]; then
+            _bar=$(printf "%0.s${_barCharacter}" $(seq 1 "${_num}"))
         fi
         # Print the progress bar.
         _progressBarLine=$(printf "%s [%-${_width}s] (%d%%)" "  ${_barTitle}" "${_bar}" "${_percentage}")
@@ -465,7 +467,7 @@ _seekConfirmation_() {
 
     local _yesNo
     input "${1}"
-    if "${FORCE}"; then
+    if "${FORCE:-}"; then
         debug "Forcing confirmation with '--force' flag set"
         printf "%s\n" " "
         return 0

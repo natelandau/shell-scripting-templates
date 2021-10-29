@@ -1,6 +1,7 @@
 # Functions required to allow the script template and alert functions to be used
 # shellcheck disable=SC2154
 
+# shellcheck disable=SC2120
 _acquireScriptLock_() {
     # DESC:
     #         Acquire script lock to prevent running the same script a second time before the
@@ -17,18 +18,18 @@ _acquireScriptLock_() {
     if [[ ${1:-} == 'system' ]]; then
         _lockDir="${TMPDIR:-/tmp/}$(basename "$0").lock"
     else
-        _lockDir="${TMPDIR:-/tmp/}$(basename "$0").$UID.lock"
+        _lockDir="${TMPDIR:-/tmp/}$(basename "$0").${UID}.lock"
     fi
 
-    if command mkdir "${LOCK_DIR}" 2>/dev/null; then
+    if command mkdir "${_lockDir}" 2>/dev/null; then
         readonly SCRIPT_LOCK="${_lockDir}"
-        debug "Acquired script lock: ${tan}${SCRIPT_LOCK}${purple}"
+        debug "Acquired script lock: ${yellow}${SCRIPT_LOCK}${purple}"
     else
-        if [ "$(declare -f "_safeExit_")" ]; then
-            error "Unable to acquire script lock: ${yellow}${LOCK_DIR}${red}"
+        if declare -f "_safeExit_" &>/dev/null; then
+            error "Unable to acquire script lock: ${yellow}${_lockDir}${red}"
             fatal "If you trust the script isn't running, delete the lock dir"
         else
-            printf "%s\n" "ERROR: Could not acquire script lock. If you trust the script isn't running, delete: ${LOCK_DIR}"
+            printf "%s\n" "ERROR: Could not acquire script lock. If you trust the script isn't running, delete: ${_lockDir}"
             exit 1
         fi
 
@@ -70,7 +71,7 @@ _safeExit_() {
         if command rm -rf "${SCRIPT_LOCK}"; then
             debug "Removing script lock"
         else
-            warning "Script lock could not be removed. Try manually deleting ${tan}'${LOCK_DIR}'"
+            warning "Script lock could not be removed. Try manually deleting ${yellow}'${SCRIPT_LOCK}'"
         fi
     fi
 

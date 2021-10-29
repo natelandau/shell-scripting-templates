@@ -56,11 +56,11 @@ _printArray_() {
     local _lineNumber="${2:-}"
     declare -n _arr="${1}"
 
-    [[ ${VERBOSE} != true ]] && return 0
+    [[ ${VERBOSE:-} != true ]] && return 0
 
     debug "Printing contents of \${${_arrayName}[@]}" "${_lineNumber}"
 
     for _k in "${!_arr[@]}"; do
-        debug "${_k} = ${_arr[$_k]}"
+        debug "${_k} = ${_arr[${_k}]}"
     done
 }

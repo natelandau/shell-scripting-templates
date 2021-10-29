@@ -21,7 +21,6 @@ _setColors_() {
             white=$(tput setaf 231)
             blue=$(tput setaf 38)
             yellow=$(tput setaf 11)
-            tan=$(tput setaf 3)
             green=$(tput setaf 82)
             red=$(tput setaf 1)
             purple=$(tput setaf 171)
@@ -30,7 +29,6 @@ _setColors_() {
             white=$(tput setaf 7)
             blue=$(tput setaf 38)
             yellow=$(tput setaf 3)
-            tan=$(tput setaf 3)
             green=$(tput setaf 2)
             red=$(tput setaf 1)
             purple=$(tput setaf 13)
@@ -45,7 +43,6 @@ _setColors_() {
         white="\033[0;37m"
         blue="\033[0;34m"
         yellow="\033[0;33m"
-        tan="\033[0;33m"
         green="\033[1;32m"
         red="\033[0;31m"
         purple="\033[0;35m"
@@ -210,10 +207,17 @@ _printFuncStack_() {
     # NOTE:
     #         Does not print functions from the alert class
     local _i
-    _funcStackResponse=()
+    declare -a _funcStackResponse=()
     for ((_i = 1; _i < ${#BASH_SOURCE[@]}; _i++)); do
-        case "${FUNCNAME[$_i]}" in "_alert_" | "_trapCleanup_" | fatal | error | warning | notice | info | debug | dryrun | header | success) continue ;; esac
-        _funcStackResponse+=("${FUNCNAME[$_i]}:$(basename "${BASH_SOURCE[$_i]}"):${BASH_LINENO[_i - 1]}")
+        case "${FUNCNAME[${_i}]}" in
+            _alert_ | _trapCleanup_ | fatal | error | warning | notice | info | debug | dryrun | header | success)
+                continue
+                ;;
+            *)
+                _funcStackResponse+=("${FUNCNAME[${_i}]}:$(basename "${BASH_SOURCE[${_i}]}"):${BASH_LINENO[_i - 1]}")
+                ;;
+        esac
+
     done
     printf "( "
     printf %s "${_funcStackResponse[0]}"
@@ -319,7 +323,7 @@ _clearLine_() {
     # USAGE:
     #					_clearLine_ "2"
 
-    [ ! "$(declare -f "_isTerminal_")" ] && fatal "${FUNCNAME[0]} needs function _isTerminal_"
+    ! declare -f _isTerminal_ &>/dev/null && fatal "${FUNCNAME[0]} needs function _isTerminal_"
 
     local i
     if _isTerminal_; then

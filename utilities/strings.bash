@@ -35,7 +35,7 @@ _cleanString_() {
 
     local OPTIND=1
     while getopts ":lLuUaAsSpP" opt; do
-        case $opt in
+        case ${opt} in
             l | L) _lc=true ;;
             u | U) _uc=true ;;
             a | A) _alphanumeric=true ;;
@@ -69,8 +69,8 @@ _cleanString_() {
 
     local i
     for i in "${_arrayToClean[@]}"; do
-        debug "cleaning: $i"
-        _string="$(printf "%s" "${_string}" | sed "s/$i//g")"
+        debug "cleaning: ${i}"
+        _string="$(printf "%s" "${_string}" | sed "s/${i}//g")"
     done
 
     ("${_lc}") \
@@ -258,7 +258,7 @@ _regexCapture_() {
         case ${opt} in
             i | I)
                 #shellcheck disable=SC2064
-                trap "$(shopt -p nocasematch)" RETURN # reset nocasematch when function exits
+                trap '$(shopt -p nocasematch)' RETURN # reset nocasematch when function exits
                 shopt -s nocasematch                  # Use case-insensitive regex
                 ;;
             *) fatal "Unrecognized option '${1}' passed to ${FUNCNAME[0]}. Exiting." ;;
@@ -332,7 +332,7 @@ _stringContains_() {
         case ${opt} in
             i | I)
                 #shellcheck disable=SC2064
-                trap "$(shopt -p nocasematch)" RETURN # reset nocasematch when function exits
+                trap '$(shopt -p nocasematch)' RETURN # reset nocasematch when function exits
                 shopt -s nocasematch                  # Use case-insensitive searching
                 ;;
             *) fatal "Unrecognized option '${1}' passed to ${FUNCNAME[0]}. Exiting." ;;
@@ -370,7 +370,7 @@ _stringRegex_() {
         case ${opt} in
             i | I)
                 #shellcheck disable=SC2064
-                trap "$(shopt -p nocasematch)" RETURN # reset nocasematch when function exits
+                trap '$(shopt -p nocasematch)' RETURN # reset nocasematch when function exits
                 shopt -s nocasematch                  # Use case-insensitive regex
                 ;;
             *) fatal "Unrecognized option '${1}' passed to ${FUNCNAME[0]}. Exiting." ;;

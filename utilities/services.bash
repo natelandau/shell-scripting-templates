@@ -42,7 +42,7 @@ _httpStatus_() {
         --no-keepalive "${_curlops}" --output /dev/null "${_url}")
 
     #      __________ get the STATUS (from code) which is human interpretable:
-    case $_code in
+    case ${_code} in
         000) _status="Not responding within ${_timeout} seconds" ;;
         100) _status="Informational: Continue" ;;
         101) _status="Informational: Switching Protocols" ;;

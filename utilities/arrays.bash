@@ -19,7 +19,7 @@ _dedupeArray_() {
     declare -a _uniqueArray
     local _i
     for _i in "$@"; do
-        { [[ -z ${_i} || ${_tmpArray[${_i}]:-} ]]; } && continue
+        { [[ -z ${_i} || -n ${_tmpArray[${_i}]:-} ]]; } && continue
         _uniqueArray+=("${_i}") && _tmpArray[${_i}]=x
     done
     printf '%s\n' "${_uniqueArray[@]}"
@@ -50,13 +50,16 @@ _forEachDo_() {
         if [[ ${_func} == *"$"* ]]; then
             eval "${_func}"
         else
-            [ ! "$(declare -f "${_func}")" ] && fatal "${FUNCNAME[0]} could not find function ${_func}"
-            eval "${_func}" "'${_it}'"
+            if declare -f "${_func}" &>/dev/null; then
+                eval "${_func}" "'${_it}'"
+            else
+                fatal "${FUNCNAME[0]} could not find function ${_func}"
+            fi
         fi
         declare -i _ret="$?"
 
         if [[ ${_ret} -ne 0 ]]; then
-            return ${_ret}
+            return "${_ret}"
         fi
     done
 }
@@ -85,8 +88,11 @@ _forEachValidate_() {
         if [[ ${_func} == *"$"* ]]; then
             eval "${_func}"
         else
-            [ ! "$(declare -f "${_func}")" ] && fatal "${FUNCNAME[0]} could not find function ${_func}"
-            eval "${_func}" "'${_it}'"
+            if ! declare -f "${_func}"; then
+                fatal "${FUNCNAME[0]} could not find function ${_func}"
+            else
+                eval "${_func}" "'${_it}'"
+            fi
         fi
         declare -i _ret="$?"
 
@@ -255,7 +261,7 @@ _inArray_() {
         case ${opt} in
             i | I)
                 #shellcheck disable=SC2064
-                trap "$(shopt -p nocasematch)" RETURN # reset nocasematch when function exits
+                trap '$(shopt -p nocasematch)' RETURN # reset nocasematch when function exits
                 shopt -s nocasematch                  # Use case-insensitive regex
                 ;;
             *) fatal "Unrecognized option '${1}' passed to ${FUNCNAME[0]}. Exiting." ;;
@@ -410,14 +416,14 @@ _setDiff_() {
     declare -a _setdiffC=()
 
     for _a in "${_setdiffA[@]}"; do
-        _skip=
+        _skip=0
         for _b in "${_setdiffB[@]}"; do
             if [[ ${_a} == "${_b}" ]]; then
                 _skip=1
                 break
             fi
         done
-        [[ "${_skip}" ]] || _setdiffC=("${_setdiffC[@]}" "${_a}")
+        [[ ${_skip} -eq 1 ]] || _setdiffC=("${_setdiffC[@]}" "${_a}")
     done
 
     if [[ ${#_setdiffC[@]} == 0 ]]; then
