@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck source-path=SCRIPTDIR/../shell-scripting-templates/utilities
+# shellcheck source-path=SCRIPTDIR/../../shell-scripting-templates/utilities
 
 _mainScript_() {
     # Replace everything in _mainScript_() with your script's code
@@ -14,7 +15,6 @@ _mainScript_() {
     input "This is input text"
 
 }
-
 #/_mainsScript_()
 
 # ################################## Flags and defaults
