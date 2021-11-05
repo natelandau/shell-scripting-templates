@@ -308,9 +308,9 @@ _joinArray_() {
     # OUTS:
     #           stdout:  Prints joined terms
     # USAGE:
-    #           _join_ , a "b c" d #a,b c,d
-    #           _join_ / var local tmp #var/local/tmp
-    #           _join_ , "${foo[@]}" #a,b,c
+    #           _joinArray_ , a "b c" d #a,b c,d
+    #           _joinArray_ / var local tmp #var/local/tmp
+    #           _joinArray_ , "${foo[@]}" #a,b,c
     # CREDIT:
     #           http://stackoverflow.com/questions/1527049/bash-join-elements-of-an-array
     #           https://github.com/labbots/bash-utility
