@@ -1,0 +1,59 @@
+############ Orange1 ############
+# 1
+# 2
+# 3
+# 4
+#################################
+
+############ Orange2 ############
+# 1
+# 2
+# 3
+# 4
+#################################
+
+############ Grape ############
+# 1
+# 2
+# 3
+# 4
+#################################
+
+buf() {
+    # buf :  Backup file with time stamp
+    local filename
+    local filetime
+
+    filename="${1}"
+    filetime=$(date +%Y%m%d_%H%M%S)
+    cp -a "${filename}" "${filename}_${filetime}"
+}
+
+md5Check() {
+    # DESC:		Compares an md5 hash to the md5 hash of a file
+    # ARGS:		None
+    # OUTS:		None
+    # USAGE:	md5Check <md5> <filename>
+
+    local opt
+    local OPTIND=1
+    local md5="$1"
+    local file="$2"
+
+    if ! command -v md5sum &>/dev/null; then
+        echo "Can not find 'md5sum' utility"
+        return 1
+    fi
+
+    # Get md5 has of file
+    local filemd5
+    filemd5="$(md5sum "${file}")"
+
+    if [[ $filemd5 == "$md5" ]]; then
+        success "The two md5 hashes match"
+        return 0
+    else
+        warning "The two md5 hashes do not match"
+        return 1
+    fi
+}

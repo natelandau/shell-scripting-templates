@@ -17,8 +17,6 @@ _mainScript_() {
 # end _mainScript_
 
 # ################################## Flags and defaults
-# Script specific
-
 # Required variables
 LOGFILE="${HOME}/logs/$(basename "$0").log"
 QUIET=false
@@ -27,6 +25,8 @@ VERBOSE=false
 FORCE=false
 DRYRUN=false
 declare -a ARGS=()
+
+# Script specific
 
 # ################################## Custom utility functions (Pasted from repository)
 

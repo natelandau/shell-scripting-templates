@@ -243,7 +243,7 @@ _regexCapture_() {
     #         1 - Regex did not match
     #         stdout: Prints string matching regex
     # USAGE:
-    #         HEXCODE=$(_regex_ "background-color: #FFFFFF;" '^(#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$')
+    #         HEXCODE=$(_regexCapture_ "background-color: #FFFFFF;" '^(#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$')
     #         $ printf "%s\n" "${HEXCODE}"
     #         $ #FFFFFF
     # NOTE:
@@ -290,9 +290,9 @@ _rtrim_() {
     sed "s%[${_char//%/\\%}]*$%%"
 }
 
-_splitString_() {
+_splitString_() (
     # DESC:
-    #					Splat a string into an array based on a given delimiter
+    #					Split a string into an array based on a given delimiter
     # ARGS:
     #					$1 (Required) - String to be split
     #					$2 (Required) - Delimiter
@@ -302,15 +302,17 @@ _splitString_() {
     #					stdout: Values split by delimiter separated by newline
     # USAGE:
     #					ARRAY=( $(_splitString_ "string1,string2,string3" ",") )
-    # CREDIT:
-    #         https://github.com/labbots/bash-utility/blob/master/src/misc.sh
 
     [[ $# -lt 2 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
     declare -a _arr=()
-    IFS=$'\n' read -d "" -ra _arr <<<"${1//$2/$'\n'}"
+    local _input="${1}"
+    local _delimeter="${2}"
+
+    IFS="${_delimeter}" read -r -a _arr <<<"${_input}"
+
     printf '%s\n' "${_arr[@]}"
-}
+)
 
 _stringContains_() {
     # DESC:

@@ -18,8 +18,6 @@ _mainScript_() {
 #/_mainsScript_()
 
 # ################################## Flags and defaults
-# Script specific
-
 # # Required variables
 LOGFILE="${HOME}/logs/$(basename "$0").log"
 QUIET=false
@@ -28,6 +26,8 @@ VERBOSE=false
 FORCE=false
 DRYRUN=false
 declare -a ARGS=()
+
+# Script specific
 
 # ################################## Functions required for this template to work
 

@@ -275,9 +275,9 @@ _columnizeOutput_() {
     # NOTE:
     #         Long text or ANSI colors in the first column may create display issues
     # USAGE:
-    #         _columnizeOutput_ 0 30 10 "Key" "Long value text"
+    #         _columnizeOutput_ 0 30 "Key" "Long value text"
 
-    [[ $# -lt 5 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+    [[ $# -lt 4 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
     local _leftIndent=$1
     local _leftColumn=$2

@@ -235,6 +235,7 @@ Functions for working with files.
 - **`_listFiles_`** Find files in a directory. Use either glob or regex.
 - **`_makeSymlink_`** Creates a symlink and backs up a file which may be overwritten by the new symlink. If the exact same symlink already exists, nothing is done.
 - **`_parseYAML_`** Convert a YAML file into BASH variables for use in a shell script
+- **`_printFileBetween_`** Prints block of text in a file between two regex patterns
 - **`_readFile_`** Prints each line of a file
 - **`_sourceFile_`** Source a file into a script
 - **`_createUniqueFilename_`** Ensure a file to be created has a unique filename to avoid overwriting other files

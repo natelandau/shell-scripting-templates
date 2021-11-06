@@ -8,7 +8,7 @@ _dedupeArray_() {
     # OUTS:
     #         stdout: Prints de-duped elements
     # USAGE:
-    #         _removeDups_ "${array[@]}"
+    #         mapfile -t newarray < <(_dedupeArray_ "${array[@]}")
     # NOTE:
     #         List order may not stay the same
     # CREDIT:

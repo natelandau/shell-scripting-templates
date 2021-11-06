@@ -671,6 +671,84 @@ _parseYAML_() {
   }' | sed 's/_=/+=/g' | sed 's/[[:space:]]*#.*"/"/g'
 }
 
+_printFileBetween_() (
+    # DESC:
+    #					Prints text of a file between two regex patterns
+    # ARGS:
+    #					$1 (Required):	Starting regex pattern
+    #					$2 (Required):	Ending regex pattern
+    #					$3 (Required):	Input string
+    # OPTIONS:
+    #         -i (Optional) - Case-insensitive regex
+    #         -r (Optional) - Remove first and last lines (ie - the lines which matched the patterns)
+    #         -g (Optional) - Greedy regex (Defaults to non-greedy)
+    # OUTS:
+    #					 0:  Success
+    #					 1:  Failure
+    #					stdout: Prints text between two regex patterns
+    # USAGE:
+    #					_printFileBetween_ "^pattern1$" "^pattern2$" "String or variable containing a string"
+
+    [[ $# -lt 3 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+
+    local _removeLines=false
+    local _greedy=false
+    local _caseInsensitive=false
+    local opt
+    local OPTIND=1
+    while getopts ":iIrRgG" opt; do
+        case ${opt} in
+            i | I) _caseInsensitive=true ;;
+            r | R) _removeLines=true ;;
+            g | G) _greedy=true ;;
+            *) fatal "Unrecognized option '${1}' passed to ${FUNCNAME[0]}. Exiting." ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
+    local _startRegex="${1}"
+    local _endRegex="${2}"
+    local _input="${3}"
+    local _output
+
+    if [[ ${_removeLines} == true ]]; then
+        if [[ ${_greedy} == true ]]; then
+            if [[ ${_caseInsensitive} == true ]]; then
+                _output="$(sed -nE "/${_startRegex}/I,/${_endRegex}/Ip" "${_input}" | sed -n '2,$p' | sed '$d')"
+            else
+                _output="$(sed -nE "/${_startRegex}/,/${_endRegex}/p" "${_input}" | sed -n '2,$p' | sed '$d')"
+            fi
+        else
+            if [[ ${_caseInsensitive} == true ]]; then
+                _output="$(sed -nE "/${_startRegex}/I,/${_endRegex}/I{p;/${_endRegex}/Iq}" "${_input}" | sed -n '2,$p' | sed '$d')"
+            else
+                _output="$(sed -nE "/${_startRegex}/,/${_endRegex}/{p;/${_endRegex}/q}" "${_input}" | sed -n '2,$p' | sed '$d')"
+            fi
+        fi
+    else
+        if [[ ${_greedy} == true ]]; then
+            if [[ ${_caseInsensitive} == true ]]; then
+                _output="$(sed -nE "/${_startRegex}/I,/${_endRegex}/Ip" "${_input}")"
+            else
+                _output="$(sed -nE "/${_startRegex}/,/${_endRegex}/p" "${_input}")"
+            fi
+        else
+            if [[ ${_caseInsensitive} == true ]]; then
+                _output="$(sed -nE "/${_startRegex}/I,/${_endRegex}/I{p;/${_endRegex}/Iq}" "${_input}")"
+            else
+                _output="$(sed -nE "/${_startRegex}/,/${_endRegex}/{p;/${_endRegex}/q}" "${_input}")"
+            fi
+        fi
+    fi
+
+    if [[ -n ${_output:-} ]]; then
+        printf "%s\n" "${_output}"
+        return 0
+    else
+        return 1
+    fi
+)
+
 _readFile_() {
     # DESC:
     #         Prints each line of a file

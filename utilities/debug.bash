@@ -58,7 +58,7 @@ _printArray_() {
 
     [[ ${VERBOSE:-} != true ]] && return 0
 
-    debug "Printing contents of \${${_arrayName}[@]}" "${_lineNumber}"
+    debug "Contents of \${${_arrayName}[@]}" "${_lineNumber}"
 
     for _k in "${!_arr[@]}"; do
         debug "${_k} = ${_arr[${_k}]}"

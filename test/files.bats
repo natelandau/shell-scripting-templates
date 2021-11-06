@@ -11,6 +11,8 @@ SOURCEFILE="${ROOTDIR}/utilities/files.bash"
 BASEHELPERS="${ROOTDIR}/utilities/misc.bash"
 ALERTS="${ROOTDIR}/utilities/alerts.bash"
 
+PATH="/usr/local/opt/gnu-tar/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/grep/libexec/gnubin:${PATH}"
+
 if test -f "${SOURCEFILE}" >&2; then
   source "${SOURCEFILE}"
 else
@@ -68,6 +70,7 @@ teardown() {
 }
 
 ######## FIXTURES ########
+TEXT="${BATS_TEST_DIRNAME}/fixtures/text.txt"
 YAML1="${BATS_TEST_DIRNAME}/fixtures/yaml1.yaml"
 YAML1parse="${BATS_TEST_DIRNAME}/fixtures/yaml1.yaml.txt"
 unencrypted="${BATS_TEST_DIRNAME}/fixtures/test.md"
@@ -431,6 +434,61 @@ _testParseYAML_() {
   echo "some text" > "./test.txt"
   run _fileContains_ "./test.txt" "some*"
   assert_success
+}
+
+@test "_printFileBetween_: match case-insensitive" {
+  run _printFileBetween_ -i "^#+ orange1" "^#+$" "${TEXT}"
+  assert_success
+  assert_line --index 0 "############ Orange1 ############"
+  assert_line --index 1 "# 1"
+  assert_line --index 2 "# 2"
+  assert_line --index 3 "# 3"
+  assert_line --index 4 "# 4"
+  assert_line --index 5 "#################################"
+  refute_output --regexp "Grape|Orange2"
+}
+
+@test "_printFileBetween_: match case-insensitive - greedy" {
+  run _printFileBetween_ -ig "^#+ orange" "##" "${TEXT}"
+  assert_success
+  assert_line --index 0 "############ Orange1 ############"
+  assert_line --index 1 "# 1"
+  assert_line --index 2 "# 2"
+  assert_line --index 3 "# 3"
+  assert_line --index 4 "# 4"
+  assert_line --index 5 "#################################"
+  assert_line --index 6 "############ Orange2 ############"
+  assert_line --index 7 "# 1"
+  assert_line --index 8 "# 2"
+  assert_line --index 9 "# 3"
+  assert_line --index 10 "# 4"
+  assert_line --index 11 "#################################"
+  refute_output --regexp "Grape"
+}
+
+@test "_printFileBetween_: no match" {
+  run _printFileBetween_ "^#+ orange1" "^#+$" "${TEXT}"
+  assert_failure
+}
+
+@test "_printFileBetween_: remove lines" {
+  run _printFileBetween_ -ri "^[A-Z0-9]+\(\)" "^ *}.*" "${TEXT}"
+  assert_success
+  assert_line --index 0 --partial "# buf :  Backup file with time stamp"
+  assert_line --index 5 --regexp "^ *cp -a .*"
+  refute_output --regexp "buf\(\) {"
+  refute_output --regexp '}[^"_]'
+  refute_output --regexp "md5Check"
+}
+
+@test "_printFileBetween_: remove lines - greedy" {
+  run _printFileBetween_ -gr "^[a-zA-Z0-9]+\(\)" "^ *}.*" "${TEXT}"
+  assert_success
+  assert_line --index 0 --partial "# buf :  Backup file with time stamp"
+  assert_line --index 5 --regexp "^ *cp -a .*"
+  refute_output --regexp "buf\(\) {"
+  assert_line --index 29 --regexp "^ *fi.*"
+  assert_output --regexp "md5Check"
 }
 
 _testBackupFile_
