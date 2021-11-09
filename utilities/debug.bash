@@ -42,6 +42,8 @@ _printArray_() {
     # ARGS:
     #         $1 (Required) - String variable name of the array
     #         $2 (Optional) - Line number where _printArray_ is called
+    # OPTS:
+    #         -v - Prints array when VERBOSE is false
     # OUTS:
     #         stdout: Formatted key value of array
     # USAGE:
@@ -52,15 +54,35 @@ _printArray_() {
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
+    local _printNoVerbose=false
+    local opt
+    local OPTIND=1
+    while getopts ":vV" opt; do
+        case ${opt} in
+            v | V) _printNoVerbose=true ;;
+            *) fatal "Unrecognized option '${1}' passed to ${FUNCNAME[0]}. Exiting." ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     local _arrayName="${1}"
     local _lineNumber="${2:-}"
     declare -n _arr="${1}"
 
-    [[ ${VERBOSE:-} != true ]] && return 0
+    if [[ ${_printNoVerbose} == "false" ]]; then
 
-    debug "Contents of \${${_arrayName}[@]}" "${_lineNumber}"
+        [[ ${VERBOSE:-} != true ]] && return 0
 
-    for _k in "${!_arr[@]}"; do
-        debug "${_k} = ${_arr[${_k}]}"
-    done
+        debug "Contents of \${${_arrayName}[@]}" "${_lineNumber}"
+
+        for _k in "${!_arr[@]}"; do
+            debug "${_k} = ${_arr[${_k}]}"
+        done
+    else
+        info "Contents of \${${_arrayName}[@]}" "${_lineNumber}"
+
+        for _k in "${!_arr[@]}"; do
+            info "${_k} = ${_arr[${_k}]}"
+        done
+    fi
 }

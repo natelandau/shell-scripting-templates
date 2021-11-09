@@ -110,5 +110,14 @@ teardown() {
   assert_success
   assert_line --index 1 "[  debug] foo = bar"
   assert_line --index 2 "[  debug] baz = foobar"
+}
 
+@test "_printArray_: print without verbose" {
+  testArray=(1 2 3)
+  VERBOSE=false
+  run _printArray_ -v "testArray"
+  assert_success
+  assert_output --partial "[   info] 0 = 1"
+  assert_output --partial "[   info] 1 = 2"
+  assert_output --partial "[   info] 2 = 3"
 }
