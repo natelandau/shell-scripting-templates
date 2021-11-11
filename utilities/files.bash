@@ -153,13 +153,13 @@ _createUniqueFilename_() {
         else
             _extension=${_ext}.${_extension:-}
         fi
-        _fn=${_fn%.${_ext}}
+        _fn=${_fn%."${_ext}"}
     done
 
     if [[ ${_extension} == "${_originalFile}" ]]; then
         _extension=""
     else
-        _originalFile="${_originalFile%.${_extension}}"
+        _originalFile="${_originalFile%."${_extension}"}"
         _extension=".${_extension}"
     fi
 
@@ -389,7 +389,7 @@ _fileExtension_() {
         else
             _exts=${_ext}.${_exts:-}
         fi
-        _fn=${_fn%.${_ext}}
+        _fn=${_fn%."${_ext}"}
     done
     [[ ${_file} == "${_exts}" ]] && return 1
 
