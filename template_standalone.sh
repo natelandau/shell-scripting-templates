@@ -437,7 +437,13 @@ _useGNUutils_() {
         "/usr/local/opt/gnu-tar/libexec/gnubin" \
         "/usr/local/opt/coreutils/libexec/gnubin" \
         "/usr/local/opt/gnu-sed/libexec/gnubin" \
-        "/usr/local/opt/grep/libexec/gnubin"; then
+        "/usr/local/opt/grep/libexec/gnubin" \
+        "/usr/local/opt/findutils/libexec/gnubin" \
+        "/opt/homebrew/opt/findutils/libexec/gnubin" \
+        "/opt/homebrew/opt/gnu-sed/libexec/gnubin" \
+        "/opt/homebrew/opt/grep/libexec/gnubin" \
+        "/opt/homebrew/opt/coreutils/libexec/gnubin" \
+        "/opt/homebrew/opt/gnu-tar/libexec/gnubin"; then
         return 0
     else
         return 1
