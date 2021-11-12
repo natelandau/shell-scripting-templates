@@ -129,7 +129,7 @@ _setPATH_() {
                 if PATH="${_newPath}:${PATH}"; then
                     debug "Added '${_newPath}' to PATH"
                 else
-                    return 1
+                    debug "'${_newPath}' already in PATH"
                 fi
             else
                 debug "_setPATH_: '${_newPath}' already exists in PATH"

@@ -413,7 +413,7 @@ _setPATH_() {
     # ARGS:
     #         $@ - One or more paths
     # OPTS:
-    #         -x   Fail if directories are not found
+    #         -x - Fail if directories are not found
     # OUTS:
     #         0: Success
     #         1: Failure
@@ -448,7 +448,7 @@ _setPATH_() {
                 if PATH="${_newPath}:${PATH}"; then
                     debug "Added '${_newPath}' to PATH"
                 else
-                    return 1
+                    debug "'${_newPath}' already in PATH"
                 fi
             else
                 debug "_setPATH_: '${_newPath}' already exists in PATH"
