@@ -359,7 +359,10 @@ _parseOptions_ "$@"
 # Acquire script lock
 # _acquireScriptLock_
 
-# Source GNU utilities for use on MacOS
+# Add Homebrew bin directory to PATH (MacOS)
+# _homebrewPath_
+
+# Source GNU utilities from Homebrew (MacOS)
 # _useGNUutils_
 
 # Run the main logic script

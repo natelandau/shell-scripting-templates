@@ -247,6 +247,7 @@ Functions useful when writing scripts to be run on macOS
 
 - **`_guiInput_`** Ask for user input using a Mac dialog box
 - **`_haveScriptableFinder_`** Determine whether we can script the Finder or not
+- **`_homebrewPath_`** Adds Homebrew bin directory to PATH
 - **`_useGNUUtils_`** Add GNU utilities to PATH to allow consistent use of sed/grep/tar/etc. on MacOS
 
 ## misc.bash
