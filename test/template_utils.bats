@@ -74,6 +74,13 @@ teardown() {
   assert_success
 }
 
+@test "_setPATH_: fail on dir not found" {
+  mkdir -p "${TESTDIR}/testing/from/bats"
+  mkdir -p "${TESTDIR}/testing/from/bats_again"
+  run _setPATH_ -x "${TESTDIR}/testing/from/bats" "${TESTDIR}/testing/again" "${TESTDIR}/testing/from/bats_again"
+  assert_failure
+}
+
 @test "_setPATH_: success" {
   mkdir -p "${TESTDIR}/testing/from/bats"
   mkdir -p "${TESTDIR}/testing/from/bats_again"

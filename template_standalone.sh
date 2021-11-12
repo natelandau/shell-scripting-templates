@@ -390,11 +390,33 @@ _setPATH_() {
     #         Add directories to $PATH so script can find executables
     # ARGS:
     #         $@ - One or more paths
-    # OUTS:   Adds items to $PATH
+    # OPTS:
+    #         -x - Fail if directories are not found
+    # OUTS:
+    #         0: Success
+    #         1: Failure
+    #         Adds items to $PATH
     # USAGE:
     #         _setPATH_ "/usr/local/bin" "${HOME}/bin" "$(npm bin)"
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+
+    local opt
+    local OPTIND=1
+    local _failIfNotFound=false
+
+    while getopts ":xX" opt; do
+        case ${opt} in
+            x | X) _failIfNotFound=true ;;
+            *)
+                {
+                    error "Unrecognized option '${1}' passed to _backupFile_" "${LINENO}"
+                    return 1
+                }
+                ;;
+        esac
+    done
+    shift $((OPTIND - 1))
 
     local _newPath
 
@@ -411,6 +433,9 @@ _setPATH_() {
             fi
         else
             debug "_setPATH_: can not find: ${_newPath}"
+            if [[ ${_failIfNotFound} == true ]]; then
+                return 1
+            fi
             continue
         fi
     done
