@@ -22,7 +22,7 @@ _setColors_() {
             blue=$(tput setaf 38)
             yellow=$(tput setaf 11)
             green=$(tput setaf 82)
-            red=$(tput setaf 1)
+            red=$(tput setaf 196)
             purple=$(tput setaf 171)
             gray=$(tput setaf 250)
         else
