@@ -22,7 +22,7 @@ _setColors_() {
             blue=$(tput setaf 38)
             yellow=$(tput setaf 11)
             green=$(tput setaf 82)
-            red=$(tput setaf 196)
+            red=$(tput setaf 9)
             purple=$(tput setaf 171)
             gray=$(tput setaf 250)
         else
@@ -30,7 +30,7 @@ _setColors_() {
             blue=$(tput setaf 38)
             yellow=$(tput setaf 3)
             green=$(tput setaf 2)
-            red=$(tput setaf 1)
+            red=$(tput setaf 9)
             purple=$(tput setaf 13)
             gray=$(tput setaf 7)
         fi
@@ -312,7 +312,7 @@ _columnizeOutput_() {
     done <<<"$(fold -w${_rightWrapLength} -s <<<"${_value}")"
 }
 
-_clearLine_() {
+_clearLine_() (
     # DESC:
     #					Clears output in the terminal on the specified line number.
     # ARGS:
@@ -325,10 +325,12 @@ _clearLine_() {
 
     ! declare -f _isTerminal_ &>/dev/null && fatal "${FUNCNAME[0]} needs function _isTerminal_"
 
+    local _num="${1:-1}"
     local i
+
     if _isTerminal_; then
-        for ((i = 0; i < $1; i++)); do
+        for ((i = 0; i < _num; i++)); do
             printf "\033[A\033[2K"
         done
     fi
-}
+)

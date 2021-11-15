@@ -53,6 +53,9 @@ _trapCleanup_() {
     local _script="${5:-}"
     local _sourced="${6:-}"
 
+    # Replace the cursor in-case 'tput civis' has been used
+    tput cnorm
+
     if declare -f "fatal" &>/dev/null && declare -f "_printFuncStack_" &>/dev/null; then
 
         _funcstack="'$(printf "%s" "${_funcstack}" | sed -E 's/ / < /g')'"

@@ -11,122 +11,119 @@ SOURCEFILE="${ROOTDIR}/utilities/misc.bash"
 ALERTS="${ROOTDIR}/utilities/alerts.bash"
 
 if test -f "${SOURCEFILE}" >&2; then
-  source "${SOURCEFILE}"
+    source "${SOURCEFILE}"
 else
-  echo "Sourcefile not found: ${SOURCEFILE}" >&2
-  printf "Can not run tests.\n" >&2
-  exit 1
+    echo "Sourcefile not found: ${SOURCEFILE}" >&2
+    printf "Can not run tests.\n" >&2
+    exit 1
 fi
 
 if test -f "${ALERTS}" >&2; then
-  source "${ALERTS}"
-  _setColors_ #Set color constants
+    source "${ALERTS}"
+    _setColors_ #Set color constants
 else
-  echo "Sourcefile not found: ${ALERTS}" >&2
-  printf "Can not run tests.\n" >&2
-  exit 1
+    echo "Sourcefile not found: ${ALERTS}" >&2
+    printf "Can not run tests.\n" >&2
+    exit 1
 fi
 
 setup() {
+    TESTDIR="$(temp_make)"
+    curPath="${PWD}"
 
-  TESTDIR="$(temp_make)"
-  curPath="${PWD}"
+    BATSLIB_FILE_PATH_REM="#${TEST_TEMP_DIR}"
+    BATSLIB_FILE_PATH_ADD='<temp>'
 
-  BATSLIB_FILE_PATH_REM="#${TEST_TEMP_DIR}"
-  BATSLIB_FILE_PATH_ADD='<temp>'
+    pushd "${TESTDIR}" >&2
 
-  pushd "${TESTDIR}" >&2
+    ######## DEFAULT FLAGS ########
+    LOGFILE="${TESTDIR}/logs/log.txt"
+    QUIET=false
+    LOGLEVEL=ERROR
+    VERBOSE=false
+    FORCE=false
+    DRYRUN=false
 
-  ######## DEFAULT FLAGS ########
-  LOGFILE="${TESTDIR}/logs/log.txt"
-  QUIET=false
-  LOGLEVEL=ERROR
-  VERBOSE=false
-  FORCE=false
-  DRYRUN=false
-
-  set -o errtrace
-  set -o nounset
-  set -o pipefail
+    set -o errtrace
+    set -o nounset
+    set -o pipefail
 }
 
 teardown() {
-  set +o nounset
-  set +o errtrace
-  set +o pipefail
+    set +o nounset
+    set +o errtrace
+    set +o pipefail
 
-  popd >&2
-  temp_del "${TESTDIR}"
+    popd >&2
+    temp_del "${TESTDIR}"
 }
 
 ######## RUN TESTS ########
 @test "Sanity..." {
-  run true
-
-  assert_success
-  assert_output ""
+    run true
+    assert_success
+    assert_output ""
 }
 
-_testExecute_() {
-  @test "_execute_: Debug command" {
+@test "_execute_: Debug command" {
     DRYRUN=true
     run _execute_ "rm testfile.txt"
     assert_success
     assert_output --partial "[ dryrun] rm testfile.txt"
-  }
+}
 
-  @test "_execute_: No command" {
+@test "_execute_: No command" {
     run _execute_
 
     assert_failure
     assert_output --regexp "\[  fatal\] Missing required argument to _execute_"
-  }
+}
 
-  @test "_execute_: Bad command" {
+@test "_execute_: Bad command" {
     run _execute_ "rm nonexistant.txt"
 
     assert_failure
     assert_output --partial "[warning] rm nonexistant.txt"
-  }
+}
 
-  @test "_execute_ -e: Bad command" {
+@test "_execute_ -e: Bad command" {
     run _execute_ -e "rm nonexistant.txt"
 
     assert_failure
     assert_output "error: rm nonexistant.txt"
-  }
+}
 
-  @test "_execute_ -p: Return 0 on bad command" {
+@test "_execute_ -p: Return 0 on bad command" {
     run _execute_ -p "rm nonexistant.txt"
     assert_success
     assert_output --partial "[warning] rm nonexistant.txt"
-  }
+}
 
-  @test "_execute_: Good command" {
+@test "_execute_: Good command" {
     touch "testfile.txt"
     run _execute_ "rm testfile.txt"
     assert_success
     assert_output --partial "[   info] rm testfile.txt"
     assert_file_not_exist "testfile.txt"
-  }
+}
 
-  @test "_execute_: Good command - no output" {
+@test "_execute_: Good command - no output" {
     touch "testfile.txt"
     run _execute_ -q "rm testfile.txt"
     assert_success
     refute_output --partial "[   info] rm testfile.txt"
     assert_file_not_exist "testfile.txt"
-  }
+}
 
-  @test "_execute_ -s: Good command" {
+@test "_execute_ -s: Good command" {
     touch "testfile.txt"
     run _execute_ -s "rm testfile.txt"
     assert_success
     assert_output --partial "[success] rm testfile.txt"
     assert_file_not_exist "testfile.txt"
-  }
+}
 
-  @test "_execute_ -v: Good command" {
+@test "_execute_ -v: Good command" {
     touch "testfile.txt"
     run _execute_ -v "rm -v testfile.txt"
 
@@ -134,18 +131,18 @@ _testExecute_() {
     assert_line --index 0 "removed 'testfile.txt'"
     assert_line --index 1 --partial "[   info] rm -v testfile.txt"
     assert_file_not_exist "testfile.txt"
-  }
+}
 
-    @test "_execute_ -n: Good command" {
+@test "_execute_ -n: Good command" {
     touch "testfile.txt"
     run _execute_ -n "rm -v testfile.txt"
 
     assert_success
     assert_line --index 0 --partial "[ notice] rm -v testfile.txt"
     assert_file_not_exist "testfile.txt"
-  }
+}
 
-  @test "_execute_ -ev: Good command" {
+@test "_execute_ -ev: Good command" {
     touch "testfile.txt"
     run _execute_ -ve "rm -v testfile.txt"
 
@@ -153,67 +150,74 @@ _testExecute_() {
     assert_line --index 0 "removed 'testfile.txt'"
     assert_line --index 1 --partial "rm -v testfile.txt"
     assert_file_not_exist "testfile.txt"
-  }
 }
-_testExecute_
 
 @test "_findBaseDir_" {
-  run _findBaseDir_
-  assert_output --regexp "^/usr/local/Cellar/bats-core/[0-9]\.[0-9]\.[0-9]"
+    run _findBaseDir_
+    assert_success
+    if [ -d /usr/local/Cellar/ ]; then
+        assert_output --regexp "^/usr/local/Cellar/bats-core/[0-9]\.[0-9]\.[0-9]"
+    elif [ -d /opt/homebrew/Cellar ]; then
+        assert_output --regexp "^/opt/homebrew/Cellar/bats-core/[0-9]\.[0-9]\.[0-9]"
+    fi
 }
 
 @test "_generateUUID_" {
-  run _generateUUID_
-  assert_success
-  assert_output --regexp "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+    run _generateUUID_
+    assert_success
+    assert_output --regexp "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 }
 
-@test "_makeProgressBar_: verbose" {
-  verbose=true
-  run _makeProgressBar_ 100
-
-  assert_success
-  assert_output ""
-  verbose=false
+@test "_spinner_: verbose" {
+    verbose=true
+    run _spinner_
+    assert_success
+    assert_output ""
 }
 
-@test "_makeProgressBar_: quiet" {
-  quiet=true
-  run _makeProgressBar_ 100
+@test "_spinner_: quiet" {
+    quiet=true
+    run _spinner_
+    assert_success
+    assert_output ""
+}
 
-  assert_success
-  assert_output ""
-  quiet=false
+@test "_progressBar_: verbose" {
+    verbose=true
+    run _progressBar_ 100
+    assert_success
+    assert_output ""
+}
+
+@test "_progressBar_: quiet" {
+    quiet=true
+    run _progressBar_ 100
+    assert_success
+    assert_output ""
 }
 
 @test "_seekConfirmation_: yes" {
-  run _seekConfirmation_ 'test' <<<"y"
-
-  assert_success
-  assert_output --partial "[  input] test"
+    run _seekConfirmation_ 'test' <<<"y"
+    assert_success
+    assert_output --partial "[  input] test"
 }
 
 @test "_seekConfirmation_: no" {
-  run _seekConfirmation_ 'test' <<<"n"
-
-  assert_failure
-  assert_output --partial "[  input] test"
+    run _seekConfirmation_ 'test' <<<"n"
+    assert_failure
+    assert_output --partial "[  input] test"
 }
 
 @test "_seekConfirmation_: Force" {
-  FORCE=true
-
-  run _seekConfirmation_ "test"
-  assert_success
-  assert_output --partial "test"
+    FORCE=true
+    run _seekConfirmation_ "test"
+    assert_success
+    assert_output --partial "test"
 }
 
 @test "_seekConfirmation_: Quiet" {
-  QUIET=true
-  run _seekConfirmation_ 'test' <<<"y"
-
-  assert_success
-  refute_output --partial "test"
-
-  quiet=false
+    QUIET=true
+    run _seekConfirmation_ 'test' <<<"y"
+    assert_success
+    refute_output --partial "test"
 }

@@ -53,7 +53,7 @@ _setColors_() {
             blue=$(tput setaf 38)
             yellow=$(tput setaf 11)
             green=$(tput setaf 82)
-            red=$(tput setaf 196)
+            red=$(tput setaf 9)
             purple=$(tput setaf 171)
             gray=$(tput setaf 250)
         else
@@ -61,7 +61,7 @@ _setColors_() {
             blue=$(tput setaf 38)
             yellow=$(tput setaf 3)
             green=$(tput setaf 2)
-            red=$(tput setaf 1)
+            red=$(tput setaf 9)
             purple=$(tput setaf 13)
             gray=$(tput setaf 7)
         fi
@@ -306,6 +306,9 @@ _trapCleanup_() {
     local _funcstack="${4:-}"
     local _script="${5:-}"
     local _sourced="${6:-}"
+
+    # Replace the cursor in-case 'tput civis' has been used
+    tput cnorm
 
     if declare -f "fatal" &>/dev/null && declare -f "_printFuncStack_" &>/dev/null; then
 

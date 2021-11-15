@@ -356,26 +356,28 @@ _generateUUID_() {
     printf '\n'
 }
 
-_makeProgressBar_() {
+_progressBar_() {
     # DESC:
-    #         Prints a progress bar within a for/while loop
+    #         Prints a progress bar within a for/while loop. For this to work correctly you
+    #         MUST know the exact number of iterations. If you don't know the exact number use _spinner_
     # ARGS:
     #         $1 (Required) - The total number of items counted
     #         $2 (Optional) - The optional title of the progress bar
-    # OUTS:  stdout: progress bar
+    # OUTS:
+    #         stdout: progress bar
     # USAGE:
-    #         for number in $(seq 0 100); do
-    #             sleep 1
+    #         for i in $(seq 0 100); do
+    #             sleep 0.1
     #             _makeProgressBar_ "100" "Counting numbers"
     #         done
 
-    [[ $# == 0 ]] && return # Do nothing if no arguments are passed
-    (${QUIET:-}) && return
-    (${VERBOSE:-}) && return
+    [[ $# == 0 ]] && return   # Do nothing if no arguments are passed
+    (${QUIET:-}) && return    # Do nothing in quiet mode
+    (${VERBOSE:-}) && return  # Do nothing if verbose mode is enabled
     [ ! -t 1 ] && return      # Do nothing if the output is not a terminal
     [[ ${1} == 1 ]] && return # Do nothing with a single element
 
-    local n="${1}"
+    local _n="${1}"
     local _width=30
     local _barCharacter="#"
     local _percentage
@@ -383,40 +385,132 @@ _makeProgressBar_() {
     local _bar
     local _progressBarLine
     local _barTitle="${2:-Running Process}"
-    local n
 
-    ((n = n - 1))
+    ((_n = _n - 1))
 
     # Reset the count
-    [ -z "${progressBarProgress:-}" ] && progressBarProgress=0
-    tput civis # Hide the cursor
-    trap 'tput cnorm; exit 1' SIGINT
+    [ -z "${PROGRESS_BAR_PROGRESS:-}" ] && PROGRESS_BAR_PROGRESS=0
 
-    if [[ ! ${progressBarProgress} -eq ${n} ]]; then
-        #echo "progressBarProgress: $progressBarProgress"
+    # Hide the cursor
+    tput civis
+
+    if [[ ! ${PROGRESS_BAR_PROGRESS} -eq ${_n} ]]; then
+
         # Compute the percentage.
-        _percentage=$((progressBarProgress * 100 / $1))
+        _percentage=$((PROGRESS_BAR_PROGRESS * 100 / $1))
+
         # Compute the number of blocks to represent the percentage.
-        _num=$((progressBarProgress * _width / $1))
+        _num=$((PROGRESS_BAR_PROGRESS * _width / $1))
+
         # Create the progress bar string.
         _bar=""
         if [[ ${_num} -gt 0 ]]; then
             _bar=$(printf "%0.s${_barCharacter}" $(seq 1 "${_num}"))
         fi
+
         # Print the progress bar.
         _progressBarLine=$(printf "%s [%-${_width}s] (%d%%)" "  ${_barTitle}" "${_bar}" "${_percentage}")
         printf "%s\r" "${_progressBarLine}"
-        # echo -ne "${_progressBarLine}\r"
-        progressBarProgress=$((progressBarProgress + 1))
-    else
-        # Clear the progress bar when complete
-        # echo -ne "\033[0K\r"
-        tput el # Clear the line
 
-        unset progressBarProgress
+        PROGRESS_BAR_PROGRESS=$((PROGRESS_BAR_PROGRESS + 1))
+
+    else
+        # Replace the cursor
+        tput cnorm
+
+        # Clear the progress bar when complete
+        printf "\r\033[0K"
+
+        unset PROGRESS_BAR_PROGRESS
     fi
 
+}
+
+_spinner_() {
+    # DESC:
+    #					Creates a spinner within a for/while loop.
+    #         Don't forget to add _endspin_ at the end of the loop
+    # ARGS:
+    #					$1 (Optional) - Text accompanying the spinner
+    # OUTS:
+    #					stdout: progress bar
+    # USAGE:
+    #         for i in $(seq 0 100); do
+    #             sleep 0.1
+    #             _spinner_ "Counting numbers"
+    #         done
+    #         _endspin_
+
+    (${QUIET:-}) && return   # Do nothing in quiet mode
+    (${VERBOSE:-}) && return # Do nothing in verbose mode
+    [ ! -t 1 ] && return     # Do nothing if the output is not a terminal
+
+    local _message
+    _message="${1:-Running process}"
+
+    # Hide the cursor
+    tput civis
+
+    [[ -z ${SPIN_NUM:-} ]] && SPIN_NUM=0
+
+    case ${SPIN_NUM:-} in
+        0) _glyph="█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁" ;;
+        1) _glyph="██▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁" ;;
+        2) _glyph="███▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁" ;;
+        3) _glyph="████▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁" ;;
+        4) _glyph="██████▁▁▁▁▁▁▁▁▁▁▁▁▁▁" ;;
+        5) _glyph="██████▁▁▁▁▁▁▁▁▁▁▁▁▁▁" ;;
+        6) _glyph="███████▁▁▁▁▁▁▁▁▁▁▁▁▁" ;;
+        7) _glyph="████████▁▁▁▁▁▁▁▁▁▁▁▁" ;;
+        8) _glyph="█████████▁▁▁▁▁▁▁▁▁▁▁" ;;
+        9) _glyph="█████████▁▁▁▁▁▁▁▁▁▁▁" ;;
+        10) _glyph="██████████▁▁▁▁▁▁▁▁▁▁" ;;
+        11) _glyph="███████████▁▁▁▁▁▁▁▁▁" ;;
+        12) _glyph="█████████████▁▁▁▁▁▁▁" ;;
+        13) _glyph="██████████████▁▁▁▁▁▁" ;;
+        14) _glyph="██████████████▁▁▁▁▁▁" ;;
+        15) _glyph="███████████████▁▁▁▁▁" ;;
+        16) _glyph="███████████████▁▁▁▁▁" ;;
+        17) _glyph="███████████████▁▁▁▁▁" ;;
+        18) _glyph="████████████████▁▁▁▁" ;;
+        19) _glyph="█████████████████▁▁▁" ;;
+        20) _glyph="█████████████████▁▁▁" ;;
+        21) _glyph="██████████████████▁▁" ;;
+        22) _glyph="██████████████████▁▁" ;;
+        23) _glyph="███████████████████▁" ;;
+        24) _glyph="███████████████████▁" ;;
+        25) _glyph="███████████████████▁" ;;
+        26) _glyph="████████████████████" ;;
+        27) _glyph="████████████████████" ;;
+        28) _glyph="█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁" ;;
+    esac
+
+    # shellcheck disable=SC2154
+    printf "\r${gray}[   info] %s... %s${reset}" "${_message}" "${_glyph}"
+    if [[ ${SPIN_NUM} -lt 28 ]]; then
+        ((SPIN_NUM = SPIN_NUM + 1))
+    else
+        SPIN_NUM=0
+    fi
+}
+
+_endspin_() {
+    # DESC:
+    #         Clears the line that showed the spinner and replaces the cursor. To be run after _spinner_
+    # ARGS:
+    #					None
+    # OUTS:
+    #					stdout:  Removes previous line
+    # USAGE:
+    #					_endspin_
+
+    # Clear the spinner
+    printf "\r\033[0K"
+
+    # Replace the cursor
     tput cnorm
+
+    unset SPIN_NUM
 }
 
 _runAsRoot_() {

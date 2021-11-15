@@ -258,12 +258,14 @@ Miscellaneous functions
 - **`_detectLinuxDistro_`** Detects the host computer's distribution of Linux
 - **`_detectMacOSVersion_`** Detects the host computer's version of macOS
 - **`_detectOS_`** Detect the the host computer's operating system
+- **`_endspin_`** Clears output from the _spinner_
 - **`_execute_`** Executes commands with safety and logging options. Respects `DRYRUN` and `VERBOSE` flags.
 - **`_findBaseDir_`** Locates the real directory of the script being run. Similar to GNU readlink -n
 - **`_generateUUID_`** Generates a unique UUID
-- **`_makeProgressBar_`** Prints a progress bar within a for/while loop
+- **`_progressBar_`** Prints a progress bar within a for/while loop
 - **`_runAsRoot_`** Run the requested command as root (via sudo if requested)
 - **`_seekConfirmation_`** Seek user input for yes/no question
+- **`_spinner_`** Creates a spinner within a for/while loop.
 - **`_trapCleanup_`** Cleans up after a trapped error.
 
 ## services.bash
