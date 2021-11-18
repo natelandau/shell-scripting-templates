@@ -353,28 +353,6 @@ _makeTempDir_() {
     debug "\$TMP_DIR=${TMP_DIR}"
 }
 
-_homebrewPath_() {
-    # DESC:
-    #					Add homebrew bin dir to PATH
-    # ARGS:
-    #					None
-    # OUTS:
-    #					0 if successful
-    #         1 if unsuccessful
-    #         PATH: Adds homebrew bin directory to PATH
-    # USAGE:
-    #					# if ! _homebrewPath_; then exit 1; fi
-
-    ! declare -f "_setPATH_" &>/dev/null && fatal "${FUNCNAME[0]} needs function _setPATH_"
-
-    if _setPATH_ "/usr/local/bin" "/opt/homebrew/bin"; then
-        return 0
-    else
-        return 1
-    fi
-
-}
-
 # shellcheck disable=SC2120
 _acquireScriptLock_() {
     # DESC:
@@ -494,6 +472,28 @@ _useGNUutils_() {
         "/opt/homebrew/opt/grep/libexec/gnubin" \
         "/opt/homebrew/opt/coreutils/libexec/gnubin" \
         "/opt/homebrew/opt/gnu-tar/libexec/gnubin"; then
+        return 0
+    else
+        return 1
+    fi
+
+}
+
+_homebrewPath_() {
+    # DESC:
+    #					Add homebrew bin dir to PATH
+    # ARGS:
+    #					None
+    # OUTS:
+    #					0 if successful
+    #         1 if unsuccessful
+    #         PATH: Adds homebrew bin directory to PATH
+    # USAGE:
+    #					# if ! _homebrewPath_; then exit 1; fi
+
+    ! declare -f "_setPATH_" &>/dev/null && fatal "${FUNCNAME[0]} needs function _setPATH_"
+
+    if _setPATH_ "/usr/local/bin" "/opt/homebrew/bin"; then
         return 0
     else
         return 1
