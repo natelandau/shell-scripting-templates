@@ -493,12 +493,21 @@ _homebrewPath_() {
 
     ! declare -f "_setPATH_" &>/dev/null && fatal "${FUNCNAME[0]} needs function _setPATH_"
 
-    if _setPATH_ "/usr/local/bin" "/opt/homebrew/bin"; then
-        return 0
+    if _uname=$(command -v uname); then
+        if "${_uname}" | tr '[:upper:]' '[:lower:]' | grep -q 'darwin'; then
+            if _setPATH_ "/usr/local/bin" "/opt/homebrew/bin"; then
+                return 0
+            else
+                return 1
+            fi
+        fi
     else
-        return 1
+        if _setPATH_ "/usr/local/bin" "/opt/homebrew/bin"; then
+            return 0
+        else
+            return 1
+        fi
     fi
-
 }
 
 _parseOptions_() {
