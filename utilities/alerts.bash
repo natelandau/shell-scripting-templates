@@ -106,7 +106,7 @@ _alert_() {
     fi
 
     _writeToScreen_() {
-        ("${QUIET}") && return 0 # Print to console when script is not 'quiet'
+        [[ ${QUIET} == true ]] && return 0 # Print to console when script is not 'quiet'
         [[ ${VERBOSE} == false && ${_alertType} =~ ^(debug|verbose) ]] && return 0
 
         if ! [[ -t 1 || -z ${TERM:-} ]]; then # Don't use colors on non-recognized terminals
