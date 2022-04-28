@@ -115,13 +115,13 @@ The files within `utilities/` contain BASH functions which can be used in your s
 
 Within the `utilities` folder are many BASH functions meant to ease development of more complicated scripts. These can be included in the template in two ways.
 
-#### 1. Copy and paste into standaloneTemplate.sh
+#### 1. Copy and paste into template_standalone.sh
 
 You can copy any complete function from the Utilities and place it into your script. Copy it beneath the `### Custom utility functions` line. Scripts created this way are fully portable among systems
 
 #### 2. Source all the utility files by using template.sh
 
-`template.sh` contains a function to source all the utility files into the script. Beware, that you'll need to update the paths within the `_sourceUtilities_` function to ensure your script can find this repository.
+`template.sh` contains a function to source all the utility files into the script. **IMPORTANT:** You will need to update the paths within the `_sourceUtilities_` function to ensure your script can find this repository.
 
 ## alerts.bash
 
@@ -130,6 +130,7 @@ You can copy any complete function from the Utilities and place it into your scr
 - **`_alert_`** Performs alerting functions including writing to a log file and printing to screen
 - **`_centerOutput_`** Prints text in the center of the terminal window
 - **`_setColors_`** Sets color constants for alerting (**Note:** Colors default to a dark theme.)
+- **`_usageCommands_** Used to add commands to the `_usage_` function. Prints commands and their descriptions in two aligned columns. Uses an option 4 character tab count to indent the commands.
 
 Basic alerting, logging, and setting color functions (included in `scriptTemplate.sh` by default). Print messages to stdout and to a user specified logfile using the following functions.
 
