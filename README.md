@@ -130,7 +130,7 @@ You can copy any complete function from the Utilities and place it into your scr
 - **`_alert_`** Performs alerting functions including writing to a log file and printing to screen
 - **`_centerOutput_`** Prints text in the center of the terminal window
 - **`_setColors_`** Sets color constants for alerting (**Note:** Colors default to a dark theme.)
-- **`_usageCommands_** Used to add commands to the `_usage_` function. Prints commands and their descriptions in two aligned columns. Uses an option 4 character tab count to indent the commands.
+- **`_usageCommands_`** Used to add commands to the `_usage_` function. Prints commands and their descriptions in two aligned columns. Uses an option 4 character tab count to indent the commands.
 
 Basic alerting, logging, and setting color functions (included in `scriptTemplate.sh` by default). Print messages to stdout and to a user specified logfile using the following functions.
 
