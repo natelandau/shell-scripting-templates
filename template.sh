@@ -295,17 +295,31 @@ _usage_() {
 
   This is a script template.  Edit this description to print help to users.
 
-  ${bold}Options:${reset}
-    -h, --help              Display this help and exit
-    --loglevel [LEVEL]      One of: FATAL, ERROR, WARN, INFO, NOTICE, DEBUG, ALL, OFF
-                            (Default is 'ERROR')
-    --logfile [FILE]        Full PATH to logfile.  (Default is '${HOME}/logs/$(basename "$0").log')
-    -n, --dryrun            Non-destructive. Makes no permanent changes.
-    -q, --quiet             Quiet (no output)
-    -v, --verbose           Output more information. (Items echoed to 'verbose')
-    --force                 Skip all user interaction.  Implied 'Yes' to all actions.
+  ${bold}${underline}Options:${reset}
+$(_usageCommands_ \
+        "-h, --help" \
+        "Display this help and exit")
+$(_usageCommands_ \
+            "--loglevel [LEVEL]" \
+            "One of: FATAL, ERROR (default), WARN, INFO, NOTICE, DEBUG, ALL, OFF")
+$(_usageCommands_ \
+            "--logfile [FILE]" \
+            "Full PATH to logfile.  (Default is '${HOME}/logs/$(basename "$0").log')")
+$(_usageCommands_ \
+            "-n, --dryrun" \
+            "Non-destructive. Makes no permanent changes." \
+            2)
+$(_usageCommands_ \
+            "-q, --quiet" \
+            "Quiet (no output)")
+$(_usageCommands_ \
+            "-v, --verbose" \
+            "Output more information. (Items echoed to 'verbose')")
+$(_usageCommands_ \
+            "--force" \
+            "Skip all user interaction.  Implied 'Yes' to all actions.")
 
-  ${bold}Example Usage:${reset}
+  ${bold}${underline}Example Usage:${reset}
 
       ${gray}# Run the script and specify log level and log file.${reset}
       $(basename "$0") -vn --logfile "/path/to/file.log" --loglevel 'WARN'

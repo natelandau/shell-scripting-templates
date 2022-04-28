@@ -334,3 +334,62 @@ _clearLine_() (
         done
     fi
 )
+
+_usageCommands_() {
+    # DESC:
+    #					Used to add commands to the _usage_ function.  Prints commands and their descriptions
+    #         in two aligned columns.  Uses an option 4 character tab count to indent the commands.
+    # ARGS:
+    #         $1 (required): Key name (left column text)
+    #         $2 (required): Long value (right column text. Wraps around if too long)
+    #         $3 (optional): Number of 4 character tabs to indent the command (default 1)
+    # OUTS:
+    #         stdout: Prints the output in columns
+    # NOTE:
+    #         Long text or ANSI colors in the first column may create display issues
+    # USAGE:
+    #         _usageCommands_ "Key" "Long value text" [tab level]
+
+    [[ $# -lt 2 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+
+    local _key="$1"
+    local _value="$2"
+    local _tabSize=4
+    local _tabLevel="${3-}"
+    local _line
+    local _rightIndent
+    local _leftIndent
+    if [[ -z ${3-} ]]; then
+        _tabLevel=1
+    fi
+
+    _leftIndent="$((_tabLevel * _tabSize))"
+
+    local _leftColumnWidth="$((32 - _leftIndent))"
+
+    if [ "$(tput cols)" -gt 180 ]; then
+        _rightIndent=80
+    elif [ "$(tput cols)" -gt 160 ]; then
+        _rightIndent=60
+    elif [ "$(tput cols)" -gt 130 ]; then
+        _rightIndent=30
+    elif [ "$(tput cols)" -gt 120 ]; then
+        _rightIndent=20
+    elif [ "$(tput cols)" -gt 110 ]; then
+        _rightIndent=10
+    else
+        _rightIndent=0
+    fi
+
+    local _rightWrapLength=$(($(tput cols) - _leftColumnWidth - _leftIndent - _rightIndent))
+
+    local _first_line=0
+    while read -r _line; do
+        if [[ ${_first_line} -eq 0 ]]; then
+            _first_line=1
+        else
+            _key=" "
+        fi
+        printf "%-${_leftIndent}s${bold}${white}%-${_leftColumnWidth}b${reset} %b\n" "" "${_key}${reset}" "${_line}"
+    done <<<"$(fold -w${_rightWrapLength} -s <<<"${_value}")"
+}
