@@ -600,47 +600,70 @@ _parseOptions_() {
     fi
 }
 
-_usageCommands_() {
+_columns_() {
     # DESC:
-    #					Used to add commands to the _usage_ function.  Prints commands and their descriptions
-    #         in two aligned columns.  Uses an option 4 character tab count to indent the commands.
+    #         Prints a two column output from a key/value pair.
+    #         Optionally pass a number of 2 space tabs to indent the output.
     # ARGS:
-    #         $1 (required): Key name (left column text)
-    #         $2 (required): Long value (right column text. Wraps around if too long)
-    #         $3 (optional): Number of 4 character tabs to indent the command (default 1)
+    #         $1 (required): Key name (Left column text)
+    #         $2 (required): Long value (Right column text. Wraps around if too long)
+    #         $3 (optional): Number of 2 character tabs to indent the command (default 1)
+    # OPTS:
+    #         -b    Bold the left column
+    #         -u    Underline the left column
+    #         -r    Reverse background and foreground colors
     # OUTS:
     #         stdout: Prints the output in columns
     # NOTE:
     #         Long text or ANSI colors in the first column may create display issues
     # USAGE:
-    #         _usageCommands_ "Key" "Long value text" [tab level]
+    #         _columns_ "Key" "Long value text" [tab level]
 
     [[ $# -lt 2 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    local _key="$1"
-    local _value="$2"
-    local _tabSize=4
+    local opt
+    local OPTIND=1
+    local _style=""
+    while getopts ":bBuUrR" opt; do
+        case ${opt} in
+            b | B) _style="${_style}${bold}" ;;
+            u | U) _style="${_style}${underline}" ;;
+            r | R) _style="${_style}${reverse}" ;;
+            *) fatal "Unrecognized option '${1}' passed to ${FUNCNAME[0]}. Exiting." ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
+    local _key="${1}"
+    local _value="${2}"
     local _tabLevel="${3-}"
+    local _tabSize=2
     local _line
     local _rightIndent
     local _leftIndent
     if [[ -z ${3-} ]]; then
-        _tabLevel=1
+        _tabLevel=0
     fi
 
     _leftIndent="$((_tabLevel * _tabSize))"
 
-    local _leftColumnWidth="$((32 - _leftIndent))"
+    local _leftColumnWidth="$((30 + _leftIndent))"
 
     if [ "$(tput cols)" -gt 180 ]; then
-        _rightIndent=80
+        _rightIndent=110
     elif [ "$(tput cols)" -gt 160 ]; then
-        _rightIndent=60
+        _rightIndent=90
     elif [ "$(tput cols)" -gt 130 ]; then
-        _rightIndent=30
+        _rightIndent=60
     elif [ "$(tput cols)" -gt 120 ]; then
-        _rightIndent=20
+        _rightIndent=50
     elif [ "$(tput cols)" -gt 110 ]; then
+        _rightIndent=40
+    elif [ "$(tput cols)" -gt 100 ]; then
+        _rightIndent=30
+    elif [ "$(tput cols)" -gt 90 ]; then
+        _rightIndent=20
+    elif [ "$(tput cols)" -gt 80 ]; then
         _rightIndent=10
     else
         _rightIndent=0
@@ -655,7 +678,7 @@ _usageCommands_() {
         else
             _key=" "
         fi
-        printf "%-${_leftIndent}s${bold}${white}%-${_leftColumnWidth}b${reset} %b\n" "" "${_key}${reset}" "${_line}"
+        printf "%-${_leftIndent}s${_style}%-${_leftColumnWidth}b${reset} %b\n" "" "${_key}${reset}" "${_line}"
     done <<<"$(fold -w${_rightWrapLength} -s <<<"${_value}")"
 }
 
@@ -667,33 +690,18 @@ _usage_() {
   This is a script template.  Edit this description to print help to users.
 
   ${bold}${underline}Options:${reset}
-$(_usageCommands_ \
-        "-h, --help" \
-        "Display this help and exit")
-$(_usageCommands_ \
-            "--loglevel [LEVEL]" \
-            "One of: FATAL, ERROR (default), WARN, INFO, NOTICE, DEBUG, ALL, OFF")
-$(_usageCommands_ \
-            "--logfile [FILE]" \
-            "Full PATH to logfile.  (Default is '${HOME}/logs/$(basename "$0").log')")
-$(_usageCommands_ \
-            "-n, --dryrun" \
-            "Non-destructive. Makes no permanent changes." \
-            2)
-$(_usageCommands_ \
-            "-q, --quiet" \
-            "Quiet (no output)")
-$(_usageCommands_ \
-            "-v, --verbose" \
-            "Output more information. (Items echoed to 'verbose')")
-$(_usageCommands_ \
-            "--force" \
-            "Skip all user interaction.  Implied 'Yes' to all actions.")
+$(_columns_ -b -- '-h, --help' "Display this help and exit" 2)
+$(_columns_ -b -- "--loglevel [LEVEL]" "One of: FATAL, ERROR (default), WARN, INFO, NOTICE, DEBUG, ALL, OFF" 2)
+$(_columns_ -b -- "--logfile [FILE]" "Full PATH to logfile.  (Default is '\${HOME}/logs/$(basename "$0").log')" 2)
+$(_columns_ -b -- "-n, --dryrun" "Non-destructive. Makes no permanent changes." 2)
+$(_columns_ -b -- "-q, --quiet" "Quiet (no output)" 2)
+$(_columns_ -b -- "-v, --verbose" "Output more information. (Items echoed to 'verbose')" 2)
+$(_columns_ -b -- "--force" "Skip all user interaction.  Implied 'Yes' to all actions." 2)
 
   ${bold}${underline}Example Usage:${reset}
 
-      ${gray}# Run the script and specify log level and log file.${reset}
-      $(basename "$0") -vn --logfile "/path/to/file.log" --loglevel 'WARN'
+    ${gray}# Run the script and specify log level and log file.${reset}
+    $(basename "$0") -vn --logfile "/path/to/file.log" --loglevel 'WARN'
 USAGE_TEXT
 }
 
