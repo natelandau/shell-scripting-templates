@@ -250,3 +250,13 @@ teardown() {
 
   assert_file_not_exist "${LOGFILE}"
 }
+
+@test "_columns_: key/value" {
+  run _columns_ "key" "value"
+  assert_output --regexp "^key.*value"
+}
+
+@test "_columns_: indented key/value" {
+  run _columns_ "key" "value" 1
+  assert_output --regexp "^  key.*value"
+}

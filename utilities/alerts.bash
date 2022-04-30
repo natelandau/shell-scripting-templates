@@ -287,12 +287,13 @@ _clearLine_() (
 
 _columns_() {
     # DESC:
-    #         Prints a two column output from a key/value pair.
+    #         Prints a two column output with fixed widths and wrapping text from a key/value pair.
     #         Optionally pass a number of 2 space tabs to indent the output.
     # ARGS:
     #         $1 (required): Key name (Left column text)
     #         $2 (required): Long value (Right column text. Wraps around if too long)
     #         $3 (optional): Number of 2 character tabs to indent the command (default 1)
+    #         $4 (optional): Total character width of the left column (default 35)
     # OPTS:
     #         -b    Bold the left column
     #         -u    Underline the left column
@@ -321,18 +322,16 @@ _columns_() {
 
     local _key="${1}"
     local _value="${2}"
-    local _tabLevel="${3-}"
+    local _tabLevel="${3:-0}"
+    local _leftColumnWidth="${4:-35}"
     local _tabSize=2
     local _line
     local _rightIndent
     local _leftIndent
-    if [[ -z ${3-} ]]; then
-        _tabLevel=0
-    fi
 
     _leftIndent="$((_tabLevel * _tabSize))"
 
-    local _leftColumnWidth="$((30 + _leftIndent))"
+    local _leftColumnWidth="$((_leftColumnWidth - _leftIndent))"
 
     if [ "$(tput cols)" -gt 180 ]; then
         _rightIndent=110
