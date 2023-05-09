@@ -17,6 +17,10 @@ function bash_colors_256 ()
     TMP=
     OUT="${TMPDIR:-/tmp}/${FUNCNAME[0]}.out"
     #rm -vf "${OUT}"
+    if [[ -f "${OUT}" ]]; then
+        cut -f2- "${OUT}" | less -R -p "^:\$"; return 0
+    fi
+
     touch "${OUT}"
 
     printf "%s:::: %3s " "${FUNCNAME[0]}" "..." 1>&2
