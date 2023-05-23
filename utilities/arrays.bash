@@ -237,7 +237,7 @@ _forEachSome_() {
 
 _inArray_() {
     # DESC:
-    #         Determine if a value is in an array.  Default is case sensitive.
+    #         Determine if a regex matches an array element.  Default is case sensitive.
     #         Pass -i flag to ignore case.
     # ARGS:
     #         $1 (Required) - Value to search for
@@ -291,12 +291,7 @@ _isEmptyArray_() {
     # CREDIT:
     #         https://github.com/labbots/bash-utility
 
-    declare -a _array=("$@")
-    if [ ${#_array[@]} -eq 0 ]; then
-        return 0
-    else
-        return 1
-    fi
+    [ ${#@} -eq 0 ]
 }
 
 _joinArray_() {
@@ -449,7 +444,7 @@ _sortArray_() {
     # CREDIT:
     #           https://github.com/labbots/bash-utility
 
-    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+    [[ $# -eq 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
     declare -a _array=("$@")
     declare -a _sortedArray
     mapfile -t _sortedArray < <(printf '%s\n' "${_array[@]}" | sort)
