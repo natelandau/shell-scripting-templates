@@ -8,9 +8,11 @@
 #
 # └── library (directory name and location are irrelevant)
 #     ├── autoload.sh
-#     ├── _file_1.sh
-#     ├── _file_2.sh
-#     └── _file_3.sh
+#     ├── lib
+#     ├──── functions group
+#     ├────── _file_1.sh
+#     ├────── _file_2.sh
+#     └────── _file_3.sh
 #
 # This script defines and then calls the autoload function.
 #
@@ -74,7 +76,7 @@ bfl::autoload() {
   autoload_canonical_path=$(readlink -e "${BASH_SOURCE[0]}") || exit 1
   autoload_directory=$(dirname "${autoload_canonical_path}") || exit 1
 
-  for file in "${autoload_directory}"/_*; do
+  for file in "${autoload_directory}"/*/_*; do
     source "${file}" || exit 1
   done
 }
