@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+declare_assertions() {
+  declare -ga assertions=(
+    'bfl::send_mail_msg||1'
+    'bfl::send_mail_msg|""|1'
+    'bfl::send_mail_msg|"" ""|1'
+    'bfl::send_mail_msg|"" "" ""|1'
+    'bfl::send_mail_msg|"" "" "" ""|1'
+    'bfl::send_mail_msg|"" "" "" "" ""|1'
+    'bfl::send_mail_msg|"" "" "" "" "" ""|1'
+    'bfl::send_mail_msg|"foo@example.com" "" "" "" ""|1'
+    'bfl::send_mail_msg|"foo@example.com" "foo@example.com" "" "" ""|1'
+    'bfl::send_mail_msg|"foo@example.com" "foo@example.com" "foo@example.com" "" ""|1'
+    'bfl::send_mail_msg|"foo@example.com" "foo@example.com" "foo@example.com" "Subject" ""|1'
+    'bfl::send_mail_msg|"foo@example.com" "foo@example.com" "foo@example.com" "Subject"|1'
+    'bfl::send_mail_msg|"foo@example.com" "foo@example.com" "foo@example.com" "Subject" "Body"|0'
+    'bfl::send_mail_msg|"Foo <foo@example.com>" "foo@example.com" "foo@example.com" "Subject" "Body"|0'
+    'bfl::send_mail_msg|"Foo <foo@example.com>" "Foo <foo@example.com>" "foo@example.com" "Subject" "Body"|0'
+  )

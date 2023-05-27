@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#------------------------------------------------------------------------------
+# ----------- https://github.com/jmooring/bash-function-library.git -----------
 # @file
 # Defines and calls function: bfl::declare_ansi_escape_sequences().
 #------------------------------------------------------------------------------

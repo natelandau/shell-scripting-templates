@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#------------------------------------------------------------------------------
+# ----------- https://github.com/jmooring/bash-function-library.git -----------
 # @file
 # Defines function: bfl::is_positive_integer().
 #------------------------------------------------------------------------------

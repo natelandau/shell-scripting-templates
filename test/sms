@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+declare_assertions() {
+  declare -ga assertions=(
+    'bfl::send_sms_msg||1'
+    'bfl::send_sms_msg|""|1'
+    'bfl::send_sms_msg|"" ""|1'
+    'bfl::send_sms_msg|"foo"|1'
+    'bfl::send_sms_msg|"foo" ""|1'
+    'bfl::send_sms_msg|"foo" "bar"|1'
+    'bfl::send_sms_msg|"17039897379" "bar"|1'
+    'bfl::send_sms_msg|"+17039897379"|1'
+    'bfl::send_sms_msg|"+17039897379" ""|1'
+    'bfl::send_sms_msg|"+17039897379" "bar"|0'
+  )
