@@ -2,7 +2,7 @@
 
 # ----------- https://github.com/jmooring/bash-function-library.git -----------
 # @file
-# Defines function: bfl::urlencode().
+# Defines function: bfl::url_encode().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -18,9 +18,9 @@
 #   The encoded string.
 #
 # @example
-#   bfl::urlencode "foo bar"
+#   bfl::url_encode "foo bar"
 #------------------------------------------------------------------------------
-bfl::urlencode() {
+bfl::url_encode() {
   # Verify argument count.
   bfl::verify_arg_count "$#" 1 1 || exit 1
 

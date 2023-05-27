@@ -69,10 +69,4 @@ declare_assertions() {
     'bfl::trim|"ghi   "|0'
     'bfl::trim|"   jkl   "|0'
     'bfl::trim|"   mno   pqr   stu   "|0'
-
-    'bfl::urlencode||1'
-    'bfl::urlencode|""|1'
-    'bfl::urlencode|"" ""|1'
-    'bfl::urlencode|"a" "b"|1'
-    'bfl::urlencode|"foo bar"|0'
   )

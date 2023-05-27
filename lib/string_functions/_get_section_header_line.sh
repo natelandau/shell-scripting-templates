@@ -17,7 +17,7 @@
 # @param string $line_beginning (optional)
 #   '#' by default.
 #
-# @param integer $width
+# @param integer $width (optional)
 #   Width of line (including section name).
 #
 # @param string $symbols (optional)
@@ -31,8 +31,8 @@
 #------------------------------------------------------------------------------
 bfl::get_section_header_line() {
   if [[ -z "$1" ]]; then
-    $isBashInteractive && printf "${Red}Не указан ни один параметр функции getHeaderForSection${NC}\n" > /dev/tty
-    return 1
+      $isBashInteractive && printf "${Red}Не указан ни один параметр функции getHeaderForSection${NC}\n" > /dev/tty
+      return 1
   fi
   local bgn l t s hdr="$1" iHdr iBgn
   [[ -z ${2+x} ]] && bgn="${2:-#}" || bgn="$2"  # может быть и '//'
@@ -43,8 +43,8 @@ bfl::get_section_header_line() {
   iBgn=${#bgn}  # Длина начала строки
   ((t=l-iBgn-iHdr-3))
   if [[ x -lt 0 ]]; then
-    $isBashInteractive && printf "${Yellow}Функция getHeaderForSection:${NC} Общая длина строки ${Red}$l${NC} недостаточна для объявления ${Yellow}$hdr${NC}\n" > /dev/tty
-    return 1
+      $isBashInteractive && printf "${Yellow}Функция getHeaderForSection:${NC} Общая длина строки ${Red}$l${NC} недостаточна для объявления ${Yellow}$hdr${NC}\n" > /dev/tty
+      return 1
   fi
 
   local y z
@@ -56,4 +56,4 @@ bfl::get_section_header_line() {
 
   echo "$l"
   return 0
-}
+  }

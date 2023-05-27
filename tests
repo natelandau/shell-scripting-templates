@@ -71,8 +71,6 @@ main() {
 
   d="$(dirname $BASH_FUNCTION_LIBRARY)/test"
   for f in `ls "$d"/`; do
-      [[ $f == 'test' ]] && continue
-
       unset assertions
       source "$BASH_FUNCTION_LIBRARY"/test/"$f"
       declare_assertions # Declare assertions.

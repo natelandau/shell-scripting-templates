@@ -1,26 +1,30 @@
 #!/usr/bin/env bash
 
-# ----------- https://github.com/jmooring/bash-function-library.git -----------
+# ------------ https://github.com/Jarodiv/bash-function-libraries -------------
+#
+# Library of functions related to Bash Strings
+#
+# @author  Michael Strache
+#
 # @file
-# Defines function: bfl::is_integer().
+# Defines function: bfl::is_hex_number().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # @function
-# Determines if the argument is an integer.
+# Determines if the argument is a hexadecimal number.
 #
 # @param string $value_to_test
 #   The value to be tested.
 #
 # @example
-#   bfl::is_integer "8675309"
+#   bfl::is_hex_number "DFFFF8"
 #------------------------------------------------------------------------------
 #
-bfl::is_integer() {
+bfl::is_hex_number() {
   bfl::verify_arg_count "$#" 1 1 || exit 1
 
   declare -r argument="$1"
-#  declare -r regex="^-{0,1}[0-9]+$"
-#                          ${regex}
-  ! [[ "${argument}" =~ ^[-+]?[0-9]+$ ]] && return 1
+
+  ! [[ "${argument}" =~ ^[0-9a-fA-F]+$ ]] && return 1
 }
