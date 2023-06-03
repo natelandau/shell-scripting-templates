@@ -29,5 +29,5 @@ declare_assertions() {
     'bfl::get_directory_path|"/tmp"|0'
     'bfl::get_directory_path|"/tmp/non-existent-directory"|1'
     'bfl::get_directory_path|"/etc/host.conf"|1'
-  )
-}
+    )
+  }

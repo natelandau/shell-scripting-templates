@@ -1,6 +1,5 @@
-# Bash Function Library
-
-The Bash Function Library is a collection of utility functions.
+# Bash Function Library (collection of utility functions)
+[Usage](#usage) \ [Libraries](#libraries) \ [Installation](#installation) \ [Configuration](#configuration) \ [Examples](#examples) \ [Tests](#tests) \ [Templates](#templates) \ [Docs](#documentation)
 
 ### This project is copied from several bash functions projects with the similar approach
 #### git repositories:
@@ -41,7 +40,7 @@ process.
 * system - Functions related to Linux Systems
 * time
 * url - Url conversation
-*
+
 #### libraries for specific usage:
 * Lorem
 * Maven - Functions related to the build tool Apache Maven
@@ -142,7 +141,9 @@ user and system information.
 
 ## Tests
 
+Test system is not so flexible as (BATS)](https://github.com/sstephenson/bats) but is smart and tiny.
 Each library has its own test suite that can be run separately:
+
 ```
 ~$ bats test/*.bats~
 ```

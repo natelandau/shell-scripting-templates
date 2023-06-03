@@ -33,5 +33,5 @@ declare_assertions() {
     'bfl::is_apache_vhost|"a" "b"|1'
     'bfl::is_apache_vhost|"a" "/etc/apache2/sites-enabled"|1'
     'bfl::is_apache_vhost|"/tmp" "b"|1'
-  )
-}
+    )
+  }
