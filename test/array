@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Performs assertion testing of the functions in this library.
+#
+# This simple testing mechanism has no provision for the construction and
+# deconstruction of unit test scaffolding.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+# Declares assertions.
+#
+# @return global array $assertions
+#   This is a one dimensional array. Each element is a pipe delimited list
+#   of three values in this sequence:
+#
+#   1. Function to test (example: bfl::join)
+#   2. Parameters to pass to function (example, "1" "2" "3")
+#   3. Expected return code (example: 0)
+#------------------------------------------------------------------------------
+declare_assertions() {
+  declare -ga assertions=(
+#   bfl::array_contains_element
+#   If ARRAY does contain ELEMENT, the function should return 0
+    'bfl::array_contains_element|("abc" "xyz") "abc"|0'
+#   If ARRAY does not contain ELEMENT, the function should return 1
+    'bfl::array_contains_element|("abc" "xyz") "jkl"|1'
+#   bfl::array_intersects
+#   If ARRAY_1 has any intersections with ARRAY_2, the function should return 0
+    'bfl::array_intersects|("abc" "xyz") ("123" "456" "xyz" "789")|0'
+#   If ARRAY_1 has no intersections with ARRAY_2, the function should return 1
+    'bfl::array_intersects|("abc" "xyz") ("123" "456" "789")|0'
+#   bfl::convert_array_to_string
+#   If ARRAY does contain elements and DELIMITER is specified, the function should return 0 and the concatinated string
+    'bfl::convert_array_to_string|("abc" "xyz")|"abc,xyz"'
+#   If ARRAY does contain elements and no DELIMITER is specified, the function should return 0 and the concatinated string with default delimiter
+    'bfl::convert_array_to_string|("abc" "xyz") " - "|"abc - xyz"'
+#   If ARRAY does contain no element, the function should return 0 and an empty string
+    'bfl::convert_array_to_string|( )|""'
+#   If the function is called with no arguments, it should return 1 and an empty string
+    'bfl::convert_array_to_string||""'
+    )
+  }

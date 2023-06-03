@@ -5,7 +5,7 @@
 #------------------------------------------------------------------------------
 # ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
-# Defines function: bfl::join().
+# Defines function: bfl::join_strings().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -13,7 +13,7 @@
 # Joins multiple strings into a single string, separated by another string.
 #
 # This function will accept an unlimited number of arguments.
-# Example: bfl::join "," "foo" "bar" "baz"
+# Example: bfl::join_strings "," "foo" "bar" "baz"
 #
 # @param string $glue
 #   The character or characters that will be used to glue the strings together.
@@ -24,9 +24,9 @@
 #   The joined string.
 #
 # @example
-#   bfl::join "," "foo" "bar" "baz"
+#   bfl::join_strings "," "foo" "bar" "baz"
 #-----------------------------------------------------------------------------
-bfl::join() {
+bfl::join_strings() {
   bfl::verify_arg_count "$#" 2 999 || exit 1  # Verify argument count.
 
   local -r glue="$1"
