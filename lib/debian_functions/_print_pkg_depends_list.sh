@@ -4,34 +4,32 @@
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
-#
-# Library of functions related to the Debian
-#
 # @file
-# Defines function: bfl::is_debian_pkg_installed().
+# Defines function: bfl::print_pkg_depends_list().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # @function
-# Simple function to check if a given debian package is installed.
+# Print required packages list for Debian package.
 #
-# @param string $PKG_NAME
-#   Debian package name.
-#
-#
-# @return boolean $exists
-#        0 / 1 (true/false)
+# @param string $pkg
+#   Debian package.
 #
 # @example
-#   bfl::is_debian_pkg_installed "gcc1"
+#   bfl::print_pkg_depends_list "libapr1"
 #------------------------------------------------------------------------------
-bfl::is_debian_pkg_installed() {
+bfl::print_pkg_depends_list() {
   bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
-  bfl::verify_dependencies "dpkg"           # Verify dependencies.
 
-  local str
-  str=$(dpkg --status "$1" 2>/dev/null | sed -n '/^Status:/p')
-  [[ "$str" == 'Status: install ok installed' ]] && return 0
+  local str state arr t
+  str=$(bfl::get_pkg_depends_list "$1")
 
-  return 1
+  arr=($str) # массив автоматом делит строку по пробелам
+  for t in ${arr[@]}; do
+      str=`dpkg --status "$t" | sed -n '/^Status:/p' | sed 's/^Status: install //'` #Status: install
+      [[ "$str" == 'ok installed' ]] && state="${Green}$str${NC}" || state="${Red}not installed${NC}"
+      [[ $BASH_INTERACTIVE == true ]] && printf '%-25s %s\n' "$t" "Status: $state" > /dev/tty
+  done
+
+  return 0
   }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash_functions_library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
@@ -16,7 +16,7 @@
 #   Debian package.
 #
 # @return string $list
-#   Required packeges list for $pkg.
+#   Required packages list for $pkg.
 #
 # @example
 #   bfl::get_pkg_depends_list "libapr1"

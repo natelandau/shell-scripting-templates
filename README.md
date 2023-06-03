@@ -1,19 +1,16 @@
 # Bash Function Library
 
-## Table of Contents
+The Bash Function Library is a collection of utility functions.
 
-* [Overview](#overview)
-* [Installation](#installation)
-* [Configuration](#configuration)
-* [Examples](#examples)
-* [Templates](#templates)
-* [Documentation](#documentation)
+### This project is copied from several bash functions projects with the similar approach
+#### git repositories:
+* [https://github.com/jmooring/bash-function-library](https://github.com/jmooring/bash-function-library) by **J.Mooring** (is **NOT** POSIX compliant)
 
-## Overview
+* [https://github.com/Jarodiv/bash-function-libraries](https://github.com/Jarodiv/bash-function-libraries) by **Michael Strache** (Jarodiv) ; but **WITHOUT** using the [Bash Automated Testing System (BATS)](https://github.com/sstephenson/bats) by [Sam Stephenson](https://github.com/sstephenson)
 
-The Bash Function Library is a collection of utility functions. The library is
-not, and was never intended to be, POSIX compliant. Each function is
-namespaced with the `bfl::` prefix. For example, to trim a string:
+### Usage:
+* All libraries are located in `lib/*`.
+* Like [jmooring](https://github.com/jmooring/bash-function-library), each function is namespaced with the `bfl::` prefix. For example, to trim a string:
 
 ```bash
 bfl::trim "${var}"
@@ -23,6 +20,32 @@ The calling script must source the entire library; some of the functions depend
 on one or more of the others. Source the entire library by sourcing
 autoload.sh. See the comments in autoload.sh for an explanation of the loading
 process.
+
+### Libraries
+* Apache
+* array - Some functions take or return arrays. Since Bash does not support to pass arrays, references and their serialized string representations are used.
+* compile
+* Debian
+* ~declaration~
+* directory
+* file
+* git
+* log - Functions related to terminal and file logging
+* mail
+* number
+* password
+* ~procedures~ (for internal using)
+* sms - Functions related to the Secure Shell
+* ssh
+* string - Functions related to Bash Strings
+* system - Functions related to Linux Systems
+* time
+* url - Url conversation
+*
+#### libraries for specific usage:
+* Lorem
+* Maven - Functions related to the build tool Apache Maven
+* Nexus - Functions related to the software repository manager Sonatype Nexus
 
 ## Installation
 
@@ -116,6 +139,13 @@ fi
 
 > This script leverages the Bash Function Library, displaying a banner with
 user and system information.
+
+## Tests
+
+Each library has its own test suite that can be run separately:
+```
+~$ bats test/*.bats~
+```
 
 ## Templates
 
