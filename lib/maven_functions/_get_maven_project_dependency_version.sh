@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
 # ------------ https://github.com/Jarodiv/bash-function-libraries -------------
 #
 # Library of functions related to the build tool Apache Maven
@@ -31,12 +34,14 @@
 #------------------------------------------------------------------------------
 #
 bfl::get_maven_project_dependency_version() {
-  local -r POM="${1:-}"; shift
-  local -r GROUP_ID="${1:-}"; shift
-  local -r ARTIFACT_ID="${1:-}"; shift
+  bfl::verify_arg_count "$#" 3 3 || exit 1  # Verify argument count.
 
-  local -r VERSION=$(xmllint --shell "${POM}" <<< "setns x=http://maven.apache.org/POM/4.0.0"$'\n'"cat /x:project/x:dependencies/x:dependency[x:groupId='${GROUP_ID}' and x:artifactId='${ARTIFACT_ID}']/x:version/text()" | grep -v ">" | tail -1)
+  local -r POM="${1:-}"
+  local -r GROUP_ID="${2:-}"
+  local -r ARTIFACT_ID="${3:-}"
 
-  echo ${VERSION}
-  [[ "${VERSION}" ]]
-}
+  local -r VERSION=$(xmllint --shell "$POM" <<< "setns x=http://maven.apache.org/POM/4.0.0"$'\n'"cat /x:project/x:dependencies/x:dependency[x:groupId='$GROUP_ID' and x:artifactId='$ARTIFACT_ID']/x:version/text()" | grep -v ">" | tail -1)
+
+  echo "$VERSION"
+  [[ "$VERSION" ]]
+  }

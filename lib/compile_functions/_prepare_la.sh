@@ -1,21 +1,24 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
 # Defines function: bfl::prepare_la().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # @function
-# Gets the files in a directory (recursively or not).
+# Prepares .la files for libraries in given directory.
 #
-# @option string --dry-run, -dry-run
+# @option string--dry-run, -dry-run
 #   test mode
 #
-# @option string --library, --lib, -lib
+# @param string --library, --lib, -lib
 #   lib directory to make .la file
 #
-# @option string --version
+# @param string --version
 #   library version to write
 #
 # @param array $lib_names
@@ -25,17 +28,19 @@
 #   bfl::prepare_la  --dry-run --lib=/tools/binutils-2.40/lib --version='0.0.0' libctf.so.0
 #------------------------------------------------------------------------------
 bfl::prepare_la() {
+  bfl::verify_arg_count "$#" 3 999 || exit 1  # Verify argument count.
+
   local arr=(); local arr_libNames=()
   local dryrun=false; local IFS=''
   for arg do
-    IFS=$'=' read -r -a arr <<< "$arg"
-    case ${arr[0]} in
-      -dry-run | --dry-run)       dryrun=true; shift ;;
-      -lib | --lib | --library )  local curDir=${arr[1]}; shift ;;
-      --version )                 local FullVersion=${arr[1]}; shift ;;
-      (*)  # set -- "$@" "$arg"
-      arr_libNames+=("$arg") ;;  # Поддержка любого количества shared libraries
-    esac
+      IFS=$'=' read -r -a arr <<< "$arg"
+      case ${arr[0]} in
+          -dry-run | --dry-run)       dryrun=true; shift ;;
+          -lib | --lib | --library )  local curDir=${arr[1]}; shift ;;
+          --version )                 local FullVersion=${arr[1]}; shift ;;
+          (*)  # set -- "$@" "$arg"
+          arr_libNames+=("$arg") ;;  # Поддержка любого количества shared libraries
+      esac
   done
   unset IFS
 
@@ -47,38 +52,38 @@ bfl::prepare_la() {
   [[ $i -eq 0 ]] && str="$str\nfiles were not defined!"
 
   if [[ -n $str ]]; then
-    [[ $BASH_INTERACTIVE == true ]] && printf "${Red}$str${NC}\n" > /dev/tty
-    echo '' && return 1
+      [[ $BASH_INTERACTIVE == true ]] && printf "${Red}$str${bfl_aes_reset}\n" > /dev/tty
+      echo '' && return 1
   fi
 # --------------------------------------------------
 
-  #FullVersion="$2"    # `echo "$2" | sed 's/^\(.*\)-\([0-9][0-9.]*.*\)$/\2/'`
-  local sCurrent=`echo "$FullVersion" | sed 's/^\([^.]*\)\..*$/\1/'`
-  local sAge=`echo "$FullVersion" | sed "s/$sCurrent\.\([^.]*\)\..*$/\1/"`
-  local sRevision=`echo "$FullVersion" | sed "s/$sCurrent\.$sAge\.//"`
+#FullVersion="$2"    # `echo "$2" | sed 's/^\(.*\)-\([0-9][0-9.]*.*\)$/\2/'`
+local sCurrent=`echo "$FullVersion" | sed 's/^\([^.]*\)\..*$/\1/'`
+local sAge=`echo "$FullVersion" | sed "s/$sCurrent\.\([^.]*\)\..*$/\1/"`
+local sRevision=`echo "$FullVersion" | sed "s/$sCurrent\.$sAge\.//"`
 
 # printf '//----------------------------------- libraries -----------------------------------\n'
-  local libName laName soFiles
-  local b=false; local reslt=''
-  for str in ${arr_libNames[@]}; do
+local libName laName soFiles
+local b=false; local reslt=''
+for str in ${arr_libNames[@]}; do
     if [[ -z "$str" ]]; then
-      [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}Прочитано пустое имя${NC}\n" > /dev/tty
-      continue
+        [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}Прочитано пустое имя${bfl_aes_reset}\n" > /dev/tty
+        continue
     fi
 
     libName=`echo "$str" | sed 's/\.so\.[^.]*$//'` # Название библиотеки
     laName="$curDir/$libName.la"
     soFiles=`ls "$curDir/$libName".so* | sed "s|$curDir/||g" | tr '\n' ' '`
     if [[ -z "$soFiles" ]]; then
-      [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}cannot find files $libName.so*${NC}\n" > /dev/tty
-      continue
+        [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}cannot find files $libName.so*${bfl_aes_reset}\n" > /dev/tty
+        continue
     fi
     soFiles=${soFiles::-1}  # удалил последний символ
 
     b=false
     if [[ -f "$laName" ]]; then
-      b=true
-      [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}File $laName will be overwritten${NC}\n" > /dev/tty
+        b=true
+        [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}File $laName will be overwritten${bfl_aes_reset}\n" > /dev/tty
     fi
 
     ! $dryrun && echo "# $libName.la - a libtool library file
@@ -122,8 +127,8 @@ dlpreopen=''
 # Directory that this library needs to be installed in:
 libdir='/usr/local/lib'" > $laName
 
-    ! $b && [[ $BASH_INTERACTIVE == true ]] && printf "${Green}File $laName created${NC}\n" > /dev/tty
-    reslt="$reslt;$laName"
+      ! $b && [[ $BASH_INTERACTIVE == true ]] && printf "${Green}File $laName created${bfl_aes_reset}\n" > /dev/tty
+      reslt="$reslt;$laName"
   done
 
   reslt=${reslt: 1}

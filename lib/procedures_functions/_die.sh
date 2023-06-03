@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-# ----------- https://github.com/jmooring/bash-function-library.git -----------
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
 # Defines function: bfl::die().
 #------------------------------------------------------------------------------
@@ -14,30 +17,36 @@
 # @param string $msg (optional)
 #   The message.
 #
+# @param string $msg_color (optional)
+#   The message color.
+#
 # @example
 #   bfl::error "The foo is bar."
 #
 # shellcheck disable=SC2154
 #------------------------------------------------------------------------------
 bfl::die() {
-  # Verify argument count.
-  bfl::verify_arg_count "$#" 0 1 || exit 1
+  bfl::verify_arg_count "$#" 0 2 || exit 1  # Verify argument count.
 
   # Declare positional arguments (readonly, sorted by position).
-  declare -r msg="${1:-"Unspecified fatal error."}"
+  local -r msg="${1:-"Unspecified fatal error."}"
+  local -r msg_color="${2:-"$bfl_aes_red"}"   # Red
 
   # Declare all other variables (sorted by name).
-  declare stack
+  local stack
 
   # Build a string showing the "stack" of functions that got us here.
   stack="${FUNCNAME[*]}"
   stack="${stack// / <- }"
 
+#  ????
+#  [[ $BASH_INTERACTIVE == true ]] && printf "${Red}Не указан ни один параметр функции getHeaderForSection${bfl_aes_reset}\n" > /dev/tty
+
   # Print the message.
-  printf "%b\\n" "${bfl_aes_red}Fatal error. ${msg}${bfl_aes_reset}" 1>&2
+  printf "%b\\n" "${!msg_color}Fatal error. $msg${bfl_aes_reset}" 1>&2
 
   # Print the stack.
-  printf "%b\\n" "${bfl_aes_yellow}[${stack}]${bfl_aes_reset}" 1>&2
+  printf "%b\\n" "$bfl_aes_yellow[$stack]$bfl_aes_reset" 1>&2
 
   exit 1
-}
+  }

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-# ----------- https://github.com/jmooring/bash-function-library.git -----------
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
 # Defines and calls function: bfl::declare_ansi_escape_sequences().
 #------------------------------------------------------------------------------
@@ -256,6 +259,6 @@ bfl::declare_ansi_escape_sequences() {
     declare -gr bfl_aes_reset="\\033[0m"
 
   fi
-}
+  }
 
 bfl::declare_ansi_escape_sequences

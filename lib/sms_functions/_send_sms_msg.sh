@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-# ----------- https://github.com/jmooring/bash-function-library.git -----------
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
 # Defines function: bfl::send_sms_msg().
 #------------------------------------------------------------------------------
@@ -11,6 +14,7 @@
 #
 # @param string $phone_number
 #   Recipient's phone number, including country code.
+#
 # @param string $message
 #   Example: "This is line one.\\nThis is line two.\\n"
 #
@@ -18,35 +22,24 @@
 #   bfl::send_sms_msg "+12065550100" "Line 1.\\nLine 2."
 #------------------------------------------------------------------------------
 bfl::send_sms_msg() {
-  bfl::verify_arg_count "$#" 2 2 || exit 1
+  bfl::verify_arg_count "$#" 2 2 || exit 1  # Verify argument count.
   bfl::verify_dependencies "aws"
 
-  declare -r phone_number="$1"
-  declare -r message="$2"
-  declare -r phone_number_regex="^\\+[0-9]{6,}$"
+  [[ -z "$1" ]] && bfl::die "The recipient's phone number was not specified."
+  [[ -z "$2" ]] && bfl::die "The message was not specified."
+
   declare error_msg
-
-   if bfl::is_empty "${phone_number}"; then
-    bfl::die "The recipient's phone number was not specified."
-  fi
-
-  if bfl::is_empty "${message}"; then
-    bfl::die "The message was not specified."
-  fi
-
   # Make sure phone number is properly formatted.
-  if [[ ! "${phone_number}" =~ ${phone_number_regex} ]]; then
+  if [[ ! "$1" =~ ^\\+[0-9]{6,}$ ]]; then
     error_msg="The recipient's phone number is improperly formatted.\\n"
-    error_msg+="Expected a plus sign followed by six or more digits, "
-    error_msg+="received ${phone_number}."
-    bfl::die "${error_msg}"
+    error_msg+="Expected a plus sign followed by six or more digits, received $1."
+    bfl::die "$error_msg"
   fi
 
   # Backslash escapes such as \n (newline) in the message string must be
   # interpreted before sending the message.
-  interpreted_message=$(printf "%b" "${message}") || bfl::die
+  interpreted_message=$(printf "%b" "$2") || bfl::die
 
   # Send the message.
-  aws sns publish --phone-number "${phone_number}" \
-                  --message "${interpreted_message}" || bfl::die
-}
+  aws sns publish --phone-number "$1" --message "$interpreted_message" || bfl::die
+  }

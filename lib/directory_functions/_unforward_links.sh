@@ -3,38 +3,25 @@
 [[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
-# ------------ https://github.com/Jarodiv/bash-function-libraries -------------
-#
-# Library of functions related to the Secure Shell
-#
-# @author  Michael Strache
-#
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
-# Defines function: bfl::ssh_file_exists().
+# Defines function: bfl::unforward_links().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # @function
-# Checks if FILE exists on HOST and is readable.
+# Gets the files in a directory (recursively or not).
 #
-# @param string $FILE
-#   URL of the file that should be checked.
+# @param string $path1
+#   A directory with files.
 #
-# @param string $HOST
-#   Username to be used for authentication.
-#
-# @return boolean $exists
-#        0 / 1 (true/false)
+# @param string $path2
+#   A directory with file links.
 #
 # @example
-#   bfl::_ssh_file_exists "url" "host"
+#   bfl::unforward_links  /tools/binutils-2.40 /usr/local
 #------------------------------------------------------------------------------
-bfl::ssh_file_exists() {
-  local -r FILE="${1:-}"
-  local -r HOST="${2:-}"
-
-  ssh -q -T "${HOST}" 'bash' <<-EOF
-      [[ -r "${FILE}" ]] || exit 1
-	EOF
+bfl::unforward_links() {
+  bfl::verify_arg_count "$#" 2 2 || exit 1  # Verify argument count.
 
   }

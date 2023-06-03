@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
 # ------------ https://github.com/Jarodiv/bash-function-libraries -------------
 #
 # Library of functions related to the build tool Apache Maven
@@ -37,16 +40,16 @@
 #------------------------------------------------------------------------------
 #
 bfl::get_maven_artifact_path() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1
+  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
 
-  local -r GROUP_ID="${1:-}"; shift
-  local -r ARTIFACT_ID="${1:-}"; shift
-  local -r VERSION="${1:-}"; shift
-  local -r EXTENSION="${1:-}"; shift
-  local -r REPOSITORY="${1:-$HOME/.m2/repository}"; shift
+  local -r GROUP_ID="${1:-}"
+  local -r ARTIFACT_ID="${2:-}"
+  local -r VERSION="${3:-}"
+  local -r EXTENSION="${4:-}"
+  local -r REPOSITORY="${5:-$HOME/.m2/repository}"
 
-  local -r ARTIFACT="${REPOSITORY}/${GROUP_ID//./\/}/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.${EXTENSION}"
+  local -r ARTIFACT="$REPOSITORY/${GROUP_ID//./\/}/$ARTIFACT_ID/$VERSION/${ARTIFACT_ID}-${VERSION}.$EXTENSION"
 
-  echo ${ARTIFACT}
-  [[ -f "${ARTIFACT}" ]]
-}
+  echo "$ARTIFACT"
+  [[ -f "$ARTIFACT" ]]
+  }

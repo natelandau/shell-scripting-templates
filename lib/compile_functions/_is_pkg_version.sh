@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
 # ------------ https://github.com/Jarodiv/bash-function-libraries -------------
 #
 # Library of functions related to Bash Strings
@@ -25,9 +28,10 @@
 #------------------------------------------------------------------------------
 #
 bfl::is_pkg_version() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1
+  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
 
-  declare -r argument="$1"
+  local -r argument="$1"
 
   ! [[ "${argument}" =~ ^[[:digit:]]+(\.[[:digit:]]+){0,2}(-[[:alnum:]]+)?$ ]] && return 1
-}
+  return 0
+  }

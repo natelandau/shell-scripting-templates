@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-# ----------- https://github.com/jmooring/bash-function-library.git -----------
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
 # Defines function: bfl::url_encode().
 #------------------------------------------------------------------------------
@@ -21,25 +24,18 @@
 #   bfl::url_encode "foo bar"
 #------------------------------------------------------------------------------
 bfl::url_encode() {
-  # Verify argument count.
-  bfl::verify_arg_count "$#" 1 1 || exit 1
-
-  # Verify dependencies.
-  bfl::verify_dependencies "jq"
-
-  # Declare positional arguments (readonly, sorted by position).
-  declare -r str="$1"
-
-  # Declare return value.
-  declare str_encoded
+  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
+  bfl::verify_dependencies "jq"  # Verify dependencies.
 
   # Verify argument values.
-  bfl::is_empty "$str" && bfl::die "Empty string."
+  [[ -z "$1" ]] && bfl::die "Empty string."
+
+  # Declare return value.
+  local str_encoded
 
   # Build the return value.
-  str_encoded=$(jq -Rr @uri <<< "${str}") \
-    || bfl::die "Unable to URL encode the string."
+  str_encoded=$(jq -Rr @uri <<< "$1") || bfl::die "Unable to URL encode the string."
 
   # Print the return value.
   printf "%s\\n" "${str_encoded}"
-}
+  }

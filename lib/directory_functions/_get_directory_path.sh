@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-# ----------- https://github.com/jmooring/bash-function-library.git -----------
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
 # Defines function: bfl::get_directory_path().
 #------------------------------------------------------------------------------
@@ -19,24 +22,18 @@
 #   bfl::get_directory_path "./foo"
 #------------------------------------------------------------------------------
 bfl::get_directory_path() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1
+  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
 
-  declare -r path="$1"
-  declare canonical_directory_path
-
-  if bfl::is_empty "${path}"; then
-    bfl::die "The path was not specified."
-  fi
+  # Verify argument values.
+  [[ -z "$1" ]] && bfl::die "The path was not specified."
 
   # Verify that the path exists.
-  if ! canonical_directory_path=$(readlink -e "${path}"); then
-    bfl::die "${path} does not exist."
-  fi
+  local canonical_directory_path
+  canonical_directory_path=$(readlink -e "$1") || bfl::die "$1 does not exist."
 
   # Verify that the path points to a directory, not a file.
-  if [[ ! -d "${canonical_directory_path}" ]]; then
-    bfl::die "${canonical_directory_path} is not a directory."
-  fi
+  ! [[ -d "$canonical_directory_path" ]] && bfl::die "$canonical_directory_path is not a directory."
 
-  printf "%s" "${canonical_directory_path}"
-}
+  printf "%s" "$canonical_directory_path"
+  return 0
+  }

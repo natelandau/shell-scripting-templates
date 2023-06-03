@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
 # ----------- https://github.com/jmooring/bash-function-library.git -----------
 # @file
 # Defines function: bfl::generate_password().
@@ -31,25 +34,20 @@
 #   bfl::generate_password "16"
 #------------------------------------------------------------------------------
 bfl::generate_password() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1
+  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
   bfl::verify_dependencies "pwgen" "shuf"
 
-  declare -r pswd_length="$1"
-  declare password
   declare -r min_pswd_length=8
-  declare length_one
-  declare length_two
 
-  bfl::is_positive_integer "${pswd_length}" \
-    || bfl::die "Expected positive integer, received ${pswd_length}."
+  bfl::is_positive_integer "$1" || bfl::die "Expected positive integer, received $1."
+  [[ "$1" -lt "${min_pswd_length}"  ]] && bfl::die "Expected integer >= $min_pswd_length, received $1."
 
-  if [[ "${pswd_length}" -lt "${min_pswd_length}"  ]]; then
-    bfl::die "Expected integer >= ${min_pswd_length}, received ${pswd_length}."
-  fi
+  declare -r pswd_length="$1"
+  declare password length_one length_two
 
   length_one=$(shuf -i 1-$((pswd_length-2)) -n 1) || bfl::die
   length_two=$((pswd_length-length_one-1)) || bfl::die
   password=$(pwgen -cns "$length_one" 1)_$(pwgen -cns "$length_two" 1) || bfl::die
 
-  printf "%s" "${password}"
-}
+  printf "%s" "$password"
+  }

@@ -5,36 +5,33 @@
 #------------------------------------------------------------------------------
 # ------------ https://github.com/Jarodiv/bash-function-libraries -------------
 #
-# Library of functions related to the Secure Shell
+# Library of functions related to Bash Strings
 #
 # @author  Michael Strache
 #
 # @file
-# Defines function: bfl::ssh_file_exists().
+# Defines function: bfl::escape_special_symbols().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # @function
-# Checks if FILE exists on HOST and is readable.
+# Escapes all special characters in STRING.
 #
-# @param string $FILE
-#   URL of the file that should be checked.
+# @param string $STRING
+#   The string to be tested.
 #
-# @param string $HOST
-#   Username to be used for authentication.
-#
-# @return boolean $exists
-#        0 / 1 (true/false)
+# @return Boolan $result
+#   String with escaped special characters.
 #
 # @example
-#   bfl::_ssh_file_exists "url" "host"
+#   bfl::escape_special_symbols "some string"
 #------------------------------------------------------------------------------
-bfl::ssh_file_exists() {
-  local -r FILE="${1:-}"
-  local -r HOST="${2:-}"
+#
+bfl::escape_special_symbols() {
+  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
 
-  ssh -q -T "${HOST}" 'bash' <<-EOF
-      [[ -r "${FILE}" ]] || exit 1
-	EOF
+  [[ -z "$1" ]] && echo '' && return 0
 
+  printf -v var '%q\n' "$1"
+  echo "$var"
   }

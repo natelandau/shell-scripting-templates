@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
 # Defines function: bfl::path_append().
 #------------------------------------------------------------------------------
@@ -22,12 +25,14 @@
 #   bfl::path_append '/usr/local/lib' LD_LIBRARY_PATH
 #------------------------------------------------------------------------------
 bfl::path_append() {
+  bfl::verify_arg_count "$#" 1 2 || exit 1  # Verify argument count.
 # Original:
 #  pathremove $1 $2
 #  export $PATHVARIABLE="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
-  [[ -z "$1" ]] && return 1
+  [[ -z "$1" ]] && bfl::die 'path is empty!'
+
   local s
-  s=`bfl::trimLR "$1" ':' ' '`
+  s=$(bfl::trimLR "$1" ':' ' ')
 
   local PATHVARIABLE=${2:-PATH}
   local str="${!PATHVARIABLE}"  # значение переменной по ее имени
@@ -38,26 +43,26 @@ bfl::path_append() {
   [[ "$str" == "$s" ]] && return 0
 
   local b=false
-  if [[ "$s" =~ ':' ]]; then
-    local d
-    local arr=()
-    IFS=$':' read -r -a arr <<< "$str"
+  if [[ "$s" =~ : ]]; then
+      local d
+      local arr=()
+      IFS=$':' read -r -a arr <<< "$str"
 
-    s=":$s:"
-    for d in ${arr[@]}; do
-      s=`echo "$s" | sed "s|:$d:|:|g"`
-    done
-    unset IFS
-    [[ "$s" == ':' ]] && s=''
-    [[ -n "$s" ]] && s="${s:1:-1}"
+      s=":$s:"
+      for d in ${arr[@]}; do
+        s=`echo "$s" | sed "s|:$d:|:|g"`
+      done
+      unset IFS
+      [[ "$s" == ':' ]] && s=''
+      [[ -n "$s" ]] && s="${s:1:-1}"
   else
-    b=`bfl::is_directory_in_PATH "$s" "$str"`
-    $b && return 0  # нет необходимости что-то менять
+      b=`isDirInPath "$s" "$str"`
+      $b && return 0  # нет необходимости что-то менять
   fi
 
   if [[ -n "$s" ]]; then
-    str=`bfl::fix_PATH_colons "$str"`
-    export $PATHVARIABLE="$str:$s"
+      str=`fixPathColons "$str"`
+      export $PATHVARIABLE="$str:$s"
   fi
 
   return 0

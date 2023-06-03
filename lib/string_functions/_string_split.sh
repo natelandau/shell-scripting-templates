@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
 # ------------ https://github.com/Jarodiv/bash-function-libraries -------------
 #
 # Library of functions related to Bash Strings
@@ -27,13 +30,10 @@
 #   bfl::string_split "foo--bar" "-+" -> "( foo bar )"
 #------------------------------------------------------------------------------
 bfl::string_split() {
-  local -r STRING="${1:-}"; shift
-  local -r REGEX="${1:-}"; shift
+  bfl::verify_arg_count "$#" 2 2 || exit 1  # Verify argument count.
 
-  if [[ -z ${REGEX} ]]; then
-    echo "( ${STRING} )"
-    return 0
-  fi
+  # Verify argument values.
+  [[ -z "$2" ]] && bfl:die "split string is empty!"
 
   # The MacOS version does not support the '-r' option but instead has the '-E' option doing the same
   if sed -r "s/-/ /" <<< "" &>/dev/null; then
@@ -42,5 +42,5 @@ bfl::string_split() {
     local -r SED_OPTION="-E"
   fi
 
-  echo "( $( sed ${SED_OPTION} "s/${REGEX}/ /g" <<< "${STRING}" ) )"
-}
+  echo "( $( sed ${SED_OPTION} "s/$2/ /g" <<< "$1" ) )"
+  }

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
 # ------------ https://github.com/Jarodiv/bash-function-libraries -------------
 #
 # Library of useful utility functions
@@ -30,7 +33,7 @@
 #------------------------------------------------------------------------------
 #
 bfl::compare_pkg_versions() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1
+  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
 
   local -r VERSION1="${1:-}"; shift
   local -r VERSION2="${1:-}"; shift
@@ -40,4 +43,4 @@ bfl::compare_pkg_versions() {
 
   # VERSION1 is higher (or equal, but we already checked that) than VERSION2. If not that, it must be lower
   [[ "$( tr ' ' '\n' <<< "${VERSION1} ${VERSION2}" | sort --version-sort --reverse | head -n 1 )" == "${VERSION1}" ]] && return 2 || return 0
-}
+  }

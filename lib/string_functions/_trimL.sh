@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
 # Defines function: bfl::trimL().
 #------------------------------------------------------------------------------
@@ -24,22 +27,22 @@
 #   bfl::trimL " foo "
 #------------------------------------------------------------------------------
 bfl::trimL() {
-  if [[ -z $1 ]]; then
-    [[ $BASH_INTERACTIVE == true ]] && printf "${Red}trimL()${NC} No parameters\n" > /dev/tty
-    return 1
-  fi
+  bfl::verify_arg_count "$#" 1 2 || exit 1  # Verify argument count.
+
+  # Verify argument values.
+  [[ -z "$1" ]] && bfl::die "trimL()${bfl_aes_reset} No parameters"
 
   local s="$1"
   local ptrn=' '  # space by default
   if [[ $# -gt 1 ]]; then
-    local d
-    shift
-    for d in "$@"; do
-      ptrn="$ptrn$d"
-    done
+      local d
+      shift
+      for d in "$@"; do
+          ptrn="$ptrn$d"
+      done
   fi
 
   [[ "$ptrn" =~ '"' ]] && s=`echo "$s" | sed 's/^['"$ptrn"']*\(.*\)$/\1/'` || s=`echo "$s" | sed "s/^[$ptrn]*\(.*\)$/\1/"`
   echo "$s"
   return 0
-}
+  }

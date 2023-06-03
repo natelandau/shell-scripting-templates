@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
 # ------------ https://github.com/Jarodiv/bash-function-libraries -------------
 #
 # Library of functions related to Bash Strings
@@ -17,15 +20,16 @@
 # @param string $value_to_test
 #   The value to be tested.
 #
+# @return boolean $result
+#        0 / 1 (true/false)
+#
 # @example
 #   bfl::is_float "0.8675309"
 #------------------------------------------------------------------------------
 #
 bfl::is_float() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1
+  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
 
-  declare -r argument="$1"
-#  declare -r regex="^-{0,1}[0-9]+$"
-#                          ${regex}
-  ! [[ "${argument}" =~ ^[-+]?[0-9]*[.,][0-9]+$ ]] && return 1
-}
+#  local         regex="^-{0,1}[0-9]+$"
+  ! [[ "$1" =~ ^[-+]?[0-9]*[.,][0-9]+$ ]] && return 1
+  }

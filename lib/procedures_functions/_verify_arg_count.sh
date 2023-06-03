@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-# ----------- https://github.com/jmooring/bash-function-library.git -----------
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
 # Defines function: bfl::verify_arg_count().
 #------------------------------------------------------------------------------
@@ -31,38 +34,22 @@
 #------------------------------------------------------------------------------
 bfl::verify_arg_count() {
   # Verify argument count.
-  if [[ "$#" -ne "3" ]]; then
-    bfl::die "Invalid number of arguments. Expected 3, received $#."
-  fi
-  declare -r actual_arg_count="$1"
-  declare -r expected_arg_count_min="$2"
-  declare -r expected_arg_count_max="$3"
-  declare -r regex="^[0-9]+$"
-  declare error_msg
+  [[ "$#" -ne "3" ]] && bfl::die "Invalid number of arguments. Expected 3, received $#."
 
   # Make sure all of the arguments are integers.
-  if ! [[ "${actual_arg_count}" =~ ${regex} ]] ; then
-    bfl::die "\"${actual_arg_count}\" is not an integer."
-  fi
-  if ! [[ "${expected_arg_count_min}" =~ ${regex} ]] ; then
-    bfl::die "\"${expected_arg_count_min}\" is not an integer."
-  fi
-  if ! [[ "${expected_arg_count_max}" =~ ${regex} ]] ; then
-    bfl::die "\"${expected_arg_count_max}\" is not an integer."
-  fi
+  local -r regex="^[0-9]+$"
+  ! [[ "$1" =~ $regex ]] && bfl::die "\"$1\" is not an integer."
+  ! [[ "$2" =~ $regex ]] && bfl::die "\"$2\" is not an integer."
+  ! [[ "$3" =~ $regex ]] && bfl::die "\"$3\" is not an integer."
 
   # Test.
-  if [[ "${actual_arg_count}" -lt "${expected_arg_count_min}" || \
-        "${actual_arg_count}" -gt "${expected_arg_count_max}" ]]; then
-    if [[ "${expected_arg_count_min}" -eq "${expected_arg_count_max}" ]]; then
+  declare error_msg
+
+  if [[ "$1" -lt "$2" || "$1" -gt "$3" ]]; then
       error_msg="Invalid number of arguments. Expected "
-      error_msg+="${expected_arg_count_min}, received ${actual_arg_count}."
-    else
-      error_msg="Invalid number of arguments. Expected between "
-      error_msg+="${expected_arg_count_min} and ${expected_arg_count_max}, "
-      error_msg+="received ${actual_arg_count}."
-    fi
-    printf "%b\\n" "${bfl_aes_red}Error. ${error_msg}${bfl_aes_reset}" 1>&2
-    return 1
+      [[ "$2" -eq "$3" ]] && error_msg+="$2, received $1." || error_msg+="between $2 and $3, received $1."
+
+      printf "%b\\n" "${bfl_aes_red}Error. $error_msg${bfl_aes_reset}" 1>&2
+      return 1
   fi
-}
+  }

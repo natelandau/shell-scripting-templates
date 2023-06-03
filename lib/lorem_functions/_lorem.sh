@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
 # ----------- https://github.com/jmooring/bash-function-library.git -----------
 # @file
 # Defines function: bfl::lorem().
@@ -51,8 +54,7 @@
 #   bfl::lorem 3 virgil
 #------------------------------------------------------------------------------
 bfl::lorem() {
-  # Verify argument count.
-  bfl::verify_arg_count "$#" 0 2 || exit 1
+  bfl::verify_arg_count "$#" 0 2 || exit 1  # Verify argument count.
 
   # Verify dependencies.
   bfl::verify_dependencies "shuf"
@@ -62,8 +64,7 @@ bfl::lorem() {
   declare -r resource="${2:-muir}"
 
   # Verify argument values.
-  bfl::is_positive_integer "${paragraphs}" ||
-    bfl::die "The paragraph count must be a positive integer."
+  bfl::is_positive_integer "${paragraphs}" || bfl::die "The paragraph count must be a positive integer."
 
   # Declare return value.
   declare text
@@ -104,8 +105,7 @@ bfl::lorem() {
   esac
 
   # Determine number of paragraphs in the resource file (assumes one per line).
-  resource_paragraph_count=$(wc -l < "${resource_file}") ||
-    bfl::die "Unable to determine number of paragraphs in source file."
+  resource_paragraph_count=$(wc -l < "${resource_file}") || bfl::die "Unable to determine number of paragraphs in source file."
 
   # Make sure number of requested paragraphs does not exceed maximum.
   if [[ "${paragraphs}" -gt "${resource_paragraph_count}" ]]; then
@@ -135,4 +135,4 @@ EOT
 
   # Print the return value.
   printf "%s" "${text}"
-}
+  }

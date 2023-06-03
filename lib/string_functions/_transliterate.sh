@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-# ----------- https://github.com/jmooring/bash-function-library.git -----------
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
 # Defines function: bfl::transliterate().
 #------------------------------------------------------------------------------
@@ -19,17 +22,16 @@
 #   bfl::transliterate "_Olé Über! "
 #------------------------------------------------------------------------------
 bfl::transliterate() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1
+  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
   bfl::verify_dependencies "iconv"
 
-  declare -r str="$1"
-  declare str_transliterated
+  local str_transliterated
 
   # Enable extended pattern matching features.
   shopt -s extglob
 
   # Convert from UTF-8 to ASCII.
-  str_transliterated=$(iconv -c -f utf8 -t ascii//TRANSLIT <<< "${str}") || bfl::die
+  str_transliterated=$(iconv -c -f utf8 -t ascii//TRANSLIT <<< "$1") || bfl::die
   # Replace non-alphanumeric characters with a hyphen.
   str_transliterated=${str_transliterated//[^[:alnum:]]/-}
   # Replace two or more sequential hyphens with a single hyphen.
@@ -41,5 +43,5 @@ bfl::transliterate() {
   # Convert to lower case
   str_transliterated=${str_transliterated,,}
 
-  printf "%s" "${str_transliterated}"
-}
+  printf "%s" "$str_transliterated"
+  }

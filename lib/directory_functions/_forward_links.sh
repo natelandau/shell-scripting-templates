@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
 # Defines function: bfl::forward_links().
 #------------------------------------------------------------------------------
@@ -9,7 +12,7 @@
 # @function
 # Gets the files in a directory (recursively or not).
 #
-# If pyhton3 given in parameter $mask, this folder and files in it will be excluded from linking,
+# If python3 given in parameter $mask, this folder and files in it will be excluded from linking,
 #
 # @param string $path1
 #   A directory path to get files.
@@ -17,24 +20,21 @@
 # @param string $path2
 #   A directory path to put file links.
 #
-# @param array $mask
-#   mask for direct linking not files, but whole folders.
+# @param array $mask_list (optional)
+#   List of masks for direct linking not files, but whole folders.
 #
 # @example
 #   bfl::forward_links  /tools/binutils-2.40 /usr/local
 #------------------------------------------------------------------------------
 bfl::forward_links() {
+  bfl::verify_arg_count "$#" 2 999 || exit 1  # Verify argument count.
+
   if [[ $(id -u) -ne 0 ]]; then
       eval $ask_sudo
-      if [[ $? -ne 0 ]]; then
-          $isBashInteractive && printf "${Red}Неудачно${NC} - не удалось получить права суперпользователя\n" > /dev/tty
-          return 1
-      fi
+      [[ $? -ne 0 ]] && bfl::die "Неудачно${bfl_aes_reset} - не удалось получить права суперпользователя"
   fi
 
   local dryrun=false
-  local isBashInteractive=false
-  [[ $BASH_INTERACTIVE == true ]] && isBashInteractive=true
 
   local el srt strtolink ptrn st3 param
   for param in "$@"; do
@@ -44,17 +44,16 @@ bfl::forward_links() {
       esac
   done
 
-  if [[ -z "$1" ]]; then
-      $isBashInteractive && printf 'Source is empty!' > /dev/tty
-      return 1
-  fi
+  [[ -z "$1" ]] && bfl::die 'Source is empty!'
 
   #$1 - source, $2 - destination, $3 ... - unic folder names
   #/usr/local/cmake-3.23.2  /usr/copy   "cmake-3.23"
-  local fromParentFolder=`dirname "$1"`
+  local fromParentFolder
+  fromParentFolder=$(dirname "$1")
   local i=${#fromParentFolder}
-  local patternFPF=`echo "$fromParentFolder" | sed 's|/|\\\/|g;s/\./\\\./g'` #  patternFromParentFolder
-  local st2=`echo "$1"`
+  local patternFPF st2
+  patternFPF=$(echo "$fromParentFolder" | sed 's|/|\\\/|g;s/\./\\\./g') #  patternFromParentFolder
+  st2=$(echo "$1")
   local fromLength=${#st2}
   if [[ ${st2: -1} = '/' ]]; then
       st2=${st2:0:$fromLength-1}
@@ -63,8 +62,9 @@ bfl::forward_links() {
   local toFldrName=${st2: $i-$fromLength+1}
 
   # просматриваем папку, получаем список всех папок
-  local STR=`ls -R "$1" | sed -n '/:$/p'`
-  [[ -n "$STR" ]] && STR=`echo "$STR" | sed '1d' | sed 's/:$//'`
+  local STR
+  STR=$(ls -R "$1" | sed -n '/:$/p')
+  [[ -n "$STR" ]] && STR=$(echo "$STR" | sed '1d' | sed 's/:$//')
 
   #i=${#toFldrName}
   #if [[ ${toFldrName: -1} = '/' ]]; then toFldrName=${toFldrName:0:$i-1}; fi
@@ -82,31 +82,31 @@ bfl::forward_links() {
       param=`echo "$param" | sed 's/\./\\\./g'`          # заменить точку перед применением шаблона
       STR=`echo "$STR" | sed -n "/^$patternFPF\/.*\/$param\/.*/!p"`  # исключаем файлы в интересующей папке
       strtolink=`echo "$STR" | sed -n "/^$patternFPF\/.*$param$/p"`  # пути к папкам, на которые можно в целом можно сделать ссылки
-      if $isBashInteractive; then
+      if [[ $BASH_INTERACTIVE == true ]]; then
           if $b; then
-              printf "${Blue}direct links to folder:${NC}\n" > /dev/tty
+              printf "${Blue}direct links to folder:${bfl_aes_reset}\n" > /dev/tty
               b=false
           fi
-          printf "${Green}$strtolink${NC}\n" > /dev/tty
+          printf "${Green}$strtolink${bfl_aes_reset}\n" > /dev/tty
       fi
-      arr_link+=($strtolink) #&& $isBashInteractive && printf "arr_link+=$strtolink\n" > /dev/tty
+      arr_link+=($strtolink) #&& [[ $BASH_INTERACTIVE == true ]] && printf "arr_link+=$strtolink\n" > /dev/tty
       STR=`echo "$STR" | sed -n "/^$patternFPF\/.*$param$/!p"`       # исключаем пути к искомым папкам
   done
 
   local k=${#arr_link[@]}
   if (($k>0)); then
-      $isBashInteractive && printf "\n${Blue}//----------------------------------- folder links -----------------------------------${NC}\n" > /dev/tty
+      [[ $BASH_INTERACTIVE == true ]] && printf "\n${Blue}//----------------------------------- folder links -----------------------------------${bfl_aes_reset}\n" > /dev/tty
       for el in ${arr_link[@]}; do
           i=${#el}; st2="$2/"${el: $fromLength-$i+1}
           if ! $dryrun && ! [[ $st2 =~ '/usr/local/lib/python3.'* ]]; then
-              $isBashInteractive && printf "${Green}$el => $st2${NC}\n" > /dev/tty
+              [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$el => $st2${bfl_aes_reset}\n" > /dev/tty
               [[ -f "$st2" ]] && rm -fv "$st2"
               if [[ -L "$st2" ]]; then
-                  if $isBashInteractive; then
+                  if [[ $BASH_INTERACTIVE == true ]]; then
                       if [[ -d "$st2" ]]; then
-                          printf "Ссылка ${Yellow}$st2 на директорию ${Yellow}"$(ls -la "$st2" | sed 's/^.* -> \(.*\)/\1/')"${NC} уже установлена, ${Purple}удаление ...${NC}\n" > /dev/tty
+                          printf "Ссылка ${Yellow}$st2 на директорию ${Yellow}"$(ls -la "$st2" | sed 's/^.* -> \(.*\)/\1/')"${bfl_aes_reset} уже установлена, ${Purple}удаление ...${bfl_aes_reset}\n" > /dev/tty
                       else
-                          printf "Removing broken symlink ${Yellow}$st2${NC} ...\n" > /dev/tty
+                          printf "Removing broken symlink ${Yellow}$st2${bfl_aes_reset} ...\n" > /dev/tty
                       fi
                       rm -f "$st2"
                   else
@@ -118,16 +118,13 @@ bfl::forward_links() {
               ! [[ -d "$srt" ]] && install -v -d "$srt"
 
               if [[ -d "$st2" ]]; then
-                  $isBashInteractive && printf "${Purple}Проблемы: директория $st2 существует, и это не ссылка!${NC}\n" > /dev/tty
+                  [[ $BASH_INTERACTIVE == true ]] && printf "${Purple}Проблемы: директория $st2 существует, и это не ссылка!${bfl_aes_reset}\n" > /dev/tty
                   ln -sfv "$el"/* "$st2"/
               else
                   ln -sfv "$el" "$st2"   # или cp -sf ???
               fi
 
-              if ! [[ -e "$st2" ]]; then
-                  $isBashInteractive && printf "${Red}Неудачно "$st2"${NC}\n" > /dev/tty
-                  return 1
-              fi
+              ! [[ -e "$st2" ]] && bfl::die "Неудачно $st2"
           fi
       done
   fi
@@ -142,7 +139,7 @@ bfl::forward_links() {
       fi
   done
 
-  $isBashInteractive && printf "\n${Blue}// --------------------- отвлекаемся - анализ на ненужные симлинки -------------------${NC}\n" > /dev/tty
+  [[ $BASH_INTERACTIVE == true ]] && printf "\n${Blue}// --------------------- отвлекаемся - анализ на ненужные симлинки -------------------${bfl_aes_reset}\n" > /dev/tty
   local arrInnerLinkFrom=()
   local arrInnerLinkTo=()
   local dirArr=($STR)
@@ -159,17 +156,17 @@ bfl::forward_links() {
           ! [[ "$st2" = /* ]] && arrInnerLinkTo[$i]=$(abspath "$el/$st2") || arrInnerLinkTo[$i]=$(abspath "$st2")
           st2=${arrInnerLinkFrom[$i]}
           ! [[ "$st2" = "$el"/* ]] && arrInnerLinkFrom[$i]=$(abspath "$el/$st2") || arrInnerLinkFrom[$i]=$(abspath "$st2")
-          $isBashInteractive && printf "${Green}"${arrInnerLinkFrom[$i]}"${NC} => ${Green}"${arrInnerLinkTo[$i]}"${NC}\n" > /dev/tty
+          [[ $BASH_INTERACTIVE == true ]] && printf "${Green}"${arrInnerLinkFrom[$i]}"${bfl_aes_reset} => ${Green}"${arrInnerLinkTo[$i]}"${bfl_aes_reset}\n" > /dev/tty
           ((i=i+1))
       done
 
   done
 
   k=${#arrInnerLinkFrom[@]}
-  if $isBashInteractive; then
-      ((k>0)) && printf "${Yellow}// Символьные ссылки в источнике${NC}\n" > /dev/tty
+  if [[ $BASH_INTERACTIVE == true ]]; then
+      ((k>0)) && printf "${Yellow}// Символьные ссылки в источнике${bfl_aes_reset}\n" > /dev/tty
       for el in ${arrInnerLinkFrom[@]}; do
-          printf "${Yellow}?test rm $el${NC}\n" > /dev/tty
+          printf "${Yellow}?test rm $el${bfl_aes_reset}\n" > /dev/tty
           #rm "$el"
       done
   fi
@@ -184,7 +181,7 @@ bfl::forward_links() {
       st2=`ls -LA "$el"/`; tarr=($st2)   # /*
       for tEl in ${tarr[@]}; do
           if [[ -f "$el"/"$tEl" ]]; then
-              ! $b && fromDirArr+=("$el") && b=true #&& $isBashInteractive && printf "fromDirArr+=$el\n" > /dev/tty
+              ! $b && fromDirArr+=("$el") && b=true #&& [[ $BASH_INTERACTIVE == true ]] && printf "fromDirArr+=$el\n" > /dev/tty
               fromFileArr+=("$el"/"$tEl")
           fi
       done
@@ -192,7 +189,7 @@ bfl::forward_links() {
   done
 
   if ! [[ -d "$2" ]]; then
-      $isBashInteractive && printf "Make directory ${Purple}$2${NC}\n" > /dev/tty
+      [[ $BASH_INTERACTIVE == true ]] && printf "Make directory ${Purple}$2${bfl_aes_reset}\n" > /dev/tty
       ! $dryrun && install -d "$2"
   fi
 
@@ -200,11 +197,11 @@ bfl::forward_links() {
   for el in ${fromDirArr[@]}; do
       i=${#el}; st2="$2"/${el: $fromLength-$i+1}
       if ! [[ -d "$st2" ]]; then
-          $isBashInteractive && printf "Make directory ${Purple}$st2${NC}\n" > /dev/tty
+          [[ $BASH_INTERACTIVE == true ]] && printf "Make directory ${Purple}$st2${bfl_aes_reset}\n" > /dev/tty
           ! $dryrun && install -d "$st2"
       fi
       if ! $dryrun && ! [[ -d "$st2" ]]; then
-          $isBashInteractive && printf "${Red}Неудачно${NC}\n" > /dev/tty
+          [[ $BASH_INTERACTIVE == true ]] && printf "${Red}Неудачно${bfl_aes_reset}\n" > /dev/tty
           return 1
       fi
   done
@@ -212,13 +209,13 @@ bfl::forward_links() {
   # вывести список файлов в данном каталоге и пробросить символьные ссылки
   k=${#fromFileArr[@]}
   if (($k>0)); then
-      $isBashInteractive && printf "\n${Blue}//------------------------------------ file links ------------------------------------${NC}\n" > /dev/tty
+      [[ $BASH_INTERACTIVE == true ]] && printf "\n${Blue}//------------------------------------ file links ------------------------------------${bfl_aes_reset}\n" > /dev/tty
       for el in ${fromFileArr[@]}; do
           b=false
           if [[ -L "$el" ]]; then
               for tEl in ${arrInnerLinkFrom[@]}; do
                   if [[ $tEl == $el ]]; then
-                      $isBashInteractive && printf "${DarkGreen}Ссылка ${NC}$el${DarkGreen} перенаправлена, обработка в отдельном блоке${NC}\n" > /dev/tty
+                      [[ $BASH_INTERACTIVE == true ]] && printf "${DarkGreen}Ссылка ${bfl_aes_reset}$el${DarkGreen} перенаправлена, обработка в отдельном блоке${bfl_aes_reset}\n" > /dev/tty
                       b=true; break;
                   fi
               done # fromFileArr я не обрезал
@@ -229,32 +226,28 @@ bfl::forward_links() {
           ((i=fromLength-i+1))
           st2="$2"/${el: $i}
 
-          $isBashInteractive && printf "${Green}$el${NC} => ${Green}$st2${NC}\n" > /dev/tty
+          [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$el${bfl_aes_reset} => ${Green}$st2${bfl_aes_reset}\n" > /dev/tty
 
           $dryrun && continue
 
           if [[ -f "$st2" ]]; then
               rm -f "$st2"
           elif [[ -L "$st2" ]]; then
-            $isBashInteractive && printf "Removing broken link ${Yellow}$st2${NC}\n" > /dev/tty
+              [[ $BASH_INTERACTIVE == true ]] && printf "Removing broken link ${Yellow}$st2${bfl_aes_reset}\n" > /dev/tty
               rm -f "$st2"
           fi
 
           if [[ "$el" != '/usr/local/lib/x86_64-linux-gnu/perl/5.30.0' ]]; then # исключения
               if [[ -d "$st2" ]]; then
-                $isBashInteractive && printf "${Purple}Проблемы: директория $st2 существует, и это не ссылка!${NC}\n" > /dev/tty
-                ln -sfv "$el"/* "$st2"/
+                  [[ $BASH_INTERACTIVE == true ]] && printf "${Purple}Проблемы: директория $st2 существует, и это не ссылка!${bfl_aes_reset}\n" > /dev/tty
+                  ln -sfv "$el"/* "$st2"/
               else
-                ln -sf "$el" "$st2"   # или cp -sf ???
+                  ln -sf "$el" "$st2"   # или cp -sf ???
               fi
           else
-              $isBashInteractive && printf "${Yellow}$el - НЕ РЕШИЛ ЧТО ДЕЛАТЬ!!!${NC}\n" > /dev/tty
+              [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}$el - НЕ РЕШИЛ ЧТО ДЕЛАТЬ!!!${bfl_aes_reset}\n" > /dev/tty
           fi
-          if ! $dryrun && ! [[ -f "$st2" ]]; then
-              $isBashInteractive && printf "${Red}Неудачно${NC}\n" > /dev/tty
-              printf "ln -sf $el $st2" > /dev/tty
-              return 1
-          fi
+          ! $dryrun && ! [[ -f "$st2" ]] && bfl::die "Неудачно${bfl_aes_reset}\nln -sf $el $st2"
       done
   fi
 
@@ -262,7 +255,7 @@ bfl::forward_links() {
   local str=''
   k=${#arrInnerLinkTo[@]}
   if (($k>0)); then
-      $isBashInteractive && printf "\n${Blue}//----------------------------------- direct links -----------------------------------${NC}\n" > /dev/tty
+      [[ $BASH_INTERACTIVE == true ]] && printf "\n${Blue}//----------------------------------- direct links -----------------------------------${bfl_aes_reset}\n" > /dev/tty
       srt=`echo "$2" | sed 's|/*$||'`
       ptrn=`echo "$1" | sed 's|/|\/|g' | sed 's|\.|\\\.|g'`
       i=0
@@ -270,30 +263,27 @@ bfl::forward_links() {
           str=${arrInnerLinkFrom[$i]}
           str=`echo "$str" | sed "s|^.*$ptrn\/*\(.*\)|\1|"`
           st2=${arrInnerLinkTo[$i]}
-          [[ -z "$st2" ]] && $isBashInteractive && printf "${Yellow}для $srt/$str путь не заполнен!${NC}\n" > /dev/tty
+          [[ -z "$st2" ]] && [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}для $srt/$str путь не заполнен!${bfl_aes_reset}\n" > /dev/tty
 
-          $isBashInteractive && printf "${Green}$st2${NC} => ${Green}$srt/$str${NC}\n" > /dev/tty
+          [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$st2${bfl_aes_reset} => ${Green}$srt/$str${bfl_aes_reset}\n" > /dev/tty
           if ! $dryrun && [[ -n "$st2" ]]; then
               [[ -f "$srt/$str" ]] && rm "$srt/$str"
               st3=`dirname "$srt/$str"`
               if ! [[ -d "$st3" ]]; then
-                  $isBashInteractive && printf "Make directory ${Purple}$st3${NC}\n" > /dev/tty
+                  [[ $BASH_INTERACTIVE == true ]] && printf "Make directory ${Purple}$st3${bfl_aes_reset}\n" > /dev/tty
                   install -d "$st3"
               fi
               if [[ "$st2" != '/usr/local/lib/x86_64-linux-gnu/perl/5.30.0' ]]; then # исключения
                   if [[ -d "$srt/$str" ]] && [[ ! -L "$srt/$str" ]] ; then
-                      $isBashInteractive && printf "${Purple}Проблемы: директория $srt/$str существует, и это не ссылка!${NC}\n" > /dev/tty
+                      [[ $BASH_INTERACTIVE == true ]] && printf "${Purple}Проблемы: директория $srt/$str существует, и это не ссылка!${bfl_aes_reset}\n" > /dev/tty
                       ln -sfv "$st2"/* "$srt/$str"/
                   else
                       ln -sf "$st2" "$srt/$str"   # или cp -sf ???
                   fi
               else
-                    $isBashInteractive && printf "${Yellow}$el - НЕ РЕШИЛ ЧТО ДЕЛАТЬ!!!${NC}\n" > /dev/tty
+                    [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}$el - НЕ РЕШИЛ ЧТО ДЕЛАТЬ!!!${bfl_aes_reset}\n" > /dev/tty
               fi
-              if ! $dryrun && ! [[ -e "$srt/$str" ]]; then
-                    $isBashInteractive && printf "${Red}Неудачно "$srt/$str"${NC}\n" > /dev/tty
-                    return 1
-              fi
+              ! $dryrun && ! [[ -e "$srt/$str" ]] && bfl::die "Неудачно "$srt/$str"${bfl_aes_reset}"
           fi
           ((i=i+1))
       done
@@ -302,11 +292,11 @@ bfl::forward_links() {
   unset arr
   # неужели придется повторить всю логику?   /etc  /var  /lib64
   for exFldr in ${exludeArr[@]}; do
-      $isBashInteractive && printf "\n${Blue}// ------------------------------------ $exFldr ------------------------------------${NC}\n" > /dev/tty
+      [[ $BASH_INTERACTIVE == true ]] && printf "\n${Blue}// ------------------------------------ $exFldr ------------------------------------${bfl_aes_reset}\n" > /dev/tty
       st2=`echo "$1" | sed 's|\/|\\\/|g'`
       st2=`ls -R "$1" | sed -n "/^$st2\/$exFldr[:\/].*/p" | sed 's/^\(.*\):$/\1/'`
       arr=($st2); fromFileArr=(); fromDirArr=()
-      $isBashInteractive && printf "clear fromDirArr\n" > /dev/tty
+      [[ $BASH_INTERACTIVE == true ]] && printf "clear fromDirArr\n" > /dev/tty
       for el in ${arr[@]}; do
           i=`getFilesCount "$el"`
           if (($i>0)); then
@@ -314,7 +304,7 @@ bfl::forward_links() {
               b=false; tarr=($st2)
               for tEl in ${tarr[@]}; do
                   if [[ -f "$el"/"$tEl" ]]; then
-                      ! $b && fromDirArr+=("$el") && b=true #&& $isBashInteractive && printf "fromDirArr+=$el\n" > /dev/tty
+                      ! $b && fromDirArr+=("$el") && b=true #&& [[ $BASH_INTERACTIVE == true ]] && printf "fromDirArr+=$el\n" > /dev/tty
                       fromFileArr+=("$el"/"$tEl")
                   fi
               done
@@ -329,37 +319,31 @@ bfl::forward_links() {
       for el in ${fromDirArr[@]}; do
           i=${#el}; st2='/'${el: $fromLength-$i+1}
           if ! [[ -d "$st2" ]]; then
-              $isBashInteractive && printf "Make directory ${Purple}$st2${NC}\n" > /dev/tty
+              [[ $BASH_INTERACTIVE == true ]] && printf "Make directory ${Purple}$st2${bfl_aes_reset}\n" > /dev/tty
               ! $dryrun && install -d "$st2" # SUDO
           fi
-          if ! $dryrun && ! [[ -d "$st2" ]]; then
-              $isBashInteractive && printf "${Red}Неудачно${NC}\n" > /dev/tty
-              return 1
-          fi
+          ! $dryrun && ! [[ -d "$st2" ]] && bfl::die "Неудачно${bfl_aes_reset}"
       done
 
       #//----------------------------------------------------------------------------------------------------------
       # вывести список файлов в данном каталоге и пробросить символьные ссылки
       for el in ${fromFileArr[@]}; do
           i=${#el}; st2='/'${el: $fromLength-$i+1}
-          $isBashInteractive && printf "${Green}ln -sf $el $st2${NC}\n" > /dev/tty
+          [[ $BASH_INTERACTIVE == true ]] && printf "${Green}ln -sf $el $st2${bfl_aes_reset}\n" > /dev/tty
           if [[ -f "$st2" ]]; then
-              $isBashInteractive && printf "${Yellow}$st2 exists, script will not overwrite it!${NC}\n" > /dev/tty
+              [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}$st2 exists, script will not overwrite it!${bfl_aes_reset}\n" > /dev/tty
           elif ! $dryrun; then
               if [[ "$st2" != '/usr/local/lib/x86_64-linux-gnu/perl/5.30.0' ]]; then # исключения
                   if [[ -d "$st2" ]]; then
-                      $isBashInteractive && printf "${Purple}Проблемы: директория $st2 существует, и это не ссылка!${NC}\n" > /dev/tty
+                      [[ $BASH_INTERACTIVE == true ]] && printf "${Purple}Проблемы: директория $st2 существует, и это не ссылка!${bfl_aes_reset}\n" > /dev/tty
                       ln -sfv "$el"/* "$st2"/   # SUDO
                   else
                       ln -sf "$el" "$st2"   # или cp -sf ???   SUDO
                   fi
               else
-                  $isBashInteractive && printf "${Yellow}$el - НЕ РЕШИЛ ЧТО ДЕЛАТЬ!!!${NC}\n" > /dev/tty
+                  [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}$el - НЕ РЕШИЛ ЧТО ДЕЛАТЬ!!!${bfl_aes_reset}\n" > /dev/tty
               fi
-              if ! [[ -e "$st2" ]]; then
-                  $isBashInteractive && printf "${Red}Неудачно${NC}\n" > /dev/tty
-                  return 1
-              fi
+              ! [[ -e "$st2" ]] && bfl::die "Неудачно"
           fi
       done
 

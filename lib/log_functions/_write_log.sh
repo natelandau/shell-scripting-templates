@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # Library of functions related to terminal and file logging
 # Inspired by https://github.com/gentoo/gentoo-functions/blob/master/functions.sh
 #
@@ -8,9 +12,6 @@
 # @file
 # Defines function: bfl::write_log().
 #------------------------------------------------------------------------------
-
-# Prevent this library from being sourced more than once
-[[ ${_GUARD_BFL_LOG:-} -eq 1 ]] && return 0 || declare -r _GUARD_BFL_LOG=1
 
 
 # **************************************************************************** #
@@ -51,58 +52,40 @@ unset FMT_BOLD FMT_UNDERLINE
 # Only enable colors if it is wanted
 if ! [[ "${RC_NOCOLOR}" =~ ^(YES|Yes|yes)$ ]]; then
 
-  # If tput is present, prefer it over the escape sequence based formatting
-  if ( command -v tput ) >/dev/null 2>&1; then
-    # tput color table
-    # -> http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
+    # If tput is present, prefer it over the escape sequence based formatting
+    if ( command -v tput ) >/dev/null 2>&1; then
+        # tput color table
+        # -> http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
 
-    if [[ $( tput colors ) -ge 256 ]]; then
-      declare -r CLR_GOOD="$(tput setaf 10)"     # Bright Green
-      declare -r CLR_INFORM="$(tput setaf 2)"    # Green
-      declare -r CLR_WARN="$(tput setaf 11)"     # Bright Yellow
-      declare -r CLR_BAD="$(tput setaf 9)"       # Bright Red
-      declare -r CLR_HILITE="$(tput setaf 14)"   # Bright Cyan
-      declare -r CLR_BRACKET="$(tput setaf 12)"  # Bright Blue
-      declare -r CLR_NORMAL="$(tput sgr0)"
+        [[ $( tput colors ) -ge 256 ]] && _bfl_temporary_var=true || _bfl_temporary_var=false
+        $_bfl_temporary_var && readonly CLR_GOOD="$(tput setaf 10)"     || readonly CLR_GOOD="$(tput bold)$(tput setaf 2)"     # Bright Green
+        readonly CLR_INFORM="$(tput setaf 2)"                                                                                  # Green
+        $_bfl_temporary_var && readonly CLR_WARN="$(tput setaf 11)"     || readonly CLR_WARN="$(tput bold)$(tput setaf 3)"     # Bright Yellow
+        $_bfl_temporary_var && readonly CLR_BAD="$(tput setaf 9)"       || readonly CLR_BAD="$(tput bold)$(tput setaf 1)"      # Bright Red
+        $_bfl_temporary_var && readonly CLR_HILITE="$(tput setaf 14)"   || readonly CLR_HILITE="$(tput bold)$(tput setaf 6)"   # Bright Cyan
+        $_bfl_temporary_var && readonly CLR_BRACKET="$(tput setaf 12)"  || readonly CLR_BRACKET="$(tput bold)$(tput setaf 4)"  # Bright Blue
+        readonly CLR_NORMAL="$(tput sgr0)"
 
-      # Enable additional formatting for 256 color terminals (on 8 color terminals the formatting likely is implemented as a brighter color rather than a different font)
-      declare -r FMT_BOLD="$(tput bold)"
-      declare -r FMT_UNDERLINE="$(tput smul)"
+        # Enable additional formatting for 256 color terminals (on 8 color terminals the formatting likely is implemented as a brighter color rather than a different font)
+        $_bfl_temporary_var && readonly FMT_BOLD="$(tput bold)"
+        $_bfl_temporary_var && readonly FMT_UNDERLINE="$(tput smul)"
     else
-      declare -r CLR_GOOD="$(tput bold)$(tput setaf 2)"
-      declare -r CLR_INFORM="$(tput setaf 2)"
-      declare -r CLR_WARN="$(tput bold)$(tput setaf 3)"
-      declare -r CLR_BAD="$(tput bold)$(tput setaf 1)"
-      declare -r CLR_HILITE="$(tput bold)$(tput setaf 6)"
-      declare -r CLR_BRACKET="$(tput bold)$(tput setaf 4)"
-      declare -r CLR_NORMAL="$(tput sgr0)"
-    fi
-  else
-    # Escape sequence color table
-    # -> https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
+        # Escape sequence color table
+        # -> https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
 
-    if [[ "${TERM}" =~ 256color ]]; then
-      declare -r CLR_GOOD="$(printf '\033[38;5;10m')"
-      declare -r CLR_INFORM="$(printf '\033[38;5;2m')"
-      declare -r CLR_WARN="$(printf '\033[38;5;11m')"
-      declare -r CLR_BAD="$(printf '\033[38;5;9m')"
-      declare -r CLR_HILITE="$(printf '\033[38;5;14m')"
-      declare -r CLR_BRACKET="$(printf '\033[38;5;12m')"
-      declare -r CLR_NORMAL="$(printf '\033[0m')"
+        [[ "${TERM}" =~ 256color ]] && _bfl_temporary_var=true || _bfl_temporary_var=false
+        $_bfl_temporary_var && readonly CLR_GOOD="$(printf '\033[38;5;10m')"    || CLR_GOOD="$(printf '\033[32;01m')"
+        $_bfl_temporary_var && readonly CLR_INFORM="$(printf '\033[38;5;2m')"   || CLR_INFORM="$(printf '\033[32m')"
+        $_bfl_temporary_var && readonly CLR_WARN="$(printf '\033[38;5;11m')"    || CLR_WARN="$(printf '\033[33;01m')"
+        $_bfl_temporary_var && readonly CLR_BAD="$(printf '\033[38;5;9m')"      || CLR_BAD="$(printf '\033[31;01m')"
+        $_bfl_temporary_var && readonly CLR_HILITE="$(printf '\033[38;5;14m')"  || CLR_HILITE="$(printf '\033[36;01m')"
+        $_bfl_temporary_var && readonly CLR_BRACKET="$(printf '\033[38;5;12m')" || CLR_BRACKET="$(printf '\033[34;01m')"
+        readonly CLR_NORMAL="$(printf '\033[0m')"
 
-      # Enable additional formatting for 256 color terminals (on 8 color terminals the formatting likely is implemented as a brighter color rather than a different font)
-      declare -r FMT_BOLD="$(printf '\033[01m')"
-      declare -r FMT_UNDERLINE="$(printf '\033[04m')"
-    else
-      declare -r CLR_GOOD="$(printf '\033[32;01m')"
-      declare -r CLR_INFORM="$(printf '\033[32m')"
-      declare -r CLR_WARN="$(printf '\033[33;01m')"
-      declare -r CLR_BAD="$(printf '\033[31;01m')"
-      declare -r CLR_HILITE="$(printf '\033[36;01m')"
-      declare -r CLR_BRACKET="$(printf '\033[34;01m')"
-      declare -r CLR_NORMAL="$(printf '\033[0m')"
+        # Enable additional formatting for 256 color terminals (on 8 color terminals the formatting likely is implemented as a brighter color rather than a different font)
+        $_bfl_temporary_var && readonly FMT_BOLD="$(printf '\033[01m')"
+        $_bfl_temporary_var && readonly FMT_UNDERLINE="$(printf '\033[04m')"
     fi
-  fi
 fi
 
 # *************************************************************************** #
@@ -110,11 +93,11 @@ fi
 # *************************************************************************** #
 
 # Define the available log levels
-declare -r LOG_LVL_OFF=0
-declare -r LOG_LVL_ERR=1
-declare -r LOG_LVL_WRN=2
-declare -r LOG_LVL_INF=3
-declare -r LOG_LVL_DBG=4
+readonly LOG_LVL_OFF=0
+readonly LOG_LVL_ERR=1
+readonly LOG_LVL_WRN=2
+readonly LOG_LVL_INF=3
+readonly LOG_LVL_DBG=4
 
 # Set defaults
 LOG_LEVEL=${LOG_LVL_INF}
@@ -139,23 +122,25 @@ LOG_FILE=/dev/null
 #------------------------------------------------------------------------------
 #
 function write_log() {
-  local -r LEVEL=${1:-$LOG_LVL_DBG}; shift
-  local message="${1:-}"; shift
-  local -r STATUS=${1:-}; shift
+  bfl::verify_arg_count "$#" 3 3 || exit 1  # Verify argument count.
 
-  if [[ "${LOG_LEVEL}" -ge "${LEVEL}" ]]; then
-      [ ${LOG_SHOW_TIMESTAMP} = true ] && message="$(date) - ${message}"
+  local -r LEVEL=${1:-$LOG_LVL_DBG}
+  local msg="${2:-}"
+  local -r STATUS=${3:-}
 
-      # To display a right aligned status we have to take some extra efforts
-      if [ -z "${STATUS}" ]; then
-          echo "${message}"
-      else
-          # Filter formatting sequences from the STATUS string to get its displayed length
-          # https://stackoverflow.com/a/52781213/10495078
-          local -r STATUS_filtered="$( sed -E -e "s/\x1B(\[[0-9;]*[JKmsu]|\(B)//g" <<< "$STATUS" )"
-          let message_width=$(tput cols)-${#STATUS_filtered}
+  ! [[ "$LOG_LEVEL" -ge "$LEVEL" ]] && return 1   #  maybe bfl::die ???
+  [[ $LOG_SHOW_TIMESTAMP = true ]] && msg="$(date) - $msg"
 
-          printf "\r%-*s%s\n" ${message_width} "${message}" "${STATUS}"
-      fi
-  fi
-}
+  # To display a right aligned status we have to take some extra efforts
+  [[ -z "$STATUS" ]] && echo "$msg" && return 0
+
+  # Filter formatting sequences from the STATUS string to get its displayed length
+  # https://stackoverflow.com/a/52781213/10495078
+  local -r STATUS_filtered="$( sed -E -e "s/\x1B(\[[0-9;]*[JKmsu]|\(B)//g" <<< "$STATUS" )"
+  local msg_width
+  let msg_width=$(tput cols)-${#STATUS_filtered}
+
+  printf "\r%-*s%s\n" $msg_width "$msg" "$STATUS"
+
+  return 0
+  }

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
 # Defines function: bfl::move_and_relink().
 #------------------------------------------------------------------------------
@@ -24,6 +27,7 @@
 #   bfl::move_and_relink "$folder1" "$folder2" ".la"
 #------------------------------------------------------------------------------
 bfl::move_and_relink() {
+  bfl::verify_arg_count "$#" 3 3 || exit 1  # Verify argument count.
   ! [[ -d "$1" ]] && return 1
 
   local str fltr
@@ -38,21 +42,21 @@ bfl::move_and_relink() {
   local arr=($str)
   local f b s
   for f in ${arr[@]}; do
-    b=true
-    if [[ -L "$1"/"$f" ]] ; then
-      s=`readlink "$1"/"$f"`
-      [[ -f "$s" ]] && s=`dirname "$s"`
-      if [[ "$s" == "$2" ]]; then
-        b=false
-        [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}file ${NC}$1/$f ${Yellow}already linked to $2${NC}\n" > /dev/tty
+      b=true
+      if [[ -L "$1"/"$f" ]] ; then
+          s=`readlink "$1"/"$f"`
+          [[ -f "$s" ]] && s=`dirname "$s"`
+          if [[ "$s" == "$2" ]]; then
+              b=false
+              [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}file ${bfl_aes_reset}$1/$f ${Yellow}already linked to $2${bfl_aes_reset}\n" > /dev/tty
+          fi
       fi
-    fi
 
-    if $b; then
-      [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$2/$f${NC} => $1\n" > /dev/tty
-      mv "$1"/"$f" "$2"/
-      ln -sf "$2"/$f "$1"/
-    fi
+      if $b; then
+          [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$2/$f${bfl_aes_reset} => $1\n" > /dev/tty
+          mv "$1"/"$f" "$2"/
+          ln -sf "$2"/$f "$1"/
+      fi
   done
 
 #    if [[ "$fltr" = '*' ]]; then

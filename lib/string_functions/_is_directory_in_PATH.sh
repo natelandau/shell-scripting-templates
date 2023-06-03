@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
 # Defines function: bfl::is_directory_in_PATH().
 #------------------------------------------------------------------------------
@@ -18,20 +21,22 @@
 #   The variable to be checked.
 #
 # @return bool $value
-#   true/false
+#        0 / 1 (true/false)
 #
 # @example
 #   bfl::is_directory_in_PATH '/usr/local' "$LD_LIBRARY_PATH"
 #------------------------------------------------------------------------------
 bfl::is_directory_in_PATH() {
-  local d
-  local b=false; local arr=()
+  bfl::verify_arg_count "$#" 1 2 || exit 1  # Verify argument count.
+
+  declare -a arr=()
   IFS=$':' read -r -a arr <<< "$2"
   unset IFS
+
+  local d
   for d in ${arr[@]}; do
-      [[ "$d" == $1 ]] && b=true && break
+      [[ "$d" == "$1" ]] && return 0
   done
 
-  echo $b
-  return 0
-}
+  return 1
+  }

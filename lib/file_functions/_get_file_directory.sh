@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-# ----------- https://github.com/jmooring/bash-function-library.git -----------
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
 # Defines function: bfl::get_file_directory().
 #------------------------------------------------------------------------------
@@ -19,18 +22,17 @@
 #   bfl::get_file_directory "./foo/bar.txt"
 #------------------------------------------------------------------------------
 bfl::get_file_directory() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1
+  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
 
-  declare -r path="$1"
-  declare canonical_directory_path
-  declare canonical_file_path
+  # Verify argument values.
+  [[ -z "$1" ]] && bfl::die "The path was not specified."
 
-  if bfl::is_empty "${path}"; then
-    bfl::die "The path was not specified."
-  fi
+  local canonical_directory_path canonical_file_path
 
-  canonical_file_path=$(bfl::get_file_path "${path}") || bfl::die
-  canonical_directory_path=$(dirname "${canonical_file_path}}") || bfl::die
+  # Verify that the path exists.
+  canonical_file_path=$(bfl::get_file_path "$1") || bfl::die
+  canonical_directory_path=$(dirname "$canonical_file_path") || bfl::die
 
-  printf "%s" "${canonical_directory_path}"
-}
+  printf "%s" "$canonical_directory_path"
+  return 0
+  }

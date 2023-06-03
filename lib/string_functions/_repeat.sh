@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-# ----------- https://github.com/jmooring/bash-function-library.git -----------
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
 # Defines function: bfl::repeat().
 #------------------------------------------------------------------------------
@@ -11,6 +14,7 @@
 #
 # @param string $str
 #   The string to be repeated.
+#
 # @param int $multiplier
 #   Number of times the string will be repeated.
 #
@@ -21,19 +25,16 @@
 #   bfl::repeat "=" "10"
 #------------------------------------------------------------------------------
 bfl::repeat() {
-  bfl::verify_arg_count "$#" 2 2 || exit 1
+  bfl::verify_arg_count "$#" 2 2 || exit 1  # Verify argument count.
 
-  declare -r str="$1"
-  declare -r multiplier="$2"
-  declare str_repeated
+  # Verify argument values.
+  bfl::is_positive_integer "$2" || bfl::die "Expected positive integer, received $2."
 
-  bfl::is_positive_integer "${multiplier}" \
-    || bfl::die "Expected positive integer, received ${multiplier}."
-
+  local str_repeated
   # Create a string of spaces that is $multiplier long.
-  str_repeated=$(printf "%${multiplier}s") || bfl::die
+  str_repeated=$(printf "%${2}s") || bfl::die
   # Replace each space with the $str.
-  str_repeated=${str_repeated// /"${str}"}
+  str_repeated=${str_repeated// /"$1"}
 
-  printf "%s" "${str_repeated}"
-}
+  printf "%s" "$str_repeated"
+  }

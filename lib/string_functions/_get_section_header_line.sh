@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
+# ------------- https://github.com/jmooring/bash-function-library -------------
 # @file
 # Defines function: bfl::get_section_header_line().
 #------------------------------------------------------------------------------
@@ -30,22 +33,24 @@
 #   bfl::get_section_header_line "New section" "//" 30 "-"
 #------------------------------------------------------------------------------
 bfl::get_section_header_line() {
-  if [[ -z "$1" ]]; then
-      $isBashInteractive && printf "${Red}Не указан ни один параметр функции getHeaderForSection${NC}\n" > /dev/tty
-      return 1
-  fi
-  local bgn l t s hdr="$1" iHdr iBgn
-  [[ -z ${2+x} ]] && bgn="${2:-#}" || bgn="$2"  # может быть и '//'
-  l="${3:-126}"   # Общая длина
-  s="${4:--}"   # Символы
+  bfl::verify_arg_count "$#" 1 4 || exit 1  # Verify argument count.
 
-  iHdr=${#hdr}  # Длина заголовка
-  iBgn=${#bgn}  # Длина начала строки
+  # Verify argument values.
+  [[ -z "$1" ]] && bfl::die "Не указан ни один параметр функции getHeaderForSection"
+
+  local bgn
+  [[ -z ${2+x} ]] && bgn="${2:-#}" || bgn="$2"  # может быть и '//'
+  local -i l="${3:-126}"   # Общая длина
+  local -r s="${4:--}"     # Символы
+
+  local -r hdr="$1"
+  local -i iHdr=${#hdr}  # Длина заголовка
+  local -i iBgn=${#bgn}  # Длина начала строки
+
+  local t s
   ((t=l-iBgn-iHdr-3))
-  if [[ x -lt 0 ]]; then
-      $isBashInteractive && printf "${Yellow}Функция getHeaderForSection:${NC} Общая длина строки ${Red}$l${NC} недостаточна для объявления ${Yellow}$hdr${NC}\n" > /dev/tty
-      return 1
-  fi
+
+  [[ x -lt 0 ]] && bfl::die "Функция getHeaderForSection:${bfl_aes_reset} Общая длина строки ${Red}$l${bfl_aes_reset} недостаточна для объявления ${Yellow}$hdr" 'Yellow'
 
   local y z
   ((y=t/2)); ((z=t-y*2))

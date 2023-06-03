@@ -3,38 +3,35 @@
 [[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
-# ------------ https://github.com/Jarodiv/bash-function-libraries -------------
+#------------------------------------------------------------------------------
 #
-# Library of functions related to the Secure Shell
-#
-# @author  Michael Strache
+# Library of functions related to the Debian
 #
 # @file
-# Defines function: bfl::ssh_file_exists().
+# Defines function: bfl::is_debian_pkg_installed().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # @function
-# Checks if FILE exists on HOST and is readable.
+# Simple function to check if a given debian package is installed.
 #
-# @param string $FILE
-#   URL of the file that should be checked.
+# @param string $PKG_NAME
+#   Debian package name.
 #
-# @param string $HOST
-#   Username to be used for authentication.
 #
 # @return boolean $exists
 #        0 / 1 (true/false)
 #
 # @example
-#   bfl::_ssh_file_exists "url" "host"
+#   bfl::is_debian_pkg_installed "gcc1"
 #------------------------------------------------------------------------------
-bfl::ssh_file_exists() {
-  local -r FILE="${1:-}"
-  local -r HOST="${2:-}"
+bfl::is_debian_pkg_installed() {
+  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
+  bfl::verify_dependencies "dpkg"           # Verify dependencies.
 
-  ssh -q -T "${HOST}" 'bash' <<-EOF
-      [[ -r "${FILE}" ]] || exit 1
-	EOF
+  local str
+  str=$(dpkg --status "$1" 2>/dev/null | sed -n '/^Status:/p')
+  [[ "$str" == 'Status: install ok installed' ]] && return 0
 
+  return 1
   }

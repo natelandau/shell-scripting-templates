@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
+[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash-function-library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
 # ------------ https://github.com/Jarodiv/bash-function-libraries -------------
+#
+# Library of functions related to the internet
+#
 # @author  Michael Strache
 #
 # @file
@@ -29,23 +35,25 @@
 #   bfl::url_exists "https://google.com"
 #------------------------------------------------------------------------------
 bfl::url_exists() {
-  local -r URL="${1-}"; shift
-  local -r USR="${1-}"; shift
-  local -r PWD="${1-}"; shift
+  bfl::verify_arg_count "$#" 1 3 || exit 1  # Verify argument count.
 
-  if which -s wget; then
-      [[ ! -z ${USR} ]] && [[ ! -z ${PWD} ]] && local -r credentials="--user=${USR} --password=${PWD}"
+  local -r URL="${1-}"
+  local -r USR="${2-}"
+  local -r PWD="${3-}"
 
-      if wget ${credentials} --server-response --spider ${URL} 2>&1 | grep 'HTTP/1.1 200 OK'; then
+  if which wget; then
+      [[ ! -z "$USR" ]] && [[ ! -z "$PWD" ]] && local -r credentials="--user=$USR --password=$PWD"
+
+      if wget "$credentials" --server-response --spider "$URL" 2>&1 | grep 'HTTP/1.1 200 OK'; then
           return 0
       fi
   else
-      [[ ! -z ${USR} ]] && [[ ! -z ${PWD} ]] && local -r credentials="--user ${USR}:${PWD}"
+      [[ ! -z "$USR" ]] && [[ ! -z "$PWD" ]] && local -r credentials="--user $USR:$PWD"
 
-      if curl ${credentials} --output /dev/null --silent --head --fail "${URL}"; then
-         return 0
+      if curl ${credentials} --output /dev/null --silent --head --fail "$URL"; then
+          return 0
       fi
   fi
 
   return 1
-}
+  }
