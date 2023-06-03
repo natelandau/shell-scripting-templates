@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash_functions_library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
 # ------------- https://github.com/jmooring/bash-function-library -------------
@@ -15,24 +15,48 @@
 # Standart Linux path functions. The string ONLY single line
 #
 # @param string $directory
-#   The directory to be searching and remove.
+#   The directory to be searching and removed. There may be several paths, eg.  /opt/lib:/usr/local/lib:/home/usr/.local/lib
 #
 # @param string $path_variable (optional)
 #   The variable to be changed. By default, PATH
 #
 # @example
-#   bfl::path_remove '/usr/local/lib' LD_LIBRARY_PATH
+#   bfl::path_remove '/opt/lib:/usr/local/lib:/home/usr/.local/lib' LD_LIBRARY_PATH
 #------------------------------------------------------------------------------
 bfl::path_remove() {
   bfl::verify_arg_count "$#" 1 2 || exit 1  # Verify argument count.
 
-  local d NEWPATH
-  local IFS=':'
-  local PATHVARIABLE=${2:-PATH}
-  for d in ${!PATHVARIABLE} ; do
-      [[ "$d" != "$1" ]] && NEWPATH="${NEWPATH:+$NEWPATH:}$d"
-  done
+  # Verify argument values.
+  [[ -z "$1" ]] && bfl::die 'path is empty!'
 
-  export $PATHVARIABLE="$NEWPATH"
+  local -r PATHVARIABLE=${2:-PATH}
+  local str="${!PATHVARIABLE}"  # Var value by its name
+  [[ -z "$str" ]] && return 0   # PATHVARIABLE is not defined yet
+
+  local s
+  s=$(echo "$1" | sed 's/^[ :]*\(.*\)[ :]*$/\1/' | sed 's/::*/:/g')
+  str=$(echo "$str" | sed 's/^[ :]*\(.*\)[ :]*$/\1/' | sed 's/::*/:/g')
+  # PATHVARIABLE => Nothing
+  [[ "$str" == "$s" ]] && { export $PATHVARIABLE=''; return 0; }
+
+  # ---------------------------------------------------------------
+  local d
+  if [[ "$s" =~ : ]]; then
+  # If 1st parameter is set of paths with : delimeter
+      local arr=()
+      arr=( $(echo "$str" | sed 's/:/ /g' ) )
+      str=""  # Check every element of PATHVARIABLE to be contained in first parameter
+      for d in ${arr[@]}; do
+        ! [[ ":$s:" =~ :"$d": ]] && str="$str:$d"
+      done
+
+      [[ -n "$str" ]] && str="${str:1}"
+  else   # If 1st parameter is one path only
+      ! [[ ":$str:" =~ :"$s": ]] && return 0 # Nothing to do
+      str=$(echo ":$str:" | sed "s|:$s:|:|g")
+      [[ "$str" == ':' ]] && str='' || str="${str:1:-1}"
+  fi
+
+  export $PATHVARIABLE="$str"
   return 0
   }

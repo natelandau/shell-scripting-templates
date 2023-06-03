@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash_functions_library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
 # ------------- https://github.com/jmooring/bash-function-library -------------
@@ -16,54 +16,50 @@
 # Standart Linux path functions. The string ONLY single line
 #
 # @param string $directory
-#   The directory to be searching and remove.
+#   The directory to be searching and prepend. There may be several paths, eg.  /opt/lib:/usr/local/lib:/home/usr/.local/lib
 #
 # @param string $path_variable (optional)
 #   The variable to be changed. By default, PATH
 #
 # @example
-#   bfl::path_prepend '/usr/local/lib' LD_LIBRARY_PATH
+#   bfl::path_prepend '/opt/lib:/usr/local/lib:/home/usr/.local/lib' LD_LIBRARY_PATH
 #------------------------------------------------------------------------------
 bfl::path_prepend() {
   bfl::verify_arg_count "$#" 1 2 || exit 1  # Verify argument count.
-# Original:
-#  pathremove $1 $2
-#  export $PATHVARIABLE="$1${!PATHVARIABLE:+:${!PATHVARIABLE}}"
+
+  # Verify argument values.
   [[ -z "$1" ]] && bfl::die 'path is empty!'
 
+  local -r PATHVARIABLE=${2:-PATH}
+  local str="${!PATHVARIABLE}"  # Var value by its name
+
   local s
-  s=$(trimLR "$1" ':' ' ')
+  s=$(echo "$1" | sed 's/^[ :]*\(.*\)[ :]*$/\1/' | sed 's/::*/:/g')
 
-  local PATHVARIABLE=${2:-PATH}
-  local str="${!PATHVARIABLE}"  # значение переменной по ее имени
+  # PATHVARIABLE is not defined yet
+  [[ -z "$str" ]] && { export $PATHVARIABLE="$s"; return 0; }
 
-  # если переменная даже не объявлена
-  [[ -z "$str" ]] && export $PATHVARIABLE="$s" && return 0
-  # если нет необходимости что-то менять
-  [[ "$str" == "$s" ]] && return 0
+  str=$(echo "$str" | sed 's/^[ :]*\(.*\)[ :]*$/\1/' | sed 's/::*/:/g')
+  [[ "$str" == "$s" ]] && return 0  # Nothing tp change
 
-  local b=false
-  if [[ "$s" =~ ':' ]]; then
-      local d arr
-      arr=()
-      IFS=$':' read -r -a arr <<< "$str"
-
-      s=":$s:"
+  # ---------------------------------------------------------------
+  local d
+  if [[ "$s" =~ : ]]; then
+  # If 1st parameter is set of paths with : delimeter
+      local arr=()
+      arr=( $(echo "$str" | sed 's/:/ /g' ) )
+      s=":$s:"  # Check every element of PATHVARIABLE to be contained in first parameter
       for d in ${arr[@]}; do
-        s=`echo "$s" | sed "s|:$d:|:|g"`
+        s=$(echo "$s" | sed "s|:$d:|:|g")
       done
-      unset IFS
+
       [[ "$s" == ':' ]] && s=''
       [[ -n "$s" ]] && s="${s:1:-1}"
-  else
-      b=`isDirInPath "$s" "$str"`
-      $b && return 0  # нет необходимости что-то менять
+  else   # If 1st parameter is one path only
+      [[ ":$str:" =~ :"$s": ]] && return 0  # nothing to do
   fi
 
-  if [[ -n "$s" ]]; then
-      str=`fixPathColons "$str"`
-      export $PATHVARIABLE="$s:$str"
-  fi
+  [[ -n "$s" ]] && export $PATHVARIABLE="$s:$str"
 
   return 0
   }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-[[ -z $(echo "$BASH_SOURCE" | sed -n '/bash_functions_library/p') ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
 # ------------ https://github.com/Jarodiv/bash-function-libraries -------------
@@ -33,11 +33,11 @@
 bfl::array_contains_element() {
   bfl::verify_arg_count "$#" 2 2 || exit 1  # Verify argument count.
 
-  local -r -a ARRAY=( "${!1:-}" )
-  local -r ELEMENT="${2:-}"
-
-  for i in "${ARRAY[@]}"; do
-    [[ "${i}" == "${ELEMENT}" ]] && return 0
+  local -r -a arr=( "${!1:-}" )
+  local -r sEl="${2:-}"
+  local el
+  for el in "${arr[@]}"; do
+    [[ "$el" == "$sEl" ]] && return 0
   done
 
   return 1
