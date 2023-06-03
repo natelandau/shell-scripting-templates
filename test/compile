@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Performs assertion testing of the functions in this library.
+#
+# This simple testing mechanism has no provision for the construction and
+# deconstruction of unit test scaffolding.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+# Declares assertions.
+#
+# @return global array $assertions
+#   This is a one dimensional array. Each element is a pipe delimited list
+#   of three values in this sequence:
+#
+#   1. Function to test (example: bfl::join)
+#   2. Parameters to pass to function (example, "1" "2" "3")
+#   3. Expected return code (example: 0)
+#------------------------------------------------------------------------------
+declare_assertions() {
+  declare -ga assertions=(
+#   Should return 0 if VERSION1 is lower than VERSION2."
+#   Simple version numbers
+    'bfl::compare_pkg_versions|"1.0" "2.0"|0'
+    'bfl::compare_pkg_versions|"1.9" "2.0"|0'
+    'bfl::compare_pkg_versions|"1.0" "1.9"|0'
+#   Version numbers with two digits
+    'bfl::compare_pkg_versions|"1.0" "1.10"|0'
+    'bfl::compare_pkg_versions|"1.10" "2.0"|0'
+#   One version number with bugfix version
+    'bfl::compare_pkg_versions|"1.0" "2.0.0"|0'
+    'bfl::compare_pkg_versions|"1.0" "1.10.0"|0'
+    'bfl::compare_pkg_versions|"1.0" "1.0.10"|0'
+    'bfl::compare_pkg_versions|"1.0.0" "2.0"|0'
+    'bfl::compare_pkg_versions|"1.10.0" "2.0"|0'
+    'bfl::compare_pkg_versions|"1.10.10" "2.0"|0'
+#   Both version numbers with bugfix version
+    'bfl::compare_pkg_versions|"1.0.0" "2.0.0"|0'
+    'bfl::compare_pkg_versions|"1.10.0" "2.0.0"|0'
+    'bfl::compare_pkg_versions|"1.0.10" "2.0.0"|0'
+    'bfl::compare_pkg_versions|"1.0.10" "1.10.0"|0'
+#   Should return 1 if VERSION1 is equal to VERSION2."
+#   Simple version numbers
+    'bfl::compare_pkg_versions|"1.0" "1.0"|1'
+#   Both version numbers with bugfix version
+    'bfl::compare_pkg_versions|"1.0.0" "1.0.0"|1'
+#   Should return 2 If VERSION1 is higher than VERSION2."
+#   Simple version numbers
+    'bfl::compare_pkg_versions|"2.0" "1.0"|2'
+    'bfl::compare_pkg_versions|"2.0" "1.10"|2'
+    'bfl::compare_pkg_versions|"2.0" "1.9"|2'
+    'bfl::compare_pkg_versions|"1.9" "1.0"|2'
+#   Version numbers with two digits
+    'bfl::compare_pkg_versions|"1.10" "1.0"|2'
+    'bfl::compare_pkg_versions|"2.0" "1.10"|2'
+#   One version number with bugfix version
+    'bfl::compare_pkg_versions|"2.0.0" "1.0"|2'
+    'bfl::compare_pkg_versions|"1.10.0" "1.0"|2'
+    'bfl::compare_pkg_versions|"1.0.10" "1.0"|2'
+    'bfl::compare_pkg_versions|"2.0" "1.0.0"|2'
+    'bfl::compare_pkg_versions|"2.0" "1.10.0"|2'
+    'bfl::compare_pkg_versions|"2.0" "1.0.10"|2'
+#   Both version numbers with bugfix version
+    'bfl::compare_pkg_versions|"2.0.0" "1.0.0"|2'
+    'bfl::compare_pkg_versions|"2.0.0" "1.10.0"|2'
+    'bfl::compare_pkg_versions|"2.0.0" "1.0.10"|2'
+    'bfl::compare_pkg_versions|"1.10.0" "1.0.10"|2'
+    )
+  }
