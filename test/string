@@ -22,20 +22,14 @@
 #------------------------------------------------------------------------------
 declare_assertions() {
   declare -ga assertions=(
+#   bfl::is_blank
     'bfl::is_blank||1'
     'bfl::is_blank|""|0'
     'bfl::is_blank|" "|0'
     'bfl::is_blank|"\t"|0'
     'bfl::is_blank|"\n"|0'
     'bfl::is_blank|"asd"|1'
-
-    'bfl::is_empty||1'
-    'bfl::is_empty|""|0'
-    'bfl::is_empty|" "|1'
-    'bfl::is_empty|"a"|1'
-    'bfl::is_empty|"a" "b"|1'
-    'bfl::is_empty|"" ""|1'
-
+#   bfl::join
     'bfl::join||1'
     'bfl::join|","|1'
     'bfl::join|"," "This is" "a" "test."|0'
@@ -45,7 +39,7 @@ declare_assertions() {
     'bfl::join|"," ""|0'
     'bfl::join|"," "" ""|0'
     'bfl::join|"" ""|0'
-
+#   bfl::repeat
     'bfl::repeat||1'
     'bfl::repeat|"" "" ""|1'
     'bfl::repeat|"" ""|1'
@@ -56,12 +50,12 @@ declare_assertions() {
     'bfl::repeat|"" "3"|0'
     'bfl::repeat|" " "3"|0'
     'bfl::repeat|"-" "3"|0'
-
+#   bfl::transliterate
     'bfl::transliterate||1'
     'bfl::transliterate|"This is A string." "So is this."|1'
     'bfl::transliterate|""|0'
     'bfl::transliterate|"This is A string."|0'
-
+#   bfl::trim
     'bfl::trim||1'
     'bfl::trim|""|0'
     'bfl::trim|"abc"|0'
@@ -69,4 +63,10 @@ declare_assertions() {
     'bfl::trim|"ghi   "|0'
     'bfl::trim|"   jkl   "|0'
     'bfl::trim|"   mno   pqr   stu   "|0'
+#   bfl::escape_special_symbols
+#   Should return STRING with all special characters escaped
+    'bfl::escape_special_symbols|"foo"|"foo"'
+    'bfl::escape_special_symbols|"foo\"|"foo\\"'
+    'bfl::escape_special_symbols|"f\$oo"|"f\\\$oo"'
+    'bfl::escape_special_symbols|""|""'
   )

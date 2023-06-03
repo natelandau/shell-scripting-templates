@@ -22,6 +22,7 @@
 #------------------------------------------------------------------------------
 declare_assertions() {
   declare -ga assertions=(
+#    bfl::find_nearest_integer
     'bfl::find_nearest_integer||1'
     'bfl::find_nearest_integer|"" "" ""|1'
     'bfl::find_nearest_integer|"" ""|1'
@@ -35,7 +36,7 @@ declare_assertions() {
     'bfl::find_nearest_integer|"-2" "-4 -1 0 1 4"|0'
     'bfl::find_nearest_integer|"0" "-4 -1 0 1 4"|0'
     'bfl::find_nearest_integer|"2" "-4 -1 0 1 4"|0'
-
+#    bfl::is_integer
     'bfl::is_integer||1'
     'bfl::is_integer|""|1'
     'bfl::is_integer|" "|1'
@@ -44,7 +45,7 @@ declare_assertions() {
     'bfl::is_integer|"1" "2" "3"|1'
     'bfl::is_integer|"-1"|0'
     'bfl::is_integer|"1"|0'
-
+#    bfl::is_positive_integer
     'bfl::is_positive_integer||1'
     'bfl::is_positive_integer|""|1'
     'bfl::is_positive_integer|" "|1'
@@ -53,4 +54,44 @@ declare_assertions() {
     'bfl::is_positive_integer|"1" "2" "3"|1'
     'bfl::is_positive_integer|"-1"|1'
     'bfl::is_positive_integer|"1"|0'
-  )
+#    bfl::is_float
+#   If STRING is a floating point number, the function should return 0, otherwise 1
+    'bfl::is_float|"1"|0'
+    'bfl::is_float|"0"|0'
+    'bfl::is_float|"+1"|0'
+    'bfl::is_float|"-1"|0'
+    'bfl::is_float|"1.0"|0'
+    'bfl::is_float|"0.0"|0'
+    'bfl::is_float|"+1.0"|0'
+    'bfl::is_float|"-1.0"|0'
+    'bfl::is_float|""|1'
+#    bfl::is_hex_number
+#   If STRING is a hexadecimal, the function should return 0, otherwise 1
+    'bfl::is_hex_number|"1"|0'
+    'bfl::is_hex_number|"0"|0'
+    'bfl::is_hex_number|"a"|0'
+    'bfl::is_hex_number|"A"|0'
+    'bfl::is_hex_number|"1a"|0'
+    'bfl::is_hex_number|"a1"|0'
+    'bfl::is_hex_number|"+1"|1'
+    'bfl::is_hex_number|"-1"|1'
+    'bfl::is_hex_number|"1.0"|1'
+    'bfl::is_hex_number|"g"|1'
+    'bfl::is_hex_number|""|1'
+#    bfl::is_integer
+#   If STRING is an integer, the function should return 0, otherwise 1
+    'bfl::is_integer|"1"|0'
+    'bfl::is_integer|"0"|0'
+    'bfl::is_integer|"+1"|0'
+    'bfl::is_integer|"-1"|0'
+    'bfl::is_integer|"1.0"|1'
+    'bfl::is_integer|""|1'
+#    bfl::is_natural_number
+#   If STRING is a natural number, the function should return 0, otherwise 1
+    'bfl::is_natural_number|"1"|0'
+    'bfl::is_natural_number|"0"|0'
+    'bfl::is_natural_number|"-1"|1'
+    'bfl::is_natural_number|"1.0"|1'
+    'bfl::is_natural_number|""|1'
+    )
+  }
