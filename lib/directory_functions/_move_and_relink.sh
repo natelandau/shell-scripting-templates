@@ -48,12 +48,12 @@ bfl::move_and_relink() {
           [[ -f "$s" ]] && s=`dirname "$s"`
           if [[ "$s" == "$2" ]]; then
               b=false
-              [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}file ${bfl_aes_reset}$1/$f ${Yellow}already linked to $2${bfl_aes_reset}\n" > /dev/tty
+              [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}file ${NC}$1/$f ${Yellow}already linked to $2${NC}\n" > /dev/tty
           fi
       fi
 
       if $b; then
-          [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$2/$f${bfl_aes_reset} => $1\n" > /dev/tty
+          [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$2/$f${NC} => $1\n" > /dev/tty
           mv "$1"/"$f" "$2"/
           ln -sf "$2"/$f "$1"/
       fi

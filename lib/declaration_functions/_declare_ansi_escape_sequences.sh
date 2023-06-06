@@ -28,7 +28,6 @@
 # To disable color output, set the BASH_FUNCTION_LIBRARY_COLOR_OUTPUT
 # environment variable to "disabled" before sourcing the autoloader. For
 # example:
-#
 #   export BASH_FUNCTION_LIBRARY_COLOR_OUTPUT=disabled
 #   if ! source "${BASH_FUNCTION_LIBRARY}"; then
 #     printf "Error. Unable to source BASH_FUNCTION_LIBRARY.\\n" 1>&2
@@ -48,7 +47,8 @@
 #   ANSI escape sequence for color + blink.
 # @return global string $bfl_aes_color_reverse
 #   ANSI escape sequence for color + reverse.
-
+#
+# -----------------------------------------------------------------------------
 # @return global string $bfl_aes_reset
 #   ANSI escape sequence for WITHOUT_COLOR
 #
@@ -59,6 +59,8 @@
 #------------------------------------------------------------------------------
 bfl::declare_ansi_escape_sequences() {
   [[ "${BASH_FUNCTION_LIBRARY_COLOR_OUTPUT:=enabled}" = "disabled" ]] && local bEnabled=false || local bEnabled=true
+#  [[ "$TERM" =~ 256color ]] && local use256=true || local use256=false
+
   local ar_clrs=('black' 'red' 'green' 'yellow' 'blue' 'magenta' 'cyan' 'white')
   local ar_nmbrs=(30 31 32 33 34 35 36 37)
 
@@ -76,8 +78,31 @@ bfl::declare_ansi_escape_sequences() {
       s="bfl_aes_${sColor}_reverse";   $bEnabled && declare -gr $s="\\033[7;${iNumbr}m" || declare -gr $s=""
       ((i++))
   done
-
+#                                       \[\033[00m\]
   $bEnabled && declare -gr bfl_aes_reset="\\033[0m" || declare -gr bfl_aes_reset=""
   }
 
 bfl::declare_ansi_escape_sequences
+
+# ---------------------------- colors -------------------------------
+
+# readonly RED_E='\[\e[0;31m\]'
+# readonly PALERED_E=''                #                '\033[38;5;9m'
+# readonly LIGHTRED_E='\[\e[1;31m\]'
+# readonly GREEN_E='\[\e[0;32m\]'      # '\033[0;32m'   '\033[38;5;2m'
+# readonly LIGHTGREEN_E='\[\e[1;32m\]' # '\033[1;32m'   '\033[38;5;10m'
+# readonly YELOW_E='\[\e[0;33m\]'
+# readonly LIGHTYELOW_E='\[\e[1;33m\]' #                '\033[38;5;11m'
+# readonly BLACK_E='\[\e[0;30m\]'
+# readonly DARKGRAY_E='\[\e[1;30m\]'
+# readonly ORANGE_E='\[\e[1;33m\]'
+# readonly BLUE_E='\[\e[0;34m\]'
+# readonly PALEBLUE_E=''               #                '\033[38;5;12m'
+# readonly LIGHTBLUE_E='\[\e[1;34m\]'  # '\033[1;34m'
+# readonly PURPLE_E='\[\e[0;35m\]'
+# readonly LIGHTPURPLE_E='\[\e[1;35m\]'
+# readonly CYAN_E='\[\e[0;36m\]'       #                 '\033[38;5;14m'
+# readonly LIGHTCYAN_E='\[\e[1;36m\]'
+# readonly LIGHTGRAY_E='\[\e[0;37m\]'
+# readonly WHITE_E='\[\e[1;37m\]'
+# readonly NORMAL_E='\[\e[0m\]' # '\033[0m' # No color

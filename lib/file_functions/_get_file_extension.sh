@@ -27,10 +27,8 @@ bfl::get_file_extension() {
   # Verify argument values.
   [[ -z "$1" ]] && bfl::die "The path was not specified."
 
-  local file_name file_extension
-  file_name=$(bfl::get_file_name "$1") || bfl::die
-  file_extension="${file_name##*.}"
-
-  printf "%s" "$file_extension"
+  local s="$1"
+  [[ "$s" =~ \.tar\.[gx]z$ ]] && echo "${s:0 -6}" && return 0
+  echo "$s" | sed 's/^.*\.\([^.]*\)$/\1/'
   return 0
   }

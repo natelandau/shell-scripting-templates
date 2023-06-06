@@ -30,7 +30,7 @@ bfl::die() {
 
   # Declare positional arguments (readonly, sorted by position).
   local -r msg="${1:-"Unspecified fatal error."}"
-  local -r msg_color="${2:-"$bfl_aes_red"}"   # Red
+  local -r msg_color="${2:-Red}"   # Red
 
   # Declare all other variables (sorted by name).
   local stack
@@ -40,13 +40,10 @@ bfl::die() {
   stack="${stack// / <- }"
 
 #  ????
-#  [[ $BASH_INTERACTIVE == true ]] && printf "${Red}Не указан ни один параметр функции getHeaderForSection${bfl_aes_reset}\n" > /dev/tty
+#  [[ $BASH_INTERACTIVE == true ]] && printf "${Red}Не указан ни один параметр функции getHeaderForSection${NC}\n" > /dev/tty
 
-  # Print the message.
-  printf "%b\\n" "${!msg_color}Fatal error. $msg${bfl_aes_reset}" 1>&2
-
-  # Print the stack.
-  printf "%b\\n" "$bfl_aes_yellow[$stack]$bfl_aes_reset" 1>&2
-
-  exit 1
-  }
+  #                                ИЛИ     echo "$@" >&2 ???
+  # # print a message to stderr and exit with error code
+  printf "%b\\n" "${!msg_color}Fatal error. $msg${NC}" 1>&2
+  printf "%b\\n" "${Yellow}[$stack]${NC}" 1>&2 # Print the stack.
+  } && return 1

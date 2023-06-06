@@ -3,31 +3,23 @@
 ! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
-# ------------- https://github.com/jmooring/bash-function-library -------------
+# https://github.com/commercialhaskell/stack/blob/master/etc/scripts/get-stack.sh
 # @file
-# Defines function: bfl::warn().
+# Defines function: bfl::is_system_aarch64().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # @function
-# Prints a warning message to stderr.
+# Determines x86_64 architecture
 #
-# The message provided will be prepended with "Warning. "
-#
-# @param string $msg (optional)
-#   The message.
+# @return Boolean   $value
+#    if getconf is available, it will return the arch of the OS, as desired
+#   0 / 1   (true / false)
 #
 # @example
-#   bfl::warn "The foo is bar."
-#
-# shellcheck disable=SC2154
+#   bfl::is_system_aarch64
 #------------------------------------------------------------------------------
-bfl::warn() {
-  bfl::verify_arg_count "$#" 0 1 || exit 1  # Verify argument count.
-
-  # Declare positional arguments (readonly, sorted by position).
-  local msg="${1:-"Unspecified warning."}"
-
-  # Print the message.
-  printf "%b\\n" "${Yellow}Warning. $msg${NC}" 1>&2
+bfl::is_system_aarch64() {
+#  bfl::verify_arg_count "$#" 0 0 || exit 1  # Verify argument count.
+  [[ "$(bfl::get_system_architecture)" = 'aarch64' ]]
   }

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
 # @file
 # Does something. # TODO
@@ -27,7 +29,7 @@ Example:  $(basename "$0") "Fred" "George" # TODO
 EOT
   )
   printf "%s\\n" "${msg}"
-}
+  }
 
 #------------------------------------------------------------------------------
 # @function
@@ -38,7 +40,7 @@ EOT
 cleanup() {
   # TODO
   :
-}
+  }
 
 #------------------------------------------------------------------------------
 # @function
@@ -87,7 +89,7 @@ main() {
 
   # TODO
   printf "%s\\n" "${foo}, ${bar}, ${wibble}, ${wobble}, ${eggs}, and ${ham}."
-}
+  }
 
 set -euo pipefail
 trap cleanup EXIT

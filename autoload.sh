@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+
+[[ -z ${TERM+x} ]] && TERM='xterm-256color' || [[ "$TERM" == 'linux' ]] && TERM='xterm-256color'
+export TERM
+
+#set -uo pipefail
 #------------------------------------------------------------------------------
 # @file
 # Sources files adjacent to (in the same directory as) this script.
@@ -68,17 +75,21 @@
 #
 # This will only source file names that begin with an underscore.
 #------------------------------------------------------------------------------
+
 bfl::autoload() {
-  declare autoload_canonical_path   # Canonical path to this file.
+  declare autoload_canonical_path    # Canonical path to this file.
   declare autoload_directory         # Directory in which this file resides.
-  declare file
+  declare f
 
   autoload_canonical_path=$(readlink -e "${BASH_SOURCE[0]}") || exit 1
-  autoload_directory=$(dirname "${autoload_canonical_path}") || exit 1
+  autoload_directory=$(dirname "$autoload_canonical_path") || exit 1
 
-  for file in "${autoload_directory}"/*/_*; do
-    source "${file}" || exit 1
+  for f in "$autoload_directory"/lib/*/_*.sh; do
+      source "$f" || {
+        [[ $BASH_INTERACTIVE == true ]] && printf "Error while loading $f/n" > /dev/tty;
+        return 1
+        }
   done
-}
+  }
 
 bfl::autoload

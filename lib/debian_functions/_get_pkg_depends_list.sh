@@ -32,7 +32,7 @@ bfl::get_pkg_depends_list() {
   local str=$(apt-cache depends "$1")
   local dependsArr=()
   if [[ -z "$str" ]]; then
-      [[ $BASH_INTERACTIVE == true ]] && printf "${Red}Ничего не найдено${bfl_aes_reset}\n" > /dev/tty
+      [[ $BASH_INTERACTIVE == true ]] && printf "${Red}Ничего не найдено${NC}\n" > /dev/tty
       echo '' && return 0
   fi
 
@@ -42,7 +42,7 @@ bfl::get_pkg_depends_list() {
 
   if [[ $BASH_INTERACTIVE == true ]]; then
       for str in ${dependsArr[@]}; do
-          printf "${Green}$str${bfl_aes_reset}\n" > /dev/tty
+          printf "${Green}$str${NC}\n" > /dev/tty
       done
   fi
 
@@ -59,7 +59,7 @@ bfl::get_pkg_depends_list() {
   local tel el
   while (( $i < $k )); do
       t=${dependsArr[$i]}; dep=${depthArr[$i]}
-      [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$t : ---${bfl_aes_reset}\n" > /dev/tty
+      [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$t : ---${NC}\n" > /dev/tty
       str=$(apt-cache depends "$t")
       ! [[ -n "$str" ]] && ((i++)) && continue
 
@@ -69,12 +69,12 @@ bfl::get_pkg_depends_list() {
       for tel in ${temparr[@]}; do
           b=true; ii=0
           for el in ${dependsArr[@]}; do
-              [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$el - $tel${bfl_aes_reset}\n" > /dev/tty
+              [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$el - $tel${NC}\n" > /dev/tty
               if [[ "$tel" = "$el" ]]; then
                   [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$tel : ${depthArr[ii]}{NC}\n" > /dev/tty
                   if [[ ${depthArr[ii]} -le $((dep+1)) ]]; then
                       depthArr[$ii]=$((dep+1))
-                      [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$tel : ${depthArr[ii]}${bfl_aes_reset}\n" > /dev/tty
+                      [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$tel : ${depthArr[ii]}${NC}\n" > /dev/tty
                   fi
                   b=false; break
               fi
@@ -83,7 +83,7 @@ bfl::get_pkg_depends_list() {
           if $b; then
               dependsArr+=( $tel )
               depthArr+=( $((dep+1)) )
-              [[ $BASH_INTERACTIVE == true ]] && printf "${Green}added $tel : ${depthArr[ii]}${bfl_aes_reset}\n" > /dev/tty
+              [[ $BASH_INTERACTIVE == true ]] && printf "${Green}added $tel : ${depthArr[ii]}${NC}\n" > /dev/tty
           fi
         done
         ((i++)); k=${#dependsArr[@]}
@@ -113,10 +113,10 @@ bfl::get_pkg_depends_list() {
   #dependsArr+=("$1"); depthArr+=(0)
 
   if [[ $BASH_INTERACTIVE == true ]]; then # Вывод итога
-      printf "${Green}"${#dependsArr[*]}"${bfl_aes_reset}\n" > /dev/tty
+      printf "${Green}"${#dependsArr[*]}"${NC}\n" > /dev/tty
       i=0
       while (( $i < $k )); do
-          printf "${Green}${dependsArr[i]} - ${depthArr[i]}${bfl_aes_reset}\n" > /dev/tty
+          printf "${Green}${dependsArr[i]} - ${depthArr[i]}${NC}\n" > /dev/tty
           ((i++))
       done
   fi

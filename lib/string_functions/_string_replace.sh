@@ -29,13 +29,11 @@
 bfl::string_replace() {
   bfl::verify_arg_count "$#" 3 3 || exit 1  # Verify argument count.
 
-  local srch=$1; #local substr=$2; local rplce=$3
-  local str st2
-  str=`echo "$2" | sed 's|/|\\\/|g'`      # echo $substr
-  st2=`echo "$srch" | sed -n "/$str/p"`
-  while [[ -n "$st2" ]]; do
-      srch=`echo "$srch" | sed "s|$str|$3|g"`   # s|$str|$rplce|g
-      st2=`echo "$srch" | sed -n "/$str/p"`
+  local srch="$1"; #local substr=$2; local rplce=$3
+  local str
+  str=$(echo "$2" | sed 's|/|\\\/|g')      # echo $substr
+  while [[ "$srch" =~ "$str" ]]; do
+      srch=$(echo "$srch" | sed "s|$str|$3|g")   # s|$str|$rplce|g
   done
 
   echo "$srch"

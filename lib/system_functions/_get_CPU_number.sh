@@ -3,31 +3,28 @@
 ! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
-# ------------- https://github.com/jmooring/bash-function-library -------------
+#------------------------------------------------------------------------------
 # @file
-# Defines function: bfl::warn().
+# Defines function: bfl::get_CPU_number().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # @function
-# Prints a warning message to stderr.
+# Determines the CPU's cores number (from /usr/share/bash_completion)
 #
-# The message provided will be prepended with "Warning. "
-#
-# @param string $msg (optional)
-#   The message.
+# @return Integer $Number
+#   The number of CPU cores.
 #
 # @example
-#   bfl::warn "The foo is bar."
-#
-# shellcheck disable=SC2154
+#   bfl::get_CPU_number
 #------------------------------------------------------------------------------
-bfl::warn() {
-  bfl::verify_arg_count "$#" 0 1 || exit 1  # Verify argument count.
+bfl::get_CPU_number() {
+#  bfl::verify_arg_count "$#" 0 0 || exit 1  # Verify argument count.
 
-  # Declare positional arguments (readonly, sorted by position).
-  local msg="${1:-"Unspecified warning."}"
+  local n var=NPROCESSORS_ONLN
+  [[ $OSTYPE == *linux* ]] && var=_$var
+  n=$(getconf $var 2>/dev/null)
+  printf %s ${n:-1}
 
-  # Print the message.
-  printf "%b\\n" "${Yellow}Warning. $msg${NC}" 1>&2
+  return 0
   }

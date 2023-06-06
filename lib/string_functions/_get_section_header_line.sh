@@ -50,7 +50,7 @@ bfl::get_section_header_line() {
   local t s
   ((t=l-iBgn-iHdr-3))
 
-  [[ x -lt 0 ]] && bfl::die "Функция getHeaderForSection:${bfl_aes_reset} Общая длина строки ${Red}$l${bfl_aes_reset} недостаточна для объявления ${Yellow}$hdr" 'Yellow'
+  [[ x -lt 0 ]] && bfl::die "Функция getHeaderForSection:${NC} Общая длина строки ${Red}$l${NC} недостаточна для объявления ${Yellow}$hdr" 'Yellow'
 
   local y z
   ((y=t/2)); ((z=t-y*2))

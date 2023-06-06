@@ -30,65 +30,6 @@
 # -> https://wiki.gentoo.org/wiki//etc/portage/color.map                      #
 #                                                                             #
 # *************************************************************************** #
-
-#
-# Clean up before setting anything
-#
-
-# Initialize RC_NOCOLOR if it is unset. Set it to 'yes' if you do not want colors to be used
-RC_NOCOLOR=${RC_NOCOLOR:-no}
-
-# Reset all colors
-unset CLR_GOOD CLR_INFORM CLR_WARN CLR_BAD CLR_HILITE CLR_BRACKET CLR_NORMAL
-
-# Reset all formatting options
-unset FMT_BOLD FMT_UNDERLINE
-
-
-#
-# Setup the colors depending on what the terminal supports
-#
-
-# Only enable colors if it is wanted
-if ! [[ "${RC_NOCOLOR}" =~ ^(YES|Yes|yes)$ ]]; then
-
-    # If tput is present, prefer it over the escape sequence based formatting
-    if ( command -v tput ) >/dev/null 2>&1; then
-        # tput color table
-        # -> http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
-
-        [[ $( tput colors ) -ge 256 ]] && _bfl_temporary_var=true || _bfl_temporary_var=false
-        $_bfl_temporary_var && readonly CLR_GOOD="$(tput setaf 10)"     || readonly CLR_GOOD="$(tput bold)$(tput setaf 2)"     # Bright Green
-        readonly CLR_INFORM="$(tput setaf 2)"                                                                                  # Green
-        $_bfl_temporary_var && readonly CLR_WARN="$(tput setaf 11)"     || readonly CLR_WARN="$(tput bold)$(tput setaf 3)"     # Bright Yellow
-        $_bfl_temporary_var && readonly CLR_BAD="$(tput setaf 9)"       || readonly CLR_BAD="$(tput bold)$(tput setaf 1)"      # Bright Red
-        $_bfl_temporary_var && readonly CLR_HILITE="$(tput setaf 14)"   || readonly CLR_HILITE="$(tput bold)$(tput setaf 6)"   # Bright Cyan
-        $_bfl_temporary_var && readonly CLR_BRACKET="$(tput setaf 12)"  || readonly CLR_BRACKET="$(tput bold)$(tput setaf 4)"  # Bright Blue
-        readonly CLR_NORMAL="$(tput sgr0)"
-
-        # Enable additional formatting for 256 color terminals (on 8 color terminals the formatting likely is implemented as a brighter color rather than a different font)
-        $_bfl_temporary_var && readonly FMT_BOLD="$(tput bold)"
-        $_bfl_temporary_var && readonly FMT_UNDERLINE="$(tput smul)"
-    else
-        # Escape sequence color table
-        # -> https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
-
-        [[ "${TERM}" =~ 256color ]] && _bfl_temporary_var=true || _bfl_temporary_var=false
-        $_bfl_temporary_var && readonly CLR_GOOD="$(printf '\033[38;5;10m')"    || CLR_GOOD="$(printf '\033[32;01m')"
-        $_bfl_temporary_var && readonly CLR_INFORM="$(printf '\033[38;5;2m')"   || CLR_INFORM="$(printf '\033[32m')"
-        $_bfl_temporary_var && readonly CLR_WARN="$(printf '\033[38;5;11m')"    || CLR_WARN="$(printf '\033[33;01m')"
-        $_bfl_temporary_var && readonly CLR_BAD="$(printf '\033[38;5;9m')"      || CLR_BAD="$(printf '\033[31;01m')"
-        $_bfl_temporary_var && readonly CLR_HILITE="$(printf '\033[38;5;14m')"  || CLR_HILITE="$(printf '\033[36;01m')"
-        $_bfl_temporary_var && readonly CLR_BRACKET="$(printf '\033[38;5;12m')" || CLR_BRACKET="$(printf '\033[34;01m')"
-        readonly CLR_NORMAL="$(printf '\033[0m')"
-
-        # Enable additional formatting for 256 color terminals (on 8 color terminals the formatting likely is implemented as a brighter color rather than a different font)
-        $_bfl_temporary_var && readonly FMT_BOLD="$(printf '\033[01m')"
-        $_bfl_temporary_var && readonly FMT_UNDERLINE="$(printf '\033[04m')"
-    fi
-fi
-
-# *************************************************************************** #
 # Logging                                                                     #
 # *************************************************************************** #
 
@@ -98,6 +39,11 @@ readonly LOG_LVL_ERR=1
 readonly LOG_LVL_WRN=2
 readonly LOG_LVL_INF=3
 readonly LOG_LVL_DBG=4
+
+# Define custom exception types
+readonly ERR_BAD=100
+readonly ERR_WORSE=101
+readonly ERR_CRITICAL=102
 
 # Set defaults
 LOG_LEVEL=${LOG_LVL_INF}

@@ -30,8 +30,8 @@ bfl::error() {
 
   # Declare positional arguments (readonly, sorted by position).
   local msg="${1:-"Unspecified error."}"
-  local msg_color="${2:-bfl_aes_red}"
+  local msg_color="${2:-Red}"
 
   # Print the message.
-  printf "%b\\n" "${msg_color}Error. $msg${bfl_aes_reset}" 1>&2
+  printf "%b\\n" "${!msg_color}Error. $msg${NC}" 1>&2
   }

@@ -3,39 +3,39 @@
 ! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
-# ------------- https://github.com/jmooring/bash-function-library -------------
+# https://github.com/commercialhaskell/stack/blob/master/etc/scripts/get-stack.sh
 # @file
-# Defines function: bfl::get_system_architecture().
+# Defines function: bfl::get_system_32_64bit().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # @function
-# Determines the CPU's instruction set (from recipes slackware.org)
+# Determines 64- or 32-bit architecture
 #
 # @return string $system architecture
-#   The type of system architecture.
+#    if getconf is available, it will return the arch of the OS, as desired
+#    if not, it will use uname to get the arch of the CPU, though the installed
+#    OS could be 32-bits on a 64-bit CPU
 #
 # @example
-#   bfl::get_system_architecture
+#   bfl::get_system_32_64bit
 #------------------------------------------------------------------------------
-bfl::get_system_architecture() {
+bfl::get_system_32_64bit() {
   bfl::verify_arg_count "$#" 0 0 || exit 1  # Verify argument count.
 
-#  if [ -z "$ARCH" ]; then
-  local str
-  str=$(uname -m)
-  local ARCH
-  case "$str" in
-      i?86) ARCH='i486' ;;
-      arm*) ARCH='arm' ;;
-#  uname -m | grep -Eq 'armv[78]l?' => 'arm'
-#  uname -m | grep -q aarch64       => 'aarch64'
-#  uname -m | grep -q x86           => 'x86'
-      # Unless $ARCH is already set, use uname -m for all other archs:
-         *) ARCH="$str" ;;
-  esac
-#  fi
-  echo "$ARCH"
+# Check whether the given command exists
+has_getconf() {
+  command -v 'getconf' > /dev/null 2>&1
+}
+
+  if has_getconf ; then
+      [[ $(getconf LONG_BIT | grep -q 64) ]] && echo 64 || echo 32
+  else
+      case "$(uname -m)" in
+        *64) echo 64 ;;
+        *)   echo 32 ;;
+      esac
+  fi
 
   return 0
   }

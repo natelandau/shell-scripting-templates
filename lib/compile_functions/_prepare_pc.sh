@@ -52,7 +52,7 @@ bfl::prepare_pc() {
   [[ $i -eq 0 ]] && str="$str\npc files list is not defined!"
 
   if [[ -n $str ]]; then
-      [[ $BASH_INTERACTIVE == true ]] && printf "${Red}$str${bfl_aes_reset}\n" > /dev/tty
+      [[ $BASH_INTERACTIVE == true ]] && printf "${Red}$str${NC}\n" > /dev/tty
       echo '' && return 1
   fi
 
@@ -66,7 +66,7 @@ for str in ${arr_pcFiles[@]}; do
     b=false
     if [[ -f "$pcFile" ]]; then
         b=true
-        [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}File $pcFile will be overwritten${bfl_aes_reset}\n" > /dev/tty
+        [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}File $pcFile will be overwritten${NC}\n" > /dev/tty
     fi
 
     if ! $dryrun; then
@@ -84,7 +84,7 @@ Version: $FullVersion" >> $pcFile
       echo 'Cflags: -I${includedir}' >> $pcFile
   fi
 
-      ! $b && [[ $BASH_INTERACTIVE == true ]] && printf "${Green}File $pcFile created${bfl_aes_reset}\n" > /dev/tty
+      ! $b && [[ $BASH_INTERACTIVE == true ]] && printf "${Green}File $pcFile created${NC}\n" > /dev/tty
       reslt="$reslt;$pcFile"
   done
 

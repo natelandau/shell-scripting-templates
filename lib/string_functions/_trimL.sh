@@ -30,7 +30,7 @@ bfl::trimL() {
   bfl::verify_arg_count "$#" 1 2 || exit 1  # Verify argument count.
 
   # Verify argument values.
-  [[ -z "$1" ]] && bfl::die "trimL()${bfl_aes_reset} No parameters"
+  [[ -z "$1" ]] && bfl::die "trimL()${NC} No parameters"
 
   local s="$1"
   local ptrn=' '  # space by default

@@ -16,7 +16,7 @@
 # **************************************************************************** #
 # Dependencies                                                                 #
 # **************************************************************************** #
-! [[ $_GUARD_BFL_log_functions_write_log -eq 1 ]] && source "$(dirname $BASH_FUNCTION_LIBRARY)"/lib/log_functions/_write_log.sh
+# source "$(dirname $BASH_FUNCTION_LIBRARY)"/lib/log_functions/_write_log.sh
 
 #------------------------------------------------------------------------------
 # @function

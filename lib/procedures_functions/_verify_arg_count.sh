@@ -7,7 +7,9 @@
 # @file
 # Defines function: bfl::verify_arg_count().
 #------------------------------------------------------------------------------
-
+# Dependencies
+#------------------------------------------------------------------------------
+source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/declaration_functions/_declare_terminal_colors.sh
 #------------------------------------------------------------------------------
 # @function
 # Verifies the number of arguments received against expected values.
@@ -33,14 +35,38 @@
 # shellcheck disable=SC2154
 #------------------------------------------------------------------------------
 bfl::verify_arg_count() {
+# циклическая зависимость!
+  self_die() {
+    # Declare positional arguments (readonly, sorted by position).
+    local -r msg="${1:-"Unspecified fatal error."}"
+    local -r msg_color="${2:-Red}"   # Red
+
+    # Declare all other variables (sorted by name).
+    local stack
+
+    # Build a string showing the "stack" of functions that got us here.
+    stack="${FUNCNAME[*]}"
+    stack="${stack// / <- }"
+
+  #  ????
+  #  [[ $BASH_INTERACTIVE == true ]] && printf "${Red}Не указан ни один параметр функции getHeaderForSection${NC}\n" > /dev/tty
+
+    # Print the message.
+    printf "%b\\n" "${!msg_color}Fatal error. $msg${NC}" 1>&2
+
+    # Print the stack.
+    printf "%b\\n" "${Yellow}[$stack]${NC}" 1>&2
+
+    exit 1
+    }
   # Verify argument count.
-  [[ "$#" -ne "3" ]] && bfl::die "Invalid number of arguments. Expected 3, received $#."
+  [[ "$#" -ne "3" ]] && self_die "Invalid number of arguments. Expected 3, received $#."
 
   # Make sure all of the arguments are integers.
   local -r regex="^[0-9]+$"
-  ! [[ "$1" =~ $regex ]] && bfl::die "\"$1\" is not an integer."
-  ! [[ "$2" =~ $regex ]] && bfl::die "\"$2\" is not an integer."
-  ! [[ "$3" =~ $regex ]] && bfl::die "\"$3\" is not an integer."
+  ! [[ "$1" =~ $regex ]] && self_die "\"$1\" is not an integer."
+  ! [[ "$2" =~ $regex ]] && self_die "\"$2\" is not an integer."
+  ! [[ "$3" =~ $regex ]] && self_die "\"$3\" is not an integer."
 
   # Test.
   declare error_msg
@@ -49,7 +75,7 @@ bfl::verify_arg_count() {
       error_msg="Invalid number of arguments. Expected "
       [[ "$2" -eq "$3" ]] && error_msg+="$2, received $1." || error_msg+="between $2 and $3, received $1."
 
-      printf "%b\\n" "${bfl_aes_red}Error. $error_msg${bfl_aes_reset}" 1>&2
+      printf "%b\\n" "${Red}Error. $error_msg${NC}" 1>&2
       return 1
   fi
   }

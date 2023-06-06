@@ -26,11 +26,8 @@ bfl::get_file_name_without_extension() {
 
   [[ -z "$1" ]] && bfl::die "The path was not specified."
 
-  local file_name file_name_without_extension
-
-  file_name=$(bfl::get_file_name "$1") || bfl::die
-  file_name_without_extension="${file_name%.*}"
-
-  printf "%s" "$file_name_without_extension"
+  local file_ext
+  file_ext=$(bfl::get_file_extension "$1") || bfl::die
+  echo ${str:0:-${#ext}-1}
   return 0
   }

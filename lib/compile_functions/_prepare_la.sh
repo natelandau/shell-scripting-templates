@@ -52,7 +52,7 @@ bfl::prepare_la() {
   [[ $i -eq 0 ]] && str="$str\nfiles were not defined!"
 
   if [[ -n $str ]]; then
-      [[ $BASH_INTERACTIVE == true ]] && printf "${Red}$str${bfl_aes_reset}\n" > /dev/tty
+      [[ $BASH_INTERACTIVE == true ]] && printf "${Red}$str${NC}\n" > /dev/tty
       echo '' && return 1
   fi
 # --------------------------------------------------
@@ -67,7 +67,7 @@ local libName laName soFiles
 local b=false; local reslt=''
 for str in ${arr_libNames[@]}; do
     if [[ -z "$str" ]]; then
-        [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}Прочитано пустое имя${bfl_aes_reset}\n" > /dev/tty
+        [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}Прочитано пустое имя${NC}\n" > /dev/tty
         continue
     fi
 
@@ -75,7 +75,7 @@ for str in ${arr_libNames[@]}; do
     laName="$curDir/$libName.la"
     soFiles=`ls "$curDir/$libName".so* | sed "s|$curDir/||g" | tr '\n' ' '`
     if [[ -z "$soFiles" ]]; then
-        [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}cannot find files $libName.so*${bfl_aes_reset}\n" > /dev/tty
+        [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}cannot find files $libName.so*${NC}\n" > /dev/tty
         continue
     fi
     soFiles=${soFiles::-1}  # удалил последний символ
@@ -83,7 +83,7 @@ for str in ${arr_libNames[@]}; do
     b=false
     if [[ -f "$laName" ]]; then
         b=true
-        [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}File $laName will be overwritten${bfl_aes_reset}\n" > /dev/tty
+        [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}File $laName will be overwritten${NC}\n" > /dev/tty
     fi
 
     ! $dryrun && echo "# $libName.la - a libtool library file
@@ -127,7 +127,7 @@ dlpreopen=''
 # Directory that this library needs to be installed in:
 libdir='/usr/local/lib'" > $laName
 
-      ! $b && [[ $BASH_INTERACTIVE == true ]] && printf "${Green}File $laName created${bfl_aes_reset}\n" > /dev/tty
+      ! $b && [[ $BASH_INTERACTIVE == true ]] && printf "${Green}File $laName created${NC}\n" > /dev/tty
       reslt="$reslt;$laName"
   done
 
