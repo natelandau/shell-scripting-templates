@@ -12,34 +12,29 @@ _setColors_() {
     #         printf "%s\n" "${blue}Some text${reset}"
 
     if tput setaf 1 >/dev/null 2>&1; then
+        local use256=false
+        if [[ $(tput colors) -ge 256 ]] >/dev/null 2>&1; then
+            use256=true
+        fi
+
         bold=$(tput bold)
         underline=$(tput smul)
         reverse=$(tput rev)
         reset=$(tput sgr0)
 
-        if [[ $(tput colors) -ge 256 ]] >/dev/null 2>&1; then
-            white=$(tput setaf 231)
-            blue=$(tput setaf 38)
-            yellow=$(tput setaf 11)
-            green=$(tput setaf 82)
-            red=$(tput setaf 9)
-            purple=$(tput setaf 171)
-            gray=$(tput setaf 250)
-        else
-            white=$(tput setaf 7)
-            blue=$(tput setaf 38)
-            yellow=$(tput setaf 3)
-            green=$(tput setaf 2)
-            red=$(tput setaf 9)
-            purple=$(tput setaf 13)
-            gray=$(tput setaf 7)
-        fi
+        $use256 && white=$(tput setaf 231)  || white=$(tput setaf 7)
+        $use256 && blue=$(tput setaf 38)    || blue=$(tput setaf 38)
+        $use256 && yellow=$(tput setaf 11)  || yellow=$(tput setaf 3)
+        $use256 && green=$(tput setaf 82)   || green=$(tput setaf 2)
+        $use256 && red=$(tput setaf 9)      || red=$(tput setaf 9)
+        $use256 && purple=$(tput setaf 171) || purple=$(tput setaf 13)
+        $use256 && gray=$(tput setaf 250)   || gray=$(tput setaf 7)
     else
         bold="\033[4;37m"
-        reset="\033[0m"
         underline="\033[4;37m"
-        # shellcheck disable=SC2034
         reverse=""
+        reset="\033[0m"
+        # shellcheck disable=SC2034
         white="\033[0;37m"
         blue="\033[0;34m"
         yellow="\033[0;33m"
@@ -48,7 +43,7 @@ _setColors_() {
         purple="\033[0;35m"
         gray="\033[0;37m"
     fi
-}
+    }
 
 _alert_() {
     # DESC:
