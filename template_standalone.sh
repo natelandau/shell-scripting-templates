@@ -43,28 +43,22 @@ _setColors_() {
     #         printf "%s\n" "${blue}Some text${reset}"
 
     if tput setaf 1 >/dev/null 2>&1; then
+        local use256=false
+        if [[ $(tput colors) -ge 256 ]] >/dev/null 2>&1; then
+            use256=true
+        fi
         bold=$(tput bold)
         underline=$(tput smul)
         reverse=$(tput rev)
         reset=$(tput sgr0)
 
-        if [[ $(tput colors) -ge 256 ]] >/dev/null 2>&1; then
-            white=$(tput setaf 231)
-            blue=$(tput setaf 38)
-            yellow=$(tput setaf 11)
-            green=$(tput setaf 82)
-            red=$(tput setaf 9)
-            purple=$(tput setaf 171)
-            gray=$(tput setaf 250)
-        else
-            white=$(tput setaf 7)
-            blue=$(tput setaf 38)
-            yellow=$(tput setaf 3)
-            green=$(tput setaf 2)
-            red=$(tput setaf 9)
-            purple=$(tput setaf 13)
-            gray=$(tput setaf 7)
-        fi
+        $use256 && white=$(tput setaf 231)  || white=$(tput setaf 7)
+        $use256 && blue=$(tput setaf 38)    || blue=$(tput setaf 38)
+        $use256 && yellow=$(tput setaf 11)  || yellow=$(tput setaf 3)
+        $use256 && green=$(tput setaf 82)   || green=$(tput setaf 2)
+        $use256 && red=$(tput setaf 9)      || red=$(tput setaf 9)
+        $use256 && purple=$(tput setaf 171) || purple=$(tput setaf 13)
+        $use256 && gray=$(tput setaf 250)   || gray=$(tput setaf 7)
     else
         bold="\033[4;37m"
         reset="\033[0m"
@@ -214,15 +208,15 @@ _alert_() {
 
 } # /_alert_
 
-error() { _alert_ error "${1}" "${2:-}"; }
+error()   { _alert_ error "${1}" "${2:-}"; }
 warning() { _alert_ warning "${1}" "${2:-}"; }
-notice() { _alert_ notice "${1}" "${2:-}"; }
-info() { _alert_ info "${1}" "${2:-}"; }
+notice()  { _alert_ notice "${1}" "${2:-}"; }
+info()    { _alert_ info "${1}" "${2:-}"; }
 success() { _alert_ success "${1}" "${2:-}"; }
-dryrun() { _alert_ dryrun "${1}" "${2:-}"; }
-input() { _alert_ input "${1}" "${2:-}"; }
-header() { _alert_ header "${1}" "${2:-}"; }
-debug() { _alert_ debug "${1}" "${2:-}"; }
+dryrun()  { _alert_ dryrun "${1}" "${2:-}"; }
+input()   { _alert_ input "${1}" "${2:-}"; }
+header()  { _alert_ header "${1}" "${2:-}"; }
+debug()   { _alert_ debug "${1}" "${2:-}"; }
 fatal() {
     _alert_ fatal "${1}" "${2:-}"
     _safeExit_ "1"
@@ -273,12 +267,8 @@ _safeExit_() {
     fi
 
     if [[ -n ${TMP_DIR:-} && -d ${TMP_DIR:-} ]]; then
-        if [[ ${1:-} == 1 && -n "$(ls "${TMP_DIR}")" ]]; then
-            command rm -r "${TMP_DIR}"
-        else
-            command rm -r "${TMP_DIR}"
-            debug "Removing temp directory"
-        fi
+        command rm -r "${TMP_DIR}"
+        ! [[ ${1:-} == 1 && -n "$(ls "${TMP_DIR}")" ]] && debug "Removing temp directory"
     fi
 
     trap - INT TERM EXIT
@@ -436,9 +426,8 @@ _setPATH_() {
             fi
         else
             debug "_setPATH_: can not find: ${_newPath}"
-            if [[ ${_failIfNotFound} == true ]]; then
-                return 1
-            fi
+            [[ ${_failIfNotFound} == true ]] && return 1
+
             continue
         fi
     done
@@ -493,15 +482,12 @@ _homebrewPath_() {
 
     ! declare -f "_setPATH_" &>/dev/null && fatal "${FUNCNAME[0]} needs function _setPATH_"
 
+    local b=true
     if _uname=$(command -v uname); then
-        if "${_uname}" | tr '[:upper:]' '[:lower:]' | grep -q 'darwin'; then
-            if _setPATH_ "/usr/local/bin" "/opt/homebrew/bin"; then
-                return 0
-            else
-                return 1
-            fi
-        fi
-    else
+        [[ "${_uname}" | tr '[:upper:]' '[:lower:]' | grep -q 'darwin' ]] || b=false
+    fi
+
+    if $b; then
         if _setPATH_ "/usr/local/bin" "/opt/homebrew/bin"; then
             return 0
         else

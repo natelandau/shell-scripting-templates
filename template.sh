@@ -57,7 +57,6 @@ _trapCleanup_() {
     tput cnorm
 
     if declare -f "fatal" &>/dev/null && declare -f "_printFuncStack_" &>/dev/null; then
-
         _funcstack="'$(printf "%s" "${_funcstack}" | sed -E 's/ / < /g')'"
 
         if [[ ${_script##*/} == "${_sourced##*/}" ]]; then
@@ -102,6 +101,7 @@ _findBaseDir_() {
         _source="$(readlink "${_source}")"
         [[ ${_source} != /* ]] && _source="${_dir}/${_source}" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
     done
+
     printf "%s\n" "$(cd -P "$(dirname "${_source}")" && pwd)"
 }
 
@@ -116,87 +116,27 @@ _sourceUtilities_() {
     #					 1:  Failure
     # USAGE:
     #					_sourceUtilities_ "$(_findBaseDir_)/../../shell-scripting-templates/utilities"
+    function load_source() {
+        [[ -f "$1" ]] && { source "$1"; return 0; }
 
-    local _utilsPath
-    _utilsPath="${1}"
+        printf "%s\n" "ERROR: $1 not found"
+        return 1
+        }
 
-    if [ -f "${_utilsPath}/alerts.bash" ]; then
-        source "${_utilsPath}/alerts.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/alerts.bash not found"
-        exit 1
-    fi
+    local -r _utilsPath="${1}"
 
-    if [ -f "${_utilsPath}/arrays.bash" ]; then
-        source "${_utilsPath}/arrays.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/arrays.bash not found"
-        exit 1
-    fi
-
-    if [ -f "${_utilsPath}/checks.bash" ]; then
-        source "${_utilsPath}/checks.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/checks.bash not found"
-        exit 1
-    fi
-
-    if [ -f "${_utilsPath}/dates.bash" ]; then
-        source "${_utilsPath}/dates.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/dates.bash not found"
-        exit 1
-    fi
-
-    if [ -f "${_utilsPath}/debug.bash" ]; then
-        source "${_utilsPath}/debug.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/debug.bash not found"
-        exit 1
-    fi
-
-    if [ -f "${_utilsPath}/files.bash" ]; then
-        source "${_utilsPath}/files.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/files.bash not found"
-        exit 1
-    fi
-
-    if [ -f "${_utilsPath}/macOS.bash" ]; then
-        source "${_utilsPath}/macOS.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/macOS.bash not found"
-        exit 1
-    fi
-
-    if [ -f "${_utilsPath}/misc.bash" ]; then
-        source "${_utilsPath}/misc.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/misc.bash not found"
-        exit 1
-    fi
-
-    if [ -f "${_utilsPath}/services.bash" ]; then
-        source "${_utilsPath}/services.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/services.bash not found"
-        exit 1
-    fi
-
-    if [ -f "${_utilsPath}/strings.bash" ]; then
-        source "${_utilsPath}/strings.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/strings.bash not found"
-        exit 1
-    fi
-
-    if [ -f "${_utilsPath}/template_utils.bash" ]; then
-        source "${_utilsPath}/template_utils.bash"
-    else
-        printf "%s\n" "ERROR: ${_utilsPath}/template_utils.bash not found"
-        exit 1
-    fi
-}
+    load_source "${_utilsPath}/alerts.bash"   || exit 1
+    load_source "${_utilsPath}/arrays.bash"   || exit 1
+    load_source "${_utilsPath}/checks.bash"   || exit 1
+    load_source "${_utilsPath}/dates.bash"    || exit 1
+    load_source "${_utilsPath}/debug.bash"    || exit 1
+    load_source "${_utilsPath}/files.bash"    || exit 1
+    load_source "${_utilsPath}/macOS.bash"    || exit 1
+    load_source "${_utilsPath}/misc.bash"     || exit 1
+    load_source "${_utilsPath}/services.bash" || exit 1
+    load_source "${_utilsPath}/strings.bash"  || exit 1
+    load_source "${_utilsPath}/template_utils.bash" || exit 1
+    }
 
 _parseOptions_() {
     # DESC:
@@ -212,8 +152,8 @@ _parseOptions_() {
     # Iterate over options
     local _optstring=h
     declare -a _options
-    local _c
-    local i
+
+    local _c i
     while (($#)); do
         case $1 in
             # If option is of type -ab
