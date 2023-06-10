@@ -3,24 +3,27 @@
 ! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
-#------------------------------------------------------------------------------
+#----------- https://github.com/natelandau/shell-scripting-templates ----------
 # @file
-# Defines function: bfl::ask_sudo_rights().
+# Defines function: bfl::var_is_true().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # @function
-# Asks sudo rights for user
+# Check if a given variable is true.
 #
-# @return bool $perl_prefix
-#   0 / 1   (true / false)
+# @param String $str
+#   Variable to check.
+#
+# @return boolean $result
+#        0 / 1 (true / false)
 #
 # @example
-#   bfl::ask_sudo_rights
+#   bfl::var_is_true "$var"
 #------------------------------------------------------------------------------
-bfl::ask_sudo_rights() {
-  [[ $(id -u) -eq 0 ]] && return 0
+#
+bfl::var_is_true() {
+  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
 
-  sudo test -d /tmp
-  [[ $? -eq 0 ]] && return 0 || return 1
+  [[ "$1" -eq 0 || "${1,,}" =~ ^true|yes$ ]] && return 0 || return 1
   }

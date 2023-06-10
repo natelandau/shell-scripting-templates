@@ -37,7 +37,7 @@
 #   bfl::send_mail_msg "a@b.com" "x@y.com" "x@y.com" "Test" "Line 1.\\nLine 2."
 #------------------------------------------------------------------------------
 bfl::send_mail_msg() {
-  bfl::verify_arg_count "$#" 5 5 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 5 5 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 5"  # Verify argument count.
   bfl::verify_dependencies "sendmail"
 
   declare -r to="$1"

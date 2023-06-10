@@ -3,13 +3,11 @@
 ! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
-#----------- https://github.com/natelandau/shell-scripting-templates ----------
+# ---------- https://github.com/natelandau/shell-scripting-templates ----------
 # @file
 # Defines function: bfl::is_Terminal.
 #------------------------------------------------------------------------------
-# Dependencies
-#------------------------------------------------------------------------------
-source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/terminal_functions/_is_Terminal.sh
+
 #------------------------------------------------------------------------------
 # @function
 # Check is script is run in an interactive terminal.
@@ -21,8 +19,7 @@ source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/terminal_functions/_is_Terminal.s
 #   bfl::is_Terminal
 #------------------------------------------------------------------------------
 bfl::is_Terminal() {
-#  bfl::verify_arg_count "$#" 0 0 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 0 0 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 0"  # Verify argument count.
 
-  [[ -t 1 || -z "$TERM" ]] && return 0
-  return 1
+  [[ -t 1 || -z "$TERM" ]] && return 0 || return 1
   }

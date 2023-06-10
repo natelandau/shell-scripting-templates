@@ -28,7 +28,7 @@
 #------------------------------------------------------------------------------
 #
 bfl::escape_special_symbols() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
 
   [[ -z "$1" ]] && echo '' && return 0
 

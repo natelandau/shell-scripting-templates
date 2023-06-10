@@ -27,7 +27,7 @@
 #   bfl::trimL " foo "
 #------------------------------------------------------------------------------
 bfl::trimL() {
-  bfl::verify_arg_count "$#" 1 2 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 2 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [1, 2]"  # Verify argument count.
 
   # Verify argument values.
   [[ -z "$1" ]] && bfl::die "trimL()${NC} No parameters"

@@ -30,7 +30,7 @@
 #------------------------------------------------------------------------------
 #
 bfl::writelog_info() {
-#  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || exit 1 # Нельзя bfl::die Verify argument count.
 
   local -r msg="${1:-}"
   bfl::write_log $LOG_LVL_INF "${CLR_INFORM}INFO:${CLR_NORMAL} $msg"

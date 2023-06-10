@@ -28,8 +28,7 @@
 # mapfile -t NEW_ARRAY < <(bfl::get_diff_array "array1[@]" "array2[@]")
 #------------------------------------------------------------------------------
 bfl::get_diff_array() {
-  bfl::verify_arg_count "$#" 2 2 ||  # Verify argument count.
-    echo "Missing required argument to ${FUNCNAME[0]}" && exit 1
+  bfl::verify_arg_count "$#" 2 2 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 2"  # Verify argument count.
 
   local _skip
   local _a

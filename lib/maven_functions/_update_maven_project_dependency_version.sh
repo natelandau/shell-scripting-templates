@@ -35,7 +35,7 @@
 #------------------------------------------------------------------------------
 #
 bfl::update_maven_project_dependency_version() {
-  bfl::verify_arg_count "$#" 3 3 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 3 3 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 3"  # Verify argument count.
 
   local -r POM="${1:-}"
   local -r GROUP_ID="${2:-}"

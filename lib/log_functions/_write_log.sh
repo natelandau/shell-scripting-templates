@@ -71,7 +71,7 @@ LOG_FILE=/dev/null
 #------------------------------------------------------------------------------
 #
 bfl::write_log() {
-  bfl::verify_arg_count "$#" 3 3 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 3 3 || exit 1  # НЕЛЬЗЯ bfl::die Verify argument count.
 
   # Verify argument values.
   local -r logfile="${4:-$BASH_FUNCTION_LOG}"

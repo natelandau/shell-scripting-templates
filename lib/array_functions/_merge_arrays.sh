@@ -28,8 +28,7 @@
 #   newarray=($(bfl::merge_arrays "array1[@]" "array2[@]"))
 #------------------------------------------------------------------------------
 bfl::merge_arrays() {
-  bfl::verify_arg_count "$#" 2 999 ||  # Verify argument count.
-    echo "Missing required argument to ${FUNCNAME[0]}" && exit 1
+  bfl::verify_arg_count "$#" 2 999 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [2...999]"  # Verify argument count.
 
   local -i k=$#
   local -a arr

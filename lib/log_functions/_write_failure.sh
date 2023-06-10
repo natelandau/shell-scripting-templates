@@ -32,10 +32,7 @@
 #   bfl::write_failure "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]:-script}" "$?" "$BASH_COMMAND" "$HOME/.faults"
 #------------------------------------------------------------------------------
 bfl::write_failure() {
-  bfl::verify_arg_count "$#" 5 7 || {   # Verify argument count.
-      [[ $BASH_INTERACTIVE == true ]] && echo 'bfl::write_failure args count error'
-      exit 1
-      }
+  bfl::verify_arg_count "$#" 5 7 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [5...7]"  # Verify argument count.
 
   local -r lineno_fns=${1% 0}
   [[ "$lineno_fns" -ne 0 ]] && local -r lineno="$2${lineno_fns}" || local -r lineno="$2"

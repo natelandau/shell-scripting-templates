@@ -42,7 +42,7 @@
 #------------------------------------------------------------------------------
 #
 bfl::fetch_nexus_artifact() {
-  bfl::verify_arg_count "$#" 9 9 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 9 9 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 9"  # Verify argument count.
 
   local -r USER="${1:-}"
   local -r PASSWORD="${2:-}"

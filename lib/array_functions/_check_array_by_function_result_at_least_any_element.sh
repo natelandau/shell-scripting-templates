@@ -20,12 +20,11 @@
 #   0 / 1  (true / false)
 #
 # @example
-#		printf "%s\n" "${array[@]}" | bfl::check_array_by_function_result_at_least_any_element "bfl::is_alpha"
-#   bfl::check_array_by_function_result_at_least_any_element "bfl::is_alpha" < <(printf "%s\n" "${array[@]}")
+#		printf "%s\n" "${array[@]}" | bfl::check_array_by_function_result_at_least_any_element "bfl::is_integer"
+#   bfl::check_array_by_function_result_at_least_any_element "bfl::is_integer" < <(printf "%s\n" "${array[@]}")
 #------------------------------------------------------------------------------
 bfl::check_array_by_function_result_at_least_any_element() {
-  bfl::verify_arg_count "$#" 1 1 ||  # Verify argument count.
-    echo "Missing required argument to ${FUNCNAME[0]}" && exit 1
+  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
 
   local func="$1"
   local IFS=$'\n'

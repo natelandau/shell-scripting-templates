@@ -34,7 +34,7 @@
 #         для вывода на экран можно использовать $COLUMNS
 #------------------------------------------------------------------------------
 bfl::get_section_header_line() {
-  bfl::verify_arg_count "$#" 1 4 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 4 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [1...4]"  # Verify argument count.
   bfl::verify_dependencies "perl"
 
   # Verify argument values.

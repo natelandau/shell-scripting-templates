@@ -36,7 +36,7 @@
 #   trap 'bfl::write_on_failure "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]:-script}" "$?" "$BASH_COMMAND" "$HOME/.faults"' ERR
 #------------------------------------------------------------------------------
 bfl::write_on_failure() {
-#  On error thre is no time to check arguments
+#  On error there is no time to check arguments
 #  bfl::verify_arg_count "$#" 6 16 || exit 1  # Verify argument count.
 
   local -r lineno_fns="${1% 0}"

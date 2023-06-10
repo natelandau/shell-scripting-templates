@@ -24,7 +24,7 @@
 #   bfl::find_nearest_integer "4" "0 3 6 9 12"
 #------------------------------------------------------------------------------
 bfl::find_nearest_integer() {
-  bfl::verify_arg_count "$#" 2 2 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 2 2 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 2"  # Verify argument count.
 
   local -r target="$1"
   declare -ar list="($2)"

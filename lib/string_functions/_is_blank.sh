@@ -26,8 +26,8 @@
 #   bfl::is_blank "foo"
 #------------------------------------------------------------------------------
 bfl::is_blank() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
 
   # Check the string.
-  [[ "$(printf "%b" "$1")" =~ ^[[:space:]]*$ ]] || return 1
+  [[ "$(printf "%b" "$1")" =~ ^[[:space:]]*$ ]] && return 0 || return 1
   }

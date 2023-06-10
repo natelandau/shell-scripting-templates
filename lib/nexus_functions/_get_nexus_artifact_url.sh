@@ -37,7 +37,7 @@
 #------------------------------------------------------------------------------
 #
 bfl::get_nexus_artifact_url() {
-  bfl::verify_arg_count "$#" 6 6 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 6 6 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 6"  # Verify argument count.
 
   local -r SERVER="${1:-}"
   local -r REPOSITORY="${2:-}"

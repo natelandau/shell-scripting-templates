@@ -22,7 +22,7 @@
 #   bfl::time_convert_s_to_hhmmss "3661"
 #------------------------------------------------------------------------------
 bfl::time_convert_s_to_hhmmss() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
 
   bfl::is_positive_integer "$seconds" || bfl::die "Expected positive integer, received $seconds."
 

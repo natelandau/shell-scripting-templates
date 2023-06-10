@@ -24,7 +24,7 @@
 #   bfl::url_encode "foo bar"
 #------------------------------------------------------------------------------
 bfl::url_encode() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
   bfl::verify_dependencies "jq"  # Verify dependencies.
 
   # Verify argument values.

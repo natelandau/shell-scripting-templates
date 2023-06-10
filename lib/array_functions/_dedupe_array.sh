@@ -23,8 +23,7 @@
 #   bfl::mapfile -t newarray < <(bfl::dedupe_array "${array[@]}")
 #------------------------------------------------------------------------------
 bfl::dedupe_array() {
-  bfl::verify_arg_count "$#" 1 1 ||  # Verify argument count.
-    echo "Missing required argument to ${FUNCNAME[0]}" && exit 1
+  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
 
   local -A tmpArray
   local -a uniqueArray

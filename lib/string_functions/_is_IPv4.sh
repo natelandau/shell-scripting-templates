@@ -5,32 +5,35 @@
 #------------------------------------------------------------------------------
 #----------- https://github.com/natelandau/shell-scripting-templates ----------
 # @file
-# Defines function: bfl::clear_line().
+# Defines function: bfl::is_IPv4().
 #------------------------------------------------------------------------------
-# Dependencies
-#------------------------------------------------------------------------------
-source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/terminal_functions/_is_Terminal.sh
+
 #------------------------------------------------------------------------------
 # @function
-# Clears output in the terminal on the specified line number.
+# Validates that input is a valid IP version 4 address.
 #
-# @param string $Line_No (optional)
-#   Line number to clear. (Defaults to 1)
+# @param String $str
+#   String to validate.
 #
-# @return Boolean $result
-#   0 / 1   true / false
+# @return boolean $result
+#        0 / 1 (true / false)
 #
 # @example
-#   bfl::clear_line "2"
+#   bfl::is_IPv4 "192.168.1.1"
 #------------------------------------------------------------------------------
-bfl::clear_line() {
-#  bfl::verify_arg_count "$#" 0 1 || exit 1  # Verify argument count.
-#  bfl::verify_dependencies "bfl::isTerminal"  # Verify dependencies.
+#
+bfl::is_IPv4() {
+  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
 
-  local -ir num="${1:-1}"
-  local i
-  for ((i = 0; i < num; i++)); do
-      printf "\033[A\033[2K"
+  local IFS=.
+  # shellcheck disable=SC2206
+  declare -a arr=("$1")
+  [[ "$1" =~ ^[0-9]+(\.[0-9]+){3}$ ]] || return 1
+
+  # Test values of quads
+  local quad
+  for quad in {0..3}; do
+      [[ ${arr["$quad"]} -gt 255 ]] && return 1
   done
 
   return 0

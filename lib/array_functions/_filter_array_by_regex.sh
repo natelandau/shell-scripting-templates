@@ -31,8 +31,7 @@
 #  if bfl::filter_array_by_regex  -i "VALUE" "${ARRAY[@]}"; then ...
 #------------------------------------------------------------------------------
 bfl::filter_array_by_regex() {
-  bfl::verify_arg_count "$#" 2 3 ||  # Verify argument count.
-    echo "Missing required argument to ${FUNCNAME[0]}" && exit 1
+  bfl::verify_arg_count "$#" 2 3 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [2, 3]"  # Verify argument count.
 
   local opt
   local -i OPTIND=1

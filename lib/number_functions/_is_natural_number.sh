@@ -28,8 +28,9 @@
 #------------------------------------------------------------------------------
 #
 bfl::is_natural_number() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
 
-#              ${regex}
-  ! [[ "$1" =~ ^[0-9]+$ ]] && return 1
+#             ${regex}
+  [[ "$1" =~ ^[0-9]+$ ]] && return 0
+  return 1
   }

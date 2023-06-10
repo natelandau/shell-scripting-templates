@@ -25,7 +25,7 @@
 #   bfl::repeat "=" "10"
 #------------------------------------------------------------------------------
 bfl::repeat() {
-  bfl::verify_arg_count "$#" 2 2 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 2 2 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 2"  # Verify argument count.
 
   # Verify argument values.
   bfl::is_positive_integer "$2" || bfl::die "Expected positive integer, received $2."

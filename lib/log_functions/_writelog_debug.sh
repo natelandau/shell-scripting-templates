@@ -30,7 +30,7 @@
 #------------------------------------------------------------------------------
 #
 bfl::writelog_debug() {
-#  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || exit 1 # Нельзя bfl::die Verify argument count.
 
   local -r msg="${1:-}"
   bfl::write_log $LOG_LVL_DBG "${CLR_HILITE}DEBUG:${CLR_NORMAL} ${FUNCNAME[1]} - $msg"

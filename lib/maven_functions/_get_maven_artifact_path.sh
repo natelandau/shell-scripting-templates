@@ -40,7 +40,7 @@
 #------------------------------------------------------------------------------
 #
 bfl::get_maven_artifact_path() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
 
   local -r GROUP_ID="${1:-}"
   local -r ARTIFACT_ID="${2:-}"

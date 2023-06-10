@@ -28,7 +28,7 @@
 #------------------------------------------------------------------------------
 #
 bfl::is_pkg_version() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
 
   local -r argument="$1"
 

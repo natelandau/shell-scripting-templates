@@ -19,7 +19,7 @@
 #   bfl::get_git_branch
 #------------------------------------------------------------------------------
 bfl::get_git_branch() {
-#  bfl::verify_arg_count "$#" 0 0 || exit 1  # Verify argument count.
+#  bfl::verify_arg_count "$#" 0 0 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 0"  # Verify argument count.
 #  git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/(\1$(parse_git_dirty))/"
   local s str
   str=$(ls -LA | sed -n '/^\.git$/p')

@@ -28,7 +28,7 @@
 #   bfl::prepare_la  --dry-run --lib=/tools/binutils-2.40/lib --version='0.0.0' libctf.so.0
 #------------------------------------------------------------------------------
 bfl::prepare_la() {
-  bfl::verify_arg_count "$#" 3 999 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 3 999 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [3...999]"  # Verify argument count.
 
   local arr=(); local arr_libNames=()
   local dryrun=false; local IFS=''

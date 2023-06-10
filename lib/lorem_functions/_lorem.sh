@@ -54,7 +54,7 @@
 #   bfl::lorem 3 virgil
 #------------------------------------------------------------------------------
 bfl::lorem() {
-  bfl::verify_arg_count "$#" 0 2 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 0 2 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [0...2]"  # Verify argument count.
 
   # Verify dependencies.
   bfl::verify_dependencies "shuf"

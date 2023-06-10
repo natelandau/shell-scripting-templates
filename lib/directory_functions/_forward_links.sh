@@ -29,7 +29,7 @@ source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/declaration_functions/_declare_te
 #   bfl::forward_links  /tools/binutils-2.40 /usr/local
 #------------------------------------------------------------------------------
 bfl::forward_links() {
-  bfl::verify_arg_count "$#" 2 999 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 2 999 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [2...999]"  # Verify argument count.
 
   if [[ $(id -u) -ne 0 ]]; then
       eval $ask_sudo

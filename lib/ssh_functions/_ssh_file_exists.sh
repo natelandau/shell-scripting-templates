@@ -30,6 +30,8 @@
 #   bfl::_ssh_file_exists "url" "host"
 #------------------------------------------------------------------------------
 bfl::ssh_file_exists() {
+  bfl::verify_arg_count "$#" 2 2 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 2"  # Verify argument count.
+
   local -r FILE="${1:-}"
   local -r HOST="${2:-}"
 

@@ -39,8 +39,7 @@ bfl::die() {
   stack="${FUNCNAME[*]}"
   stack="${stack// / <- }"
 
-#  ????
-#  [[ $BASH_INTERACTIVE == true ]] && printf "${Red}Не указан ни один параметр функции getHeaderForSection${NC}\n" > /dev/tty
+  [[ $BASH_INTERACTIVE == true ]] && printf "${Red}$msg${NC}\n" > /dev/tty
 
   #                                ИЛИ     echo "$@" >&2 ???
   # # print a message to stderr and exit with error code

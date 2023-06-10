@@ -22,7 +22,7 @@
 #   bfl::get_file_directory "./foo/bar.txt"
 #------------------------------------------------------------------------------
 bfl::get_file_directory() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
 
   # Verify argument values.
   [[ -z "$1" ]] && bfl::die "The path was not specified."

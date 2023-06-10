@@ -24,7 +24,7 @@
 #   bfl::path_remove '/opt/lib:/usr/local/lib:/home/usr/.local/lib' LD_LIBRARY_PATH
 #------------------------------------------------------------------------------
 bfl::path_remove() {
-  bfl::verify_arg_count "$#" 1 2 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 2 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [1, 2]"  # Verify argument count.
 
   # Verify argument values.
   [[ -z "$1" ]] && bfl::die 'path is empty!'

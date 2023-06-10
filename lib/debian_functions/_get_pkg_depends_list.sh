@@ -22,7 +22,7 @@
 #   bfl::get_pkg_depends_list "libapr1"
 #------------------------------------------------------------------------------
 bfl::get_pkg_depends_list() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
 #     case $paramName in
 #         -print | --print ) listScript=true ;;
 #         *) pkg="$1"

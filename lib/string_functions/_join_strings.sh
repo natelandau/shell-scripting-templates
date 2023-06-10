@@ -27,7 +27,7 @@
 #   bfl::join_strings "," "foo" "bar" "baz"
 #-----------------------------------------------------------------------------
 bfl::join_strings() {
-  bfl::verify_arg_count "$#" 2 999 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 2 999 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
 
   local -r glue="$1"
 

@@ -22,7 +22,7 @@
 #   bfl::_get_pkg_general_version "2.35.1-dfg"
 #------------------------------------------------------------------------------
 bfl::_get_pkg_general_version() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
 
   local n=`echo "$1" | tr -cd '.' | wc -m` # сколько точек в версии файла
   ((n<2)) && echo "$1" && return 0

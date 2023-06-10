@@ -31,7 +31,7 @@
 #------------------------------------------------------------------------------
 #
 bfl::array_contains_element() {
-  bfl::verify_arg_count "$#" 2 2 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 2 2 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 2"  # Verify argument count.
 
   local -r -a arr=( "${!1:-}" )
   local -r sEl="${2:-}"
