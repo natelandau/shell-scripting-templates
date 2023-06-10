@@ -121,6 +121,8 @@ _forEachFind_() {
 
     declare _func="${1}"
     declare IFS=$'\n'
+    local _it
+
     while read -r _it; do
 
         if [[ ${_func} == *"$"* ]]; then
