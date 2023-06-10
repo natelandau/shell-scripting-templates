@@ -46,5 +46,5 @@ bfl::die() {
   printf "%b\\n" "${!msg_color}Fatal error. $msg${NC}" 1>&2
   printf "%b\\n" "${Yellow}[$stack]${NC}" 1>&2 # Print the stack.
 
-  exit 1
+  return 1 # exit 1
   }
