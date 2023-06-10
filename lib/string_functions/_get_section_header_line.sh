@@ -31,9 +31,11 @@
 #
 # @example
 #   bfl::get_section_header_line "New section" "//" 30 "-"
+#         для вывода на экран можно использовать $COLUMNS
 #------------------------------------------------------------------------------
 bfl::get_section_header_line() {
   bfl::verify_arg_count "$#" 1 4 || exit 1  # Verify argument count.
+  bfl::verify_dependencies "perl"
 
   # Verify argument values.
   [[ -z "$1" ]] && bfl::die "Не указан ни один параметр функции getHeaderForSection"
@@ -47,7 +49,7 @@ bfl::get_section_header_line() {
   local -i iHdr=${#hdr}  # Длина заголовка
   local -i iBgn=${#bgn}  # Длина начала строки
 
-  local t s
+  local t
   ((t=l-iBgn-iHdr-3))
 
   [[ x -lt 0 ]] && bfl::die "Функция getHeaderForSection:${NC} Общая длина строки ${Red}$l${NC} недостаточна для объявления ${Yellow}$hdr" 'Yellow'

@@ -29,8 +29,8 @@ bfl::die() {
   bfl::verify_arg_count "$#" 0 2 || exit 1  # Verify argument count.
 
   # Declare positional arguments (readonly, sorted by position).
-  local -r msg="${1:-"Unspecified fatal error."}"
-  local -r msg_color="${2:-Red}"   # Red
+  local -r msg="${1:-'Unspecified fatal error.'}"
+  local -r msg_color="${2:-$Red}"   # Red
 
   # Declare all other variables (sorted by name).
   local stack
@@ -46,4 +46,6 @@ bfl::die() {
   # # print a message to stderr and exit with error code
   printf "%b\\n" "${!msg_color}Fatal error. $msg${NC}" 1>&2
   printf "%b\\n" "${Yellow}[$stack]${NC}" 1>&2 # Print the stack.
-  } && return 1
+
+  exit 1
+  }

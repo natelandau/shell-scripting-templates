@@ -47,21 +47,23 @@ bfl::get_pkg_depends_list() {
   fi
 
   #--------------------------------------------------------------------------------
-  local i=0; local k=${#dependsArr[@]}
-  local dep=1; local depthArr=() # массив глубины зависимостей
-  while (( $i < $k )); do
+  local -i i
+  local k=${#dependsArr[@]}
+  local dep=1
+  local -a depthArr=()  # массив глубины зависимостей
+  for ((i = 0; i < k; i++)); do
       depthArr+=( $dep )
-      ((i++))
   done
 
   local temparr=(); local b=true
-  i=0; local ii=0; local t=0
+  local -i ii=0
+  local -i t=0
   local tel el
-  while (( $i < $k )); do
+  for ((i = 0; i < k; i++)); do
       t=${dependsArr[$i]}; dep=${depthArr[$i]}
       [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$t : ---${NC}\n" > /dev/tty
       str=$(apt-cache depends "$t")
-      ! [[ -n "$str" ]] && ((i++)) && continue
+      ! [[ -n "$str" ]] && continue
 
 #    temparr=(`echo "$str" | sed -n '/Depends:/p' | sed 's/^[ ]*.*epends: //' | sed '/^<.*>$/d'`)
       temparr=(`echo "$str" | sed -n '/Зависит:/p' | sed 's/^[ ]*.*ависит: //' | sed '/^<.*>$/d'`)
@@ -86,16 +88,16 @@ bfl::get_pkg_depends_list() {
               [[ $BASH_INTERACTIVE == true ]] && printf "${Green}added $tel : ${depthArr[ii]}${NC}\n" > /dev/tty
           fi
         done
-        ((i++)); k=${#dependsArr[@]}
+        k=${#dependsArr[@]}
     done
 
 # теперь необходимо сделать синхронный bubble sort
-  local max=${#depthArr[@]}; k=$max
+  local -i max=${#depthArr[@]}
+  k=$max
   while ((max > 0)); do
-      i=0
-      while ((i < max)); do
+      for ((i = 0; i < max; i++)); do
           if [ $i != $((k-1)) ]; then #array will not be out of bound "$(($k-1))"
-              if [ ${depthArr[$i]} \< ${depthArr[ $((i+1)) ]} ]; then
+              if [[ ${depthArr[$i]} < ${depthArr[ $((i+1)) ]} ]]; then
                   t=${depthArr[$i]}
                   depthArr[$i]=${depthArr[ $((i+1)) ]}
                   depthArr[ $((i+1)) ]=$t
@@ -105,7 +107,6 @@ bfl::get_pkg_depends_list() {
                   dependsArr[ $((i+1)) ]=$tel
               fi
           fi
-          ((i++))
       done
       ((max--))
   done
@@ -114,16 +115,14 @@ bfl::get_pkg_depends_list() {
 
   if [[ $BASH_INTERACTIVE == true ]]; then # Вывод итога
       printf "${Green}"${#dependsArr[*]}"${NC}\n" > /dev/tty
-      i=0
-      while (( $i < $k )); do
+      for ((i = 0; i < k; i++)); do
           printf "${Green}${dependsArr[i]} - ${depthArr[i]}${NC}\n" > /dev/tty
-          ((i++))
       done
   fi
 
   i=0; str=''
   for t in ${dependsArr[@]}; do
-      [[ $i -eq $k ]] && str="$str$t" || str="$str$t "
+      [[ $i -eq $k ]] && str="${str}${t}" || str="${str}${t} "
       ((i++))
   done
 

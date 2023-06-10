@@ -32,7 +32,7 @@ bfl::declare_terminal_colors() {
 #  НЕЛЬЗЯ! В итог циклическая зависимость
 #  bfl::verify_dependencies "tput"  # Verify dependencies.
 
-  [[ "${RC_NOCOLOR:=-no}" =~ ^(YES|Yes|yes)$ ]] && local bEnabled=false || local bEnabled=true
+  [[ "${RC_NOCOLOR:=-no}" =~ ^(YES|Yes|yes|true)$ ]] && local bEnabled=false || local bEnabled=true
   local use256=false
   local has_tput=false
   if ( command -v tput ) >/dev/null 2>&1; then
@@ -43,31 +43,37 @@ bfl::declare_terminal_colors() {
 
       # tput color table   => http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
       declare -gr DarkGreen="$(tput setaf 2)"    # Вот как достигается яркость!
-      $use256 && declare -gr Green="$(tput bold)$(tput setaf 10)"    || declare -gr Green="$(tput bold)$DarkGreen"       # Bright Green
+      $use256 && declare -gr Green="$(tput setaf 82)"                || declare -gr Green="$(tput bold)$DarkGreen"       # Bright Green
 
       declare -gr DarkYellow="$(tput setaf 3)"
       $use256 && declare -gr Yellow="$(tput bold)$(tput setaf 190)"  || declare -gr Yellow="$(tput bold)$DarkYellow"     # Bright Yellow
 
       declare -gr DarkRed="$(tput bold)$(tput setaf 1)"
       declare -gr PaleRed=$(tput setaf 9)
-      $use256 && declare -gr Red="$(tput bold)$(tput setaf 196)"     || declare -gr Red="$DarkRed"           # Bright Red
+      $use256 && declare -gr Red="$(tput bold)$(tput setaf 196)"     || declare -gr Red="$DarkRed"                       # Bright Red
 
       declare -gr DarkCyan="$(tput bold)$(tput setaf 6)"
-      $use256 && declare -gr Cyan="$(tput bold)$(tput setaf 14)"     || declare -gr Cyan="$DarkCyan"         # Bright Cyan
+      $use256 && declare -gr Cyan="$(tput bold)$(tput setaf 14)"     || declare -gr Cyan="$DarkCyan"                     # Bright Cyan
 
       declare -gr DarkBlue="$(tput bold)$(tput setaf 4)"
       $use256 && declare -gr PaleBlue="$(tput bold)$(tput setaf 12)" || declare -gr PaleBlue="$DarkBlue"
-      $use256 && declare -gr Blue="$(tput bold)$(tput setaf 27)"     || declare -gr Blue="$DarkBlue"     # Bright Blue
+      $use256 && declare -gr Blue="$(tput bold)$(tput setaf 27)"     || declare -gr Blue="$DarkBlue"                     # Bright Blue
 
-      declare -gr Purple="$(tput bold)$(tput setaf 125)"
+      declare -gr DarkPurple="$(tput bold)$(tput setaf 13)"
+      $use256 && declare -gr Purple="$(tput setaf 171)"              || declare -gr Purple="$DarkPurple"
+
       declare -gr DarkOrange="$(tput bold)$(tput setaf 178)"
       declare -gr Orange="$(tput bold)$(tput setaf 220)"
+
+      $use256 && declare -gr White="$(tput setaf 231)"               || declare -gr White="$(tput setaf 7)"
+      $use256 && declare -gr Gray="$(tput setaf 250)"                || declare -gr Gray="$(tput setaf 7)"
 
       declare -gr NC=$(tput sgr0) # No color
 
       # Enable additional formatting for 256 color terminals (on 8 color terminals the formatting likely is implemented as a brighter color rather than a different font)
       declare -gr FMT_BOLD="$(tput bold)"
       declare -gr FMT_UNDERLINE="$(tput smul)"
+      declare -gr FMT_REVERSE="$(tput rev)"
   else
       [[ "$TERM" =~ 256color ]] && use256=true
       # Enable additional formatting for 256 color terminals (on 8 color terminals the formatting likely is implemented as a brighter color rather than a different font)
@@ -96,6 +102,7 @@ bfl::declare_terminal_colors() {
           $use256 && declare -gr CLR_BAD="$(printf '\033[38;5;9m')"      || declare -gr CLR_BAD="$(printf '\033[31;01m')"
           $use256 && declare -gr CLR_HILITE="$(printf '\033[38;5;14m')"  || declare -gr CLR_HILITE="$(printf '\033[36;01m')"
           $use256 && declare -gr CLR_BRACKET="$(printf '\033[38;5;12m')" || declare -gr CLR_BRACKET="$(printf '\033[34;01m')"
+
           declare -gr CLR_NORMAL="$(printf '\033[0m')"
       fi
   fi

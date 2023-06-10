@@ -63,30 +63,41 @@ LOG_FILE=/dev/null
 # @param String $STATUS
 #   Short status string, that will be displayed right aligned in the log line.
 #
+# @param String    LogFile (optional)
+#   Log file.
+#
 # @example
-#   bfl::write_log 0 "Compiling source" "Start operation"
+#   bfl::write_log 0 "Compiling source" "Start operation" "$HOME/.faults"
 #------------------------------------------------------------------------------
 #
-function write_log() {
+bfl::write_log() {
   bfl::verify_arg_count "$#" 3 3 || exit 1  # Verify argument count.
+
+  # Verify argument values.
+  local -r logfile="${4:-$BASH_FUNCTION_LOG}"
+  local d; d=$(dirname "$logfile")
+  ! [[ -d "$d" ]] && mkdir -p "$d"
+  ! [[ -d "$d" ]] && exit 1
+  ! [[ -f "$logfile" ]] && touch "$logfile"
+  ! [[ -f "$logfile" ]] && exit 1
+
 
   local -r LEVEL=${1:-$LOG_LVL_DBG}
   local msg="${2:-}"
   local -r STATUS=${3:-}
 
   ! [[ "$LOG_LEVEL" -ge "$LEVEL" ]] && return 1   #  maybe bfl::die ???
-  [[ $LOG_SHOW_TIMESTAMP = true ]] && msg="$(date) - $msg"
+  [[ $LOG_SHOW_TIMESTAMP = true ]] && msg="$(date '+%Y-%m-%d %H:%M:%S') $msg"
 
-  # To display a right aligned status we have to take some extra efforts
-  [[ -z "$STATUS" ]] && echo "$msg" && return 0
+#  [[ -z "$STATUS" ]] && echo "$msg" && return 0   # To display a right aligned status we have to take some extra efforts
 
-  # Filter formatting sequences from the STATUS string to get its displayed length
-  # https://stackoverflow.com/a/52781213/10495078
-  local -r STATUS_filtered="$( sed -E -e "s/\x1B(\[[0-9;]*[JKmsu]|\(B)//g" <<< "$STATUS" )"
+  # Don't use colors in logs https://stackoverflow.com/a/52781213/10495078
+  local -r msg_="$( sed -E -e "s/\x1B(\[[0-9;]*[JKmsu]|\(B)//g" <<< "$msg" )"
+  local -r STATUS_="$( sed -E -e "s/\x1B(\[[0-9;]*[JKmsu]|\(B)//g" <<< "$STATUS" )"
   local msg_width
-  let msg_width=$(tput cols)-${#STATUS_filtered}
+  let msg_width=$(tput cols)-${#STATUS_}
 
-  printf "\r%-*s%s\n" $msg_width "$msg" "$STATUS"
+  printf "\r%-*s%s\n" $msg_width "$msg_" "$STATUS_" >> "$logfile"
 
   return 0
   }

@@ -8,7 +8,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Write data to specified log.
+# Prints the passed message to specified log depending on its log-level to stdout.
 #
 # @param Array     BASH_LINENO aray
 #   Array.
@@ -25,21 +25,34 @@
 # @param String    BASH_COMMAND
 #   Bash command.
 #
-# @param String    LogFile
+# @param String    LogFile (optional)
 #   Log file.
 #
 # @example
 #   bfl::write_failure "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]:-script}" "$?" "$BASH_COMMAND" "$HOME/.faults"
 #------------------------------------------------------------------------------
 bfl::write_failure() {
-  bfl::verify_arg_count "$#" 6 6 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 5 7 || {   # Verify argument count.
+      [[ $BASH_INTERACTIVE == true ]] && echo 'bfl::write_failure args count error'
+      exit 1
+      }
 
-  local lineno_fns=${1% 0}
-  local lineno="$2"
-  [[ "$lineno_fns" -ne 0 ]] && lineno+="$lineno_fns"  #      fn  lineno        local exitstatus msg
-  local str="$(date '+%Y-%m-%d %H:%M:%S') ${BASH_SOURCE[-1]}:$3[$lineno] Failed with status $4: $5"
-  echo "$str" >> $6
-  echo "Written log message to $6: $str"
+  local -r lineno_fns=${1% 0}
+  [[ "$lineno_fns" -ne 0 ]] && local -r lineno="$2${lineno_fns}" || local -r lineno="$2"
+  local -r fn="${3:-script}"
+#          command
+  local msg="$5 failed with code $4: ${BASH_SOURCE[-1]}:$fn[$lineno]"
+  local -r logfile="${6:-$BASH_FUNCTION_LOG}"
+
+  bfl::write_log $LOG_LVL_ERR "$msg" "$fn" "$logfile" || {
+      [[ $BASH_INTERACTIVE == true ]] && echo "Error write_log $msg"
+      return 1
+      }
+
+  if [[ $BASH_INTERACTIVE == true ]]; then
+      echo "$msg"
+      echo "Written log message to $logfile"
+  fi
 
   return 0
   }

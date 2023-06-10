@@ -38,3 +38,6 @@ echo "$BASH_FUNCTION_LIBRARY"
 ```bash
 [[ $_GUARD_BFL_autoload -eq 1 ]] && printf "%s\\n" "$(bfl::repeat "=" "40")" || printf "Error. Unable to load BASH_FUNCTION_LIBRARY.\\n" 1>&2
 ```
+
+I load these functions in my own shell environment.
+If they're useful for anyone else, then great! :)

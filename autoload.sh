@@ -75,21 +75,81 @@ export TERM
 #
 # This will only source file names that begin with an underscore.
 #------------------------------------------------------------------------------
+declare -gr BASH_FUNCTION_LOG="$HOME/.faults"
+
+# Enable xtrace if the DEBUG environment variable is set
+if [[ "${DEBUG-}" =~ ^1|yes|true$ ]]; then
+  set -o xtrace    # Trace the execution of the script (debug)
+fi
+
+# Only enable these shell behaviours if script not being sourced
+# Approach via: https://stackoverflow.com/a/28776166/8787985
+if ! (return 0 2> /dev/null); then
+  echo 'Script not being sourced' > /dev/tty
+  # A better class of script...
+  set -o errexit      # Exit on most errors (see the manual)
+  set -o nounset      # Disallow expansion of unset variables
+  set -o pipefail     # Use last non-zero exit code in a pipeline
+fi
+
+# Enable errtrace or the error trap handler will not work as expected
+# set -o errtrace         # Ensure the error trap handler is inherited
 
 bfl::autoload() {
+  # https://github.com/ralish/bash-script-template/script.sh
+  function script_usage() {
+      cat << EOF
+Usage:
+     -h|--help                    Displays this help
+     -v|--verbose                 Displays verbose output
+    -nc|--no-colour               Disables colour output
+    -cr|--cron                    Run silently unless we encounter an error
+EOF
+  }
+
+  function parse_params() {
+      local param
+      while [[ $# -gt 0 ]]; do
+          param="$1"
+          shift
+          case $param in
+              -h | --help)        script_usage
+                                  exit 0 ;;
+              -v | --verbose)     verbose=true ;;
+              -nc | --no-colour)  RC_NOCOLOR=true ;;
+              -cr | --cron)       cron=true ;;
+              *)  script_exit "Invalid parameter was provided: $param" 1 ;;
+          esac
+      done
+  }
+
   declare autoload_canonical_path    # Canonical path to this file.
   declare autoload_directory         # Directory in which this file resides.
   declare f
 
-  autoload_canonical_path=$(readlink -e "${BASH_SOURCE[0]}") || exit 1
+  autoload_canonical_path=$(readlink -e "${BASH_SOURCE[0]}") || {
+      local str="Error readlink -e ${BASH_SOURCE[0]}"
+      printf "%s/n" "$str" >> "$BASH_FUNCTION_LOG"
+      [[ $BASH_INTERACTIVE == true ]] && printf "%s/n" "$str" # > /dev/tty;
+      exit 1
+      }
+
   autoload_directory=$(dirname "$autoload_canonical_path") || exit 1
 
   for f in "$autoload_directory"/lib/*/_*.sh; do
       source "$f" || {
-        [[ $BASH_INTERACTIVE == true ]] && printf "Error while loading $f/n" > /dev/tty;
+        [[ $BASH_INTERACTIVE == true ]] && printf "Error while loading $f/n" # > /dev/tty;
         return 1
         }
   done
   }
 
-bfl::autoload
+# Invoke main with args if not sourced
+# Approach via: https://stackoverflow.com/a/28776166/8787985
+if ! (return 0 2> /dev/null); then
+  bfl::autoload "$@"
+else
+  bfl::autoload
+fi
+
+# vim: syntax=sh cc=80 tw=79 ts=4 sw=4 sts=4 et sr

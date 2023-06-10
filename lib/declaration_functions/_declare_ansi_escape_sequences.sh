@@ -60,26 +60,27 @@
 bfl::declare_ansi_escape_sequences() {
   [[ "${BASH_FUNCTION_LIBRARY_COLOR_OUTPUT:=enabled}" = "disabled" ]] && local bEnabled=false || local bEnabled=true
 #  [[ "$TERM" =~ 256color ]] && local use256=true || local use256=false
-
-  local ar_clrs=('black' 'red' 'green' 'yellow' 'blue' 'magenta' 'cyan' 'white')
+#                                                      magenta
+  local ar_clrs=('black' 'red' 'green' 'yellow' 'blue' 'purple' 'cyan' 'white')
   local ar_nmbrs=(30 31 32 33 34 35 36 37)
 
   local max=${#ar_clrs[@]}
   local -i i
   local sColor sNumbr s
-  i=0
-  while ((i < max)); do
+  for ((i = 0; i < max; i++)); do
       sColor=${ar_clrs[$i]}; iNumbr=${ar_nmbrs[$i]};
+      # shellcheck disable=SC2034
       s="bfl_aes_$sColor";             $bEnabled && declare -gr $s="\\033[0;${iNumbr}m" || declare -gr $s=""
       s="bfl_aes_${sColor}_bold";      $bEnabled && declare -gr $s="\\033[1;${iNumbr}m" || declare -gr $s=""
       s="bfl_aes_${sColor}_faint";     $bEnabled && declare -gr $s="\\033[2;${iNumbr}m" || declare -gr $s=""
       s="bfl_aes_${sColor}_underline"; $bEnabled && declare -gr $s="\\033[4;${iNumbr}m" || declare -gr $s=""
       s="bfl_aes_${sColor}_blink";     $bEnabled && declare -gr $s="\\033[5;${iNumbr}m" || declare -gr $s=""
       s="bfl_aes_${sColor}_reverse";   $bEnabled && declare -gr $s="\\033[7;${iNumbr}m" || declare -gr $s=""
-      ((i++))
   done
 #                                       \[\033[00m\]
   $bEnabled && declare -gr bfl_aes_reset="\\033[0m" || declare -gr bfl_aes_reset=""
+# shellcheck disable=SC2034
+
   }
 
 bfl::declare_ansi_escape_sequences

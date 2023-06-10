@@ -1,5 +1,5 @@
 # Bash Function Library (collection of utility functions)
-[Usage](#usage) \ [Libraries](#libraries) \ [Installation](docs/installation.md) \ [Description](docs/description.md) \ [Configuration](#configuration) \ [Examples](#examples) \ [Tests](#tests) \ [Templates](#templates) \ [Docs](#documentation)
+[Usage](#usage) / [Libraries](#libraries) / [Installation](docs/installation.md) / [Description](docs/description.md) / [Configuration](#configuration) / [Examples](#examples) / [Tests](#tests) / [Templates](#templates) / [Docs](#documentation)
 
 ### This project is copied from several bash functions projects with the similar approach
 #### git repositories:
@@ -9,8 +9,18 @@
 
 * [https://github.com/commercialhaskell/stack/blob/master/etc/scripts/get-stack.sh](https://github.com/commercialhaskell/stack/blob/master/etc/scripts/get-stack.sh) from haskell
 
-### Usage:
-* Like [jmooring](https://github.com/jmooring/bash-function-library), all libraries are located in `lib/*`.
+* [https://github.com/ralish/bash-script-template](https://github.com/ralish/bash-script-template)
+
+* [https://github.com/natelandau/shell-scripting-templates](https://github.com/natelandau/shell-scripting-templates)
+
+Usage
+-----
+
+* Like [jmooring](https://github.com/jmooring/bash-function-library), all libraries are located in `lib/`, every function located in `lib/library/`.
+- Script names use camel case with a starting underscores: `_nameOfScript.sh`.
+Each included function includes detailed usage information. Read the inline comments within the code for detailed usage instructions.
+Within the `lib` folder are many BASH functions meant to ease development of more complicated scripts.
+
 * Like [jmooring](https://github.com/jmooring/bash-function-library), each function is namespaced with the `bfl::` prefix, but not multilevel as [Jarodiv](https://github.com/Jarodiv/bash-function-libraries). For example, to trim a string:
 
 ```bash
@@ -22,7 +32,17 @@ on one or more of the others. Source the entire library by sourcing
 autoload.sh. See the comments in autoload.sh for an explanation of the loading
 process.
 
-### Libraries
+Coding conventions
+------------------
+
+- Variables are always surrounded by quotes and brackets `"${1}"` (Overly verbose true, but a safe practice)
+- Formatting: 2 spaces for first indent and 4 spaces for next indents (is provided by [shfmt](https://github.com/mvdan/sh))
+- All scripts and functions are fully [Shellcheck](https://github.com/koalaman/shellcheck) compliant
+- Where possible, we should follow [defensive BASH programming](https://kfirlavi.herokuapp.com/blog/2012/11/14/defensive-bash-programming/) principles.
+
+Libraries
+---------
+
 * Apache
 * array - Some functions take or return arrays. Since Bash does not support to pass arrays, references and their serialized string representations are used.
 * compile
@@ -48,14 +68,16 @@ process.
 * Maven - Functions related to the build tool Apache Maven
 * Nexus - Functions related to the software repository manager Sonatype Nexus
 
-## Configuration
+Configuration
+-------------
 
 * BASH_INTERACTIVE
 * RC_NOCOLOR      If coloured, command tput also needs var $TERM
 * BASH_FUNCTION_LIBRARY_COLOR_OUTPUT
 
 
-## Examples
+Examples
+--------
 
 [examples/\_introduce.sh](examples/_introduce.sh)
 
@@ -66,7 +88,8 @@ process.
 > This script leverages the Bash Function Library, displaying a banner with
 user and system information.
 
-## Tests
+Tests
+-----
 
 Test system is not so flexible as (BATS)](https://github.com/sstephenson/bats) but is smart and tiny.
 Each library has its own test suite that can be run separately:
@@ -75,7 +98,8 @@ Each library has its own test suite that can be run separately:
 ~$ bats test/*.bats~
 ```
 
-## Templates
+Templates
+---------
 
 [templates/_library_function.sh](templates/_library_function.sh)
 
@@ -86,7 +110,8 @@ Each library has its own test suite that can be run separately:
 > Use this template to create a script which leverages the Bash Function
 Library.
 
-## Documentation
+Documentation
+-------------
 
 [docs/function-list.md](docs/function-list.md)
 
