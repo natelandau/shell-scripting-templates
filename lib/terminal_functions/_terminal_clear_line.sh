@@ -24,8 +24,8 @@ source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/terminal_functions/_is_Terminal.s
 #   bfl::terminal_clear_line "2"
 #------------------------------------------------------------------------------
 bfl::terminal_clear_line() {
-  bfl::verify_arg_count "$#" 0 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [0, 1]"  # Verify argument count.
-#  bfl::verify_dependencies "bfl::isTerminal"  # Verify dependencies.
+  bfl::verify_arg_count "$#" 0 1 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 1]" && return 1              # Verify argument count.
+  bfl::function_exists "bfl::isTerminal" || bfl::writelog_fail "${FUNCNAME[0]}: function isTerminal not found" && return 1   # Verify dependencies.
 
   local -ir num="${1:-1}"
   local i

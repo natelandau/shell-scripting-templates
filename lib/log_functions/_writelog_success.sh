@@ -30,10 +30,26 @@
 #------------------------------------------------------------------------------
 #
 bfl::writelog_success() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1 # Нельзя bfl::die Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { # Нельзя bfl::die Verify argument count.
+      [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: error $*\n" > /dev/tty
+      return 1
+      }
 
-  local -r msg="${1:-}"
-  bfl::write_log $LOG_LVL_INF "$msg" "${CLR_BRACKET}[${CLR_GOOD} ok ${CLR_BRACKET}]${CLR_NORMAL}"
+  # Verify arguments
+  bfl::is_blank "$1" && { # Нельзя bfl::die Verify argument count.
+      [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: parameter 1 is blank!\n" > /dev/tty
+      return 1
+      }
 
+  local -r msg="$1"
+  local -r logfile="${3:-$BASH_FUNCTION_LOG}"
+  bfl::write_log $LOG_LVL_INF "$msg" "${2:-Info}" "$logfile" || {
+      [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: error $*\n" > /dev/tty
+      return 1
+      }
+
+  ! [[ $BASH_INTERACTIVE == true ]] && return 0
+  printf "${CLR_GOOD}$msg${NC}\n" > /dev/tty
+  printf "${CLR_GOOD}Written log message to $logfile${NC}\n" > /dev/tty
   return 0
   }

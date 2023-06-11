@@ -25,7 +25,7 @@
 #   bfl::insert_string_to_file "$str" 288 'Makefile.in'
 #------------------------------------------------------------------------------
 bfl::insert_string_to_file() {
-  bfl::verify_arg_count "$#" 3 3 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 3"  # Verify argument count.
+  bfl::verify_arg_count "$#" 3 3 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 3" && return 1 # Verify argument count.
 
   local -r i=`echo "$2" | wc -l`
   local s

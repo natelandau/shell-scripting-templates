@@ -29,11 +29,11 @@ source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/declaration_functions/_declare_te
 #   bfl::forward_links  /tools/binutils-2.40 /usr/local
 #------------------------------------------------------------------------------
 bfl::forward_links() {
-  bfl::verify_arg_count "$#" 2 999 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [2...999]"  # Verify argument count.
+  bfl::verify_arg_count "$#" 2 999 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2..999]" && return 1 # Verify argument count.
 
   if [[ $(id -u) -ne 0 ]]; then
       eval $ask_sudo
-      [[ $? -ne 0 ]] && bfl::die "Неудачно${NC} - не удалось получить права суперпользователя"
+      [[ $? -ne 0 ]] && bfl::writelog_fail "${FUNCNAME[0]}: failed${NC} - cannot get sudo rights!" && return 1
   fi
 
   local dryrun=false
@@ -46,7 +46,7 @@ bfl::forward_links() {
       esac
   done
 
-  [[ -z "$1" ]] && bfl::die 'Source is empty!'
+  bfl::is_blank "$1" && bfl::writelog_fail "${FUNCNAME[0]}: source is empty!" && return 1
 
   #$1 - source, $2 - destination, $3 ... - unic folder names
   #/usr/local/cmake-3.23.2  /usr/copy   "cmake-3.23"
@@ -120,13 +120,13 @@ bfl::forward_links() {
               ! [[ -d "$srt" ]] && install -v -d "$srt"
 
               if [[ -d "$st2" ]]; then
-                  [[ $BASH_INTERACTIVE == true ]] && printf "${Purple}Проблемы: директория $st2 существует, и это не ссылка!${NC}\n" > /dev/tty
+                  [[ $BASH_INTERACTIVE == true ]] && printf "${Purple}Problems: directory $st2 exists, but it is not a symlink!${NC}.\n" > /dev/tty
                   ln -sfv "$el"/* "$st2"/
               else
                   ln -sfv "$el" "$st2"   # или cp -sf ???
               fi
 
-              ! [[ -e "$st2" ]] && bfl::die "Неудачно $st2"
+              ! [[ -e "$st2" ]] && bfl::writelog_fail "${FUNCNAME[0]}: failed '$st2'." && return 1
           fi
       done
   fi
@@ -241,7 +241,7 @@ bfl::forward_links() {
 
           if [[ "$el" != '/usr/local/lib/x86_64-linux-gnu/perl/5.30.0' ]]; then # исключения
               if [[ -d "$st2" ]]; then
-                  [[ $BASH_INTERACTIVE == true ]] && printf "${Purple}Проблемы: директория $st2 существует, и это не ссылка!${NC}\n" > /dev/tty
+                  [[ $BASH_INTERACTIVE == true ]] && printf "${Purple}Проблемы: директория '$st2' существует, и это не ссылка!${NC}\n" > /dev/tty
                   ln -sfv "$el"/* "$st2"/
               else
                   ln -sf "$el" "$st2"   # или cp -sf ???
@@ -249,7 +249,7 @@ bfl::forward_links() {
           else
               [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}$el - НЕ РЕШИЛ ЧТО ДЕЛАТЬ!!!${NC}\n" > /dev/tty
           fi
-          ! $dryrun && ! [[ -f "$st2" ]] && bfl::die "Неудачно${NC}\nln -sf $el $st2"
+          ! $dryrun && ! [[ -f "$st2" ]] && bfl::writelog_fail "${FUNCNAME[0]}: failed${NC}\nln -sf '$el' '$st2'." && return 1
       done
   fi
 
@@ -285,7 +285,7 @@ bfl::forward_links() {
               else
                     [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}$el - НЕ РЕШИЛ ЧТО ДЕЛАТЬ!!!${NC}\n" > /dev/tty
               fi
-              ! $dryrun && ! [[ -e "$srt/$str" ]] && bfl::die "Неудачно "$srt/$str"${NC}"
+              ! $dryrun && ! [[ -e "$srt/$str" ]] && bfl::writelog_fail "${FUNCNAME[0]}: failed '$srt/$str'.${NC}" && return 1
           fi
           ((i=i+1))
       done
@@ -324,7 +324,7 @@ bfl::forward_links() {
               [[ $BASH_INTERACTIVE == true ]] && printf "Make directory ${Purple}$st2${NC}\n" > /dev/tty
               ! $dryrun && install -d "$st2" # SUDO
           fi
-          ! $dryrun && ! [[ -d "$st2" ]] && bfl::die "Неудачно${NC}"
+          ! $dryrun && ! [[ -d "$st2" ]] && bfl::writelog_fail "${FUNCNAME[0]}: failed.${NC}" && return 1
       done
 
       #//----------------------------------------------------------------------------------------------------------
@@ -345,7 +345,7 @@ bfl::forward_links() {
               else
                   [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}$el - НЕ РЕШИЛ ЧТО ДЕЛАТЬ!!!${NC}\n" > /dev/tty
               fi
-              ! [[ -e "$st2" ]] && bfl::die "Неудачно"
+              ! [[ -e "$st2" ]] && bfl::writelog_fail "${FUNCNAME[0]}: failed." && return 1
           fi
       done
 

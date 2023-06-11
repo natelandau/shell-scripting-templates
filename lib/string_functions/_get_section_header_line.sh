@@ -34,11 +34,11 @@
 #         для вывода на экран можно использовать $COLUMNS
 #------------------------------------------------------------------------------
 bfl::get_section_header_line() {
-  bfl::verify_arg_count "$#" 1 4 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [1...4]"  # Verify argument count.
-  bfl::verify_dependencies "perl"
+  bfl::verify_arg_count "$#" 1 4  || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1..4]" && return 1 # Verify argument count.
+  bfl::verify_dependencies "perl" || bfl::writelog_fail "${FUNCNAME[0]}: dependency perl not found"  && return 1 # Verify dependencies.
 
   # Verify argument values.
-  [[ -z "$1" ]] && bfl::die "Не указан ни один параметр функции getHeaderForSection"
+  [[ -z "$1" ]] && bfl::writelog_fail "${FUNCNAME[0]}: no parameters were specified!" && return 1
 
   local bgn
   [[ -z ${2+x} ]] && bgn="${2:-#}" || bgn="$2"  # может быть и '//'
@@ -52,7 +52,7 @@ bfl::get_section_header_line() {
   local t
   ((t=l-iBgn-iHdr-3))
 
-  [[ x -lt 0 ]] && bfl::die "Функция getHeaderForSection:${NC} Общая длина строки ${Red}$l${NC} недостаточна для объявления ${Yellow}$hdr" 'Yellow'
+  [[ x -lt 0 ]] && bfl::writelog_fail "${FUNCNAME[0]}: Функция getHeaderForSection:${NC} Общая длина строки ${Red}$l${NC} недостаточна для объявления ${Yellow}$hdr" && return 1
 
   local y z
   ((y=t/2)); ((z=t-y*2))

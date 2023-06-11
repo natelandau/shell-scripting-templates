@@ -22,24 +22,24 @@
 #   bfl::send_sms_msg "+12065550100" "Line 1.\\nLine 2."
 #------------------------------------------------------------------------------
 bfl::send_sms_msg() {
-  bfl::verify_arg_count "$#" 2 2 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 2"  # Verify argument count.
-  bfl::verify_dependencies "aws"
+  bfl::verify_arg_count "$#" 2 2 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"    && return 1 # Verify argument count.
+  bfl::verify_dependencies "aws" || bfl::writelog_fail "${FUNCNAME[0]}: dependency aws not found" && return 1 # Verify dependencies.
 
-  [[ -z "$1" ]] && bfl::die "The recipient's phone number was not specified."
-  [[ -z "$2" ]] && bfl::die "The message was not specified."
+  [[ -z "$1" ]] && bfl::writelog_fail "${FUNCNAME[0]}: recipient's phone number was not specified." && return 1
+  [[ -z "$2" ]] && bfl::writelog_fail "${FUNCNAME[0]}: message was not specified." && return 1
 
   declare error_msg
   # Make sure phone number is properly formatted.
   if [[ ! "$1" =~ ^\\+[0-9]{6,}$ ]]; then
     error_msg="The recipient's phone number is improperly formatted.\\n"
-    error_msg+="Expected a plus sign followed by six or more digits, received $1."
-    bfl::die "$error_msg"
+    error_msg+="Expected a plus sign followed by six or more digits, received '$1'."
+    bfl::writelog_fail "${FUNCNAME[0]}: '${error_msg}'" && return 1
   fi
 
   # Backslash escapes such as \n (newline) in the message string must be
   # interpreted before sending the message.
-  interpreted_message=$(printf "%b" "$2") || bfl::die
+  interpreted_message=$(printf "%b" "$2") || bfl::writelog_fail "${FUNCNAME[0]}: interpreted_message=\$(printf %b '$2')" && return 1
 
   # Send the message.
-  aws sns publish --phone-number "$1" --message "$interpreted_message" || bfl::die
+  aws sns publish --phone-number "$1" --message "${interpreted_message}" || bfl::writelog_fail "${FUNCNAME[0]}: cannot do aws sns publish --phone-number '$1' --message '${interpreted_message}')" && return 1
   }

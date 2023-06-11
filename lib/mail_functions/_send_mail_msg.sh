@@ -37,25 +37,19 @@
 #   bfl::send_mail_msg "a@b.com" "x@y.com" "x@y.com" "Test" "Line 1.\\nLine 2."
 #------------------------------------------------------------------------------
 bfl::send_mail_msg() {
-  bfl::verify_arg_count "$#" 5 5 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 5"  # Verify argument count.
-  bfl::verify_dependencies "sendmail"
+  bfl::verify_arg_count "$#" 5 5      || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 5" && return 1 # Verify argument count.
+  bfl::verify_dependencies "sendmail" || bfl::writelog_fail "${FUNCNAME[0]}: dependency sendmail not found." && return 1 # Verify dependencies.
 
-  declare -r to="$1"
-  declare -r from="$2"
-  declare -r envelope_from="$3"
-  declare -r subject="$4"
-  declare -r body="$5"
-  declare message
+  # Verify arguments
+  bfl::is_empty "$1" && bfl::writelog_fail "${FUNCNAME[0]}: The message recipient was not specified." && return 1
+  bfl::is_empty "$2" && bfl::writelog_fail "${FUNCNAME[0]}: The message sender was not specified." && return 1
+  bfl::is_empty "$3" && bfl::writelog_fail "${FUNCNAME[0]}: The envelope sender address was not specified." && return 1
+  bfl::is_empty "$4" && bfl::writelog_fail "${FUNCNAME[0]}: The message subject was not specified." && return 1
+  bfl::is_empty "$5" && bfl::writelog_fail "${FUNCNAME[0]}: The message body was not specified." && return 1
 
-  bfl::is_empty "${to}"             && bfl::die "The message recipient was not specified."
-  bfl::is_empty "${from}"           && bfl::die "The message sender was not specified."
-  bfl::is_empty "${envelope_from}"  && bfl::die "The envelope sender address was not specified."
-  bfl::is_empty "${subject}"        && bfl::die "The message subject was not specified."
-  bfl::is_empty "${body}"           && bfl::die "The message body was not specified."
+  declare message # Format the message.                       to from subject body
+  message=$(printf "To: %s\\nFrom: %s\\nSubject: %s\\n\\n%b" "$1" "$2" "$4" "$5") || bfl::writelog_fail "${FUNCNAME[0]}: Cannot generate message." && return 1
 
-  # Format the message.
-  message=$(printf "To: %s\\nFrom: %s\\nSubject: %s\\n\\n%b" "${to}" "${from}" "${subject}" "${body}") || bfl::die
-
-  # Send the message.
-  echo "$message" | sendmail -f "$envelope_from" "$to" || bfl::die
+  # Send the message   envelope_from  to
+  echo "$message" | sendmail -f "$3" "$1" || bfl::writelog_fail "${FUNCNAME[0]}: Cannot send email from $3 to $1." && return 1
   }

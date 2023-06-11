@@ -15,25 +15,26 @@
 # @param string $str
 #   The string to transliterate.
 #
-# @return string $str_transliterated
+# @return string $str
 #   The transliterated string.
 #
 # @example
 #   bfl::transliterate "_Olé Über! "
 #------------------------------------------------------------------------------
 bfl::transliterate() {
-  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
-  bfl::verify_dependencies "iconv"
+  bfl::verify_arg_count "$#" 1 1   || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1" && return 1       # Verify argument count.
+  bfl::verify_dependencies "iconv" || bfl::writelog_fail "${FUNCNAME[0]}: dependency iconv not found" && return 1  # Verify dependencies.
 
-  local str_transliterated
+  local str
   shopt -s extglob          # Enable extended pattern matching features.
 
-  str_transliterated=$(iconv -c -f utf8 -t ascii//TRANSLIT <<< "$1") || bfl::die    # Convert from UTF-8 to ASCII.
-  str_transliterated=${str_transliterated//[^[:alnum:]]/-}    # Replace non-alphanumeric characters with a hyphen.
-  str_transliterated=${str_transliterated//+(-)/-}            # Replace two or more sequential hyphens with a single hyphen.
-  str_transliterated=${str_transliterated#-}                  # Remove leading hyphen, if any.
-  str_transliterated=${str_transliterated%-}                  # Remove trailing hyphen, if any.
-  str_transliterated=${str_transliterated,,}                  # Convert to lower case
+  # Convert from UTF-8 to ASCII.
+  str=$(iconv -c -f utf8 -t ascii//TRANSLIT <<< "$1") || bfl::writelog_fail "${FUNCNAME[0]}: str=\$(iconv -c -f utf8 -t ascii//TRANSLIT <<< $1)" && return 1
+  str=${str//[^[:alnum:]]/-}    # Replace non-alphanumeric characters with a hyphen.
+  str=${str//+(-)/-}            # Replace two or more sequential hyphens with a single hyphen.
+  str=${str#-}                  # Remove leading hyphen, if any.
+  str=${str%-}                  # Remove trailing hyphen, if any.
+  str=${str,,}                  # Convert to lower case
 
-  printf "%s" "$str_transliterated"
+  printf "%s" "$str"
   }

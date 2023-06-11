@@ -31,7 +31,7 @@
 #------------------------------------------------------------------------------
 #
 bfl::array_intersects() {
-  bfl::verify_arg_count "$#" 2 2 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 2"  # Verify argument count.
+  bfl::verify_arg_count "$#" 2 2 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2" && return 1 # Verify argument count.
 
   local -r -a ARRAY_1=( "${!1:-}" )
   local -r -a ARRAY_2=( "${!2:-}" )

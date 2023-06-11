@@ -71,22 +71,50 @@ LOG_FILE=/dev/null
 #------------------------------------------------------------------------------
 #
 bfl::write_log() {
-  bfl::verify_arg_count "$#" 3 3 || exit 1  # НЕЛЬЗЯ bfl::die Verify argument count.
+  bfl::verify_arg_count "$#" 3 4 || { # Нельзя bfl::die Verify argument count.
+      [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: error $*\n" > /dev/tty
+      return 1
+      }
+
+  # Verify argument values.
+  bfl::is_blank "$2" && { # Нельзя bfl::die Verify argument count.
+      [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: parameter 1 is blank!\n" > /dev/tty
+      return 1
+      }
 
   # Verify argument values.
   local -r logfile="${4:-$BASH_FUNCTION_LOG}"
   local d; d=$(dirname "$logfile")
-  ! [[ -d "$d" ]] && mkdir -p "$d"
-  ! [[ -d "$d" ]] && exit 1
-  ! [[ -f "$logfile" ]] && touch "$logfile"
-  ! [[ -f "$logfile" ]] && exit 1
-
+  if ! [[ -d "$d" ]]; then
+      mkdir -p "$d" || { # Нельзя bfl::die Verify argument count.
+      [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: cannot create directory '$d'!\n" > /dev/tty
+      return 1
+      }
+  fi
+  ! [[ -d "$d" ]] && { # Нельзя bfl::die Verify argument count.
+      [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: directory '$d' doesn't exists!\n" > /dev/tty
+      return 1
+      }
+  if ! [[ -f "$logfile" ]]; then
+      touch "$logfile" || { # Нельзя bfl::die Verify argument count.
+      [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: cannot create '$logfile'!\n" > /dev/tty
+      return 1
+      }
+  fi
+  ! [[ -f "$logfile" ]] && { # Нельзя bfl::die Verify argument count.
+      [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: '$logfile' doesn't exists!\n" > /dev/tty
+      return 1
+      }
 
   local -r LEVEL=${1:-$LOG_LVL_DBG}
+#  ! [[ "$LOG_LEVEL" -ge "$LEVEL" ]] && { # Нельзя bfl::die Verify argument count.
+#      [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: error $*\n" > /dev/tty
+#      return 1
+#      }
+
   local msg="${2:-}"
   local -r STATUS=${3:-}
 
-  ! [[ "$LOG_LEVEL" -ge "$LEVEL" ]] && return 1   #  maybe bfl::die ???
   [[ $LOG_SHOW_TIMESTAMP = true ]] && msg="$(date '+%Y-%m-%d %H:%M:%S') $msg"
 
 #  [[ -z "$STATUS" ]] && echo "$msg" && return 0   # To display a right aligned status we have to take some extra efforts

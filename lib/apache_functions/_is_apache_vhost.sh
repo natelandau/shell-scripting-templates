@@ -24,24 +24,24 @@
 #   bfl::is_apache_vhost "./foo" "/etc/apache2/sites-enabled"
 #------------------------------------------------------------------------------
 bfl::is_apache_vhost() {
-  bfl::verify_arg_count "$#" 1 2 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [1, 2]"  # Verify argument count.
-  bfl::verify_dependencies "grep"           # Verify dependencies.
+  bfl::verify_arg_count "$#" 1 2  || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]" && return 1 # Verify argument count.
+  bfl::verify_dependencies "grep" || bfl::writelog_fail "${FUNCNAME[0]}: dependency grep not found"  && return 1 # Verify dependencies.
 
   # Verify argument values.
-  [[ -z "$1" ]] && bfl::die "path is required."
+  bfl::is_blank "$1" && bfl::writelog_fail "${FUNCNAME[0]}: path is required." && return 1
 
   # Declare positional arguments (readonly, sorted by position).
   declare -r sites_enabled="${2:-"/etc/apache2/sites-enabled"}"
-  [[ -z "$sites_enabled" ]] && bfl::die "path_sites_enabled is required."
+  [[ -z "$sites_enabled" ]] && bfl::writelog_fail "${FUNCNAME[0]}: path_sites_enabled is required." && return 1
 
   # Declare all other variables (sorted by name).
   declare canonical_sites_enabled
 
   # Get canonical paths.
   canonical_path=$(bfl::get_directory_path "$1") ||
-    bfl::die "Unable to determine canonical path to $1."
-  canonical_sites_enabled=$(bfl::get_directory_path "$sites_enabled") ||
-    bfl::die "Unable to determine canonical path to $sites_enabled."
+    bfl::writelog_fail "${FUNCNAME[0]}: unable to determine canonical path to $1." && return 1
+  canonical_sites_enabled=$(bfl::get_directory_path "${sites_enabled}") ||
+    bfl::writelog_fail "${FUNCNAME[0]}: unable to determine canonical path to ${sites_enabled}." && return 1
 
-  grep -q -P -R -m1 "DocumentRoot\\s+${canonical_path}$" "$canonical_sites_enabled"
+  grep -q -P -R -m1 "DocumentRoot\\s+${canonical_path}$" "${canonical_sites_enabled}"
   }

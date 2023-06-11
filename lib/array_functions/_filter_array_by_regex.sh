@@ -31,7 +31,7 @@
 #  if bfl::filter_array_by_regex  -i "VALUE" "${ARRAY[@]}"; then ...
 #------------------------------------------------------------------------------
 bfl::filter_array_by_regex() {
-  bfl::verify_arg_count "$#" 2 3 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [2, 3]"  # Verify argument count.
+  bfl::verify_arg_count "$#" 2 3 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2, 3]" && return 1 # Verify argument count.
 
   local opt
   local -i OPTIND=1
@@ -42,7 +42,8 @@ bfl::filter_array_by_regex() {
               trap '$(shopt -p nocasematch)' RETURN # reset nocasematch when function exits
               shopt -s nocasematch                  # Use case-insensitive regex
               ;;
-          *) bfl::die "Unrecognized option '$1' passed to ${FUNCNAME[0]}. Exiting." ;;
+          *) bfl::writelog_fail "${FUNCNAME[0]}: unrecognized option '$1'." && return 1
+              ;;
       esac
   done
   shift $((OPTIND - 1))
@@ -51,6 +52,6 @@ bfl::filter_array_by_regex() {
   local value="$1"
   shift
   for array_item in "$@"; do
-      [[ "$array_item" =~ ^$value$ ]] && printf '%s\n' "$array_item"
+      [[ "${array_item}" =~ ^$value$ ]] && printf '%s\n' "${array_item}"
   done
   }

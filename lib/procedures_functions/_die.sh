@@ -26,7 +26,7 @@
 # shellcheck disable=SC2154
 #------------------------------------------------------------------------------
 bfl::die() {
-  bfl::verify_arg_count "$#" 0 2 || exit 1  # Verify argument count.
+  bfl::verify_arg_count "$#" 0 2 || return 1  # Verify argument count.
 
   # Declare positional arguments (readonly, sorted by position).
   local -r msg="${1:-'Unspecified fatal error.'}"
@@ -46,5 +46,5 @@ bfl::die() {
   printf "%b\\n" "${!msg_color}Fatal error. $msg${NC}" 1>&2
   printf "%b\\n" "${Yellow}[$stack]${NC}" 1>&2 # Print the stack.
 
-  return 1 # exit 1
+  return 0
   }

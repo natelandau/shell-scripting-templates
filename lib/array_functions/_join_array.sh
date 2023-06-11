@@ -29,7 +29,7 @@
 #   bfl::join_array , "${foo[@]}" #a,b,c
 #------------------------------------------------------------------------------
 bfl::join_array() {
-  bfl::verify_arg_count "$#" 2 2 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 2"  # Verify argument count.
+  bfl::verify_arg_count "$#" 2 2 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2" && return 1 # Verify argument count.
 
   local dlmtr="$1"
   printf "%s" "$2"

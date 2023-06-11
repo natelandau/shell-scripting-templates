@@ -30,9 +30,11 @@
 #------------------------------------------------------------------------------
 bfl::declare_terminal_colors() {
 #  НЕЛЬЗЯ! В итог циклическая зависимость
-#  bfl::verify_dependencies "tput"  # Verify dependencies.
+#  bfl::verify_dependencies "tput" || bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found" && return 1  # Verify dependencies.
 
-  [[ "${RC_NOCOLOR:=-no}" =~ ^(YES|Yes|yes|true)$ ]] && local bEnabled=false || local bEnabled=true
+  local clr="${RC_NOCOLOR:=-no}"
+  clr="${clr,,}"
+  [[ "$clr" =~ ^yes|true$ ]] && local bEnabled=false || local bEnabled=true
   local use256=false
   local has_tput=false
   if ( command -v tput ) >/dev/null 2>&1; then

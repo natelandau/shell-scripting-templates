@@ -25,20 +25,20 @@
 #   bfl::get_canonical_path "./foo/bar.text"
 #------------------------------------------------------------------------------
 bfl::get_canonical_path() {
-  bfl::verify_arg_count "$#" 1 2 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [1, 2]"  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 2 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]" && return 1 # Verify argument count.
 
   # Verify argument values.
-  [[ -z "$1" ]] && bfl::die "The path was not specified."
-  ! [[ -e "$1" ]] && bfl::die "$1 does not exist."   # Verify that the path exists.
+  bfl::is_blank "$1" && bfl::writelog_fail "${FUNCNAME[0]}: path was not specified." && return 1
+  ! [[ -e "$1" ]] && bfl::writelog_fail "${FUNCNAME[0]}: '$1' does not exist." && return 1   # Verify that the path exists.
 
   [[ "$2" = true ]] && local -r FollowLink=true || local -r FollowLink=false
 
   local str="$1"
   if $FollowLink; then
       while [[ -L "$str" ]]; do
-          str=$(readlink -e "$str") || bfl::die "Symlink $str cannot be read."
+          str=$(readlink -e "$str") || bfl::writelog_fail "${FUNCNAME[0]}: symlink '$str' cannot be read." && return 1
           # Verify that the path points to real file/directory.
-          [[ -e "$str" ]] || bfl::die "Path $str does not exist."
+          [[ -e "$str" ]] || bfl::writelog_fail "${FUNCNAME[0]}: path '$str' does not exist." && return 1
       done
   fi
 
@@ -52,9 +52,9 @@ bfl::get_canonical_path() {
       for ((i=0;i<l;i++)); do
           str+="/"${arr[$i]}
           while [[ -L "$str" ]]; do
-              str=$(readlink -e "$str") || bfl::die "Symlink $str cannot be read."
+              str=$(readlink -e "$str") || bfl::writelog_fail "${FUNCNAME[0]}: symlink '$str' cannot be read." && return 1
               # Verify that the path points to real file/directory.
-              [[ -e "$str" ]] || bfl::die "Path $str does not exist."
+              [[ -e "$str" ]] || bfl::writelog_fail "${FUNCNAME[0]}: path '$str' does not exist." && return 1
           done
       done
   fi

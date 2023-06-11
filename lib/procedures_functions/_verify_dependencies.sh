@@ -19,14 +19,15 @@
 #   bfl::verify_dependencies "curl" "wget" "git"
 #------------------------------------------------------------------------------
 bfl::verify_dependencies() {
-  bfl::verify_arg_count "$#" 1 999 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [1...1999]"  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 999 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1..1999]" && return 1 # Verify argument count.
 
   declare -ar apps=("$@")
   local app
 
   for app in "${apps[@]}"; do
       if ! hash "${app}" 2> /dev/null; then
-          bfl::die "${app} is not installed."
+          bfl::write_log "${FUNCNAME[0]}: $app is not installed."
+          return 1
       fi
   done
   }

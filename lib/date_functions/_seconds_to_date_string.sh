@@ -2,7 +2,7 @@
 
 ! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
-#------------------------------------------------------------------------------
+# ----------- https://github.com/jmooring/bash-function-library.git -----------
 #----------- https://github.com/natelandau/shell-scripting-templates ----------
 # Functions to help work with dates and time
 #
@@ -12,16 +12,17 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Convert seconds to HH:MM:SS.
+# Converts seconds to the hh:mm:ss format.
 #
 # @param Integer $seconds
-#   Time in seconds.
+#   The number of seconds to convert.
 #
-# @return String $result
-#   HH:MM:SS.
+# @return String $hhmmss
+#   The number of seconds in hh:mm:ss format.
 #
 # @example
-#   bfl::seconds_to_date_string "SECONDS"
+#   bfl::seconds_to_date_string "3661"
+#
 #   To compute the time it takes a script to run:
 #      STARTTIME=$(date +"%s")
 #             ...
@@ -31,14 +32,15 @@
 #------------------------------------------------------------------------------
 #
 bfl::seconds_to_date_string() {
-  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1" && return 1 # Verify argument count.
 
-  local -i h m s
+  declare -ir seconds="$1"
+  bfl::is_positive_integer "$seconds" || bfl::writelog_fail "${FUNCNAME[0]} '$1' expected to be positive integer." && return 1
 
-  ((h = $1 / 3600))
-  ((m = ($1 % 3600) / 60))
-  ((s = $1 % 60))
-  printf "%02d:%02d:%02d\n" "$h" "$m" "$s"
+  declare hhmmss
+  hhmmss=$(printf '%02d:%02d:%02d\n' $((seconds/3600)) $((seconds%3600/60)) $((seconds%60))) \
+    || bfl::writelog_fail "${FUNCNAME[0]} unable to convert $seconds to hh:mm:ss format." && return 1
 
+  printf "%s" "$hhmmss"
   return 0
   }

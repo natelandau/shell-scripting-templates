@@ -30,13 +30,13 @@
 #   bfl::_ssh_file_exists "url" "host"
 #------------------------------------------------------------------------------
 bfl::ssh_file_exists() {
-  bfl::verify_arg_count "$#" 2 2 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 2"  # Verify argument count.
+  bfl::verify_arg_count "$#" 2 2 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2" && return 1 # Verify argument count.
 
   local -r FILE="${1:-}"
   local -r HOST="${2:-}"
 
-  ssh -q -T "${HOST}" 'bash' <<-EOF
-      [[ -r "${FILE}" ]] || exit 1
+  ssh -q -T "$HOST" 'bash' <<-EOF
+      [[ -r "$FILE" ]] || bfl::writelog_fail "${FUNCNAME[0]}: [[ -r '$FILE' ]] error" && return 1
 	EOF
 
   }

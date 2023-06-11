@@ -19,7 +19,7 @@
 #   bfl::is_Terminal
 #------------------------------------------------------------------------------
 bfl::is_Terminal() {
-  bfl::verify_arg_count "$#" 0 0 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 0"  # Verify argument count.
+  bfl::verify_arg_count "$#" 0 0 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0" && return 1 # Verify argument count.
 
   [[ -t 1 || -z "$TERM" ]] && return 0 || return 1
   }

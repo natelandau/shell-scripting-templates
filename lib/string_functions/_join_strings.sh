@@ -27,23 +27,23 @@
 #   bfl::join_strings "," "foo" "bar" "baz"
 #-----------------------------------------------------------------------------
 bfl::join_strings() {
-  bfl::verify_arg_count "$#" 2 999 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
+  bfl::verify_arg_count "$#" 2 999 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1" && return 1 # Verify argument count.
 
   local -r glue="$1"
 
   shift  # Delete the first positional parameter.
   # Create the pieces array from the remaining positional parameters.
-  declare -a pieces=("$@")
-  local joined_string
+  local -a pieces=("$@")
+  local jstring
 
   while (( "${#pieces[@]}" )); do
       if [[ "${#pieces[@]}" -eq "1" ]]; then
-          joined_string+=$(printf "%s\\n" "${pieces[0]}") || bfl::die
+          jstring+=$(printf "%s\\n" "${pieces[0]}") || bfl::writelog_fail "${FUNCNAME[0]}: jstring += \$(printf %s\\n \${pieces[0]} )" && return 1
       else
-          joined_string+=$(printf "%s%s" "${pieces[0]}" "${glue}") || bfl::die
+          jstring+=$(printf "%s%s" "${pieces[0]}" "$glue") || bfl::writelog_fail "${FUNCNAME[0]}: jstring += \$(printf %s\\n \${pieces[0]} $glue)" && return 1
       fi
       pieces=("${pieces[@]:1}")   # Shift the first element off of the array.
   done
 
-  printf "%s" "${joined_string}"
+  printf "%s" "$jstring"
   }

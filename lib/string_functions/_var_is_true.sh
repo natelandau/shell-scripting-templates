@@ -23,7 +23,7 @@
 #------------------------------------------------------------------------------
 #
 bfl::var_is_true() {
-  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1" && return 1 # Verify argument count.
 
   [[ "$1" -eq 0 || "${1,,}" =~ ^true|yes$ ]] && return 0 || return 1
   }

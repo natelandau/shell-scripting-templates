@@ -24,18 +24,15 @@
 #   bfl::url_encode "foo bar"
 #------------------------------------------------------------------------------
 bfl::url_encode() {
-  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
-  bfl::verify_dependencies "jq"  # Verify dependencies.
+  bfl::verify_arg_count "$#" 1 1 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1" && return 1     # Verify argument count.
+  bfl::verify_dependencies "jq"  || bfl::writelog_fail "${FUNCNAME[0]}: dependency jq not found." && return 1  # Verify dependencies.
 
   # Verify argument values.
-  [[ -z "$1" ]] && bfl::die "Empty string."
+  bfl::is_blank "$1" && bfl::writelog_fail "${FUNCNAME[0]}: empty string." && return 1
 
-  # Declare return value.
-  local str_encoded
-
-  # Build the return value.
-  str_encoded=$(jq -Rr @uri <<< "$1") || bfl::die "Unable to URL encode the string."
+  local rslt  # Build the return value.
+  rslt=$(jq -Rr @uri <<< "$1") || bfl::writelog_fail "${FUNCNAME[0]}: unable to encode url $1." && return 1
 
   # Print the return value.
-  printf "%s\\n" "${str_encoded}"
+  printf "%s\\n" "$rslt"
   }

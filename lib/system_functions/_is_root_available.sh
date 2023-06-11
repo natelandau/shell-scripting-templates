@@ -22,23 +22,24 @@
 #   bfl::is_root_available
 #------------------------------------------------------------------------------
 bfl::is_root_available() {
-  bfl::verify_arg_count "$#" 0 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [0, 1]"  # Verify argument count.
+  bfl::verify_arg_count "$#" 0 1 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 1]" && return 1 # Verify argument count.
+
   [[ $(id -u) -eq 0 ]] && return 0
-  [[ -n "$1" ]] && bfl::die 'Unable to acquire superuser credentials.'
+  [[ -n "$1" ]] && bfl::writelog_debug "${FUNCNAME[0]}: passed parameter to skip acquire superuser credentials." && return 1
 
 #  sudo test -d /tmp
 #  [[ $? -eq 0 ]] && return 0 || return 1
 
   local superuser=false
   if sudo -v; then
-      [[ $(sudo -H -- "${BASH}" -c 'printf "%s" "$EUID"') -eq 0 ]] && superuser=true
+      [[ $(sudo -H -- "$BASH" -c 'printf "%s" "$EUID"') -eq 0 ]] && superuser=true
   fi
 
   if $superuser; then
-      bfl::writelog_debug 'Successfully acquired superuser credentials.'
+      bfl::writelog_debug "${FUNCNAME[0]}: Successfully acquired superuser credentials."
       return 0
   else
-      bfl::writelog_debug 'Unable to acquire superuser credentials.'
+      bfl::writelog_debug "${FUNCNAME[0]}: Unable to acquire superuser credentials."
       return 1
   fi
   }

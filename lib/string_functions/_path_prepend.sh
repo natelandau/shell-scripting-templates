@@ -25,10 +25,10 @@
 #   bfl::path_prepend '/opt/lib:/usr/local/lib:/home/usr/.local/lib' LD_LIBRARY_PATH
 #------------------------------------------------------------------------------
 bfl::path_prepend() {
-  bfl::verify_arg_count "$#" 1 2 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy [1, 2]"  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 2 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]" && return 1 # Verify argument count.
 
   # Verify argument values.
-  [[ -z "$1" ]] && bfl::die 'path is empty!'
+  bfl::is_blank "$1" && bfl::writelog_fail "${FUNCNAME[0]}: path is empty!" && return 1
 
   local -r PATHVARIABLE=${2:-PATH}
   local str="${!PATHVARIABLE}"  # Var value by its name

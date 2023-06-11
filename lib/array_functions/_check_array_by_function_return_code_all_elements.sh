@@ -24,7 +24,7 @@
 #   bfl::check_array_by_function_return_code_all_elements "test_func" < <(printf "%s\n" "${arr1[@]}") #alternative approach
 #------------------------------------------------------------------------------
 bfl::check_array_by_function_return_code_all_elements() {
-  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1" && return 1 # Verify argument count.
 
   local func="$1"
   local IFS=$'\n'
@@ -37,7 +37,7 @@ bfl::check_array_by_function_return_code_all_elements() {
           if declare -f "$func" &>/dev/null; then
               eval "$func" "'${_it}'"
           else
-              bfl::die "${FUNCNAME[0]} could not find function $func"
+              bfl::writelog_fail "${FUNCNAME[0]} could not find function $func" && return 1
           fi
       fi
       local -i ret="$?"

@@ -22,15 +22,15 @@
 #   bfl::time_convert_s_to_hhmmss "3661"
 #------------------------------------------------------------------------------
 bfl::time_convert_s_to_hhmmss() {
-  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1" && return 1 # Verify argument count.
 
-  bfl::is_positive_integer "$seconds" || bfl::die "Expected positive integer, received $seconds."
+  bfl::is_positive_integer "$seconds" || bfl::writelog_fail "Expected positive integer, received $seconds." && return 1
 
   declare -r seconds="$1"
   declare hhmmss
 
   hhmmss=$(printf '%02d:%02d:%02d\n' $((seconds/3600)) $((seconds%3600/60)) $((seconds%60))) \
-    || bfl::die "Unable to convert $seconds to hh:mm:ss format."
+    || bfl::writelog_fail "Unable to convert $seconds to hh:mm:ss format." && return 1
 
   printf "%s" "$hhmmss"
   }

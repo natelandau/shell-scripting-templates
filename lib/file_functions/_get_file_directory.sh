@@ -22,17 +22,17 @@
 #   bfl::get_file_directory "./foo/bar.txt"
 #------------------------------------------------------------------------------
 bfl::get_file_directory() {
-  bfl::verify_arg_count "$#" 1 1 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 1"  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1" && return 1 # Verify argument count.
 
   # Verify argument values.
-  [[ -z "$1" ]] && bfl::die "The path was not specified."
+  bfl::is_blank "$1" && bfl::writelog_fail "${FUNCNAME[0]}: path was not specified." && return 1
 
   local canonical_directory_path canonical_file_path
 
   # Verify that the path exists.
-  canonical_file_path=$(bfl::get_file_path "$1") || bfl::die
-  canonical_directory_path=$(dirname "$canonical_file_path") || bfl::die
+  canonical_file_path=$(bfl::get_file_path "$1") || bfl::writelog_fail "${FUNCNAME[0]}: canonical_file_path=\$(bfl::get_file_path $1)" && return 1
+  canonical_directory_path=$(dirname "${canonical_file_path}") || bfl::writelog_fail "${FUNCNAME[0]}: canonical_directory_path=\$(dirname ${canonical_file_path})" && return 1
 
-  printf "%s" "$canonical_directory_path"
+  printf "%s" "${canonical_directory_path}"
   return 0
   }

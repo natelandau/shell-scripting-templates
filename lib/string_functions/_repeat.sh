@@ -25,16 +25,14 @@
 #   bfl::repeat "=" "10"
 #------------------------------------------------------------------------------
 bfl::repeat() {
-  bfl::verify_arg_count "$#" 2 2 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 2"  # Verify argument count.
+  bfl::verify_arg_count "$#" 2 2 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2" && return 1 # Verify argument count.
 
   # Verify argument values.
-  bfl::is_positive_integer "$2" || bfl::die "Expected positive integer, received $2."
+  bfl::is_positive_integer "$2" || bfl::writelog_fail "${FUNCNAME[0]}: $2 expected positive integer." && return 1
 
-  local str_repeated
-  # Create a string of spaces that is $multiplier long.
-  str_repeated=$(printf "%${2}s") || bfl::die
-  # Replace each space with the $str.
-  str_repeated=${str_repeated// /"$1"}
+  local str_repeated  # Create a string of spaces that is $multiplier long.
+  str_repeated=$(printf "%${2}s") || bfl::writelog_fail "${FUNCNAME[0]}: str_repeated=\$(printf %${2}s)." && return 1
+  str_repeated=${str_repeated// /"$1"}  # Replace each space with the $str.
 
   printf "%s" "$str_repeated"
   }

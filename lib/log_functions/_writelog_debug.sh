@@ -30,10 +30,11 @@
 #------------------------------------------------------------------------------
 #
 bfl::writelog_debug() {
-  bfl::verify_arg_count "$#" 1 1 || exit 1 # Нельзя bfl::die Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { # Нельзя bfl::die Verify argument count.
+      [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: error $*\n" > /dev/tty
+      return 1
+      }
 
-  local -r msg="${1:-}"
-  bfl::write_log $LOG_LVL_DBG "${CLR_HILITE}DEBUG:${CLR_NORMAL} ${FUNCNAME[1]} - $msg"
-
-  return 0
+  local -r msg="$1"
+  bfl::write_log $LOG_LVL_DBG "${CLR_HILITE}DEBUG:${CLR_NORMAL} ${FUNCNAME[1]} - $msg" && return 0 || return 1
   }

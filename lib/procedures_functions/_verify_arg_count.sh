@@ -56,26 +56,23 @@ bfl::verify_arg_count() {
 
     # Print the stack.
     printf "%b\\n" "${Yellow}[$stack]${NC}" 1>&2
-
-    exit 1
     }
   # Verify argument count.
-  [[ "$#" -ne "3" ]] && self_die "Invalid number of arguments. Expected 3, received $#."
+  [[ "$#" -ne "3" ]] && self_die "Invalid number of arguments. Expected 3, received $#." && return 1
 
   # Make sure all of the arguments are integers.
-  local -r regex="^[0-9]+$"
-  ! [[ "$1" =~ $regex ]] && self_die "\"$1\" is not an integer."
-  ! [[ "$2" =~ $regex ]] && self_die "\"$2\" is not an integer."
-  ! [[ "$3" =~ $regex ]] && self_die "\"$3\" is not an integer."
+  ! [[ "$1" =~ ^[0-9]+$ ]] && self_die "\"$1\" is not an integer." && return 1
+  ! [[ "$2" =~ ^[0-9]+$ ]] && self_die "\"$2\" is not an integer." && return 1
+  ! [[ "$3" =~ ^[0-9]+$ ]] && self_die "\"$3\" is not an integer." && return 1
 
   # Test.
   declare error_msg
 
-  if [[ "$1" -lt "$2" || "$1" -gt "$3" ]]; then
+  if [[ $1 -lt $2 || $1 -gt $3 ]]; then
       error_msg="Invalid number of arguments. Expected "
-      [[ "$2" -eq "$3" ]] && error_msg+="$2, received $1." || error_msg+="between $2 and $3, received $1."
+      [[ $2 -eq $3 ]] && error_msg+="$2, received $1." || error_msg+="between $2 and $3, received $1."
 
-      printf "%b\\n" "${Red}Error. $error_msg${NC}" 1>&2
+      printf "%b\\n" "${Red}Error. ${error_msg}${NC}" 1>&2
       return 1
   fi
   }

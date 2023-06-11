@@ -19,7 +19,7 @@
 #   bfl::get_system_architecture
 #------------------------------------------------------------------------------
 bfl::get_system_architecture() {
-  bfl::verify_arg_count "$#" 0 0 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 0"  # Verify argument count.
+  bfl::verify_arg_count "$#" 0 0 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0" && return 1 # Verify argument count.
 
 #  if [ -z "$ARCH" ]; then
   local str

@@ -22,7 +22,7 @@
 #------------------------------------------------------------------------------
 #
 bfl::get_Unix_timestamp() {
-  bfl::verify_arg_count "$#" 0 0 || bfl::die "Arguments count for ${FUNCNAME[0]} not satisfy == 0"  # Verify argument count.
+  bfl::verify_arg_count "$#" 0 0 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0" && return 1 # Verify argument count.
 
   local _now
   _now="$(date --universal +%s)" || return 1
