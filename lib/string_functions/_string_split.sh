@@ -30,7 +30,7 @@
 #   bfl::string_split "foo--bar" "-+" -> "( foo bar )"
 #------------------------------------------------------------------------------
 bfl::string_split() {
-  bfl::verify_arg_count "$#" 2 2 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 2 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return 1; } # Verify argument count.
 
   # Verify argument values.
   bfl::is_blank "$1" && bfl::writelog_fail "${FUNCNAME[0]}:${NC} no parameters" && return 1

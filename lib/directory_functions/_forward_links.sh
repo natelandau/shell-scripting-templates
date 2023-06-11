@@ -29,12 +29,10 @@ source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/declaration_functions/_declare_te
 #   bfl::forward_links  /tools/binutils-2.40 /usr/local
 #------------------------------------------------------------------------------
 bfl::forward_links() {
-  bfl::verify_arg_count "$#" 2 999 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2..999]" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 2 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2..999]"; return 1; } # Verify argument count.
 
-  if [[ $(id -u) -ne 0 ]]; then
-      eval $ask_sudo
-      [[ $? -ne 0 ]] && bfl::writelog_fail "${FUNCNAME[0]}: failed${NC} - cannot get sudo rights!" && return 1
-  fi
+   # eval $ask_sudo
+  bfl::is_root_available || { bfl::writelog_fail "${FUNCNAME[0]}: failed${NC} - cannot get sudo rights!"; return 1; }
 
   local dryrun=false
 

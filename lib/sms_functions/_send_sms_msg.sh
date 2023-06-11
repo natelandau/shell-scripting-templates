@@ -22,8 +22,8 @@
 #   bfl::send_sms_msg "+12065550100" "Line 1.\\nLine 2."
 #------------------------------------------------------------------------------
 bfl::send_sms_msg() {
-  bfl::verify_arg_count "$#" 2 2 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"    && return 1 # Verify argument count.
-  bfl::verify_dependencies "aws" || bfl::writelog_fail "${FUNCNAME[0]}: dependency aws not found" && return 1 # Verify dependencies.
+  bfl::verify_arg_count "$#" 2 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"   ; return 1; } # Verify argument count.
+  bfl::verify_dependencies "aws" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency aws not found"; return 1; } # Verify dependencies.
 
   [[ -z "$1" ]] && bfl::writelog_fail "${FUNCNAME[0]}: recipient's phone number was not specified." && return 1
   [[ -z "$2" ]] && bfl::writelog_fail "${FUNCNAME[0]}: message was not specified." && return 1
@@ -38,8 +38,8 @@ bfl::send_sms_msg() {
 
   # Backslash escapes such as \n (newline) in the message string must be
   # interpreted before sending the message.
-  interpreted_message=$(printf "%b" "$2") || bfl::writelog_fail "${FUNCNAME[0]}: interpreted_message=\$(printf %b '$2')" && return 1
+  interpreted_message=$(printf "%b" "$2") || { bfl::writelog_fail "${FUNCNAME[0]}: interpreted_message=\$(printf %b '$2')"; return 1; }
 
   # Send the message.
-  aws sns publish --phone-number "$1" --message "${interpreted_message}" || bfl::writelog_fail "${FUNCNAME[0]}: cannot do aws sns publish --phone-number '$1' --message '${interpreted_message}')" && return 1
+  aws sns publish --phone-number "$1" --message "${interpreted_message}" || { bfl::writelog_fail "${FUNCNAME[0]}: cannot do aws sns publish --phone-number '$1' --message '${interpreted_message}')"; return 1; }
   }

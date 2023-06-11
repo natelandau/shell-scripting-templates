@@ -25,7 +25,7 @@
 #   bfl::get_canonical_path "./foo/bar.text"
 #------------------------------------------------------------------------------
 bfl::get_canonical_path() {
-  bfl::verify_arg_count "$#" 1 2 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return 1; } # Verify argument count.
 
   # Verify argument values.
   bfl::is_blank "$1" && bfl::writelog_fail "${FUNCNAME[0]}: path was not specified." && return 1
@@ -33,12 +33,22 @@ bfl::get_canonical_path() {
 
   [[ "$2" = true ]] && local -r FollowLink=true || local -r FollowLink=false
 
+#  ------------->  СРАВНИТЬ С БЛОКОМ ИЗ  https://github.com/natelandau/shell-scripting-templates
+#  local d
+#  while [ -h "$f" ]; do # Resolve $SOURCE until the file is no longer a symlink
+#      d="$(cd -P "$(dirname "$f")" && pwd)"
+#      f="$(readlink "$f")"
+#      [[ $f != /* ]] && f="$d/$f" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+#  done
+#  printf "%s\n" "$(cd -P "$(dirname "$f")" && pwd)"
+#  < ------------
+
   local str="$1"
   if $FollowLink; then
       while [[ -L "$str" ]]; do
-          str=$(readlink -e "$str") || bfl::writelog_fail "${FUNCNAME[0]}: symlink '$str' cannot be read." && return 1
+          str=$(readlink -e "$str") || { bfl::writelog_fail "${FUNCNAME[0]}: symlink '$str' cannot be read."; return 1; }
           # Verify that the path points to real file/directory.
-          [[ -e "$str" ]] || bfl::writelog_fail "${FUNCNAME[0]}: path '$str' does not exist." && return 1
+          [[ -e "$str" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: path '$str' does not exist."; return 1; }
       done
   fi
 
@@ -52,9 +62,9 @@ bfl::get_canonical_path() {
       for ((i=0;i<l;i++)); do
           str+="/"${arr[$i]}
           while [[ -L "$str" ]]; do
-              str=$(readlink -e "$str") || bfl::writelog_fail "${FUNCNAME[0]}: symlink '$str' cannot be read." && return 1
+              str=$(readlink -e "$str") || { bfl::writelog_fail "${FUNCNAME[0]}: symlink '$str' cannot be read."; return 1; }
               # Verify that the path points to real file/directory.
-              [[ -e "$str" ]] || bfl::writelog_fail "${FUNCNAME[0]}: path '$str' does not exist." && return 1
+              [[ -e "$str" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: path '$str' does not exist."; return 1; }
           done
       done
   fi

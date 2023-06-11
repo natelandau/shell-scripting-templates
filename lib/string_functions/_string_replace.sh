@@ -27,7 +27,7 @@
 #   bfl::string_replace "/home/alexei/.local/lib/site-packages" "/home/alexei/.local" "/usr"
 #------------------------------------------------------------------------------
 bfl::string_replace() {
-  bfl::verify_arg_count "$#" 3 3 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 3" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 3 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 3"; return 1; } # Verify argument count.
 
   local srch="$1"; #local substr=$2; local rplce=$3
   local str

@@ -22,14 +22,14 @@
 #   bfl::transliterate "_Olé Über! "
 #------------------------------------------------------------------------------
 bfl::transliterate() {
-  bfl::verify_arg_count "$#" 1 1   || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1" && return 1       # Verify argument count.
-  bfl::verify_dependencies "iconv" || bfl::writelog_fail "${FUNCNAME[0]}: dependency iconv not found" && return 1  # Verify dependencies.
+  bfl::verify_arg_count "$#" 1 1   || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return 1; }       # Verify argument count.
+  bfl::verify_dependencies "iconv" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency iconv not found"; return 1; }  # Verify dependencies.
 
   local str
   shopt -s extglob          # Enable extended pattern matching features.
 
   # Convert from UTF-8 to ASCII.
-  str=$(iconv -c -f utf8 -t ascii//TRANSLIT <<< "$1") || bfl::writelog_fail "${FUNCNAME[0]}: str=\$(iconv -c -f utf8 -t ascii//TRANSLIT <<< $1)" && return 1
+  str=$(iconv -c -f utf8 -t ascii//TRANSLIT <<< "$1") || { bfl::writelog_fail "${FUNCNAME[0]}: str=\$(iconv -c -f utf8 -t ascii//TRANSLIT <<< $1)"; return 1; }
   str=${str//[^[:alnum:]]/-}    # Replace non-alphanumeric characters with a hyphen.
   str=${str//+(-)/-}            # Replace two or more sequential hyphens with a single hyphen.
   str=${str#-}                  # Remove leading hyphen, if any.

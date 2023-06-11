@@ -32,16 +32,18 @@
 #------------------------------------------------------------------------------
 #
 bfl::sleep() {
-  bfl::verify_arg_count "$#" 1 1 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 0 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 3]"; return 1; } # Verify argument count.
 
-  local i j t
+  local -i i j
   local n=${1:-10}
   local sleepTime=${2:-1}
   local msg="${3:-...}"
-  ((t=n+1))
+# [[ $n =~ [.] ]] &&
+  n=${n//.*/}  # cut floating point!
+  ((n++))
 
-  for ((i=1; i <= n; i++)); do
-      ((j = t - i))
+  for ((i=1; i < n; i++)); do
+      ((j=n-i))
 #      if declare -f "bfl::writelog_info" &>/dev/null 2>&1; then
 #          bfl::writelog_info "$msg $j"
 #      else

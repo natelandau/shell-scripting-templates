@@ -22,6 +22,6 @@
 #   bfl::unforward_links  /tools/binutils-2.40 /usr/local
 #------------------------------------------------------------------------------
 bfl::unforward_links() {
-  bfl::verify_arg_count "$#" 2 2 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 2 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return 1; } # Verify argument count.
 
   }

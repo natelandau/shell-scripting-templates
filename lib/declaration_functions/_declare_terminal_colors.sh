@@ -30,7 +30,7 @@
 #------------------------------------------------------------------------------
 bfl::declare_terminal_colors() {
 #  НЕЛЬЗЯ! В итог циклическая зависимость
-#  bfl::verify_dependencies "tput" || bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found" && return 1  # Verify dependencies.
+#  bfl::verify_dependencies "tput" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return 1; }  # Verify dependencies.
 
   local clr="${RC_NOCOLOR:=-no}"
   clr="${clr,,}"

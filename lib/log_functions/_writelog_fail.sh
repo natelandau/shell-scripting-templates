@@ -36,7 +36,7 @@
 #------------------------------------------------------------------------------
 #
 bfl::writelog_fail() { # writelog_fail
-  bfl::verify_arg_count "$#" 1 1 || { # Нельзя bfl::die Verify argument count.
+  bfl::verify_arg_count "$#" 1 3 || { # Нельзя bfl::die Verify argument count.
       [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: error $*\n" > /dev/tty
       return 1
       }

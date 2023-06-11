@@ -26,7 +26,7 @@
 # shellcheck disable=SC2154
 #------------------------------------------------------------------------------
 bfl::error() {
-  bfl::verify_arg_count "$#" 0 2 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 2]" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 0 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 2]"; return 1; } # Verify argument count.
 
   # Declare positional arguments (readonly, sorted by position).
   local msg="${1:-"Unspecified error."}"

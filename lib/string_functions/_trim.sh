@@ -25,7 +25,7 @@
 #   bfl::trim " foo "
 #------------------------------------------------------------------------------
 bfl::trim() {
-  bfl::verify_arg_count "$#" 1 1 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return 1; } # Verify argument count.
 
   # Explanation of sed commands:
   # - Remove leading whitespace from every line: s/^[[:space:]]+//
@@ -35,7 +35,7 @@ bfl::trim() {
   # See https://tinyurl.com/yav7zw9k and https://tinyurl.com/3z8eh
 
   local str
-  str=$(printf "%b" "$1" | sed -E 's/^[[:space:]]+// ; s/[[:space:]]+$// ; /./,$ !d') || bfl::writelog_fail "${FUNCNAME[0]}: unable to trim whitespace." && return 1
+  str=$(printf "%b" "$1" | sed -E 's/^[[:space:]]+// ; s/[[:space:]]+$// ; /./,$ !d') || { bfl::writelog_fail "${FUNCNAME[0]}: unable to trim whitespace."; return 1; }
 
   printf "%s" "$str"
   return 0

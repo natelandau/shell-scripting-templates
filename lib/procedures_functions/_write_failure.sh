@@ -40,7 +40,7 @@
 #   trap 'bfl::write_failure "$?" "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]:-script}" "$0" "$BASH_COMMAND" "$*" "$HOME/.faults"' ERR
 #------------------------------------------------------------------------------
 bfl::write_failure() {
-  bfl::verify_arg_count "$#" 7 8 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [7..8]" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 7 8 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [7..8]"; return 1; } # Verify argument count.
 
   local -r lineno_fns=${2% 0}
   [[ "$lineno_fns" -ne 0 ]] && local -r lineno="$2${lineno_fns}" || local -r lineno="$3"

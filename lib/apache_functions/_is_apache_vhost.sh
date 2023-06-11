@@ -24,8 +24,8 @@
 #   bfl::is_apache_vhost "./foo" "/etc/apache2/sites-enabled"
 #------------------------------------------------------------------------------
 bfl::is_apache_vhost() {
-  bfl::verify_arg_count "$#" 1 2  || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]" && return 1 # Verify argument count.
-  bfl::verify_dependencies "grep" || bfl::writelog_fail "${FUNCNAME[0]}: dependency grep not found"  && return 1 # Verify dependencies.
+  bfl::verify_arg_count "$#" 1 2  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return 1; } # Verify argument count.
+  bfl::verify_dependencies "grep" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency grep not found" ; return 1; } # Verify dependencies.
 
   # Verify argument values.
   bfl::is_blank "$1" && bfl::writelog_fail "${FUNCNAME[0]}: path is required." && return 1

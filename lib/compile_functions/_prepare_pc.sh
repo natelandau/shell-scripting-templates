@@ -28,7 +28,7 @@
 #   bfl::prepare_pc  --dry-run --lib=/tools/binutils-2.40/lib/pkgconfig --version='0.0.0' libctf.so.0
 #------------------------------------------------------------------------------
 bfl::prepare_pc() {
-  bfl::verify_arg_count "$#" 3 999 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [3..999]" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 3 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [3..999]"; return 1; } # Verify argument count.
 
   local arr=(); local arr_pcFiles=()
   local dryrun=false; local IFS=''

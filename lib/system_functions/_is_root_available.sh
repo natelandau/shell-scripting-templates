@@ -22,7 +22,7 @@
 #   bfl::is_root_available
 #------------------------------------------------------------------------------
 bfl::is_root_available() {
-  bfl::verify_arg_count "$#" 0 1 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 1]" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 0 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 1]"; return 1; } # Verify argument count.
 
   [[ $(id -u) -eq 0 ]] && return 0
   [[ -n "$1" ]] && bfl::writelog_debug "${FUNCNAME[0]}: passed parameter to skip acquire superuser credentials." && return 1
@@ -42,4 +42,11 @@ bfl::is_root_available() {
       bfl::writelog_debug "${FUNCNAME[0]}: Unable to acquire superuser credentials."
       return 1
   fi
+
+#  _runAsRoot_() from https://github.com/natelandau/shell-scripting-templates
+#  if [[ ${EUID} -eq 0 ]]; then
+#      "$@"
+#  elif [[ -z ${_skip_sudo} ]]; then
+#      sudo -H -- "$@"
+
   }

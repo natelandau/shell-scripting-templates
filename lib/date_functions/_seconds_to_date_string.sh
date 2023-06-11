@@ -32,14 +32,14 @@
 #------------------------------------------------------------------------------
 #
 bfl::seconds_to_date_string() {
-  bfl::verify_arg_count "$#" 1 1 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return 1; } # Verify argument count.
 
   declare -ir seconds="$1"
-  bfl::is_positive_integer "$seconds" || bfl::writelog_fail "${FUNCNAME[0]} '$1' expected to be positive integer." && return 1
+  bfl::is_positive_integer "$seconds" || { bfl::writelog_fail "${FUNCNAME[0]} '$1' expected to be positive integer."; return 1; }
 
   declare hhmmss
   hhmmss=$(printf '%02d:%02d:%02d\n' $((seconds/3600)) $((seconds%3600/60)) $((seconds%60))) \
-    || bfl::writelog_fail "${FUNCNAME[0]} unable to convert $seconds to hh:mm:ss format." && return 1
+    || { bfl::writelog_fail "${FUNCNAME[0]} unable to convert $seconds to hh:mm:ss format."; return 1; }
 
   printf "%s" "$hhmmss"
   return 0

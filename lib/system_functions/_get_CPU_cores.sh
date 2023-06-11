@@ -5,7 +5,7 @@
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 # @file
-# Defines function: bfl::get_CPU_number().
+# Defines function: bfl::get_CPU_cores().
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -16,15 +16,19 @@
 #   The number of CPU cores.
 #
 # @example
-#   bfl::get_CPU_number
+#   bfl::get_CPU_cores
 #------------------------------------------------------------------------------
-bfl::get_CPU_number() {
-  bfl::verify_arg_count "$#" 0 0 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0" && return 1 # Verify argument count.
+bfl::get_CPU_cores() {
+  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return 1; } # Verify argument count.
 
-  local n var=NPROCESSORS_ONLN
-  [[ $OSTYPE == *linux* ]] && var=_$var
-  n=$(getconf $var 2>/dev/null)
-  printf %s ${n:-1}
+  local os
+  os=$(bfl::get_OS) || { bfl::writelog_fail "${FUNCNAME[0]}: os=bfl::get_OS error!"; return 1; }
+#  [[ "$OSTYPE"  == 'linux' ]]
+  [[ "$os" == 'linux' ]] || { bfl::writelog_fail "${FUNCNAME[0]}: current system is not Linux!"; return 1; }
+
+  local n var="_NPROCESSORS_ONLN"
+  n=$(getconf "$var")
+  printf %i ${n:-1}
 
   return 0
   }

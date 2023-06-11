@@ -24,7 +24,7 @@
 #------------------------------------------------------------------------------
 #
 bfl::is_number() {
-  bfl::verify_arg_count "$#" 1 1 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return 1; } # Verify argument count.
 
 #                      ${regex}
   [[ "$1" =~ ^[-+]?[0-9]*[.,]?[0-9]+$ ]] && return 0

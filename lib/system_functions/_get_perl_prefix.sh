@@ -19,7 +19,7 @@
 #   bfl::get_perl_prefix
 #------------------------------------------------------------------------------
 bfl::get_perl_prefix() {
-  bfl::verify_arg_count "$#" 0 0 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return 1; } # Verify argument count.
 
   local str=$(dirname $(which perl))
   [[ (! -n $str) || ($str == $'/') ]] && str='' || str=`dirname $str`

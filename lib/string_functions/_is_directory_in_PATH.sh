@@ -27,7 +27,7 @@
 #   bfl::is_directory_in_PATH '/usr/local' "$LD_LIBRARY_PATH"
 #------------------------------------------------------------------------------
 bfl::is_directory_in_PATH() {
-  bfl::verify_arg_count "$#" 1 2 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return 1; } # Verify argument count.
 
   declare -a arr=()
   local IFS=$':' read -r -a arr <<< "$2"

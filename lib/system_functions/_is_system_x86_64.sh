@@ -22,7 +22,7 @@
 #   bfl::is_system_x86_64
 #------------------------------------------------------------------------------
 bfl::is_system_x86_64() {
-  bfl::verify_arg_count "$#" 0 0 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return 1; } # Verify argument count.
 
   [ "$(bfl::get_system_32_64bit)" = 64 -a "$(bfl::get_system_architecture)" = "x86" ]
   }

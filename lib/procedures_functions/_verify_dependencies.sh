@@ -19,7 +19,7 @@
 #   bfl::verify_dependencies "curl" "wget" "git"
 #------------------------------------------------------------------------------
 bfl::verify_dependencies() {
-  bfl::verify_arg_count "$#" 1 999 || bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1..1999]" && return 1 # Verify argument count.
+  bfl::verify_arg_count "$#" 1 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1..1999]"; return 1; } # Verify argument count.
 
   declare -ar apps=("$@")
   local app
