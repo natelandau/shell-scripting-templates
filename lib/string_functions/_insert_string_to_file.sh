@@ -25,9 +25,10 @@
 #   bfl::insert_string_to_file "$str" 288 'Makefile.in'
 #------------------------------------------------------------------------------
 bfl::insert_string_to_file() {
-  bfl::verify_arg_count "$#" 3 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 3"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 3 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 3"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
-  local -r i=`echo "$2" | wc -l`
+  local -i i
+  i=`echo "$2" | wc -l`
   local s
   if [[ $i -gt 1 ]]; then
       # еле-еле вставил - пришлось подставить к кавычкам обратную косую черту

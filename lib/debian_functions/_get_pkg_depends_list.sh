@@ -22,7 +22,7 @@
 #   bfl::get_pkg_depends_list "libapr1"
 #------------------------------------------------------------------------------
 bfl::get_pkg_depends_list() {
-  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 #     case $paramName in
 #         -print | --print ) listScript=true ;;
 #         *) pkg="$1"
@@ -31,9 +31,9 @@ bfl::get_pkg_depends_list() {
   # first call apt-cache depends ...
   local str=$(apt-cache depends "$1")
   local dependsArr=()
-  if [[ -z "$str" ]]; then
+  if $(bfl::is_blank "$str"); then
       [[ $BASH_INTERACTIVE == true ]] && printf "${Red}Ничего не найдено${NC}\n" > /dev/tty
-      echo '' && return 0
+      echo ''; return 0;
   fi
 
 #  dependsArr=(`echo "$str" | sed -n '/Depends:/p' | sed 's/^[ ]*.*epends: //' | sed '/^<.*>$/d'`)
@@ -63,7 +63,7 @@ bfl::get_pkg_depends_list() {
       t=${dependsArr[$i]}; dep=${depthArr[$i]}
       [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$t : ---${NC}\n" > /dev/tty
       str=$(apt-cache depends "$t")
-      ! [[ -n "$str" ]] && continue
+      [[ -z "$str" ]] && continue
 
 #    temparr=(`echo "$str" | sed -n '/Depends:/p' | sed 's/^[ ]*.*epends: //' | sed '/^<.*>$/d'`)
       temparr=(`echo "$str" | sed -n '/Зависит:/p' | sed 's/^[ ]*.*ависит: //' | sed '/^<.*>$/d'`)

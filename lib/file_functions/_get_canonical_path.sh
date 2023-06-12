@@ -25,15 +25,15 @@
 #   bfl::get_canonical_path "./foo/bar.text"
 #------------------------------------------------------------------------------
 bfl::get_canonical_path() {
-  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   # Verify argument values.
-  bfl::is_blank "$1" && bfl::writelog_fail "${FUNCNAME[0]}: path was not specified." && return 1
-  ! [[ -e "$1" ]] && bfl::writelog_fail "${FUNCNAME[0]}: '$1' does not exist." && return 1   # Verify that the path exists.
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: path was not specified."; return $BFL_ErrCode_Not_verified_arg_values; }
+  [[ -e "$1" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: '$1' does not exist."; return $BFL_ErrCode_Not_verified_arg_values; }   # Verify that the path exists.
 
   [[ "$2" = true ]] && local -r FollowLink=true || local -r FollowLink=false
 
-#  ------------->  СРАВНИТЬ С БЛОКОМ ИЗ  https://github.com/natelandau/shell-scripting-templates
+#  ------------->  COMPARE WITH CODE FROM  https://github.com/natelandau/shell-scripting-templates
 #  local d
 #  while [ -h "$f" ]; do # Resolve $SOURCE until the file is no longer a symlink
 #      d="$(cd -P "$(dirname "$f")" && pwd)"

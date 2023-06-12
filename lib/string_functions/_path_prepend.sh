@@ -25,10 +25,10 @@
 #   bfl::path_prepend '/opt/lib:/usr/local/lib:/home/usr/.local/lib' LD_LIBRARY_PATH
 #------------------------------------------------------------------------------
 bfl::path_prepend() {
-  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   # Verify argument values.
-  bfl::is_blank "$1" && bfl::writelog_fail "${FUNCNAME[0]}: path is empty!" && return 1
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: path is empty!"; return $BFL_ErrCode_Not_verified_arg_values; }
 
   local -r PATHVARIABLE=${2:-PATH}
   local str="${!PATHVARIABLE}"  # Var value by its name
@@ -37,7 +37,7 @@ bfl::path_prepend() {
   s=$(echo "$1" | sed 's/^[ :]*\(.*\)[ :]*$/\1/' | sed 's/::*/:/g')
 
   # PATHVARIABLE is not defined yet
-  [[ -z "$str" ]] && { export $PATHVARIABLE="$s"; return 0; }
+  bfl::is_blank "$str" && { export $PATHVARIABLE="$s"; return 0; }
 
   str=$(echo "$str" | sed 's/^[ :]*\(.*\)[ :]*$/\1/' | sed 's/::*/:/g')
   [[ "$str" == "$s" ]] && return 0  # Nothing tp change

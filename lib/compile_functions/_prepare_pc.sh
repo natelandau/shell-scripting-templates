@@ -28,7 +28,7 @@
 #   bfl::prepare_pc  --dry-run --lib=/tools/binutils-2.40/lib/pkgconfig --version='0.0.0' libctf.so.0
 #------------------------------------------------------------------------------
 bfl::prepare_pc() {
-  bfl::verify_arg_count "$#" 3 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [3..999]"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 3 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [3..999]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   local arr=(); local arr_pcFiles=()
   local dryrun=false; local IFS=''
@@ -44,17 +44,13 @@ bfl::prepare_pc() {
   done
   unset IFS
 
-  local str=''  # ----------------------- Проверки ---------------------------
-  [[ -z ${curDir+x} ]] && str="$str\nlibrary is not defined!" || [[ -z "$curDir" ]] && str="$str\nlibrary path is empty!"
-  [[ -z ${FullVersion+x} ]] && str="$str\nVersion is not defined!" || [[ -z "$FullVersion" ]] && str="$str\nVersion is empty!"
+  local str=''    # Verify argument values.
+  [[ -z ${curDir+x} ]]      && str="$str\nlibrary is not defined!" || { [[ -z "$curDir" ]] && str="$str\nlibrary path is empty!"; }
+  [[ -z ${FullVersion+x} ]] && str="$str\nVersion is not defined!" || { [[ -z "$FullVersion" ]] && str="$str\nVersion is empty!"; }
 
-  local i=${#arr_pcFiles[@]}
+  local -i i=${#arr_pcFiles[@]}
   [[ $i -eq 0 ]] && str="$str\npc files list is not defined!"
-
-  if [[ -n $str ]]; then
-      [[ $BASH_INTERACTIVE == true ]] && printf "${Red}$str${NC}\n" > /dev/tty
-      echo '' && return 1
-  fi
+  bfl::is_blank $str || { bfl::writelog_fail "${FUNCNAME[0]}: $str"; return $BFL_ErrCode_Not_verified_arg_values; }
 
 # printf '//----------------------------------- libraries -----------------------------------\n'
 local FileName pcFile

@@ -21,7 +21,7 @@
 # bfl::print_args "foo" "bar" "baz"
 #------------------------------------------------------------------------------
 bfl::print_args() {
-  bfl::verify_arg_count "$#" 1 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1..1999]"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1..1999]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   declare -ar args=("$@")
   local arg counter=0

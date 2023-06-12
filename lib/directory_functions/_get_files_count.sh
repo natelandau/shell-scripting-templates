@@ -25,9 +25,9 @@
 #   bfl::get_files_count "./foo"
 #------------------------------------------------------------------------------
 bfl::get_files_count() {
-  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
-  local str sarr i Recurs=false
+  local str sarr Recurs=false
   for str in "$@"; do
       IFS=$'=' read -r -a sarr <<< "$str"; unset IFS
       case "$str" in
@@ -35,6 +35,7 @@ bfl::get_files_count() {
       esac
   done
 
+  local -i i
   if $Recurs; then
       i=`ls --indicator-style=file-type -R -A "$2"/* | sed '/^$/d' | sed '/.*[/:]$/d' | wc -l`
   else

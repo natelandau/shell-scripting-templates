@@ -24,7 +24,7 @@
 # bfl::check_array_by_function_result_return_1st_success_element "bfl::is_integer" < <(printf "%s\n" "${array[@]}")
 #------------------------------------------------------------------------------
 bfl::check_array_by_function_result_return_1st_success_element() {
-  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   local func="$1"
   local IFS=$'\n'

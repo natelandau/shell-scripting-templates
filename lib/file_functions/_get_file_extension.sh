@@ -22,13 +22,13 @@
 #   bfl::get_file_extension "./foo/bar.txt"
 #------------------------------------------------------------------------------
 bfl::get_file_extension() {
-  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   # Verify argument values.
-  bfl::is_blank "$1" && bfl::writelog_fail "${FUNCNAME[0]}: path was not specified." && return 1
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: path was not specified."; return $BFL_ErrCode_Not_verified_arg_values; }
 
   local s="$1"
-  [[ "$s" =~ \.tar\.[gx]z$ ]] && echo "${s:0 -6}" && return 0
+  [[ "$s" =~ \.tar\.[gx]z$ ]] && { echo "${s:0 -6}"; return 0; }
   echo "$s" | sed 's/^.*\.\([^.]*\)$/\1/'
   return 0
   }

@@ -5,7 +5,7 @@
 #### git repositories:
 * [https://github.com/jmooring/bash-function-library](https://github.com/jmooring/bash-function-library) by **J.Mooring** (is **NOT** POSIX compliant)
 
-* [https://github.com/Jarodiv/bash-function-libraries](https://github.com/Jarodiv/bash-function-libraries) by **Michael Strache** (Jarodiv) ; but **WITHOUT** using the [Bash Automated Testing System (BATS)](https://github.com/sstephenson/bats) by [Sam Stephenson](https://github.com/sstephenson)
+* [https://github.com/Jarodiv/bash-function-libraries](https://github.com/Jarodiv/bash-function-libraries) by **Michael Strache** (Jarodiv)
 
 * [https://github.com/commercialhaskell/stack/blob/master/etc/scripts/get-stack.sh](https://github.com/commercialhaskell/stack/blob/master/etc/scripts/get-stack.sh) from haskell
 
@@ -71,10 +71,15 @@ Libraries
 Configuration
 -------------
 
-* BASH_INTERACTIVE
-* RC_NOCOLOR      If coloured, command tput also needs var $TERM
-* BASH_FUNCTION_LIBRARY_COLOR_OUTPUT
+Global variables in scripts:
+* BASH_INTERACTIVE ....................
+* RC_NOCOLOR .......................... If coloured, command tput also needs var $TERM
+* BASH_FUNCTION_LIBRARY_COLOR_OUTPUT ..
+* QUEIT, VERBOSE ...................... ??? - I doubt
 
+Temporary variables in scripts:
+* SPIN_NUM ................ for '_terminal_spinner.sh'
+* PROGRESS_BAR_PROGRESS ... for '_terminal_progressbar.sh'
 
 Examples
 --------
@@ -91,8 +96,11 @@ user and system information.
 Tests
 -----
 
-Test system is not so flexible as (BATS)](https://github.com/sstephenson/bats) but is smart and tiny.
-Each library has its own test suite that can be run separately:
+I doubt about testing system:
+[Jarodiv](https://github.com/Jarodiv/bash-function-libraries) uses the [Bash Automated Testing System (BATS)](https://github.com/sstephenson/bats) by [Sam Stephenson](https://github.com/sstephenson)
+[JMooring](https://github.com/jmooring/bash-function-library) uses not so flexible as [BATS](https://github.com/sstephenson/bats), but is smart and tiny.
+
+Every library has its own test suite that can be run separately:
 
 ```
 ~$ bats test/*.bats~

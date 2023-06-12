@@ -28,7 +28,7 @@
 #   newarray=($(bfl::merge_arrays "array1[@]" "array2[@]"))
 #------------------------------------------------------------------------------
 bfl::merge_arrays() {
-  bfl::verify_arg_count "$#" 2 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2..999]"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 2 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2..999]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   local -i k=$#
   local -a arr

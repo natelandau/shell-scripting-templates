@@ -35,7 +35,7 @@
 #   bfl::url_exists "https://google.com"
 #------------------------------------------------------------------------------
 bfl::url_exists() {
-  bfl::verify_arg_count "$#" 1 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 3]"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 3]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   local -r URL="${1-}"
   local -r USR="${2-}"

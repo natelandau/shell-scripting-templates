@@ -54,27 +54,19 @@
 #   bfl::lorem 3 virgil
 #------------------------------------------------------------------------------
 bfl::lorem() {
-  bfl::verify_arg_count "$#" 0 2  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0..2]"; return 1; } # Verify argument count.
-  bfl::verify_dependencies "shuf" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency shuf not found" ; return 1; } # Verify dependencies.
+  bfl::verify_arg_count "$#" 0 2  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0..2]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_dependencies "shuf" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency shuf not found" ; return $BFL_ErrCode_Not_verified_dependency; } # Verify dependencies.
 
   # Declare positional arguments (readonly, sorted by position).
   declare -r paragraphs="${1:-1}"
   declare -r resource="${2:-muir}"
 
   # Verify argument values.
-  bfl::is_positive_integer "${paragraphs}" || { bfl::writelog_fail "${FUNCNAME[0]}: paragraph count must be a positive integer."; return 1; }
+  bfl::is_positive_integer "$paragraphs" || { bfl::writelog_fail "${FUNCNAME[0]}: paragraph count must be a positive integer."; return $BFL_ErrCode_Not_verified_arg_values; }
 
-  # Declare return value.
-  declare text
-
-  # Declare all other variables (sorted by name).
-  declare first_paragraph_number
-  declare last_paragraph_number
-  declare maximum_first_paragraph_number
-  declare msg
-  declare resource_directory
-  declare resource_file
-  declare resource_paragraph_count
+  # Declare variables
+  local -i first_paragraph_number last_paragraph_number maximum_first_paragraph_number resource_paragraph_count
+  local msg resource_directory resource_file text
 
   # Set the resource directory path.
   resource_directory=$(dirname "${BASH_FUNCTION_LIBRARY}")/resources/lorem || { bfl::writelog_fail "${FUNCNAME[0]}: unable to determine resource directory."; return 1; }
@@ -97,7 +89,8 @@ bfl::lorem() {
       resource_file=${resource_directory}/the-aeneid-by-virgil.txt
       ;;
     * )
-      bfl::writelog_fail "${FUNCNAME[0]}: unknown resource." && return 1
+      bfl::writelog_fail "${FUNCNAME[0]}: unknown resource.";
+      return $BFL_ErrCode_Not_verified_arg_values
       ;;
   esac
 
@@ -108,10 +101,11 @@ bfl::lorem() {
   if [[ "${paragraphs}" -gt "${resource_paragraph_count}" ]]; then
     msg=$(cat <<EOT
 The number of paragraphs requested ($paragraphs) exceeds
-the number of paragraphs available (${resource_paragraph_count}) in the specified resource (${resource}).
+the number of paragraphs available (${resource_paragraph_count}) in the specified resource ('$resource').
 EOT
     )
-    bfl::writelog_fail "${FUNCNAME[0]}: $msg" && return 1
+    bfl::writelog_fail "${FUNCNAME[0]}: $msg"
+    return 1
   fi
 
   # Determine the highest paragraph number from which we can begin extraction.

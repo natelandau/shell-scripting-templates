@@ -21,7 +21,7 @@
 #   bfl::get_Linux_distro
 #------------------------------------------------------------------------------
 bfl::get_Linux_distro() {
-  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   local distro
   if [[ -f /etc/os-release ]]; then

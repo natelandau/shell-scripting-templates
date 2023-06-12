@@ -34,10 +34,10 @@
 #         для вывода на экран можно использовать $COLUMNS
 #------------------------------------------------------------------------------
 bfl::get_section_header_line() {
-  bfl::verify_arg_count "$#" 1 4  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1..4]"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 4  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1..4]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   # Verify argument values.
-  [[ -z "$1" ]] && bfl::writelog_fail "${FUNCNAME[0]}: no parameters were specified!" && return 1
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: no parameters were specified!"; return $BFL_ErrCode_Not_verified_arg_values; }
 
   local bgn
   [[ -z ${2+x} ]] && bgn='#' || bgn="$2"  # может быть и '//'
@@ -50,7 +50,7 @@ bfl::get_section_header_line() {
 
   local t
   ((t=l-iBgn-iHdr-3))
-  [[ t -lt 0 ]] && { bfl::writelog_fail "${FUNCNAME[0]}:${NC} line' total length ${Red}$l${NC} is not enough for printing ${Yellow}$hdr."; return 1; }
+  [[ t -lt 0 ]] && { bfl::writelog_fail "${FUNCNAME[0]}:${NC} line' total length ${Red}$l${NC} is not enough for printing ${Yellow}$hdr."; return $BFL_ErrCode_Not_verified_arg_values; }
 
   local y z
   y=$((t/2)); z=$((t-y*2))

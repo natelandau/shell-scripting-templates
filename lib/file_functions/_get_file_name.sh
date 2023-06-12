@@ -22,10 +22,10 @@
 #   bfl::get_file_name "./foo/bar.text"
 #------------------------------------------------------------------------------
 bfl::get_file_name() {
-  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   # Verify argument values.
-  bfl::is_blank "$1" && bfl::writelog_fail "${FUNCNAME[0]}: path was not specified." && return 1
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: path was not specified."; return $BFL_ErrCode_Not_verified_arg_values; }
 
   local canonical_file_path file_name
   canonical_file_path=$(bfl::get_file_path "$1") || { bfl::writelog_fail "${FUNCNAME[0]}: canonical_file_path=\$(bfl::get_file_path $1)"; return 1; }

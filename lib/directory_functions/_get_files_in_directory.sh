@@ -25,7 +25,7 @@
 #   bfl::get_files_in_directory -R "./foo"
 #------------------------------------------------------------------------------
 bfl::get_files_in_directory() {
-  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   local str sarr Recurs=false
   for str in "$@"; do

@@ -30,11 +30,11 @@
 #   bfl::string_split "foo--bar" "-+" -> "( foo bar )"
 #------------------------------------------------------------------------------
 bfl::string_split() {
-  bfl::verify_arg_count "$#" 2 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 2 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   # Verify argument values.
-  bfl::is_blank "$1" && bfl::writelog_fail "${FUNCNAME[0]}:${NC} no parameters" && return 1
-  bfl::is_blank "$2" && bfl::writelog_fail "${FUNCNAME[0]}:${NC} no regex string" && return 1
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}:${NC} no parameters";   return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_blank "$2" && { bfl::writelog_fail "${FUNCNAME[0]}:${NC} no regex string"; return $BFL_ErrCode_Not_verified_arg_values; }
 
   # The MacOS version does not support the '-r' option but instead has the '-E' option doing the same
   if sed -r "s/-/ /" <<< "" &>/dev/null; then

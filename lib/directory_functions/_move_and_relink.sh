@@ -27,18 +27,19 @@
 #   bfl::move_and_relink "$folder1" "$folder2" ".la"
 #------------------------------------------------------------------------------
 bfl::move_and_relink() {
-  bfl::verify_arg_count "$#" 3 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 3"; return 1; } # Verify argument count.
-  ! [[ -d "$1" ]] && return 1
+  bfl::verify_arg_count "$#" 3 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 3"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  # Verify argument values.
+  [[ -d "$1" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: directory '$1' doesn't exist"; return $BFL_ErrCode_Not_verified_args_count; }
 
-  local str fltr
-  [[ -z "$3" ]] && fltr='*' || fltr="$3"
+  local str
+  [[ -z "$3" ]] && local -r fltr='*' || local -r fltr="$3"
 
-  [[ "$fltr" = '*' ]] && str=`ls -LA "$1"/ ` || str=`ls -LA "$1"/$fltr `
+  [[ "$fltr" == '*' ]] && str=`ls -LA "$1"/ ` || str=`ls -LA "$1"/$fltr `
   [[ -z "$str" ]] && return 0
   str=`echo "$str" | sed "s|^$1/||g" | tr "\\n" " "`
   [[ -z "$str" ]] && return 0
 
-  ! [[ -d "$2" ]] && install -v -d "$2"
+  [[ -d "$2" ]] || install -v -d "$2"
   local arr=($str)
   local f b s
   for f in ${arr[@]}; do
@@ -52,11 +53,11 @@ bfl::move_and_relink() {
           fi
       fi
 
-      if $b; then
-          [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$2/$f${NC} => $1\n" > /dev/tty
-          mv "$1"/"$f" "$2"/
-          ln -sf "$2"/$f "$1"/
-      fi
+      $b || continue
+
+      [[ $BASH_INTERACTIVE == true ]] && printf "${Green}$2/$f${NC} => $1\n" > /dev/tty
+      mv "$1"/"$f" "$2"/
+      ln -sf "$2"/$f "$1"/
   done
 
 #    if [[ "$fltr" = '*' ]]; then

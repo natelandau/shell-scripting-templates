@@ -21,7 +21,7 @@
 # shellcheck disable=SC2154
 #------------------------------------------------------------------------------
 bfl::inform() {
-  bfl::verify_arg_count "$#" 0 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 1]"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 0 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 1]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   # Declare positional arguments (readonly, sorted by position).
   local msg="${1:-}"

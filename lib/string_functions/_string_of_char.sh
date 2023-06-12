@@ -25,8 +25,8 @@
 #   bfl::string_of_char "=" "10"
 #------------------------------------------------------------------------------
 bfl::string_of_char() {
-  bfl::verify_arg_count "$#" 2 2  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return 1; }      # Verify argument count.
-  bfl::verify_dependencies "perl" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency perl not found" ; return 1; } # Verify dependencies.
+  bfl::verify_arg_count "$#" 2 2  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return $BFL_ErrCode_Not_verified_args_count; }      # Verify argument count.
+  bfl::verify_dependencies "perl" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency perl not found" ; return $BFL_ErrCode_Not_verified_dependency; } # Verify dependencies.
 
   # Verify argument values.
   bfl::is_positive_integer "$2" || { bfl::writelog_fail "${FUNCNAME[0]}: $2 expected positive integer."; return 1; }

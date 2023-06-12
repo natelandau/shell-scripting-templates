@@ -22,17 +22,17 @@
 #   bfl::get_directory_path "./foo"
 #------------------------------------------------------------------------------
 bfl::get_directory_path() {
-  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   # Verify argument values.
-  [[ -z "$1" ]] && bfl::writelog_fail "${FUNCNAME[0]}: The path was not specified." && return 1
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: The path was not specified."; return $BFL_ErrCode_Not_verified_arg_values; }
 
   # Verify that the path exists.
   local canonical_directory_path
   canonical_directory_path=$(readlink -e "$1") || { bfl::writelog_fail "${FUNCNAME[0]}: '$1' does not exist."; return 1; }
 
   # Verify that the path points to a directory, not a file.
-  ! [[ -d "${canonical_directory_path}" ]] && bfl::writelog_fail "${FUNCNAME[0]}: '${canonical_directory_path}' is not a directory." && return 1
+  [[ -d "${canonical_directory_path}" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: '${canonical_directory_path}' is not a directory."; return 1; }
 
   printf "%s" "${canonical_directory_path}"
   return 0

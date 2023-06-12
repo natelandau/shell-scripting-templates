@@ -19,7 +19,7 @@
 #   bfl::get_CPU_cores
 #------------------------------------------------------------------------------
 bfl::get_CPU_cores() {
-  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   local os
   os=$(bfl::get_OS) || { bfl::writelog_fail "${FUNCNAME[0]}: os=bfl::get_OS error!"; return 1; }

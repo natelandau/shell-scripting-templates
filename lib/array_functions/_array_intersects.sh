@@ -31,15 +31,15 @@
 #------------------------------------------------------------------------------
 #
 bfl::array_intersects() {
-  bfl::verify_arg_count "$#" 2 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 2 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   local -r -a ARRAY_1=( "${!1:-}" )
   local -r -a ARRAY_2=( "${!2:-}" )
 
-  local i j
-  for i in "${ARRAY_1[@]}"; do
-    for j in "${ARRAY_2[@]}"; do
-      [[ $i == "$j" ]] && return 0
+  local el s
+  for el in "${ARRAY_1[@]}"; do
+    for s in "${ARRAY_2[@]}"; do
+      [[ "$el" == "$s" ]] && return 0
     done
   done
 

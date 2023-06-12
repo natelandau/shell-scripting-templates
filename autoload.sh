@@ -76,9 +76,12 @@ export TERM
 # This will only source file names that begin with an underscore.
 #------------------------------------------------------------------------------
 declare -gr BASH_FUNCTION_LOG="$HOME/.faults"
+declare -gr BFL_ErrCode_Not_verified_args_count=1
+declare -gr BFL_ErrCode_Not_verified_dependency=2
+declare -gr BFL_ErrCode_Not_verified_arg_values=3
 
 # Enable xtrace if the DEBUG environment variable is set
-if [[ "${DEBUG-}" =~ ^1|yes|true$ ]]; then
+if [[ "${DEBUG,,}" =~ ^1|yes|true$ ]]; then
   set -o xtrace    # Trace the execution of the script (debug)
 fi
 
@@ -146,10 +149,10 @@ EOF
 
 # Invoke main with args if not sourced
 # Approach via: https://stackoverflow.com/a/28776166/8787985
-if ! (return 0 2> /dev/null); then
-  bfl::autoload "$@"
-else
+if (return 0 2> /dev/null); then
   bfl::autoload
+else
+  bfl::autoload "$@"
 fi
 
 # vim: syntax=sh cc=80 tw=79 ts=4 sw=4 sts=4 et sr

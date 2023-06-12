@@ -19,16 +19,16 @@
 #   bfl::switch_usr_local /STACK2
 #------------------------------------------------------------------------------
 bfl::switch_usr_local() {
-  bfl::verify_arg_count "$#" 0 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 1]"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 0 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 1]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   # Verify argument values.
-  [[ -e /usr/local && ! -L /usr/local ]] && bfl::writelog_fail "${FUNCNAME[0]}: /usr/local exists, but is not a symlink" && return 1
+  [[ -e /usr/local && ! -L /usr/local ]] && { bfl::writelog_fail "${FUNCNAME[0]}: /usr/local exists, but is not a symlink"; return $BFL_ErrCode_Not_verified_arg_values; }
 
   local target="${1:-'/STACK2'}"
-  [[ -d "$target" ]]  || { bfl::writelog_fail "${FUNCNAME[0]}: failed${NC} - директория не существует!"; return 1; }
-  [[ -L /usr/local ]] || { bfl::writelog_fail "${FUNCNAME[0]}: /usr/local is not a symlinkНеудачно${NC} - директория не существует!"; return 1; }
+  [[ -d "$target" ]]  || { bfl::writelog_fail "${FUNCNAME[0]}: failed - directory $target doesn't exist!"; return $BFL_ErrCode_Not_verified_arg_values; }
+  [[ -L /usr/local ]] || { bfl::writelog_fail "${FUNCNAME[0]}: /usr/local is not a symlink!"; return $BFL_ErrCode_Not_verified_arg_values; }
 
-  bfl::is_root_available || { bfl::writelog_fail "${FUNCNAME[0]}: failed${NC} - не удалось получить права суперпользователя"; return 1; }
+  bfl::is_root_available || { bfl::writelog_fail "${FUNCNAME[0]}: failed to get sudo rights!"; return 1; }
 
   local d
   if [[ -e /usr/local ]]; then

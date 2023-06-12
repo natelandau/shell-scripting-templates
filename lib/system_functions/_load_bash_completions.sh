@@ -24,37 +24,25 @@
 #   bfl::load_bash_completions
 #------------------------------------------------------------------------------
 bfl::load_bash_completions() {
-  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   # Verify system environment.
-  ! $(shopt -q progcomp) && {
-      printf "shopt -q progcomp is off!" > /dev/tty
-      return 1
-      }
+  $(shopt -q progcomp) || { bfl::writelog_fail "${FUNCNAME[0]}: shopt -q progcomp is off!"; return $BFL_ErrCode_Not_verified_dependency; }
 
   # Verify argument values.
   if [[ -f "$1" ]]; then
-      ! [[ -r "$1" ]] && {
-        printf "File $1 is not readable!" > /dev/tty
-        return 1
-        }
+      [[ -r "$1" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: File $1 is not readable!"; return $BFL_ErrCode_Not_verified_arg_values; }
       . "$1"
       return 0
   fi
 
-  ! [[ -d "$1" ]] && {
-      printf "Directory $1 doesn't exists!" > /dev/tty
-      return 1
-      }
-
-  ! [[ -r "$1" && -x "$1" ]] && {
-      printf "Directory $1 exists, but cannot be load!" > /dev/tty
-      return 1
-      }
+  [[ -d "$1" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: directory $1 doesn't exists!"; return $BFL_ErrCode_Not_verified_arg_values; }
+  [[ -r "$1" && -x "$1" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: directory $1 exists, but cannot be load!"; return $BFL_ErrCode_Not_verified_arg_values; }
   # ------------------------------------------
-  [[ $BASH_INTERACTIVE == true ]] && \
-      seq -s- 70 | tr -d '[0-9]' > /dev/tty && \
+  if [[ $BASH_INTERACTIVE == true ]]; then
+      seq -s- 70 | tr -d '[0-9]' > /dev/tty
       printf "${DarkOrange}Loading $d:${NC}\n" > /dev/tty
+  fi
 
   local -r _backup_glob='@(#*#|*@(~|.@(bak|orig|rej|swp|dpkg*|rpm@(orig|new|save))))'
   local -r _blacklist_glob='@(acroread.sh)'

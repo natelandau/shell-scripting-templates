@@ -24,11 +24,11 @@
 #   bfl::url_encode "foo bar"
 #------------------------------------------------------------------------------
 bfl::url_encode() {
-  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return 1; }     # Verify argument count.
-  bfl::verify_dependencies "jq"  || { bfl::writelog_fail "${FUNCNAME[0]}: dependency jq not found."; return 1; }  # Verify dependencies.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; }     # Verify argument count.
+  bfl::verify_dependencies "jq"  || { bfl::writelog_fail "${FUNCNAME[0]}: dependency jq not found."; return $BFL_ErrCode_Not_verified_dependency; }  # Verify dependencies.
 
   # Verify argument values.
-  bfl::is_blank "$1" && bfl::writelog_fail "${FUNCNAME[0]}: empty string." && return 1
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: empty string."; return $BFL_ErrCode_Not_verified_arg_values; }
 
   local rslt  # Build the return value.
   rslt=$(jq -Rr @uri <<< "$1") || { bfl::writelog_fail "${FUNCNAME[0]}: unable to encode url $1."; return 1; }

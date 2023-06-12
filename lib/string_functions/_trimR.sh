@@ -27,10 +27,10 @@
 #   bfl::trimR " foo "
 #------------------------------------------------------------------------------
 bfl::trimR() {
-  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return 1; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   # Verify argument values.
-  bfl::is_blank "$1" && bfl::writelog_fail "${FUNCNAME[0]}:${NC} no parameters" && return 1
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}:${NC} no parameters"; return $BFL_ErrCode_Not_verified_arg_values; }
 
   local s="$1"
   local ptrn=' '  # space by default
@@ -42,7 +42,12 @@ bfl::trimR() {
       done
   fi
 
-  [[ "$ptrn" =~ '"' ]] && s=`echo "$s" | sed 's/^\(.*\)['"$ptrn"']*$/\1/'` || s=`echo "$s" | sed "s/^\(.*\)[$ptrn]*$/\1/"`
+  if [[ "$ptrn" =~ '"' ]]; then
+      s=`echo "$s" | sed 's/^\(.*\)['"$ptrn"']*$/\1/'`
+  else
+      s=`echo "$s" | sed "s/^\(.*\)[$ptrn]*$/\1/"`
+  fi
+
   echo "$s"
   return 0
   }
