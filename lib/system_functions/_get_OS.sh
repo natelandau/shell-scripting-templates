@@ -19,24 +19,22 @@
 #   bfl::get_OS
 #------------------------------------------------------------------------------
 bfl::get_OS() {
-  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 0 0   || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0";            return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_dependencies 'uname' || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'uname' is not found!"; return $BFL_ErrCode_Not_verified_dependency; }
 
-  local _uname os
-  if _uname=$(command -v uname); then
-      case $("${_uname}" | tr '[:upper:]' '[:lower:]') in
-          linux*)
-              os="linux" ;;
-          darwin*)
-              os="mac" ;;
-          msys* | cygwin* | mingw* | nt | win*)
-              # or possible 'bash on windows'
-              os="windows" ;;
-          *)
-              return 1 ;;
-      esac
-  else
-      return 1
-  fi
+  local os
+  case $( uname | tr '[:upper:]' '[:lower:]' ) in
+      linux*)
+          os="linux" ;;
+      darwin*)
+          os="mac" ;;
+      msys* | cygwin* | mingw* | nt | win*)
+          # or possible 'bash on windows'
+          os="windows" ;;
+      *)
+          return 1 ;;
+  esac
+
   printf "%s" "$os"
 
   return 0

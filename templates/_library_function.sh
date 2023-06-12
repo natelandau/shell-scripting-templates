@@ -26,8 +26,13 @@
 #   bfl::library_function "Fred" "George" # TODO
 #------------------------------------------------------------------------------
 bfl::library_function() {
-  bfl::verify_arg_count "$#" 1 2    || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]";  return 1; } # Verify argument count. # TODO
-  bfl::verify_dependencies "printf" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency printf not found"; return 1; } # Verify dependencies.   # TODO
+  bfl::verify_arg_count "$#" 1 2    || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]";  return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count. # TODO
+
+  bfl::verify_dependencies 'perl'   || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'perl' is not found!"; return $BFL_ErrCode_Not_verified_dependency; }
+
+  # Verify argument values.
+  bfl::is_empty "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: Foo is required."; return $BFL_ErrCode_Not_verified_arg_values; } # TODO
+  bfl::is_empty "$2" && { bfl::writelog_fail "${FUNCNAME[0]}: Bar is required."; return $BFL_ErrCode_Not_verified_arg_values; } # TODO
 
   # Declare positional arguments (readonly, sorted by position).
   declare -r foo="$1"       # TODO
@@ -43,10 +48,6 @@ bfl::library_function() {
   # Declare all other variables (sorted by name).
   declare eggs="Dean"       # TODO
   declare ham="Seamus"      # TODO
-
-  # Verify argument values.
-  bfl::is_empty "${foo}" && { bfl::writelog_fail "${FUNCNAME[0]}: Foo is required."; return 1; } # TODO
-  bfl::is_empty "${bar}" && { bfl::writelog_fail "${FUNCNAME[0]}: Bar is required."; return 1; } # TODO
 
   # Build the return value.
   baz="${foo}, ${bar}, ${wibble}, ${wobble}, ${eggs}, and ${ham}." # TODO

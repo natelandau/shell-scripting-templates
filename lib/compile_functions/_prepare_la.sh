@@ -3,7 +3,7 @@
 ! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
-# ------------- https://github.com/jmooring/bash-function-library -------------
+#------------------------------------------------------------------------------
 # @file
 # Defines function: bfl::prepare_la().
 #------------------------------------------------------------------------------
@@ -13,7 +13,7 @@
 # Prepares .la files for libraries in given directory.
 #
 # @option string--dry-run, -dry-run
-#   test mode
+#   Enable test mode.
 #
 # @param string --library, --lib, -lib
 #   lib directory to make .la file

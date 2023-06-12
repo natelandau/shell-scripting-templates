@@ -7,6 +7,8 @@
 
 * [https://github.com/Jarodiv/bash-function-libraries](https://github.com/Jarodiv/bash-function-libraries) by **Michael Strache** (Jarodiv)
 
+* [https://github.com/ariver/bash_functions](https://github.com/ariver/bash_functions) by **Ariver**
+
 * [https://github.com/commercialhaskell/stack/blob/master/etc/scripts/get-stack.sh](https://github.com/commercialhaskell/stack/blob/master/etc/scripts/get-stack.sh) from haskell
 
 * [https://github.com/ralish/bash-script-template](https://github.com/ralish/bash-script-template)
@@ -33,8 +35,9 @@ Source the entire library by sourcing autoload.sh. See the comments in autoload.
 Coding conventions
 ------------------
 
-- Variables are always surrounded by quotes `"$1"`. Brackets used, but not always `"${1}"` (Overly verbose true, but a safe practice)
-- Formatting: 2 spaces for first indent and 4 spaces for next indents (is provided by [shfmt](https://github.com/mvdan/sh))
+- Variables are always surrounded by quotes `"$1"`. Brackets used, but not always `${PROGRESS_BAR_PROGRESS}` (Overly verbose true, but a safe practice).
+  but I am trying to not overload brackets using: `"$1"`, not `"${1}"`
+- Formatting: 2 spaces for first indent and per 4 spaces for next indents (is provided by [shfmt](https://github.com/mvdan/sh))
 - All scripts and functions are fully [Shellcheck](https://github.com/koalaman/shellcheck) compliant
 - Where possible, we should follow [defensive BASH programming](https://kfirlavi.herokuapp.com/blog/2012/11/14/defensive-bash-programming/) principles.
 
@@ -42,26 +45,26 @@ Libraries
 ---------
 
 * Apache
-* Array - Some functions take or return arrays. Since Bash does not support to pass arrays, references and their serialized string representations are used.
-* Compile
-* Date
+* array - Some functions take or return arrays. Since Bash does not support to pass arrays, references and their serialized string representations are used.
+* backup
+* compile
+* date
 * Debian
 * ~declaration~
-* Directory
-* File
+* directory
+* file
 * Git
-* Log - Functions related to terminal and file logging
-* Mail
-* Number
-* Password
+* log - Functions related to terminal and file logging
+* mail
+* number
+* password
 * ~procedures~ (for internal using)
-* Sms - Functions related to the Secure Shell
-* Ssh
-* String - Functions related to Bash Strings
-* System - Functions related to Linux Systems
-* Terminal
-* Time
-* Url - Url conversation
+* sms - Functions related to the Secure Shell
+* ssh
+* string - Functions related to Bash Strings
+* system - Functions related to Linux Systems
+* terminal
+* url - Url conversation
 
 #### libraries for specific usage:
 * Lorem

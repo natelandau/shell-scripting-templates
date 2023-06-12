@@ -34,16 +34,14 @@ bfl::convert_array_to_string() {
   bfl::verify_arg_count "$#" 2 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   # Verify argument values.
-  ( [ -z ${1+x} ] || [ -z "$1" ] ) && return 1
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: array is blank!"; return $BFL_ErrCode_Not_verified_arg_values; }
 
   local -r -a ARRAY=( "${!1:-}" )
   local -r DELIMITER="${2:-,}"
 
   # Concatenate the array elements, using wit DELIMITER as prefix to _every_ element
   result="$( printf "${DELIMITER}%s" "${ARRAY[@]}" )"
-
-  # Remove leading DELIMITER
-  result="${result:${#DELIMITER}}"
+  result="${result:${#DELIMITER}}" # Remove leading DELIMITER
 
   echo "$result"
   return 0

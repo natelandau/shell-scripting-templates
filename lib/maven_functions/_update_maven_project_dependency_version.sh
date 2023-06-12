@@ -43,7 +43,7 @@ bfl::update_maven_project_dependency_version() {
   local -r NEW_VERSION="${4:-}"
 
   # if the version is not found, we better should not try to replace it
-  bfl::get_maven_project_dependency_version "$POM" "$GROUP_ID" "$ARTIFACT_ID" || return 1
+  bfl::get_maven_project_dependency_version "$POM" "$GROUP_ID" "$ARTIFACT_ID" || { bfl::writelog_fail "${FUNCNAME[0]}: Failed get_maven_project_dependency_version '$POM' '$GROUP_ID' '$ARTIFACT_ID'"; return 1; }
 
   sed -i'' -e '/<dependency>/ {
       :start

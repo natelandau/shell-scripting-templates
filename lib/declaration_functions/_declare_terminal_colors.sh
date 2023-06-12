@@ -36,10 +36,13 @@ bfl::declare_terminal_colors() {
   clr="${clr,,}"
   [[ "$clr" =~ ^yes|true$ ]] && local bEnabled=false || local bEnabled=true
   local use256=false
-  local has_tput=false
+
   if ( command -v tput ) >/dev/null 2>&1; then
-      has_tput=true
+      local -r has_tput=true
+  else
+      local -r has_tput=false
   fi
+
   if $has_tput; then  # If tput is present, prefer it over the escape sequence based formatting
       [[ $( tput colors ) -ge 256 ]] && use256=true
 

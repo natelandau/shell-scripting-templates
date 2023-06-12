@@ -40,7 +40,8 @@ bfl::get_maven_project_dependency_version() {
   local -r GROUP_ID="${2:-}"
   local -r ARTIFACT_ID="${3:-}"
 
-  local -r VERSION=$(xmllint --shell "$POM" <<< "setns x=http://maven.apache.org/POM/4.0.0"$'\n'"cat /x:project/x:dependencies/x:dependency[x:groupId='$GROUP_ID' and x:artifactId='$ARTIFACT_ID']/x:version/text()" | grep -v ">" | tail -1)
+  local VERSION
+  VERSION=$(xmllint --shell "$POM" <<< "setns x=http://maven.apache.org/POM/4.0.0"$'\n'"cat /x:project/x:dependencies/x:dependency[x:groupId='$GROUP_ID' and x:artifactId='$ARTIFACT_ID']/x:version/text()" | grep -v ">" | tail -1)
 
   echo "$VERSION"
   [[ "$VERSION" ]]

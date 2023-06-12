@@ -23,12 +23,7 @@
 bfl::get_system_32_64bit() {
   bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
-# Check whether the given command exists
-has_getconf() {
-  command -v 'getconf' > /dev/null 2>&1
-}
-
-  if has_getconf ; then
+  if bfl::command_exists 'getconf'; then
       [[ $(getconf LONG_BIT | grep -q 64) ]] && echo 64 || echo 32
   else
       case "$(uname -m)" in

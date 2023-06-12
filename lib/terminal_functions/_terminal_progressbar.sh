@@ -31,10 +31,9 @@ source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/terminal_functions/_is_Terminal.s
 
 #------------------------------------------------------------------------------
 bfl::terminal_progressbar() {
+  ( [[ $QUIET == true ]] || [[ $VERBOSE == true ]] || ! [[ $BASH_INTERACTIVE == true ]] ) && return 0            # Do nothing in quiet/verbose mode.
   bfl::verify_arg_count "$#" 1 2  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return $BFL_ErrCode_Not_verified_args_count; }                     # Verify argument count.
 #  bfl::function_exists "bfl::isTerminal" || { bfl::writelog_fail "${FUNCNAME[0]}: function isTerminal not found"; return 1; }          # Verify dependencies.
-
-  ( [[ $QUIET == true ]] || [[ $VERBOSE == true ]] || ! [[ $BASH_INTERACTIVE == true ]] ) && return 0            # Do nothing in quiet/verbose mode.
   bfl::is_Terminal || { bfl::writelog_fail "${FUNCNAME[0]}: no terminal found"; return 1; }                      # Do nothing if the output is not a terminal.
   [[ "$1" -eq 1 ]] && return # Do nothing with a single element
 

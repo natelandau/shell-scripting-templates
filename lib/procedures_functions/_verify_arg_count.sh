@@ -34,7 +34,9 @@ source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/declaration_functions/_declare_te
 #
 # shellcheck disable=SC2154
 #------------------------------------------------------------------------------
-bfl::verify_arg_count() {
+# to have nested local functions without global scope: https://stackoverflow.com/questions/38264873/nested-functions-on-bash#new-answer
+#                      !!!!
+bfl::verify_arg_count() (
 # циклическая зависимость!
   self_die() {
     # Declare positional arguments (readonly, sorted by position).
@@ -83,4 +85,4 @@ bfl::verify_arg_count() {
   fi
 
   return 0
-  }
+  )

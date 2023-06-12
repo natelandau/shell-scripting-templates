@@ -28,8 +28,8 @@ bfl::date_string_to_unix_timestamp() {
   bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   local dt
-  dt=$(date -d "$1" +"%s") || return 1
-  printf "%s\n" "$dt"
+  dt=$(date -d "$1" +"%s") || { bfl::writelog_fail "${FUNCNAME[0]}: dt=\$(date -d $1 +%s)"; return 1; }
 
+  printf "%s\n" "$dt"
   return 0
   }

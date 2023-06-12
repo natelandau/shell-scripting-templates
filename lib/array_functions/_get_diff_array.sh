@@ -30,24 +30,20 @@
 bfl::get_diff_array() {
   bfl::verify_arg_count "$#" 2 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
-  local _skip
-  local _a
-  local _b
-  declare -a _setdiffA=("${!1}")
-  declare -a _setdiffB=("${!2}")
-  declare -a _setdiffC=()
+  local _skip _a _b
+  local -a _setdiffA=("${!1}")
+  local -a _setdiffB=("${!2}")
+  local -a _setdiffC=()
 
   for _a in "${_setdiffA[@]}"; do
       _skip=0
       for _b in "${_setdiffB[@]}"; do
-          if [[ ${_a} == "${_b}" ]]; then
-              _skip=1; break
-          fi
+          [[ ${_a} == "${_b}" ]] && { _skip=1; break; }
       done
       [[ ${_skip} -eq 1 ]] || _setdiffC=("${_setdiffC[@]}" "${_a}")
   done
 
-  [[ ${#_setdiffC[@]} -eq 0 ]] && return 1
+  [[ ${#_setdiffC[@]} -eq 0 ]] && return 1  # arrays are equal
 
   printf "%s\n" "${_setdiffC[@]}"
   }
