@@ -1,78 +1,109 @@
-# Bash Function Library
+[Main](../../../) / [Usage](../../../#usage) / [Libraries](../../../#libraries) / [Installation](installation.md) / [Description](description.md) / Coding / [Configuration](../../../#configuration) / [Examples](../../../#examples) / [Tests](../../../#tests) / [Templates](../../../#templates) / [Docs](../../../#documentation)
 
 ## Coding Standards
 
-[Getting Started](#getting-started)  
-[Indenting and Whitespace](#indenting-and-whitespace)  
-[Naming Conventions](#naming-conventions)  
-[Syntax](#syntax)  
-[Other](#other)  
-[Library Functions](#library-functions)  
+[Getting Started](#getting-started) / [Library name conventions](#library-name-conventions) / [Naming Conventions](#naming-conventions) / [Variables](#variables) / [Coding](#coding) / [Indenting and Whitespace](#indenting-and-whitespace) / [Library Functions](#library-functions) / [Scripts template](#scripts-template)
 
 ### Getting Started
 
-* When creating a new function for this library, please start with the
-  [function template](../templates/_library_function.sh).
-* When create a new script that leverages this library, you may find it useful
-  to start with the [script template](../templates/script).
-* Please review the [examples](../examples/).
+**In short: use template:** [function template](../../../templates/_library_function.sh) in order to make BFL functions similar and to folow unified coding standards.<br />
+Please, use this template to create a new library function. Contributions are welcome!
 
-With minor exceptions, this library follows Google's [Shell Style
-Guide](https://google.github.io/styleguide/shell.xml).
+**Detailed information:**
+- All libraries are located in `lib/`, every function located in `lib/[library_name]-functions/` (like [Jarodiv](https://github.com/Jarodiv/bash-function-libraries)).<br />
+I have refused from nonstructured script location (as in [JMooring](https://github.com/jmooring/bash-function-library)).<br />
+[Natelandau](https://github.com/natelandau/shell-scripting-templates) also keeps scripts in separate directory, but named `utilities`.
+- Script names use camel case with a starting underscores: `_name_of_script.sh` (like [JMooring](https://github.com/jmooring/bash-function-library)).<br />
+Each function script includes description and usage information. Read headers and inline comments within the code.
+- Loading process in `autoload.sh` is very simple:<br />
+In order to prevent sourcing scripts more than once there is a code at script beginning (similar to [Jarodiv](https://github.com/Jarodiv/bash-function-libraries)):
+```bash
+! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+```
+Beginning of `autoload.sh` a bit differ from scripts in `lib/*`, because `autoload.sh` doesn't not present in `lib/` structure.
+- Each function is namespaced with the `bfl::` prefix (like [JMooring](https://github.com/jmooring/bash-function-library)). For example, to trim a string:
+```bash
+bfl::trim "${var}"
+```
+Using `bfl::` prefix prevents name collisions. I refused from multilevel prefix like `System::Efi::detect()` as in [Jarodiv](https://github.com/Jarodiv/bash-function-libraries).
 
-### Indenting and Whitespace
+### Library name conventions
 
-* Line length should not exceed 79 characters.
-* Indent with 2 spaces, not tabs.
-* Remove trailing whitespace at the end of each line.
-* Files should have Unix line endings `\n`, not Windows line endings `\r\n`.
-* All files should end with a single newline `\n`.
+* Library function names must begin with `bfl::` to avoid namespace collisions.
+* I refused from using in scripts bfl::die on error (as [JMooring](https://github.com/jmooring/bash-function-library)), because I am trying to integrate `Bash Functions Library` in all system scripts.<br />
+Moreover, this library is located in /etc directory (see [Usage](../../../#usage)).<br />
+Scripts should not die immediately, but write log and return code error.<br />
+Accordingly, using `exit 1` replaced by `write_log ...; return 1`.<br />
+I accept using `exit 1` instead of `return 1` in case of code mistakes **absolute absense**.<br />
+Another problem: `trap 'bfl::write_failure ... ' ERR` doesn't work correctly from `bfl::die` - exit should be called from function which is error source.
+
+I understand idea `bfl::die`, but I refused as I novice in Bash and don't know many nuances.<br />
+More about `bfl::die` at [error-handling.md](error-handling.md#bfl-die)
+* Define no more than one library function per file.
+* The file name should match `_function_name.sh`. For example, if the function is named `bfl::foo`, the file name must be `_foo.sh`.
+* The file must not be executable.
+* If you create a library function named `bfl::foo`, and you need a helper function `bar` within the same file, name the helper function `bfl::foo::bar` to avoid namespace collisions.
+* Global variables defined within library functions must begin with `BFL_` or `bfl_` to avoid namespace collisions.
 
 ### Naming Conventions
 
-* Functions, constants, and variables should be lowercase, with words separated
-  by underscores.
-* Environment variables should be uppercase, with words separated by
-  underscores.
+* Functions, constants, and variables should be lowercase. [https://unix.stackexchange.com/questions/42847/are-there-naming-conventions-for-variables-in-shell-scripts](https://unix.stackexchange.com/questions/42847/are-there-naming-conventions-for-variables-in-shell-scripts)<br />
+Google style code and [ShellCheck](https://github.com/koalaman/shellcheck) also require functions, constants, and variables to have words separated by underscores. [https://www.bashsupport.com/manual/inspections/](https://www.bashsupport.com/manual/inspections/)<br />
+With minor exceptions, this library follows Google's [Shell Style Guide](https://google.github.io/styleguide/shell.xml).
+* Environment variables should be uppercase, with words separated by underscores.
 
-### Syntax
+### Variables
 
-* Use double quotes instead of single quotes when possible.  
-  `var="foo"`
-* Use braces when referencing a constant, variable, or environment variable.  
-  `printf "%s" "${var}"`
-* Do not use braces when referring to `$@`, `$*`, `$#`, `$1`, `$2`, `$3`, etc.
-  unless required to disambiguate a string.
+* Use double quotes instead of single quotes when it is possible: `var="foo"`.
+* Use double quotes with variables when it does not conflict with code purpose: `var="foo"`.
+* Use braces when referencing a constant, variable, or environment variable. (Overly verbose true and a safe practice)<br />
+```bash
+printf "%s" "${var}"
+```
+**BUT** I am trying to **NOT** overload brackets using: `"$1"`, not `"${1}"`
+* Do not use braces when referring to `$@`, `$*`, `$#`, `$1`, `$2`, `$3` ... unless required to disambiguate a string.
 
-### Other
+### Coding
 
 * Use `printf` instead of `echo`.
-* Use `declare` instead of `local`.
-* Use `declare -r` instead of `readonly`.
-* Use `declare -g` when creating a global variable. Don't create global
-variables.
-* Declare and assign on the same line.  
-  `declare -r foo="$1"`
-* Declare and assign on separate lines when using command
-  substitution. Don't do this:  
+* Use `local` instead of `declare`. IMHO `local ` is more simple to check script.<br />
+[in-bash-should-i-use-declare-instead-of-local-and-export](https://stackoverflow.com/questions/56627534/in-bash-should-i-use-declare-instead-of-local-and-export). Counter arguments for `declare` are welcome!
+
+* Use `declare -r` instead of `readonly`, because readonly uses the default scope of global even inside functions.<br />
+[https://stackoverflow.com/questions/30362831/what-is-difference-in-declare-r-and-readonly-in-bash](https://stackoverflow.com/questions/30362831/what-is-difference-in-declare-r-and-readonly-in-bash)
+* **Avoid global variables**. Use `declare -g` when creating a global variable.
+* Declare and assign on the same line `declare -r foo="$1"`.
+* Declare and assign on separate lines when using command substitution. Don't do this:
   `declare foo=$(whoami)`
+do so:
+```bash
+declare foo
+foo=$(whoami)
+```
+* If you need to use nested local functions inside other functions, use parentheses instead of braces, in order to avoid declare them in global scope:
+```bash
+foo() ( # !!!
+  new_foo={
+...
+}
+) # !!!
+```
+[https://stackoverflow.com/questions/38264873/nested-functions-on-bash](https://stackoverflow.com/questions/38264873/nested-functions-on-bash)
+
+* All scripts and functions are fully [Shellcheck](https://github.com/koalaman/shellcheck) compliant
+* Where possible, we should follow [defensive BASH programming](https://kfirlavi.herokuapp.com/blog/2012/11/14/defensive-bash-programming/) principles.
+
+### Indenting and Whitespace
+
+* Indent with spaces, not tabs. My xed editor (standard for Cinnamon) follow this.<br />
+Indent with 2 spaces for first indent (is provided by [shfmt](https://github.com/mvdan/sh)) and per 4 spaces for next indents.
+* Remove trailing whitespace at the end of each line. My xed editor (standard for Cinnamon) does it automatically.
+* Files should have Unix line endings `\n`, not Windows line endings `\r\n`.
+* ~~Line length should not exceed 79 characters.~~
+* ~~All files should end with a single newline `\n`~~ My xed editor (standard for Cinnamon) cuts them.
 
 ### Library Functions
-
-#### General
-
-* Library function names must begin with `bfl::` to avoid namespace collisions.
-* The file name must begin with an underscore.
-* The file name must end with `.sh`.
-* The file name must match the function name. For example, if the function is
-  named `bfl::foo`, the file name must be `_foo.sh`.
-* The file must not be executable.
-* Define no more than one library function per file.
-* If you create a library function named `bfl::foo`, and you need a helper
-  function `bar` within the same file, name the helper function `bfl::foo::bar`
-  to avoid namespace collisions.
-* Global variables defined within library functions must begin with `bfl_` to
-  avoid namespace collisions.
 
 #### Housekeeping Sequence
 
@@ -85,20 +116,17 @@ variables.
 
 #### File and Function Headers
 
-Every library function must have a file header and a function header. Please
-review the [example function](../examples/_introduce.sh) for more information.
+Every library function must have a file header and a function header. Please review the [example function](../../../examples/_introduce.sh) for more information.
 
-The library's documentation generator, makedoc, parses documentation tags in
-the file and function headers.
+The library's documentation generator, makedoc, parses documentation tags in the file and function headers.
 
 * File headers must include a `@file` tag.
 * Function headers must include a `@function` tag.
-* If a function takes arguments, it must include a `@param` tag for each
-  argument.
+* If a function takes arguments, it must include a `@param` tag for each argument.
 * If a function takes arguments, it must include an `@example` tag.
 * If a function "returns" anything, there must one or more `@return` tags.
 
-From the [example function](../examples/_introduce.sh):
+From the [example function](../../../examples/_introduce.sh):
 
 ```bash
 # Note that @return is misleading. Bash functions cannot return an arbitrary
@@ -130,3 +158,7 @@ From the [example function](../examples/_introduce.sh):
 #   @return global string $foo
 #     The foo, which can either be "bar" or "baz".
 ```
+
+### Scripts template
+* When create a new script that leverages this library, you may find it useful to start with the [script template](../../../templates/script).
+* Please review the [examples](../../../examples/).

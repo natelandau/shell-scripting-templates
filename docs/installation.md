@@ -1,3 +1,4 @@
+[Main](../../../) / [Usage](../../../#usage) / [Libraries](../../../#libraries) / Installation / [Description](description.md) / [Coding](coding-standards.md) / [Configuration](../../../#configuration) / [Examples](../../../#examples) / [Tests](../../../#tests) / [Templates](../../../#templates) / [Docs](../../../#documentation)
 
 ## Installation
 

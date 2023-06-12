@@ -1,78 +1,72 @@
-# Bash Function Library (collection of utility functions)
-[Usage](#usage) / [Libraries](#libraries) / [Installation](docs/installation.md) / [Description](docs/description.md) / [Configuration](#configuration) / [Examples](#examples) / [Tests](#tests) / [Templates](#templates) / [Docs](#documentation)
+## Bash Function Library (collection of utility functions)
+Main / [Usage](#usage) / [Libraries](#libraries) / [Installation](installation.md) / [Description](docs/description.md) / [Coding](docs/coding-standards.md) / [Configuration](#configuration) / [Examples](#examples) / [Tests](#tests) / [Templates](#templates) / [Docs](#documentation) / [ToDo](#todo)
 
 ### This project is copied from several bash functions projects with the similar approach
-#### git repositories:
-* [https://github.com/jmooring/bash-function-library](https://github.com/jmooring/bash-function-library) by **J.Mooring** (is **NOT** POSIX compliant)
+#### Source git repositories I have got ideas, templates, tests and examples:
+|             Author            |                                               weblink                                                                                                              |            Comment           |
+|:-----------------------------:|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------:|
+| **J.Mooring**                 | [https://github.com/jmooring/bash-function-library](https://github.com/jmooring/bash-function-library)                                                             | (is **NOT** POSIX compliant) |
+| **Michael Strache** (Jarodiv) | [https://github.com/Jarodiv/bash-function-libraries](https://github.com/Jarodiv/bash-function-libraries)                                                           |                              |
+| **Ariver**                    | [https://github.com/ariver/bash_functions](https://github.com/ariver/bash_functions)                                                                               |                              |
+| **Haskell**                   | [https://github.com/commercialhaskell/stack/blob/master/etc/scripts/get-stack.sh](https://github.com/commercialhaskell/stack/blob/master/etc/scripts/get-stack.sh) |                              |
+| **Ralish**                    | [https://github.com/ralish/bash-script-template](https://github.com/ralish/bash-script-template)                                                                   |                              |
+| **Natelandau**                | [https://github.com/natelandau/shell-scripting-templates](https://github.com/natelandau/shell-scripting-templates)                                                 |                              |
 
-* [https://github.com/Jarodiv/bash-function-libraries](https://github.com/Jarodiv/bash-function-libraries) by **Michael Strache** (Jarodiv)
+### Usage
 
-* [https://github.com/ariver/bash_functions](https://github.com/ariver/bash_functions) by **Ariver**
-
-* [https://github.com/commercialhaskell/stack/blob/master/etc/scripts/get-stack.sh](https://github.com/commercialhaskell/stack/blob/master/etc/scripts/get-stack.sh) from haskell
-
-* [https://github.com/ralish/bash-script-template](https://github.com/ralish/bash-script-template)
-
-* [https://github.com/natelandau/shell-scripting-templates](https://github.com/natelandau/shell-scripting-templates)
-
-Usage
------
-
-* Like [Jarodiv](https://github.com/Jarodiv/bash-function-libraries), all libraries are located in `lib/`, every function located in `lib/library/`. [Natelandau](https://github.com/natelandau/shell-scripting-templates) also keeps scripts in separate directory (utilities).
-- Like [JMooring](https://github.com/jmooring/bash-function-library), script names use camel case with a starting underscores: `_name_of_script.sh`.
-Each included function includes detailed usage information. Read the inline comments within the code for detailed usage instructions.
-Within the `lib` folder are many BASH functions meant to ease development of more complicated scripts.
-
-* Like [JMooring](https://github.com/jmooring/bash-function-library), each function is namespaced with the `bfl::` prefix, but not multileveled as [Jarodiv](https://github.com/Jarodiv/bash-function-libraries). For example, to trim a string:
-
+In my system I put this library right in `/etc` directory because of integrating `Bash Functions Library` in all system scripts.<br />
+Also there is a file `/etc/getConsts` with some global declarations of common used tools at the same place.<br />
+File `/etc/getConsts` is also is loaded at system sterting from script in `/etc/profile.d/` - maybe I should locate it directly to `/etc/profile.d/`.<br />
+Every script like `/etc/bash.bashrc`, `/etc/bashrc`, `~/.bashrc`, `~/.profile` and others at scripts' beginning loads `BFL library` and `/etc/getConsts` file together:
 ```bash
-bfl::trim "${var}"
+[[ $_GUARD_BFL_autoload -ne 1 ]] && . /etc/getConsts && . "$BASH_FUNCTION_LIBRARY" # plug in external script libarary
 ```
+As a result, `getConsts` will be loaded no more than once.<br />
+contents of my `/etc/getConsts` :
+```bash
+set -o allexport  # == set -a Enable using full option name syntax
+# -------------------------------------------------------------------
+declare -x BASH_INTERACTIVE=true    # Global shell variable
+[[ "$TERM" == 'linux' ]] && unset TERM
+[[ -z ${TERM+x} ]] && readonly TERM='xterm-256color'
 
-The calling script must source the entire library; some of the functions depend on one or more of the others.
-Source the entire library by sourcing autoload.sh. See the comments in autoload.sh for an explanation of the loading process.
+...................... some directory declarations ......................
+readonly BASH_FUNCTION_LIBRARY='/etc/bash_functions_library/autoload.sh'
+.........................................................................
+readonly myPython='python3.8'
+readonly myPerl='5.30.0'
+readonly localPythonModulesDir="/home/alexei/.local/lib/$myPython/site-packages"
+.........................................................................
+set +o allexport  # == set +a Disable using full option name syntax
+```
+Note: readonly is a "Special Builtin". If Bash is in POSIX mode then readonly (and not declare) has the effect "returning an error status will not cause the shell to exit". [https://stackoverflow.com/questions/30362831/what-is-difference-in-declare-r-and-readonly-in-bash](https://stackoverflow.com/questions/30362831/what-is-difference-in-declare-r-and-readonly-in-bash)
 
-Coding conventions
-------------------
+**Source in your scripts `autoload.sh`**, because most of the `BFL` functions depend on one or more of the others.
 
-- Variables are always surrounded by quotes `"$1"`. Brackets used, but not always `${PROGRESS_BAR_PROGRESS}` (Overly verbose true, but a safe practice).
-  but I am trying to not overload brackets using: `"$1"`, not `"${1}"`
-- Formatting: 2 spaces for first indent and per 4 spaces for next indents (is provided by [shfmt](https://github.com/mvdan/sh))
-- All scripts and functions are fully [Shellcheck](https://github.com/koalaman/shellcheck) compliant
-- Where possible, we should follow [defensive BASH programming](https://kfirlavi.herokuapp.com/blog/2012/11/14/defensive-bash-programming/) principles.
 
-Libraries
----------
+### Libraries
 
-* Apache
-* array - Some functions take or return arrays. Since Bash does not support to pass arrays, references and their serialized string representations are used.
-* backup
-* compile
-* date
-* Debian
-* ~declaration~
-* directory
-* file
-* Git
-* log - Functions related to terminal and file logging
-* mail
-* number
-* password
-* ~procedures~ (for internal using)
-* sms - Functions related to the Secure Shell
-* ssh
-* string - Functions related to Bash Strings
-* system - Functions related to Linux Systems
-* terminal
-* url - Url conversation
+|    Library   |      Description     |     |    Library   |  Description   |
+|    :---:     |         :---:        | :-: |     :---:    |      :---:     |
+|    string    |     Bash Strings     |     |    backup    |  file logging  |
+|     file     |                      |     |     mail     |                |
+|   directory  |                      |     |     log      |                |
+|     date     |                      |     |     ssh      |  Secure Shell  |
+|    number    |         mail         |     |   password   |   UUID, etc    |
+|      url     |   url conversation   |     |    system    |  Linux System  |
+|     array    |   pass as strings    |     |   terminal   |      Bash      |
+|   directory  |                      |     |      sms     |                |
+| declaration  | colors, other consts |     |    compile   |   LFS scripts  |
+|  procedures  | (for internal using) |     |              |                |
 
 #### libraries for specific usage:
-* Lorem
-* Maven - Functions related to the build tool Apache Maven
-* Nexus - Functions related to the software repository manager Sonatype Nexus
 
-Configuration
--------------
+|    Debian    |      Git     |    Apache    |     Maven    |     Lorem    |           Nexus             |
+|    :---:     |     :---:    |    :---:     |     :---:    |     :---:    |           :---:             |
+|              |              |              | Apache Maven |              |       Sonatype Nexus        |
+|              |              |              |  build tool  |              | software repository manager |
+
+### Configuration
 
 Global variables in scripts:
 * BASH_INTERACTIVE ....................
@@ -84,54 +78,42 @@ Temporary variables in scripts:
 * SPIN_NUM ................ for '_terminal_spinner.sh'
 * PROGRESS_BAR_PROGRESS ... for '_terminal_progressbar.sh'
 
-Examples
---------
+### Examples
 
-[examples/\_introduce.sh](examples/_introduce.sh)
+|                       Example                     |                                              Description                                              |
+|:-------------------------------------------------:|-------------------------------------------------------------------------------------------------------|
+| [examples/\_introduce.sh](examples/_introduce.sh) | This library function is simple and heavily&mdash; documented tutorial                                |
+| [examples/session-info](examples/session-info)    | This script leverages the Bash Function Library, displaying a banner with user and system information |
 
-> This library function is simple and heavily documented&mdash;a tutorial.
-
-[examples/session-info](examples/session-info)
-
-> This script leverages the Bash Function Library, displaying a banner with
-user and system information.
-
-Tests
------
+### Tests
 
 I doubt about testing system:
 [Jarodiv](https://github.com/Jarodiv/bash-function-libraries) uses the [Bash Automated Testing System (BATS)](https://github.com/sstephenson/bats) by [Sam Stephenson](https://github.com/sstephenson)
 [JMooring](https://github.com/jmooring/bash-function-library) uses not so flexible as [BATS](https://github.com/sstephenson/bats), but is smart and tiny.
 
 Every library has its own test suite that can be run separately:
-
+```bash
+bats test/*.bats
 ```
-~$ bats test/*.bats~
-```
 
-Templates
----------
+### Templates
 
-[templates/_library_function.sh](templates/_library_function.sh)
+|                         Library                        |                                          Description                                              |
+|:------------------------------------------------------:|---------------------------------------------------------------------------------------------------|
+| [_library_function.sh](templates/_library_function.sh) | Use to add some new function, in order to make coding simplier and folow unified coding standards |
+| [script](templates/script)                             | Use to create a script which leverages the Bash Function Library                                  |
 
-> Use this template to create a new library function.
 
-[templates/script](templates/script)
+### Documentation
 
-> Use this template to create a script which leverages the Bash Function
-Library.
+|                       Docs                      |                Description                |
+|:-----------------------------------------------:|-------------------------------------------|
+| [function-list.md](docs/function-list.md)       | Summary of library functions              |
+| [error-handling.md](docs/error-handling.md)     | Notes on error handling                   |
+| [coding-standards.md](docs/coding-standards.md) | Coding standards                          |
+| [function-list.md](docs/function-list.md)       | not updated yet                           |
 
-Documentation
--------------
+### ToDo
 
-[docs/function-list.md](docs/function-list.md)
-
-> Summary of library functions.
-
-[docs/error-handling.md](docs/error-handling.md)
-
-> Notes on error handling.
-
-[docs/coding-standards.md](docs/coding-standards.md)
-
-> Coding standards.
+* make function script for build help about all functions
+* combine and [JMooring testing system](https://github.com/jmooring/bash-function-library/blob/master/test/test) and [Bash Automated Testing System (BATS)](https://github.com/sstephenson/bats)

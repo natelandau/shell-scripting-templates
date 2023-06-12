@@ -35,9 +35,9 @@
 # @example
 #   bfl::btrfs_backup --dry-run --folder=/etc --temp-snapshots-folder=/temp-backup --snapshots-folder=/mnt/Timeshift
 #------------------------------------------------------------------------------
-# to have nested local functions without global scope: https://stackoverflow.com/questions/38264873/nested-functions-on-bash#new-answer
+# to have nested local functions without global scope: https://stackoverflow.com/questions/38264873/nested-functions-on-bash
 #                  !!!!
-bfl::btrfs_backup() (
+bfl::btrfs_backup() ( # !!!
   bfl::verify_arg_count "$#" 3 6 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [3..999]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
 #  set -o errexit  # Это защищает от игнорирование аварийного завершения команд
@@ -130,4 +130,4 @@ ${Green} -v, --version            ${NC}     Prints software version and exit\n"
   fi
 
   return 0
-  )
+  ) # !!!
