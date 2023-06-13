@@ -5,7 +5,7 @@ Main / [Usage](#usage) / [Libraries](#libraries) / [Installation](installation.m
 #### Source git repositories I have got ideas, templates, tests and examples:
 |             Author            |                                               weblink                                                                                                              |            Comment           |
 |:-----------------------------:|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------:|
-| **J.Mooring**                 | [https://github.com/jmooring/bash-function-library](https://github.com/jmooring/bash-function-library)                                                             | (is **NOT** POSIX compliant) |
+| **Joe Mooring**               | [https://github.com/jmooring/bash-function-library](https://github.com/jmooring/bash-function-library)                                                             | (is **NOT** POSIX compliant) |
 | **Michael Strache** (Jarodiv) | [https://github.com/Jarodiv/bash-function-libraries](https://github.com/Jarodiv/bash-function-libraries)                                                           |                              |
 | **Ariver**                    | [https://github.com/ariver/bash_functions](https://github.com/ariver/bash_functions)                                                                               |                              |
 | **Haskell**                   | [https://github.com/commercialhaskell/stack/blob/master/etc/scripts/get-stack.sh](https://github.com/commercialhaskell/stack/blob/master/etc/scripts/get-stack.sh) |                              |
@@ -40,9 +40,12 @@ readonly localPythonModulesDir="/home/alexei/.local/lib/$myPython/site-packages"
 set +o allexport  # == set +a Disable using full option name syntax
 ```
 Note: readonly is a "Special Builtin". If Bash is in POSIX mode then readonly (and not declare) has the effect "returning an error status will not cause the shell to exit". [https://stackoverflow.com/questions/30362831/what-is-difference-in-declare-r-and-readonly-in-bash](https://stackoverflow.com/questions/30362831/what-is-difference-in-declare-r-and-readonly-in-bash)
-
 **Source in your scripts `autoload.sh`**, because most of the `BFL` functions depend on one or more of the others.
-
+Is very important to handle errors. I have `trap` function declaration in my `.bashrc` **before**  $BASH\_FUNCTION_LIBRARY sourcing:<br />
+```bash
+set -o functrace
+trap 'bfl::write_failure "$?" "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]:-script}" "$0" "$BASH_COMMAND" "$*" "$HOME/.faults"' ERR
+```
 
 ### Libraries
 
@@ -112,6 +115,10 @@ bats test/*.bats
 | [error-handling.md](docs/error-handling.md)     | Notes on error handling                   |
 | [coding-standards.md](docs/coding-standards.md) | Coding standards                          |
 | [function-list.md](docs/function-list.md)       | not updated yet                           |
+
+### License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
 ### ToDo
 

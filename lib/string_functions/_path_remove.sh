@@ -58,5 +58,10 @@ bfl::path_remove() {
   fi
 
   export $PATHVARIABLE="$str"
+
+# ------------- https://github.com/jmooring/bash-function-library -------------
+#  local -r ENTRY="${1:-}"; shift
+#  export PATH=$(sed -E -e "s;:${ENTRY};;" -e "s;${ENTRY}:?;;" <<< "${PATH}")
+
   return 0
   }
