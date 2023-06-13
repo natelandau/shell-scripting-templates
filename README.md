@@ -1,99 +1,126 @@
-# Bash Function Libraries
-This project is collection of Bourne-again shell functions.
+## Bash Function Library (collection of utility functions)
+Main / [Usage](#usage) / [Libraries](#libraries) / [Installation](installation.md) / [Description](docs/description.md) / [Coding](docs/coding-standards.md) / [Configuration](#configuration) / [Examples](#examples) / [Tests](#tests) / [Templates](#templates) / [Docs](#documentation) / [ToDo](#todo)
 
-As for almost every function library the idea is to keep scripts readable, collect best practices and keep people from reinventing the wheel. It is developed and tested with Bash 4 (GNU) but most functions should also work in Bash 3 and on MacOS.
+### This project is copied from several bash functions projects with the similar approach
+#### Source git repositories I have got ideas, templates, tests and examples:
+|             Author            |                                               weblink                                                                                                              |            Comment           |
+|:-----------------------------:|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------:|
+| **Joe Mooring**               | [https://github.com/jmooring/bash-function-library](https://github.com/jmooring/bash-function-library)                                                             | (is **NOT** POSIX compliant) |
+| **Michael Strache** (Jarodiv) | [https://github.com/Jarodiv/bash-function-libraries](https://github.com/Jarodiv/bash-function-libraries)                                                           |                              |
+| **Ariver**                    | [https://github.com/ariver/bash_functions](https://github.com/ariver/bash_functions)                                                                               |                              |
+| **Haskell**                   | [https://github.com/commercialhaskell/stack/blob/master/etc/scripts/get-stack.sh](https://github.com/commercialhaskell/stack/blob/master/etc/scripts/get-stack.sh) |                              |
+| **Ralish**                    | [https://github.com/ralish/bash-script-template](https://github.com/ralish/bash-script-template)                                                                   |                              |
+| **Natelandau**                | [https://github.com/natelandau/shell-scripting-templates](https://github.com/natelandau/shell-scripting-templates)                                                 |                              |
 
-## Usage
-All libraries are located in `lib/*`. Since we are talking about Bash, all you have to use is to source the library you want to use:
+### Usage
+
+In my system I put this library right in `/etc` directory because of integrating `Bash Functions Library` in all system scripts.<br />
+Also there is a file `/etc/getConsts` with some global declarations of common used tools at the same place.<br />
+File `/etc/getConsts` is also is loaded at system sterting from script in `/etc/profile.d/` - maybe I should locate it directly to `/etc/profile.d/`.<br />
+Every script like `/etc/bash.bashrc`, `/etc/bashrc`, `~/.bashrc`, `~/.profile` and others at scripts' beginning loads `BFL library` and `/etc/getConsts` file together:
 ```bash
-source ${BFL_PATH}/lib/Log.sh
+[[ $_GUARD_BFL_autoload -ne 1 ]] && . /etc/getConsts && . "$BASH_FUNCTION_LIBRARY" # plug in external script libarary
 ```
-
-For better transparency all functions, with the exception of the Log library, are intentionally self contained. They do not access variables that are defined outside of their local scope, requiring the user explicitly pass all inputs to them instead of just setting some "magic" variables. The same applies to return values.
-
-Some functions take or return arrays. Since Bash does not support to pass arrays, references and their serialized string representations are used.
-Pass an array as to a function:
+As a result, `getConsts` will be loaded no more than once.<br />
+contents of my `/etc/getConsts` :
 ```bash
-declare -a my_array=()
-Array::contains_element my_array[@] ${some_element}
-```
+set -o allexport  # == set -a Enable using full option name syntax
+# -------------------------------------------------------------------
+declare -x BASH_INTERACTIVE=true    # Global shell variable
+[[ "$TERM" == 'linux' ]] && unset TERM
+[[ -z ${TERM+x} ]] && readonly TERM='xterm-256color'
 
-Read an array returned by a function:
+...................... some directory declarations ......................
+readonly BASH_FUNCTION_LIBRARY='/etc/bash_functions_library/autoload.sh'
+.........................................................................
+readonly myPython='python3.8'
+readonly myPerl='5.30.0'
+readonly localPythonModulesDir="/home/alexei/.local/lib/$myPython/site-packages"
+.........................................................................
+set +o allexport  # == set +a Disable using full option name syntax
+```
+Note: readonly is a "Special Builtin". If Bash is in POSIX mode then readonly (and not declare) has the effect "returning an error status will not cause the shell to exit". [https://stackoverflow.com/questions/30362831/what-is-difference-in-declare-r-and-readonly-in-bash](https://stackoverflow.com/questions/30362831/what-is-difference-in-declare-r-and-readonly-in-bash)
+**Source in your scripts `autoload.sh`**, because most of the `BFL` functions depend on one or more of the others.
+Is very important to handle errors. I have `trap` function declaration in my `.bashrc` **before**  $BASH\_FUNCTION_LIBRARY sourcing:<br />
 ```bash
-declare -a kernel_available=$( System::Kernel::get_available )
-# The returned string looks like '( [0]="4.16.18-gentoo" [1]="4.17.13-gentoo" [2]="4.17.14-gentoo" )'
-# and will be transformed to an array automatically
+set -o functrace
+trap 'bfl::write_failure "$?" "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]:-script}" "$0" "$BASH_COMMAND" "$*" "$HOME/.faults"' ERR
 ```
 
+### Libraries
 
-## Libraries
+|    Library   |      Description     |     |    Library   |  Description   |
+|    :---:     |         :---:        | :-: |     :---:    |      :---:     |
+|    string    |     Bash Strings     |     |    backup    |  file logging  |
+|     file     |                      |     |     mail     |                |
+|   directory  |                      |     |     log      |                |
+|     date     |                      |     |     ssh      |  Secure Shell  |
+|    number    |         mail         |     |   password   |   UUID, etc    |
+|      url     |   url conversation   |     |    system    |  Linux System  |
+|     array    |   pass as strings    |     |   terminal   |      Bash      |
+|   directory  |                      |     |      sms     |                |
+| declaration  | colors, other consts |     |    compile   |   LFS scripts  |
+|  procedures  | (for internal using) |     |              |                |
 
-### Array
-Functions related to bash arrays
+#### libraries for specific usage:
 
-### Http
-Functions related to the internet
+|    Debian    |      Git     |    Apache    |     Maven    |     Lorem    |           Nexus             |
+|    :---:     |     :---:    |    :---:     |     :---:    |     :---:    |           :---:             |
+|              |              |              | Apache Maven |              |       Sonatype Nexus        |
+|              |              |              |  build tool  |              | software repository manager |
 
-### Log
-Functions related to terminal and file logging
-*Note: Logging to files is not yet implemented.*
+### Configuration
 
-All available colors and formats are made available as constants that can be used in strings:
-* `CLR_GOOD`
-* `CLR_INFORM`
-* `CLR_WARN`
-* `CLR_BAD`
-* `CLR_HILITE`
-* `CLR_BRACKET`
-* `CLR_NORMAL`
-* `FMT_BOLD`
-* `FMT_UNDERLINE`
+Global variables in scripts:
+* BASH_INTERACTIVE ....................
+* RC_NOCOLOR .......................... If coloured, command tput also needs var $TERM
+* BASH_FUNCTION_LIBRARY_COLOR_OUTPUT ..
+* QUEIT, VERBOSE ...................... ??? - I doubt
 
-The same applies to the available log levels
-* `LOG_LVL_OFF`
-* `LOG_LVL_ERR`
-* `LOG_LVL_WRN`
-* `LOG_LVL_INF`
-* `LOG_LVL_DBG`
+Temporary variables in scripts:
+* SPIN_NUM ................ for '_terminal_spinner.sh'
+* PROGRESS_BAR_PROGRESS ... for '_terminal_progressbar.sh'
 
-The current log level and whether a timestamp should be added to each entry can be configured:
+### Examples
+
+|                       Example                     |                                              Description                                              |
+|:-------------------------------------------------:|-------------------------------------------------------------------------------------------------------|
+| [examples/\_introduce.sh](examples/_introduce.sh) | This library function is simple and heavily&mdash; documented tutorial                                |
+| [examples/session-info](examples/session-info)    | This script leverages the Bash Function Library, displaying a banner with user and system information |
+
+### Tests
+
+I doubt about testing system:
+[Jarodiv](https://github.com/Jarodiv/bash-function-libraries) uses the [Bash Automated Testing System (BATS)](https://github.com/sstephenson/bats) by [Sam Stephenson](https://github.com/sstephenson)
+[JMooring](https://github.com/jmooring/bash-function-library) uses not so flexible as [BATS](https://github.com/sstephenson/bats), but is smart and tiny.
+
+Every library has its own test suite that can be run separately:
 ```bash
-LOG_LEVEL=${LOG_LVL_INF}
-LOG_SHOW_TIMESTAMP=true
+bats test/*.bats
 ```
 
-### Maven
-Functions related to the build tool Apache Maven
+### Templates
 
-### Nexus
-Functions related to the software repository manager Sonatype Nexus
-
-### Ssh
-Functions related to the Secure Shell
-
-### String
-Functions related to Bash Strings
-
-### System
-Functions related to Linux Systems
-
-### Util
-Library of useful utility functions
+|                         Library                        |                                          Description                                              |
+|:------------------------------------------------------:|---------------------------------------------------------------------------------------------------|
+| [_library_function.sh](templates/_library_function.sh) | Use to add some new function, in order to make coding simplier and folow unified coding standards |
+| [script](templates/script)                             | Use to create a script which leverages the Bash Function Library                                  |
 
 
-## Running the tests
-Most functions are covered with tests using the [Bash Automated Testing System (BATS)](https://github.com/sstephenson/bats) by [Sam Stephenson](https://github.com/sstephenson)
+### Documentation
 
-Each library has its own test suite that can be run separately:
-```
-$ bats test/*.bats
-```
+|                       Docs                      |                Description                |
+|:-----------------------------------------------:|-------------------------------------------|
+| [function-list.md](docs/function-list.md)       | Summary of library functions              |
+| [error-handling.md](docs/error-handling.md)     | Notes on error handling                   |
+| [coding-standards.md](docs/coding-standards.md) | Coding standards                          |
+| [function-list.md](docs/function-list.md)       | not updated yet                           |
 
-
-## Authors
-
-* **Michael Strache** - *Initial work* - [Jarodiv](https://github.com/Jarodiv)
-
-## License
+### License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
+### ToDo
+
+* make function script for build help about all functions
+* combine and [JMooring testing system](https://github.com/jmooring/bash-function-library/blob/master/test/test) and [Bash Automated Testing System (BATS)](https://github.com/sstephenson/bats)
