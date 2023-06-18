@@ -51,7 +51,8 @@ bfl::build_multiple_git_config() {
   st2=$(bfl::get_git_config_section "$3" "origin") || { bfl::writelog_fail "${FUNCNAME[0]}: Failed bfl::get_git_config_section '$3' 'origin'"; return 1; }
 
   s=$(sed -n '/^\[remote "origin"\]$/p' "$1"/.git/config)
-  if [[ -n "$s" ]]; then #       origin => GitHub
+  st1=$(sed -n '/^\[remote "GitHub"\]$/p' "$1"/.git/config)
+  if [[ -n "$s" && -z "$st1" ]]; then #       origin => GitHub
       s="${1##*/}"  # $(basename "$1")
       st1=$(bfl::get_git_config_section "$1" "origin") || { bfl::writelog_fail "${FUNCNAME[0]}: Failed bfl::get_git_config_section '$1' 'origin'"; return 1; }
       st1=$(echo "$st1" | sed "s|\(fetch=+refs.*\)/origin/|\1/$s/|")
