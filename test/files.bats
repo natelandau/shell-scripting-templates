@@ -1,6 +1,21 @@
 #!/usr/bin/env bats
 #shellcheck disable
 
+# Unittests for the functions in lib/arrays
+#
+# The unit tests in this script are written using the BATS framework.
+# See: https://github.com/sstephenson/bats
+
+
+# **************************************************************************** #
+# Imports                                                                      #
+# **************************************************************************** #
+[[ $_GUARD_BFL_autoload -ne 1 ]] && . /etc/getConsts && . "$BASH_FUNCTION_LIBRARY" # подключаем внешнюю "библиотеку"
+
+
+# **************************************************************************** #
+# Init                                                                         #
+# **************************************************************************** #
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-file/load'
 load 'test_helper/bats-assert/load'
@@ -8,9 +23,10 @@ load 'test_helper/bats-assert/load'
 PATH="/usr/local/opt/gnu-tar/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/grep/libexec/gnubin:${PATH}"
 
 #ROOTDIR="$(git rev-parse --show-toplevel)"
-[[ $_GUARD_BFL_autoload -ne 1 ]] && . /etc/getConsts && . "$BASH_FUNCTION_LIBRARY" # подключаем внешнюю "библиотеку"
 
-######## SETUP TESTS ########
+# **************************************************************************** #
+# Setup tests                                                                  #
+# **************************************************************************** #
 setup() {
 
   TESTDIR="$(temp_make)"
@@ -47,13 +63,80 @@ TEXT="${BATS_TEST_DIRNAME}/fixtures/text.txt"
 YAML1="${BATS_TEST_DIRNAME}/fixtures/yaml1.yaml"
 YAML1parse="${BATS_TEST_DIRNAME}/fixtures/yaml1.yaml.txt"
 
-######## RUN TESTS ########
+# **************************************************************************** #
+# Test Casses                                                                  #
+# **************************************************************************** #
 @test "Sanity..." {
   run true
 
   assert_success
   assert_output ""
 }
+
+# ---------------------------------------------------------------------------- #
+# bfl::get_file_name                                                           #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::get_file_name: with extension" {
+  run bfl::get_file_name "./path/to/file/test.txt"
+  assert_success
+  assert_output "test.txt"
+}
+
+@test "bfl::get_file_name: without extension" {
+  run bfl::get_file_name "path/to/file/test"
+  assert_success
+  assert_output "test"
+}
+
+# ---------------------------------------------------------------------------- #
+# bfl::get_file_basename                                                       #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::get_file_basename" {
+  run bfl::get_file_basename "path/to/file/test.txt"
+  assert_success
+  assert_output "test"
+}
+
+# ---------------------------------------------------------------------------- #
+# bfl::get_file_extension                                                      #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::get_file_extension: simple extension" {
+    run bfl::get_file_extension "path/to/file/test.txt"
+  assert_success
+  assert_output "txt"
+}
+
+@test "bfl::get_file_extension: no extension" {
+    run bfl::get_file_extension "path/to/file/test"
+  assert_failure
+}
+
+@test "bfl::get_file_extension: two level extension" {
+  run bfl::get_file_extension "path/to/file/test.tar.bz2"
+  assert_success
+  assert_output "tar.bz2"
+}
+
+# ---------------------------------------------------------------------------- #
+# bfl::get_canonical_path                                                      #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::get_canonical_path" {
+    run bfl::get_canonical_path
+    assert_success
+    if [[ -d /usr/local/Cellar/ ]]; then
+        assert_output --regexp "^/usr/local/Cellar/bats-core/[0-9]\.[0-9]\.[0-9]"
+    elif [[ -d /opt/homebrew/Cellar ]]; then
+        assert_output --regexp "^/opt/homebrew/Cellar/bats-core/[0-9]\.[0-9]\.[0-9]"
+    fi
+}
+
+# ---------------------------------------------------------------------------- #
+# bfl::get_files_list                                                          #
+# ---------------------------------------------------------------------------- #
 
 _testListFiles_() {
   @test "bfl::get_files_list: glob" {
@@ -92,6 +175,10 @@ _testListFiles_() {
   }
 }
 
+# ---------------------------------------------------------------------------- #
+# bfl::parse_yaml                                                              #
+# ---------------------------------------------------------------------------- #
+
 _testParseYAML_() {
 
   @test "bfl::parse_yaml: success" {
@@ -111,6 +198,10 @@ _testParseYAML_() {
     assert_failure
   }
 }
+
+# ---------------------------------------------------------------------------- #
+# bfl::get_unique_filename                                                     #
+# ---------------------------------------------------------------------------- #
 
 @test "bfl::get_unique_filename: no extension" {
   touch "test"
@@ -174,6 +265,10 @@ _testParseYAML_() {
   assert_failure
 }
 
+# ---------------------------------------------------------------------------- #
+# bfl::file_contains                                                           #
+# ---------------------------------------------------------------------------- #
+
 @test "bfl::file_contains: No match" {
   echo "some text" > "./test.txt"
   run bfl::file_contains "./test.txt" "nothing here"
@@ -185,6 +280,10 @@ _testParseYAML_() {
   run bfl::file_contains "./test.txt" "some*"
   assert_success
 }
+
+# ---------------------------------------------------------------------------- #
+# bfl::get_file_part                                                           #
+# ---------------------------------------------------------------------------- #
 
 @test "bfl::get_file_part: match case-insensitive" {
   run bfl::get_file_part -i "^#+ orange1" "^#+$" "${TEXT}"
