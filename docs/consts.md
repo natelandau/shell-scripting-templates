@@ -18,12 +18,12 @@ All available colors and formats are made available as constants that can be use
 ### log levels
 The same applies to the available log levels
 * `LOG_LVL_OFF`
-* `LOG_LVL_ERR`
-* `LOG_LVL_WRN`
-* `LOG_LVL_INF`
-* `LOG_LVL_DBG`
+* `LOG_LVL_ERROR`
+* `LOG_LVL_WARN`
+* `LOG_LVL_INFORM`
+* `LOG_LVL_DEBUG`
 
 The current log level and whether a timestamp should be added to each entry can be configured:
 ```bash
-LOG_LEVEL=${LOG_LVL_INF}
+LOG_LEVEL=${LOG_LVL_INFORM}
 LOG_SHOW_TIMESTAMP=true

@@ -3,13 +3,18 @@
 ! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
-# ------------- https://github.com/jmooring/bash-function-library -------------
+#------------------------------------------------------------------------------
+#
+# Library of functions related to directories manipulation
+#
+#
+#
 # @file
 # Defines function: bfl::forward_links().
 #------------------------------------------------------------------------------
 # Dependencies
 #------------------------------------------------------------------------------
-source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/declaration_functions/_declare_terminal_colors.sh
+#source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/declarations/_declare_terminal_colors.sh
 #------------------------------------------------------------------------------
 # @function
 # Gets the files in a directory (recursively or not).

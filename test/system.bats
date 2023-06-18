@@ -1,6 +1,7 @@
 #!/usr/bin/env bats
+#shellcheck disable
 
-# Unittests for the functions in System.sh
+# Unittests for the functions in lib/system
 #
 # The unit tests in this script are written using the BATS framework.
 # See: https://github.com/sstephenson/bats
@@ -9,8 +10,7 @@
 # **************************************************************************** #
 # Imports                                                                      #
 # **************************************************************************** #
-
-source "${BATS_TEST_DIRNAME}/../lib/System.sh"
+[[ $_GUARD_BFL_autoload -ne 1 ]] && . /etc/getConsts && . "$BASH_FUNCTION_LIBRARY" # подключаем внешнюю "библиотеку"
 
 
 # **************************************************************************** #

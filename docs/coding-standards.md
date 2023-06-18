@@ -26,7 +26,9 @@ Beginning of `autoload.sh` a bit differ from scripts in `lib/*`, because `autolo
 ```bash
 bfl::trim "${var}"
 ```
-Using `bfl::` prefix prevents name collisions. I refused from multilevel prefix like `System::Efi::detect()` as in [Jarodiv](https://github.com/Jarodiv/bash-function-libraries).
+Using `bfl::` prefix prevents name collisions. Some git projects uses multilevel prefix, like `System::Efi::detect()` as in [Jarodiv](https://github.com/Jarodiv/bash-function-libraries).
+For MacOS library from [NateLandau](https://github.com/natelandau/shell-scripting-templates) I saved `bfl::MacOS::` prefix.
+For rest libraries I refused from multilevel prefix and use `bfl::` prefix only.
 
 ### Library name conventions
 
@@ -52,6 +54,10 @@ More about `bfl::die` at [error-handling.md](error-handling.md#bfl-die)
 Google style code and [ShellCheck](https://github.com/koalaman/shellcheck) also require functions, constants, and variables to have words separated by underscores. [https://www.bashsupport.com/manual/inspections/](https://www.bashsupport.com/manual/inspections/)<br />
 With minor exceptions, this library follows Google's [Shell Style Guide](https://google.github.io/styleguide/shell.xml).
 * Environment variables should be uppercase, with words separated by underscores.
+* Local variables names use camel case starting with underscores (like [Natelandau](https://github.com/natelandau/shell-scripting-templates)).
+* Global variables are in ALL_CAPS.
+* Exceptions to the variable an function naming rules are made for alerting functions and colors to ease my speed of programming. (Breaking years of habits is hard...) I.e. `notice "Some log item: ${Blue}blue text${NC}` Where `notice` is a function and `$Blue`, `$Red` and `$NC` are global variables but are not in uppercase.
+* ~~Some function names use camel case surrounded by underscores: `_nameOfFunction_`~~
 
 ### Variables
 

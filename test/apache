@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
+#------------------------------------------------------------------------------
 # ----------- https://github.com/jmooring/bash-function-library.git -----------
+#
+# Test suite fo functions library related to Apache
+#
+# @author  Joe Mooring
+#
 # @file
 # Performs assertion testing of the functions in this library.
 #

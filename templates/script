@@ -23,9 +23,9 @@ One sentence description. # TODO
 
 Detailed description. Use multiple lines if needed. # TODO
 
-Usage:    $(basename "$0") foo bar # TODO
+Usage:    ${0##*/} foo bar # TODO   $(basename "$0")
 
-Example:  $(basename "$0") "Fred" "George" # TODO
+Example:  ${0##*/} "Fred" "George" # TODO   $(basename "$0")
 EOT
   )
   printf "%s\\n" "${msg}"

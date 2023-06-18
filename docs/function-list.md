@@ -12,7 +12,7 @@
 * [bfl::get_file_directory](#bflget_file_directory)
 * [bfl::get_file_extension](#bflget_file_extension)
 * [bfl::get_file_name](#bflget_file_name)
-* [bfl::get_file_name_without_extension](#bflget_file_name_without_extension)
+* [bfl::get_file_basename](#bflget_file_basename)
 * [bfl::get_file_path](#bflget_file_path)
 * [bfl::inform](#bflinform)
 * [bfl::is_apache_vhost](#bflis_apache_vhost)
@@ -343,7 +343,7 @@ string $file_name
 bfl::get_file_name "./foo/bar.text"
 ```
 
-## bfl::get_file_name_without_extension
+## bfl::get_file_basename
 
 Gets the file name, excluding extension.
 
@@ -354,13 +354,13 @@ string $path
 
 **Return**
 
-string $file_name_without_extension
+string $file_basename
 >The file name, excluding extension.
 
 **Example**
 
 ```bash
-bfl::get_file_name_without_extension "./foo/bar.txt"
+bfl::get_file_basename "./foo/bar.txt"
 ```
 
 ## bfl::get_file_path

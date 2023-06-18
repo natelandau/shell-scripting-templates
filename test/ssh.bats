@@ -1,6 +1,7 @@
 #!/usr/bin/env bats
+#shellcheck disable
 
-# Unittests for the functions in Ssh.sh
+# Unittests for the functions in lib/ssh
 #
 # The unit tests in this script are written using the BATS framework.
 # See: https://github.com/sstephenson/bats
@@ -9,8 +10,7 @@
 # **************************************************************************** #
 # Imports                                                                      #
 # **************************************************************************** #
-
-source "${BATS_TEST_DIRNAME}/../lib/Ssh.sh"
+[[ $_GUARD_BFL_autoload -ne 1 ]] && . /etc/getConsts && . "$BASH_FUNCTION_LIBRARY" # подключаем внешнюю "библиотеку"
 
 
 # **************************************************************************** #
@@ -29,20 +29,20 @@ T_SSH_HOST_INVALID="my-fake-host"
 # **************************************************************************** #
 
 # ---------------------------------------------------------------------------- #
-# Ssh::file_exists                                                             #
+# bfl::ssh_file_exists                                                         #
 # ---------------------------------------------------------------------------- #
 
-@test "Ssh::file_exists -> If FILE exists on HOST, the function should return 0" {
-  run Ssh::file_exists "${T_SSH_FILE}" "${T_SSH_HOST}"
+@test "bfl::ssh_file_exists -> If FILE exists on HOST, the function should return 0" {
+  run bfl::ssh_file_exists "${T_SSH_FILE}" "${T_SSH_HOST}"
   [ "${status}" -eq 0 ]
 }
 
-@test "Ssh::file_exists -> If FILE does not exist on HOST, the function should return 1" {
-  run Ssh::file_exists "${T_SSH_FILE_INVALID}" "${T_SSH_HOST}"
+@test "bfl::ssh_file_exists -> If FILE does not exist on HOST, the function should return 1" {
+  run bfl::ssh_file_exists "${T_SSH_FILE_INVALID}" "${T_SSH_HOST}"
   [ "${status}" -eq 1 ]
 }
 
-@test "Ssh::file_exists -> If HOST is inaccessible, the function should return an error code" {
-  run Ssh::file_exists "${T_SSH_FILE}" "${T_SSH_HOST_INVALID}"
+@test "bfl::ssh_file_exists -> If HOST is inaccessible, the function should return an error code" {
+  run bfl::ssh_file_exists "${T_SSH_FILE}" "${T_SSH_HOST_INVALID}"
   [ "${status}" -ne 0 ]
 }

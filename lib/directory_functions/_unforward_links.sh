@@ -3,7 +3,12 @@
 ! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
-# ------------- https://github.com/jmooring/bash-function-library -------------
+#------------------------------------------------------------------------------
+#
+# Library of functions related to directories manipulation
+#
+#
+#
 # @file
 # Defines function: bfl::unforward_links().
 #------------------------------------------------------------------------------

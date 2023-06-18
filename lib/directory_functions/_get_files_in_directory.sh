@@ -4,6 +4,11 @@
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
 # ------------- https://github.com/jmooring/bash-function-library -------------
+#
+# Library of functions related to directories manipulation
+#
+# @author  Joe Mooring
+#
 # @file
 # Defines function: bfl::get_files_in_directory().
 #------------------------------------------------------------------------------

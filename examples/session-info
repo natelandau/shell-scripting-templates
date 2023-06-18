@@ -19,10 +19,10 @@ Displays a banner with user and system information.
 
 Supported colors: blue, cyan, green, magenta, red, yellow, or white (default).
 
-Usage:    $(basename "$0") color
+Usage:    ${0##*/} color    # $(basename "$0")
 
-Examples: $(basename "$0") "red"
-          $(basename "$0") "green"
+Examples: ${0##*/} "red"    # $(basename "$0")
+          ${0##*/} "green"  # $(basename "$0")
 EOT
   )
   printf "%s\\n" "${msg}"
