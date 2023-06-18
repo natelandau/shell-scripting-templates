@@ -1,0 +1,13 @@
+[submodule "test/test_helper/bats-support"]
+	path = test/test_helper/bats-support
+	url = https://github.com/bats-core/bats-support
+[submodule "test/test_helper/bats-file"]
+	path = test/test_helper/bats-file
+	url = https://github.com/bats-core/bats-file
+[submodule "test/test_helper/bats-asser"]
+	path = test/test_helper/bats-assert
+	url = https://github.com/bats-core/bats-assert
+[submodule ".hooks"]
+	path = .hooks
+	url = https://github.com/natelandau/githooks
+        branch = main
