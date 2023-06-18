@@ -1,43 +1,31 @@
 #!/usr/bin/env bats
 #shellcheck disable
 
+# Unittests for the functions in lib/strings
+#
+# The unit tests in this script are written using the BATS framework.
+# See: https://github.com/sstephenson/bats
+
+
+# **************************************************************************** #
+# Imports                                                                      #
+# **************************************************************************** #
+[[ $_GUARD_BFL_autoload -ne 1 ]] && . /etc/getConsts && . "$BASH_FUNCTION_LIBRARY" # подключаем внешнюю "библиотеку"
+
+
+# **************************************************************************** #
+# Init                                                                         #
+# **************************************************************************** #
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-file/load'
 load 'test_helper/bats-assert/load'
 
-######## SETUP TESTS ########
-ROOTDIR="$(git rev-parse --show-toplevel)"
-SOURCEFILE="${ROOTDIR}/utilities/strings.bash"
-BASEHELPERS="${ROOTDIR}/utilities/misc.bash"
-ALERTS="${ROOTDIR}/utilities/alerts.bash"
+#ROOTDIR="$(git rev-parse --show-toplevel)"
 
-if test -f "${SOURCEFILE}" >&2; then
-  source "${SOURCEFILE}"
-else
-  echo "Sourcefile not found: ${SOURCEFILE}" >&2
-  printf "Can not run tests.\n" >&2
-  exit 1
-fi
-
-if test -f "${ALERTS}" >&2; then
-  source "${ALERTS}"
-  _setColors_ #Set color constants
-else
-  echo "Sourcefile not found: ${ALERTS}" >&2
-  printf "Can not run tests.\n" >&2
-  exit 1
-fi
-
-if test -f "${BASEHELPERS}" >&2; then
-  source "${BASEHELPERS}"
-else
-  echo "Sourcefile not found: ${BASEHELPERS}" >&2
-  printf "Can not run tests.\n" >&2
-  exit 1
-fi
-
+# **************************************************************************** #
+# Setup tests                                                                  #
+# **************************************************************************** #
 setup() {
-
   TESTDIR="$(temp_make)"
   curPath="${PWD}"
 
@@ -57,7 +45,6 @@ setup() {
   set -o errtrace
   set -o nounset
   set -o pipefail
-  shopt -u nocasematch
 }
 
 teardown() {
@@ -69,7 +56,9 @@ teardown() {
   temp_del "${TESTDIR}"
 }
 
-######## RUN TESTS ########
+# **************************************************************************** #
+# Test Casses                                                                  #
+# **************************************************************************** #
 @test "Sanity..." {
   run true
 
@@ -77,235 +66,382 @@ teardown() {
   assert_output ""
 }
 
-@test "_splitString_" {
-  run _splitString_ "a,b,cd" ","
+# ---------------------------------------------------------------------------- #
+# bfl::escape_special_symbols                                                  #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::escape_special_symbols -> Should return STRING with all special characters escaped" {
+  run bfl::escape_special_symbols 'foo'
+  [ "${output}" == 'foo' ]
+
+  run bfl::escape_special_symbols 'foo\'
+  [ "${output}" == 'foo\\' ]
+
+  run bfl::escape_special_symbols 'f\$oo'
+  [ "${output}" == 'f\\\$oo' ]
+
+  run bfl::escape_special_symbols ''
+  [ "${output}" == '' ]
+}
+
+# ---------------------------------------------------------------------------- #
+# bfl::string_replace                                                              #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::string_replace -> Should return STRING with each occurence of TARGET replaced with REPLACEMENT" {
+  # String with a single occurence
+  run bfl::string_replace "foo-bar" "-" "#"
+  [ "${output}" == "foo#bar" ]
+
+  # String with multiple occurences
+  run bfl::string_replace "foo-bar" "o" "#"
+  [ "${output}" == "f##-bar" ]
+
+  # String with no occurences
+  run bfl::string_replace "foo-bar" "#" "#"
+  [ "${output}" == "foo-bar" ]
+
+  # Match multiple chars
+  run bfl::string_replace "foo-bar" "oo" "#"
+  [ "${output}" == "f#-bar" ]
+
+  # Match one char, replace with multiple chars
+  run bfl::string_replace "foo-bar" "-" "##"
+  [ "${output}" == "foo##bar" ]
+}
+
+@test "bfl::string_replace -> Should return the STRING if REPLACEMENT or TARGET were not specified" {
+  # String with a single occurence
+  run bfl::string_replace "foo-bar" "-"
+  [ "${output}" == "foo-bar" ]
+
+  # String with a single occurence
+  run bfl::string_replace "foo-bar"
+  [ "${output}" == "foo-bar" ]
+}
+
+@test "bfl::string_replace -> Should return an empty string if STRING was not specified" {
+  # String with a single occurence
+  run bfl::string_replace
+  [ "${output}" == "" ]
+}
+
+# ---------------------------------------------------------------------------- #
+# bfl::string_split                                                            #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::string_split -> Should return the string representation of an array, containing STRING splittet into its elements using REGEX" {
+  # String separated by a single char
+  run bfl::string_split "foo,bar" ","
+  [ "${output}" == "( foo bar )" ]
+
+  # String separated by a multiple chars
+  run bfl::string_split "foo, bar" ", "
+  [ "${output}" == "( foo bar )" ]
+
+  # String separated by a a regex
+  run bfl::string_split "foo--bar" "-+"
+  [ "${output}" == "( foo bar )" ]
+
+  # No separator
+  run bfl::string_split "foo,bar"
+  [ "${output}" == "( foo,bar )" ]
+
+  # No argument
+  run bfl::string_split
+  [ "${output}" == "(  )" ]
+}
+
+@test "bfl::string_split" {
+  run bfl::string_split "a,b,cd" ","
   assert_success
   assert_line --index 0 "a"
   assert_line --index 1 "b"
   assert_line --index 2 "cd"
 }
 
-@test "_stringContains_: success" {
-  run _stringContains_ "hello world!" "lo"
+
+# ---------------------------------------------------------------------------- #
+# bfl::trimL                                                                   #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::trimL" {
+  local text=$(bfl::trimL <<<"    some text")
+
+  run echo "$text"
+  assert_output "some text"
+}
+
+
+# ---------------------------------------------------------------------------- #
+# bfl::trimR                                                                   #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::trimR" {
+  local text=$(bfl::trimR <<<"some text    ")
+
+  run echo "$text"
+  assert_output "some text"
+}
+
+# ---------------------------------------------------------------------------- #
+# bfl::path_prepend                                                            #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::path_prepend: succeed on dir not found" {
+  mkdir -p "${TESTDIR}/testing/from/bats"
+  mkdir -p "${TESTDIR}/testing/from/bats_again"
+  run bfl::path_prepend "${TESTDIR}/testing/from/bats" "${TESTDIR}/testing/again" "${TESTDIR}/testing/from/bats_again"
   assert_success
 }
 
-@test "_stringContains_: failure" {
-  run _stringContains_ "hello world!" "LO"
+@test "bfl::path_prepend: fail on dir not found" {
+  mkdir -p "${TESTDIR}/testing/from/bats"
+  mkdir -p "${TESTDIR}/testing/from/bats_again"
+  run bfl::path_prepend -x "${TESTDIR}/testing/from/bats" "${TESTDIR}/testing/again" "${TESTDIR}/testing/from/bats_again"
   assert_failure
 }
 
-@test "_stringContains_: success, case insensitive" {
-  run _stringContains_ -i "hello world!" "LO"
+@test "bfl::path_prepend: success" {
+  mkdir -p "${TESTDIR}/testing/from/bats"
+  mkdir -p "${TESTDIR}/testing/from/bats_again"
+  bfl::path_prepend "${TESTDIR}/testing/from/bats" "${TESTDIR}/testing/from/bats_again"
+
+  run echo "${PATH}"
+  assert_output --regexp "/testing/from/bats"
+  refute_output --regexp "/testing/again"
+  assert_output --regexp "/testing/from/bats_again"
+}
+
+@test "bfl::is_email: true" {
+  run bfl::is_email "some.email+name@gmail.com"
   assert_success
 }
 
-@test "_stringRegex_: success" {
-  run _stringRegex_ "hello world!" "^h[a-z ]+!$"
-  assert_success
-}
-
-@test "_stringRegex_: failure" {
-  run _stringRegex_ "Hello World!" "^h[a-z ]+!$"
+@test "bfl::is_email: false" {
+  run bfl::is_email "testemail"
   assert_failure
 }
 
-@test "_stringRegex_: success, case insensitive" {
-  run _stringRegex_ -i "Hello World!" "^h[a-z ]+!$"
+@test "bfl::is_FQDN: true" {
+  run bfl::is_FQDN "some.domain.com"
   assert_success
 }
 
+@test "bfl::is_FQDN: false" {
+  run bfl::is_FQDN "testing"
+  assert_failure
+}
+
+@test "bfl::is_FQDN: false2" {
+  run bfl::is_FQDN "192.168.1.1"
+  assert_failure
+}
+
+@test "bfl::is_IPv4: true" {
+  run bfl::is_IPv4 "192.168.1.1"
+  assert_success
+  run bfl::is_IPv4 "4.2.2.2"
+  assert_success
+  run bfl::is_IPv4 "0.192.168.1"
+  assert_success
+  run bfl::is_IPv4 "255.255.255.255"
+  assert_success
+}
+
+@test "bfl::is_IPv4: false" {
+  run bfl::is_IPv4 "1.b.c.d"
+  assert_failure
+  run bfl::is_IPv4 "1234.123.123.123"
+  assert_failure
+  run bfl::is_IPv4 "192.168.0"
+  assert_failure
+  run bfl::is_IPv4 "255.255.255.256"
+  assert_failure
+}
+
+@test "bfl::is_IPv6: true" {
+  run bfl::is_IPv6 "2001:db8:85a3:8d3:1319:8a2e:370:7348"
+  assert_success
+  run bfl::is_IPv6 "fe80::1ff:fe23:4567:890a"
+  assert_success
+  run bfl::is_IPv6 "fe80::1ff:fe23:4567:890a%eth2"
+  assert_success
+  run bfl::is_IPv6 "::"
+  assert_success
+  run bfl::is_IPv6 "2001:db8::"
+  assert_success
+}
+
+@test "bfl::is_IPv6: false" {
+  run bfl::is_IPv6 "2001:0db8:85a3:0000:0000:8a2e:0370:7334:foo:bar"
+  assert_failure
+  run bfl::is_IPv6 "fezy::1ff:fe23:4567:890a"
+  assert_failure
+  run bfl::is_IPv6 "192.168.0"
+}
+
+@test "bfl::_is_alphabet: true " {
+  testVar="abc"
+  run bfl::_is_alphabet "${testVar}"
+  assert_success
+}
+
+@test "bfl::_is_alphabet: false " {
+  testVar="ab c"
+  run bfl::_is_alphabet "${testVar}"
+  assert_failure
+}
+
+@test "bfl::var_is_false: true" {
+  testvar=false
+  run bfl::var_is_false "${testvar}"
+  assert_success
+}
+
+@test "bfl::var_is_false: false" {
+  testvar=true
+  run _variableIsFalse_ "${testvar}"
+  assert_failure
+}
+
+@test "bfl::var_is_true: true" {
+  testvar=true
+  run bfl::var_is_true "${testvar}"
+  assert_success
+}
+
+@test "bfl::var_is_true: false" {
+  testvar=false
+  run bfl::var_is_true "${testvar}"
+  assert_failure
+}
+
+@test "bfl::var_is_empty: true" {
+  testvar=""
+  run bfl::var_is_empty "${testvar}"
+  assert_success
+}
+
+@test "bfl::var_is_empty: false" {
+  testvar=test
+  run bfl::var_is_empty "${testvar}"
+  assert_failure
+}
 
 _testCleanString_() {
 
-  @test "_cleanString_: fail" {
-    run _cleanString_
+  @test "bfl::clean_string: fail" {
+    run bfl::clean_string
     assert_failure
   }
 
-  @test "_cleanString_: lowercase" {
-    run _cleanString_ -l "I AM IN CAPS"
+  @test "bfl::clean_string: lowercase" {
+    run bfl::clean_string -l "I AM IN CAPS"
     assert_success
     assert_output "i am in caps"
   }
 
-  @test "_cleanString_: uppercase" {
-    run _cleanString_ -u "i am in caps"
+  @test "bfl::clean_string: uppercase" {
+    run bfl::clean_string -u "i am in caps"
     assert_success
     assert_output "I AM IN CAPS"
   }
 
-  @test "_cleanString_: remove white space" {
-    run _cleanString_ -u "   i am     in caps   "
+  @test "bfl::clean_string: remove white space" {
+    run bfl::clean_string -u "   i am     in caps   "
     assert_success
     assert_output "I AM IN CAPS"
   }
 
-  @test "_cleanString_: remove spaces before/after dashes" {
-    run _cleanString_ "word - another- word -another-word"
+  @test "bfl::clean_string: remove spaces before/after dashes" {
+    run bfl::clean_string "word - another- word -another-word"
     assert_success
     assert_output "word-another-word-another-word"
   }
 
-   @test "_cleanString_: remove spaces before/after underscores" {
-    run _cleanString_ "word _ another_ word _another_word"
+   @test "bfl::clean_string: remove spaces before/after underscores" {
+    run bfl::clean_string "word _ another_ word _another_word"
     assert_success
     assert_output "word_another_word_another_word"
   }
 
-  @test "_cleanString_: alnum" {
-    run _cleanString_ -a "  !@#$%^%& i am     in caps 12345 == "
+  @test "bfl::clean_string: alnum" {
+    run bfl::clean_string -a "  !@#$%^%& i am     in caps 12345 == "
     assert_success
     assert_output "i am in caps 12345"
   }
 
-  @test "_cleanString_: alnum w/ spaces" {
-    run _cleanString_ -as "this(is)a[string]"
+  @test "bfl::clean_string: alnum w/ spaces" {
+    run bfl::clean_string -as "this(is)a[string]"
     assert_success
     assert_output "this is a string"
   }
 
-  @test "_cleanString_: alnum w/ spaces and dashes" {
-    run _cleanString_ -as "this(is)a-string"
+  @test "bfl::clean_string: alnum w/ spaces and dashes" {
+    run bfl::clean_string -as "this(is)a-string"
     assert_success
     assert_output "this is a-string"
   }
 
-    @test "_cleanString_: alnum w/ spaces and dashes and regex replace" {
-    run _cleanString_ -asp "-|_|st, " "th_is(is)a-string"
+    @test "bfl::clean_string: alnum w/ spaces and dashes and regex replace" {
+    run bfl::clean_string -asp "-|_|st, " "th_is(is)a-string"
     assert_success
     assert_output "th is is a ring"
   }
 
-  @test "_cleanString_: user replacement" {
-    run _cleanString_ -p "e,g" "there should be a lot of e's in this sentence"
+  @test "bfl::clean_string: user replacement" {
+    run bfl::clean_string -p "e,g" "there should be a lot of e's in this sentence"
     assert_success
     assert_output "thgrg should bg a lot of g's in this sgntgncg"
   }
 
-  @test "_cleanString_: remove specified characters" {
-    run _cleanString_ "there should be a lot of e's in this sentence" "e"
+  @test "bfl::clean_string: remove specified characters" {
+    run bfl::clean_string "there should be a lot of e's in this sentence" "e"
     assert_success
     assert_output "thr should b a lot of 's in this sntnc"
   }
 
-  @test "_cleanString_: compound test 1" {
-    run _cleanString_ -p "2,4" -au "  @#$%[]{} clean   a compound command ==23---- " "e"
+  @test "bfl::clean_string: compound test 1" {
+    run bfl::clean_string -p "2,4" -au "  @#$%[]{} clean   a compound command ==23---- " "e"
     assert_success
     assert_output "CLAN A COMPOUND COMMAND 43-"
   }
 
 }
-_testCleanString_
 
 _testStopWords_() {
 
-  @test "_stripStopwords_: success" {
-    run _stripStopwords_ "A string to be parsed"
+  @test "bfl::clean_stopwords: success" {
+    run bfl::clean_stopwords "A string to be parsed"
     assert_success
     assert_output "string parsed"
   }
 
-  @test "_stripStopwords_: success w/ user terms" {
-    run _stripStopwords_ "A string to be parsed to help pass this test being performed by bats" "bats,string"
+  @test "bfl::clean_stopwords: success w/ user terms" {
+    run bfl::clean_stopwords "A string to be parsed to help pass this test being performed by bats" "bats,string"
     assert_success
     assert_output "parsed pass performed"
   }
 
-  @test "_stripStopwords_: No changes" {
-    run _stripStopwords_ "string parsed pass performed"
+  @test "bfl::clean_stopwords: No changes" {
+    run bfl::clean_stopwords "string parsed pass performed"
     assert_success
     assert_output "string parsed pass performed"
   }
 
-  @test "_stripStopwords_: fail" {
-    run _stripStopwords_
+  @test "bfl::clean_stopwords: fail" {
+    run bfl::clean_stopwords
     assert_failure
   }
 
 }
-_testStopWords_
 
-@test "_escapeString_" {
-  run _escapeString_ "Here is some / text to & be - escaped"
+@test "bfl::strip_escape_symbols" {
+  run bfl::strip_escape_symbols "Here is some / text to & be - escaped"
   assert_success
   assert_output "Here\ is\ some\ /\ text\ to\ &\ be\ -\ escaped"
 }
 
-@test "_encodeHTML_" {
-  run _encodeHTML_ "Here's some text& to > be h?t/M(l• en™codeç£§¶d"
-  assert_success
-  assert_output "Here's some text&amp; to &gt; be h?t/M(l&bull; en&trade;code&ccedil;&pound;&sect;&para;d"
-}
-
-@test "_decodeHTML_" {
-  run _decodeHTML_ "&clubs;Here's some text &amp; to &gt; be h?t/M(l&bull; en&trade;code&ccedil;&pound;&sect;&para;d"
-  assert_success
-  assert_output "♣Here's some text & to > be h?t/M(l• en™codeç£§¶d"
-}
-
-@test "_lower" {
-  local text="$(echo "MAKE THIS LOWERCASE" | _lower_)"
-
-  run echo "$text"
-  assert_output "make this lowercase"
-}
-
-@test "_ltrim_" {
-  local text=$(_ltrim_ <<<"    some text")
-
-  run echo "$text"
-  assert_output "some text"
-}
-
-@test "_rtrim_" {
-  local text=$(_rtrim_ <<<"some text    ")
-
-  run echo "$text"
-  assert_output "some text"
-}
-
-@test "_upper_" {
-  local text="$(echo "make this uppercase" | _upper_)"
-
-  run echo "$text"
-  assert_output "MAKE THIS UPPERCASE"
-}
-
-@test "_encodeURL_" {
-  run _encodeURL_ "Here's some.text%that&needs_to-be~encoded+a*few@more(characters)"
-  assert_success
-  assert_output "Here%27s%20some.text%25that%26needs_to-be~encoded%2Ba%2Afew%40more%28characters%29"
-}
-
-@test "_decodeURL_" {
-  run _decodeURL_ "Here%27s%20some.text%25that%26needs_to-be~encoded%2Ba%2Afew%40more%28characters%29"
-  assert_success
-  assert_output "Here's some.text%that&needs_to-be~encoded+a*few@more(characters)"
-}
-
-@test "_regexCapture_: success" {
-  run _regexCapture_ "#FFFFFF" '^(#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$' || echo "no match found"
-
-  assert_success
-  assert_output "#FFFFFF"
-}
-
-@test "_regexCapture_: success, case insensitive" {
-  run _regexCapture_ -i "#FFFFFF" '^(#?([a-f0-9]{6}|[a-f0-9]{3}))$' || echo "no match found"
-
-  assert_success
-  assert_output "#FFFFFF"
-}
-
-@test "_regexCapture_: failure, no match found" {
-  run _regexCapture_ "gggggg" '^(#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$'
-
-  assert_failure
-}
-
-@test "_regexCapture_: failure, would only match with case insensitive" {
-  run _regexCapture_ "#FFFFFF" '^(#?([a-f0-9]{6}|[a-f0-9]{3}))$' || echo "no match found"
-
-  assert_failure
-}
+_testCleanString_
+_testStopWords_

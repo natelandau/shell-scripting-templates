@@ -1,52 +1,31 @@
 #!/usr/bin/env bats
 #shellcheck disable
 
+# Unittests for the functions in lib/arrays
+#
+# The unit tests in this script are written using the BATS framework.
+# See: https://github.com/sstephenson/bats
+
+
+# **************************************************************************** #
+# Imports                                                                      #
+# **************************************************************************** #
+[[ $_GUARD_BFL_autoload -ne 1 ]] && . /etc/getConsts && . "$BASH_FUNCTION_LIBRARY" # подключаем внешнюю "библиотеку"
+
+
+# **************************************************************************** #
+# Init                                                                         #
+# **************************************************************************** #
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-file/load'
 load 'test_helper/bats-assert/load'
 
-######## SETUP TESTS ########
-ROOTDIR="$(git rev-parse --show-toplevel)"
-SOURCEFILE="${ROOTDIR}/utilities/arrays.bash"
-BASEHELPERS="${ROOTDIR}/utilities/misc.bash"
-ALERTS="${ROOTDIR}/utilities/alerts.bash"
-CHECKS="${ROOTDIR}/utilities/checks.bash"
+#ROOTDIR="$(git rev-parse --show-toplevel)"
 
-if test -f "${SOURCEFILE}" >&2; then
-  source "${SOURCEFILE}"
-else
-  echo "Sourcefile not found: ${SOURCEFILE}" >&2
-  printf "Can not run tests.\n" >&2
-  exit 1
-fi
-
-if test -f "${ALERTS}" >&2; then
-  source "${ALERTS}"
-  _setColors_ #Set color constants
-else
-  echo "Sourcefile not found: ${ALERTS}" >&2
-  printf "Can not run tests.\n" >&2
-  exit 1
-fi
-
-if test -f "${BASEHELPERS}" >&2; then
-  source "${BASEHELPERS}"
-else
-  echo "Sourcefile not found: ${BASEHELPERS}" >&2
-  printf "Can not run tests.\n" >&2
-  exit 1
-fi
-
-if test -f "${CHECKS}" >&2; then
-  source "${CHECKS}"
-else
-  echo "Sourcefile not found: ${CHECKS}" >&2
-  printf "Can not run tests.\n" >&2
-  exit 1
-fi
-
+# **************************************************************************** #
+# Setup tests                                                                  #
+# **************************************************************************** #
 setup() {
-
   # Set arrays
   A=(one two three 1 2 3)
   B=(1 2 3 4 5 6)
@@ -80,103 +59,184 @@ teardown() {
 
   popd &>/dev/null
   temp_del "${TESTDIR}"
-}
+  }
 
-######## RUN TESTS ########
+# **************************************************************************** #
+# Test Casses                                                                  #
+# **************************************************************************** #
 @test "Sanity..." {
   run true
 
   assert_success
   assert_output ""
+  }
+
+# ---------------------------------------------------------------------------- #
+# bfl::array_contains_element                                                  #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::array_contains_element -> If ARRAY does contain ELEMENT, the function should return 0" {
+  local -r T_ARRAY=( "abc" "xyz" )
+  local -r ELEMENT="abc"
+
+  run bfl::array_contains_element T_ARRAY[@] "${ELEMENT}"
+  [ "${status}" -eq 0 ]
 }
 
-@test "_inArray_: success" {
-  run _inArray_ "one" "${A[@]}"
+@test "bfl::array_contains_element -> If ARRAY does not contain ELEMENT, the function should return 1" {
+  local -r T_ARRAY=( "abc" "xyz" )
+  local -r ELEMENT="jkl"
+
+  run bfl::array_contains_element T_ARRAY[@] "${ELEMENT}"
+  [ "${status}" -eq 1 ]
+}
+
+@test "bfl::array_contains_element: success" {
+  run bfl::array_contains_element "one" "${A[@]}"
   assert_success
-}
+  }
 
-@test "_inArray_: success and ignore case" {
-  run _inArray_ -i "ONE" "${A[@]}"
+@test "bfl::array_contains_element: success and ignore case" {
+  run bfl::array_contains_element -i "ONE" "${A[@]}"
   assert_success
-}
+  }
 
-@test "_inArray_: failure" {
-  run _inArray_ ten "${A[@]}"
+@test "bfl::array_contains_element: failure" {
+  run bfl::array_contains_element ten "${A[@]}"
   assert_failure
+  }
+
+# ---------------------------------------------------------------------------- #
+# bfl::array_intersects                                                        #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::array_intersects -> If ARRAY_1 has any intersections with ARRAY_2, the function should return 0" {
+  local -r T_ARRAY_1=( "abc" "xyz" )
+  local -r T_ARRAY_2=( "123" "456" "xyz" "789" )
+
+  run bfl::array_intersects T_ARRAY_1[@] T_ARRAY_2[@]
+  [ "${status}" -eq 0 ]
 }
 
-@test "_joinArray_: Join array comma" {
-  run _joinArray_ , "${B[@]}"
+@test "bfl::array_intersects -> If ARRAY_1 has no intersections with ARRAY_2, the function should return 1" {
+  local -r T_ARRAY_1=( "abc" "xyz" )
+  local -r T_ARRAY_2=( "123" "456" "789" )
+
+  run bfl::array_intersects T_ARRAY_1[@] T_ARRAY_2[@]
+  [ "${status}" -eq 1 ]
+}
+
+# ---------------------------------------------------------------------------- #
+# bfl::join_array                                                              #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::join_array -> If ARRAY does contain elements and DELIMITER is specified, the function should return 0 and the concatinated string" {
+  local -r -a T_ARRAY=( "abc" "xyz" )
+  local -r DELIMITER=" - "
+
+  run bfl::join_array T_ARRAY[@] "${DELIMITER}"
+  [ "${status}" -eq 0 ]
+  [ "${output}" == "abc - xyz" ]
+}
+
+@test "bfl::join_array -> If ARRAY does contain elements and no DELIMITER is specified, the function should return 0 and the concatinated string with default delimiter" {
+  local -r -a T_ARRAY=( "abc" "xyz" )
+
+  run bfl::join_array T_ARRAY[@]
+  [ "${status}" -eq 0 ]
+  [ "${output}" == "abc,xyz" ]
+}
+
+@test "bfl::join_array -> If ARRAY does contain no element, the function should return 0 and an empty string" {
+  local -r -a T_ARRAY=()
+
+  run bfl::join_array T_ARRAY[@]
+  [ "${status}" -eq 0 ]
+  [ "${output}" == "" ]
+}
+
+@test "bfl::join_array -> If the function is called with no arguments, it should return 1 and an empty string" {
+  run bfl::join_array
+  [ "${status}" -eq 1 ]
+  [ "${output}" == "" ]
+}
+
+@test "bfl::join_array: Join array comma" {
+  run bfl::join_array , "${B[@]}"
   assert_success
   assert_output "1,2,3,4,5,6"
-}
+  }
 
-@test "_joinArray_: Join array space" {
-  run _joinArray_ " " "${B[@]}"
+@test "bfl::join_array: Join array space" {
+  run bfl::join_array " " "${B[@]}"
   assert_success
   assert_output "1 2 3 4 5 6"
-}
+  }
 
-@test "_joinArray_: Join string complex" {
-  run _joinArray_ , a "b c" d
+@test "bfl::join_array: Join string complex" {
+  run bfl::join_array , a "b c" d
   assert_success
   assert_output "a,b c,d"
-}
+  }
 
-@test "_joinArray_: join string simple" {
-  run _joinArray_ / var usr tmp
+@test "bfl::join_array: join string simple" {
+  run bfl::join_array / var usr tmp
   assert_success
   assert_output "var/usr/tmp"
-}
+  }
 
-@test "_setDiff_: Print elements not common to arrays" {
-  run _setDiff_ "A[@]" "B[@]"
+# ---------------------------------------------------------------------------- #
+# bfl::get_diff_array                                                          #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::get_diff_array: Print elements not common to arrays" {
+  run bfl::get_diff_array "A[@]" "B[@]"
   assert_success
   assert_line --index 0 "one"
   assert_line --index 1 "two"
   assert_line --index 2 "three"
 
-  run _setDiff_ "B[@]" "A[@]"
+  run bfl::get_diff_array "B[@]" "A[@]"
   assert_success
   assert_line --index 0 "4"
   assert_line --index 1 "5"
   assert_line --index 2 "6"
-}
+  }
 
-@test "_setDiff_: Fail when no diff" {
-  run _setDiff_ "A[@]" "A[@]"
+@test "bfl::get_diff_array: Fail when no diff" {
+  run bfl::get_diff_array "A[@]" "A[@]"
   assert_failure
-}
+  }
 
-@test "_randomArrayElement_" {
-  run _randomArrayElement_ "${A[@]}"
+# ---------------------------------------------------------------------------- #
+# bfl::get_random_array_element                                                #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::get_random_array_element" {
+  run bfl::get_random_array_element "${A[@]}"
   assert_success
   assert_output --regexp '^one|two|three|1|2|3$'
-}
+  }
 
-@test "_dedupeArray_: remove duplicates" {
-  run _dedupeArray_ "${DUPES[@]}"
+# ---------------------------------------------------------------------------- #
+# bfl::dedupe_array                                                            #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::dedupe_array: remove duplicates" {
+  run bfl::dedupe_array "${DUPES[@]}"
   assert_success
   assert_line --index 0 "1"
   assert_line --index 1 "2"
   assert_line --index 2 "3"
-}
+  }
 
-@test "_isEmptyArray_: empty" {
-  declare -a emptyArray=()
-  run _isEmptyArray_ "${emptyArray[@]}"
-  assert_success
-}
+# ---------------------------------------------------------------------------- #
+# bfl::sort_array                                                              #
+# ---------------------------------------------------------------------------- #
 
-@test "_isEmptyArray_: not empty" {
-  fullArray=(1 2 3)
-  run _isEmptyArray_ "${fullArray[@]}"
-  assert_failure
-}
-
-@test "_sortArray_" {
+@test "bfl::sort_array" {
   unsorted_array=("c" "b" "c" "4" "1" "3" "a" "2" "d")
-  run _sortArray_ "${unsorted_array[@]}"
+  run bfl::sort_array "${unsorted_array[@]}"
   assert_success
   assert_line --index 0 "1"
   assert_line --index 1 "2"
@@ -187,11 +247,11 @@ teardown() {
   assert_line --index 6 "c"
   assert_line --index 7 "c"
   assert_line --index 8 "d"
-}
+  }
 
-@test "_reverseSortArray_" {
+@test "bfl::sort_array" {
   unsorted_array=("c" "b" "c" "4" "1" "3" "a" "2" "d")
-  run _reverseSortArray_ "${unsorted_array[@]}"
+  run bfl::sort_array --reverse "${unsorted_array[@]}"
   assert_success
   assert_line --index 0 "d"
   assert_line --index 1 "c"
@@ -202,12 +262,16 @@ teardown() {
   assert_line --index 6 "3"
   assert_line --index 7 "2"
   assert_line --index 8 "1"
-}
+  }
 
-@test "_mergeArrays_" {
+# ---------------------------------------------------------------------------- #
+# bfl::merge_arrays                                                            #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::merge_arrays" {
   a1=(1 2 3)
   a2=(3 2 1)
-  run _mergeArrays_ "a1[@]" "a2[@]"
+  run bfl::merge_arrays "a1[@]" "a2[@]"
   assert_success
   assert_line --index 0 "1"
   assert_line --index 1 "2"
@@ -215,86 +279,105 @@ teardown() {
   assert_line --index 3 "3"
   assert_line --index 4 "2"
   assert_line --index 5 "1"
-}
+  }
 
+# ---------------------------------------------------------------------------- #
+# bfl::check_array_by_function_success_all_elements                            #
+# ---------------------------------------------------------------------------- #
 
-@test "_forEachDo_" {
+@test "bfl::check_array_by_function_success_all_elements" (
   test_func() {
       printf "print value: %s\n" "$1"
       return 0
     }
   array=(1 2 3 4 5)
 
-  run _forEachDo_ "test_func" < <(printf "%s\n" "${array[@]}")
+  run bfl::check_array_by_function_success_all_elements "test_func" < <(printf "%s\n" "${array[@]}")
   assert_success
   assert_line --index 0 "print value: 1"
   assert_line --index 1 "print value: 2"
   assert_line --index 2 "print value: 3"
   assert_line --index 3 "print value: 4"
   assert_line --index 4 "print value: 5"
-}
+  )
 
-@test "_forEachValidate_: success" {
+@test "bfl::check_array_by_function_success_all_elements: success" {
   array=("a" "abcdef" "ppll" "xyz")
 
-  run _forEachValidate_ "_isAlpha_" < <(printf "%s\n" "${array[@]}")
+  run bfl::check_array_by_function_success_all_elements "bfl::is_alphabet" < <(printf "%s\n" "${array[@]}")
   assert_success
-}
+  }
 
-@test "_forEachValidate_: failure" {
+@test "bfl::check_array_by_function_success_all_elements: failure" {
   array=("a" "abcdef" "ppll99" "xyz")
 
-  run _forEachValidate_ "_isAlpha_" < <(printf "%s\n" "${array[@]}")
+  run bfl::check_array_by_function_success_all_elements "bfl::is_alphabet" < <(printf "%s\n" "${array[@]}")
   assert_failure
-}
+  }
 
-@test "_forEachFind_: success" {
+# ---------------------------------------------------------------------------- #
+# bfl::check_array_by_function_result_return_1st_success_element               #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::check_array_by_function_result_return_1st_success_element: success" {
   array=("1" "234" "success" "45p9")
 
-  run _forEachFind_ "_isAlpha_" < <(printf "%s\n" "${array[@]}")
+  run bfl::check_array_by_function_result_return_1st_success_element "bfl::is_alphabet" < <(printf "%s\n" "${array[@]}")
   assert_success
   assert_output "success"
-}
+  }
 
-@test "_forEachFind_: failure" {
+@test "bfl::check_array_by_function_result_return_1st_success_element: failure" {
   array=("1" "2" "3" "4")
 
-  run _forEachFind_ "_isAlpha_" < <(printf "%s\n" "${array[@]}")
+  run bfl::check_array_by_function_result_return_1st_success_element "bfl::is_alphabet" < <(printf "%s\n" "${array[@]}")
   assert_failure
-}
+  }
 
-@test "_forEachFilter_" {
+# ---------------------------------------------------------------------------- #
+# bfl::filter_array_by_function_success                                        #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::filter_array_by_function_success" {
   array=(1 2 3 a ab 5 cde 6)
 
-  run _forEachFilter_ "_isAlpha_" < <(printf "%s\n" "${array[@]}")
+  run bfl::filter_array_by_function_success "bfl::is_alphabet" < <(printf "%s\n" "${array[@]}")
   assert_success
   assert_line --index 0 "a"
   assert_line --index 1 "ab"
   assert_line --index 2 "cde"
-}
+  }
 
-@test "_forEachReject_" {
+# ---------------------------------------------------------------------------- #
+# bfl::filter_array_by_function_fail                                           #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::filter_array_by_function_fail" {
   array=(1 2 3 a ab 5 cde 6)
 
-  run _forEachReject_ "_isAlpha_" < <(printf "%s\n" "${array[@]}")
+  run bfl::filter_array_by_function_fail "bfl::is_alphabet" < <(printf "%s\n" "${array[@]}")
   assert_success
   assert_line --index 0 "1"
   assert_line --index 1 "2"
   assert_line --index 2 "3"
   assert_line --index 3 "5"
   assert_line --index 4 "6"
-}
+  }
 
-@test "_forEachSome_: success" {
+# ---------------------------------------------------------------------------- #
+# bfl::_check_array_by_function_success_any_element                            #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::_check_array_by_function_success_any_element: success" {
   array=("1" "234" "success" "45p9")
 
-  run _forEachSome_ "_isAlpha_" < <(printf "%s\n" "${array[@]}")
+  run bfl::_check_array_by_function_success_any_element "bfl::is_alphabet" < <(printf "%s\n" "${array[@]}")
   assert_success
-}
+  }
 
-@test "_forEachSome_: failure" {
+@test "bfl::_check_array_by_function_success_any_element: failure" {
   array=("1" "2" "3" "4")
 
-  run _forEachSome_ "_isAlpha_" < <(printf "%s\n" "${array[@]}")
+  run bfl::_check_array_by_function_success_any_element "bfl::is_alphabet" < <(printf "%s\n" "${array[@]}")
   assert_failure
-}
+  }
