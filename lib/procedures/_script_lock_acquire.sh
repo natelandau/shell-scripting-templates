@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
 #----------- https://github.com/natelandau/shell-scripting-templates ----------
@@ -32,7 +32,7 @@ bfl::script_lock_acquire() {
   bfl::verify_arg_count "$#" 0 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 1]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   local _lockDir
-  _lockDir="${TMPDIR:-/tmp/}$(basename ${0})"
+  _lockDir="${TMPDIR:-/tmp/}${0##*/}"   # $(basename ${0})
   [[ "${1:-}" == 'system' ]] || _lockDir+=".${UID}"
   _lockDir+=".lock"
 

@@ -10,7 +10,7 @@
 # **************************************************************************** #
 # Imports                                                                      #
 # **************************************************************************** #
-[[ $_GUARD_BFL_autoload -ne 1 ]] && . /etc/getConsts && . "$BASH_FUNCTION_LIBRARY" # подключаем внешнюю "библиотеку"
+[[ ${_GUARD_BFL_autoload} -eq 1 ]] || { . /etc/getConsts; . "$BASH_FUNCTION_LIBRARY"; }
 
 
 # **************************************************************************** #
@@ -36,7 +36,7 @@ setup() {
 
   ######## DEFAULT FLAGS ########
   LOGFILE="${TESTDIR}/logs/log.txt"
-  QUIET=false
+  BASH_INTERACTIVE=true
   LOGLEVEL=OFF
   VERBOSE=false
   FORCE=false

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 # https://unix.stackexchange.com/questions/462156/how-do-i-find-the-line-number-in-bash-when-an-error-occured
 #----------- https://github.com/natelandau/shell-scripting-templates ----------
@@ -52,24 +52,28 @@
 #     0 / 1    ( true / false )
 #
 # @example
-#   trap 'bfl::trap_cleanup "$?" "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]}" "$BASH_COMMAND" "$0" "${BASH_SOURCE[0]} "$*" "$HOME/.faults"' EXIT INT TERM SIGINT SIGQUIT SIGTERM ERR
+#   trap 'bfl::trap_cleanup "$?" "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]}" "$BASH_COMMAND" "$0" "${BASH_SOURCE[0]}" "$*" "$HOME/.faults"' EXIT INT TERM SIGINT SIGQUIT SIGTERM ERR
 #------------------------------------------------------------------------------
 bfl::trap_cleanup() {
   bfl::verify_arg_count "$#" 8 9 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [8..9]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
   bfl::verify_dependencies "tput" && local -r has_tput=true || local -r has_tput=false
 
-  local -r lineno_fns=${2% 0}   # local -r _linecallfunc=${2:-}               LINENO
-  [[ "$lineno_fns" -ne 0 ]] && local -r _line="$3${lineno_fns}" || local -r _line="$3"
+  local -r lineno_fns="${2% 0}"
+  if [[ "${lineno_fns}" == "0" ]]; then
+      local -r _line="$3" # LINENO
+  else
+      local -r _line="$2${lineno_fns}"  # local -r _linecallfunc=${2:-}
+  fi
   local _funcstack="${4:-script}"   #    ????
   _funcstack="'$(printf "%s" "${_funcstack}" | sed -E 's/ / < /g')'"
 
   local -r _command="${5:-}"
-  local -r _script="${6:-}"
+  local -r  _script="${6:-}"
   local -r _sourced="${7:-}"
 #                     command script
   local msg="Bash command: ${_command}\n${_script}\nFunction: ${_funcstack}, parameters: $8\n${_funcstack} failed with code $1 at line ${_line}"
-  if [[ ${_script##*/} == "${_sourced##*/}" ]]; then
-      msg+="
+  if [[ "${_script##*/}" == "${_sourced##*/}" ]]; then
+      msg="$msg
 [func: $(bfl::print_function_stack)]"
   fi
   local -r logfile="${9:-$BASH_FUNCTION_LOG}"

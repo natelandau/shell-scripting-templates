@@ -1,26 +1,44 @@
 #!/usr/bin/env bats
 #shellcheck disable
 
+# Unittests for the functions in lib/compile
+#
+# The unit tests in this script are written using the BATS framework.
+# See: https://github.com/sstephenson/bats
+
+
+# **************************************************************************** #
+# Imports                                                                      #
+# **************************************************************************** #
+[[ ${_GUARD_BFL_autoload} -eq 1 ]] || { . /etc/getConsts; . "$BASH_FUNCTION_LIBRARY"; }
+
+
+# **************************************************************************** #
+# Init                                                                         #
+# **************************************************************************** #
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-file/load'
 load 'test_helper/bats-assert/load'
 
 #ROOTDIR="$(git rev-parse --show-toplevel)"
-[[ $_GUARD_BFL_autoload -ne 1 ]] && . /etc/getConsts && . "$BASH_FUNCTION_LIBRARY" # подключаем внешнюю "библиотеку"
 
-######## SETUP TESTS ########
+# **************************************************************************** #
+# Setup tests                                                                  #
+# **************************************************************************** #
 setup() {
   TESTDIR="$(temp_make)"
   ######## DEFAULT FLAGS ########
   LOGFILE="${TESTDIR}/logs/log.txt"
-  QUIET=false
+  BASH_INTERACTIVE=true
   LOGLEVEL=OFF
   VERBOSE=true
   FORCE=false
   DRYRUN=false
   }
 
-######## RUN TESTS ########
+# **************************************************************************** #
+# Test Casses                                                                  #
+# **************************************************************************** #
 @test "Sanity..." {
   run true
 
@@ -28,6 +46,9 @@ setup() {
   assert_output ""
   }
 
+# ---------------------------------------------------------------------------- #
+# bfl::get_unix_timestamp                                                      #
+# ---------------------------------------------------------------------------- #
 @test "bfl::get_unix_timestamp" {
   run bfl::get_unix_timestamp
 
@@ -35,12 +56,18 @@ setup() {
   assert_output --regexp "^[0-9]+$"
   }
 
+# ---------------------------------------------------------------------------- #
+# bfl::date_string_to_unix_timestamp                                           #
+# ---------------------------------------------------------------------------- #
 @test "bfl::date_string_to_unix_timestamp" {
   run bfl::date_string_to_unix_timestamp "2020-07-07 18:38"
   assert_success
   assert_output "1594161480"
   }
 
+# ---------------------------------------------------------------------------- #
+# bfl::unix_timestamp_to_date_string                                           #
+# ---------------------------------------------------------------------------- #
 @test "bfl::unix_timestamp_to_date_string: Default Format" {
   run bfl::unix_timestamp_to_date_string "1591554426"
   assert_success
@@ -53,6 +80,9 @@ setup() {
   assert_output "2020-06-07"
   }
 
+# ---------------------------------------------------------------------------- #
+# bfl::get_month_number_by_caption                                             #
+# ---------------------------------------------------------------------------- #
 @test "bfl::get_month_number_by_caption: 1" {
   run bfl::get_month_number_by_caption "dec"
   assert_success
@@ -70,6 +100,9 @@ setup() {
   assert_failure
   }
 
+# ---------------------------------------------------------------------------- #
+# bfl::get_month_caption_by_number                                             #
+# ---------------------------------------------------------------------------- #
 @test "bfl::get_month_caption_by_number: 1" {
   run bfl::get_month_caption_by_number "1"
   assert_success
@@ -87,6 +120,9 @@ setup() {
   assert_failure
   }
 
+# ---------------------------------------------------------------------------- #
+# bfl::parse_date                                                              #
+# ---------------------------------------------------------------------------- #
 @test "bfl::parse_date: YYYY MM DD 1" {
   run bfl::parse_date "2019 06 01"
   assert_success
@@ -419,6 +455,9 @@ setup() {
   assert_failure
   }
 
+# ---------------------------------------------------------------------------- #
+# bfl::format_date                                                             #
+# ---------------------------------------------------------------------------- #
 @test "bfl::format_date: default" {
   run bfl::format_date "jan 21, 2019"
   assert_success
@@ -431,19 +470,27 @@ setup() {
   assert_output "12 27, 2019"
   }
 
+# ---------------------------------------------------------------------------- #
+# bfl::seconds_to_date_string                                                  #
+# ---------------------------------------------------------------------------- #
 @test "bfl::seconds_to_date_string: Seconds to human readable" {
-
   run bfl::seconds_to_date_string "9255"
   assert_success
   assert_output "02:34:15"
   }
 
+# ---------------------------------------------------------------------------- #
+# bfl::date_string_to_seconds                                                  #
+# ---------------------------------------------------------------------------- #
 @test "bfl::date_string_to_seconds: HH MM SS to Seconds" {
   run bfl::date_string_to_seconds 12 3 33
   assert_success
   assert_output "43413"
   }
 
+# ---------------------------------------------------------------------------- #
+# bfl::sleep                                                                   #
+# ---------------------------------------------------------------------------- #
 @test "bfl::sleep: custom message, default wait" {
   run bfl::sleep 10 0 "something"
   assert_line --index 0 --partial "something 10"

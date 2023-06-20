@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Executes commands while respecting global DRYRUN, VERBOSE, LOGGING, and QUIET flags.
+# Executes commands while respecting global DRYRUN, VERBOSE, LOGGING, and BASH_INTERACTIVE flags.
 #   If $DRYRUN=true, no commands are executed and the command that would have been executed
 #   is printed to STDOUT using dryrun level alerting
 #   If $VERBOSE=true, the command's native output is printed to stdout. This can be forced
@@ -63,12 +63,8 @@ bfl::execute() {
           s | S) _echoSuccessResult=true ;;
           q | Q) _quietMode=true ;;
           n | N) _echoNoticeResult=true ;;
-          *)
-              {
-              error "Unrecognized option '$1' passed to _execute_. Exiting."
-              _safeExit_
-              }
-              ;;
+          *)  bfl::writelog_error "${FUNCNAME[0]}: Unrecognized option '$1' passed to _execute_. Exiting."
+              return 1 ;;
       esac
   done
   shift $((OPTIND - 1))

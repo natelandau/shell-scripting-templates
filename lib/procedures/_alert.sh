@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
 #----------- https://github.com/natelandau/shell-scripting-templates ----------
@@ -25,7 +25,7 @@
 #   The message to be printed to stdout and/or a log file.
 #
 # @param String $line (optional)
-#   Pass '${LINENO}' to print the line number where the _alert_ was triggered.
+#   Pass '${LINENO}' to print the line number where the bfl::alert was triggered.
 #
 # @return String $result
 #   Prints [function]:[file]:[line]. Does not print functions from the alert class.
@@ -37,7 +37,7 @@
 #   bfl::alert "${alertType}" "${MESSAGE}" "${LINENO}"
 #------------------------------------------------------------------------------
 bfl::alert() {
-  bfl::verify_arg_count "$#" 0 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 1]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 2 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2, 3]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
 
   local _alertType="$1"
   local _msg="$2"
@@ -47,12 +47,12 @@ bfl::alert() {
       _msg="${_msg} ${Gray}(line: ${_line}) $(bfl::print_function_stack)"
   elif [[ -n ${_line} && ${FUNCNAME[2]} != "bfl::trap_cleanup" ]]; then
       _msg="${_msg} ${Gray}(line: ${_line})"
-  elif [[ -z ${_line} && ${_alertType} =~ ^(fatal|error) && ${FUNCNAME[2]} != "bfl::trap_cleanup" ]]; then
+  elif [[ -z "${_line}" && "${_alertType}" =~ ^(fatal|error) && "${FUNCNAME[2]}" != "bfl::trap_cleanup" ]]; then
       _msg="${_msg} ${Gray}$(bfl::print_function_stack)"
   fi
 
   local _color
-  if [[ ${_alertType} =~ ^(error|fatal) ]]; then
+  if [[ "${_alertType}" =~ ^(error|fatal) ]]; then
       _color="${CLR_BAD}"   # ${FMT_BOLD}${CLR_BAD}
   elif [[ "${_alertType}" == "info" ]]; then
       _color="${CLR_INFORM}"
@@ -68,7 +68,7 @@ bfl::alert() {
       _color="${FMT_BOLD}"
   elif [[ "${_alertType}" == "input" ]]; then
       _color="${FMT_BOLD}${FMT_UNDERLINE}"
-  elif [[ "${_alertType}" = "dryrun" ]]; then
+  elif [[ "${_alertType}" == "dryrun" ]]; then
       _color="${Blue}"
   else
       _color=""
@@ -96,15 +96,16 @@ bfl::alert() {
       *)  bfl::write_log ${LOG_LVL_OFF} "${_msg}" "${_alertType}" ;;
   esac
 
-} # /_alert_
+}
 
-error()   { _alert_ error "$1" "${2:-}"; return 1; }
-warning() { _alert_ warning "$1" "${2:-}"; }
-notice()  { _alert_ notice "$1" "${2:-}"; }
-info()    { _alert_ info "$1" "${2:-}"; }
-success() { _alert_ success "$1" "${2:-}"; }
-dryrun()  { _alert_ dryrun "$1" "${2:-}"; }
-input()   { _alert_ input "$1" "${2:-}"; }
-header()  { _alert_ header "$1" "${2:-}"; }
-debug()   { _alert_ debug "$1" "${2:-}"; }
-fatal()   { _alert_ fatal "$1" "${2:-}"; return 1; }
+error()   { bfl::alert error "$1" "${2:-}"; return 1; }
+warning() { bfl::alert warning "$1" "${2:-}"; }
+notice()  { bfl::alert notice "$1" "${2:-}"; }
+info()    { bfl::alert info "$1" "${2:-}"; }
+success() { bfl::alert success "$1" "${2:-}"; }
+dryrun()  { bfl::alert dryrun "$1" "${2:-}"; }
+input()   { bfl::alert input "$1" "${2:-}"; }
+header()  { bfl::alert header "$1" "${2:-}"; }
+debug()   { bfl::alert debug "$1" "${2:-}"; }
+fatal()   { bfl::alert fatal "$1" "${2:-}"; return 1; }
+#

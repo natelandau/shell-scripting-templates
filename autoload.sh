@@ -2,7 +2,7 @@
 # shellcheck source-path=SCRIPTDIR/../shell-scripting-templates/utilities
 # shellcheck source-path=SCRIPTDIR/../../shell-scripting-templates/utilities
 
-! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\2|')
+[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 
 [[ -z ${TERM+x} ]] && TERM='xterm-256color' || [[ "$TERM" == 'linux' ]] && TERM='xterm-256color'
@@ -83,81 +83,45 @@ declare -gr BFL_ErrCode_Not_verified_args_count=1
 declare -gr BFL_ErrCode_Not_verified_dependency=2
 declare -gr BFL_ErrCode_Not_verified_arg_values=3
 
-#   Non critical variables
+#   Some global variables
 #LOGFILE="${HOME}/logs/$(basename "$0").log"    - is declared in /etc/getConsts
-QUIET=false
+BASH_INTERACTIVE=true   # QUIET=false
 LOGLEVEL=ERROR
 VERBOSE=false
 FORCE=false
 DRYRUN=false
 
-# Enable xtrace if the DEBUG environment variable is set
-if [[ "${DEBUG,,}" =~ ^1|yes|true$ ]]; then
-  set -o xtrace    # Trace the execution of the script (debug)
-fi
-
-# Only enable these shell behaviours if script not being sourced
-# Approach via: https://stackoverflow.com/a/28776166/8787985
-if ! (return 0 2> /dev/null); then
-  echo 'Script not being sourced' > /dev/tty
-  # A better class of script...
-  set -o errexit      # Exit on most errors (see the manual)
-  set -o nounset      # Disallow expansion of unset variables
-  set -o pipefail     # Use last non-zero exit code in a pipeline
-# Run in debug mode
-# set -o xtrace
-fi
-
-
-trap 'bfl::trap_cleanup "$?" "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]}" "$BASH_COMMAND" "$0" "${BASH_SOURCE[0]} "$*" "$HOME/.faults"' EXIT INT TERM SIGINT SIGQUIT SIGTERM ERR
-
-# Ensure the error trap handler is inherited !!!
-# Enable errtrace or the error trap handler will not work as expected
-set -o errtrace       # Trap errors in subshells and functions
+set +u # Это все, что я могу себе позволить
+set -o functrace -o pipefail # -eE - моментальный вылет, ничего не успев записать
 
 # Confirm we have BASH greater than v4
-[[ -z "${BASH_VERSINFO+x}" ]] ||  [[ "${BASH_VERSINFO:-0}" -ge 4 ]] || {
-    printf "%s\n" "ERROR: BASH_VERSINFO is '${BASH_VERSINFO:-0}'.  This script requires BASH v4 or greater."
-    exit 1
-}
+[[ -z "${BASH_VERSINFO+x}" ]] ||  [[ "${BASH_VERSINFO:-0}" -ge 4 ]] || { printf "%s\n" "ERROR: BASH_VERSINFO is '${BASH_VERSINFO:-0}'.  This script requires BASH v4 or greater."; exit 1; }
 
-# Make `for f in *.txt` work when `*.txt` matches zero files
-shopt -s nullglob globstar
-
-# Set IFS to preferred implementation
-# IFS=$' \n\t'
-
-# Run in debug mode
-# set -o xtrace
+# IFS=$' \n\t' # Set IFS to preferred implementation
 
 bfl::autoload() {
-  # https://github.com/ralish/bash-script-template/script.sh
-  function _script_usage() {
-      cat << EOF
-Usage:
-     -h|--help                    Displays this help
-     -v|--verbose                 Displays verbose output
-    -nc|--no-colour               Disables colour output
-    -cr|--cron                    Run silently unless we encounter an error
-EOF
-  }
 
   function _bfl_parse_params() {
       local param
       while [[ $# -gt 0 ]]; do
           param="$1"
           shift
-          case $param in
-              -h | --help)        script_usage
-                                  return 0 ;;
-              -v | --verbose)     verbose=true ;;
-              -nc | --no-colour)  RC_NOCOLOR=true ;;
-              -cr | --cron)       cron=true ;;
+          case $param in          # https://github.com/ralish/bash-script-template/script.sh
+              -h | --h | --help)        cat << EOF
+Usage:
+     -h | --h | --help            Displays this help
+     -v | --verbose               Displays verbose output
+    -nc | --nc | --no-colour      Disables colour output
+    -cr | --cr | --cron           Run silently unless we encounter an error
+EOF
+                                        return 0 ;;
+              -v | --verbose)           verbose=true ;;
+             -nc | --nc | --no-colour)  RC_NOCOLOR=true ;;
+             -cr | --cr | --cron)       cron=true ;;
               *)  script_exit "Invalid parameter was provided: $param" 1 ;;
           esac
       done
   }
-
 
   [[ -f "$BASH_FUNCTION_LIBRARY" ]] || return 1
   [[ -d $(dirname "$BASH_FUNCTION_LIBRARY") ]] || {
@@ -178,7 +142,7 @@ EOF
   }
 
 declare -a ARGS=()
-_parseOptions_() {
+bfl::parseOptions() {
     # DESC:
     #					Iterates through options passed to script and sets variables. Will break -ab into -a -b
     #         when needed and --foo=bar into --foo bar
@@ -187,7 +151,7 @@ _parseOptions_() {
     # OUTS:
     #					Sets array 'ARGS' containing all arguments passed to script that were not parsed as options
     # USAGE:
-    #					_parseOptions_ "$@"
+    #					bfl::parseOptions "$@"
 
     # Iterate over options
     local _optstring=h
@@ -226,20 +190,22 @@ _parseOptions_() {
     while [[ ${1:-} == -?* ]]; do
         case $1 in
             # Custom options
+            #     ....
+            #     ....
 
             # Common options
-            -h | --help) cat <<USAGE_TEXT
+            -h | --h | --help) cat <<USAGE_TEXT
 
   ${Green}$(basename "$0") [OPTION]... [FILE]...${NC}
 
   This is a script template.  Edit this description to print help to users.
 
   ${Green}${FMT_UNDERLINE}Options:${NC}
-$(bfl::_terminal_print_2columns -b -- '-h, --help' "Display this help and exit" 2)
+$(bfl::_terminal_print_2columns -b -- '-h, --h, --help' "Display this help and exit" 2)
 $(bfl::_terminal_print_2columns -b -- "--loglevel [LEVEL]" "One of: FATAL, ERROR (default), WARN, INFO, NOTICE, DEBUG, ALL, OFF" 2)
 $(bfl::_terminal_print_2columns -b -- "--logfile [FILE]" "Full PATH to logfile.  (Default is '\${HOME}/logs/$(basename "$0").log')" 2)
 $(bfl::_terminal_print_2columns -b -- "-n, --dryrun" "Non-destructive. Makes no permanent changes." 2)
-$(bfl::_terminal_print_2columns -b -- "-q, --quiet" "Quiet (no output)" 2)
+$(bfl::_terminal_print_2columns -b -- "-q, --q, --quiet" "Quiet (no output)" 2)
 $(bfl::_terminal_print_2columns -b -- "-v, --verbose" "Output more information. (Items echoed to 'verbose')" 2)
 $(bfl::_terminal_print_2columns -b -- "--force" "Skip all user interaction.  Implied 'Yes' to all actions." 2)
 
@@ -256,17 +222,12 @@ USAGE_TEXT
                             LOGFILE="${1}" ;;
             -n | --dryrun)  DRYRUN=true ;;
             -v | --verbose) VERBOSE=true ;;
-            -q | --quiet)   QUIET=true ;;
+            -q | --q | --quiet)  BASH_INTERACTIVE=false ;;
             --force)        FORCE=true ;;
             --endopts)      shift
                             break ;;
-            *)  if declare -f 'bfl::script_lock_release' &>/dev/null; then
-                    fatal "invalid option: $1"
-                else
-                    printf "%s\n" "ERROR: Invalid option: $1"
-                    exit 1
-                fi
-                ;;
+            *)  bfl::writelog_error "invalid option: $1"
+                exit 1 ;;
         esac
         shift
     done
@@ -284,45 +245,63 @@ if (return 0 2> /dev/null); then
   bfl::autoload
 else
   bfl::autoload "$@"
+
+# Enable these shell behaviours if script not being sourced ONLY
+# Approach via: https://stackoverflow.com/a/28776166/8787985                                        {BASH_SOURCE[*]}  $1 $2 $3 $4 $5 $6 $7 $8 $9
+  trap 'bfl::trap_cleanup "$?" "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]}" "$BASH_COMMAND" "$0" "${BASH_SOURCE[0]}" "$*" "$HOME/.faults"' EXIT INT TERM SIGINT SIGQUIT SIGTERM ERR
+  echo 'Script not being sourced' > /dev/tty
+# Ensure the error trap handler is inherited !!!
+# ----------------------- https://www.caliban.org/bash/index.shtml -----------------------
+# Enable errtrace or the error trap handler will not work as expected
+# set -e == set -o errexit     # Exit on most errors (see the manual)
+# set -E == set -o errtrace    # Trap errors in subshells and functions
+# set -u == set -o nounset     # Disallow expansion of unset variables
+# set -o pipefail              # Use last non-zero exit code in a pipeline
+  set -eEu -o pipefail
+# set -o xtrace                # Run in debug mode
+
+# Make `for f in *.txt` work when `*.txt` matches zero files
+  shopt -s nullglob globstar
 fi
 
-# Disallow expansion of unset variables
-set -o nounset
+#                                                                                                 {BASH_SOURCE[*]}  $1 $2 $3 $4 $5 $6 $7 $8 $9
+trap 'bfl::trap_cleanup "$?" "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]}" "$BASH_COMMAND" "$0" "${BASH_SOURCE[0]}" "$*" "$HOME/.faults"' EXIT INT TERM SIGINT SIGQUIT SIGTERM ERR
 
-# Force arguments when invoking the script
-# [[ $# -eq 0 ]] && _parseOptions_ "-h"
+# Enable xtrace if the DEBUG environment variable is set
+[[ "${DEBUG,,}" =~ ^1|yes|true$ ]] && set -o xtrace    # Trace the execution of the script (debug)
 
-# Parse arguments passed to script
-_parseOptions_ "$@"
+# [[ $# -eq 0 ]] && bfl::parseOptions "-h"  # Force arguments when invoking the script
+bfl::parseOptions "$@"                      # Parse arguments passed to script
+# bfl::make_tempdir "$(basename "$0")"      # Create a temp directory '$TMP_DIR'
+bfl::script_lock_acquire                    # Acquire script lock
 
-# Create a temp directory '$TMP_DIR'
-# bfl::make_tempdir "$(basename "$0")"
-
-# Acquire script lock
-bfl::script_lock_acquire
-
-# Add Homebrew bin directory to PATH (MacOS)
-# _homebrewPath_
-
-# Source GNU utilities from Homebrew (MacOS)
-# _useGNUutils_
+if [[ "$(bfl::get_OS)" == "mac" ]]; then
+  bfl::get_homebrew_path                    # Add Homebrew bin directory to PATH (MacOS)
+  bfl::use_GNU_utils                        # Source GNU utilities from Homebrew (MacOS)
+fi
 
 # Run the main logic script
 _mainScript_() {
     # Replace everything in _mainScript_() with your script's code
-    header "Showing alert colors"
-    debug "This is debug text"
-    info "This is info text"
-    notice "This is notice text"
-    dryrun "This is dryrun text"
+    header  "Showing alert colors"
+    debug   "This is debug text"
+    info    "This is info text"
+    notice  "This is notice text"
+    dryrun  "This is dryrun text"
     warning "This is warning text"
-    error "This is error text"
+    error   "This is error text"
     success "This is success text"
-    input "This is input text"
+    input   "This is input text"
 }
-_mainScript_
 
-# Exit cleanly
-bfl::script_lock_release
+if [[ -n "$PS1" ]]; then
+    case $- in
+        *i*) _mainScript_  ;; # Only if running interactively
+        *)      # do nothing
+            ;;  # non-interactive
+    esac
+fi
+
+bfl::script_lock_release                    # Exit cleanly
 
 # vim: syntax=sh cc=80 tw=79 ts=4 sw=4 sts=4 et sr

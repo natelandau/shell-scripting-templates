@@ -19,7 +19,7 @@ _mainScript_() {
 # ################################## Flags and defaults
 # Required variables
 LOGFILE="${HOME}/logs/$(basename "$0").log"
-QUIET=false
+BASH_INTERACTIVE=true   # QUIET=false
 LOGLEVEL=ERROR
 VERBOSE=false
 FORCE=false
@@ -131,13 +131,12 @@ _alert_() {
     fi
 
     _writeToScreen_() {
-        ("${QUIET}") && return 0 # Print to console when script is not 'quiet'
+        [[ $BASH_INTERACTIVE == true ]] || return 0
+        [[ $VERBOSE == true ]] && return 0            # Do nothing in quiet/verbose mode.
+          # Print to console when script is not 'quiet'
         [[ ${VERBOSE} == false && ${_alertType} =~ ^(debug|verbose) ]] && return 0
 
-        if ! [[ -t 1 || -z ${TERM:-} ]]; then # Don't use colors on non-recognized terminals
-            _color=""
-            reset=""
-        fi
+        [[ -t 1 || -z ${TERM:-} ]] || { _color=""; reset=""; }   # Don't use colors on non-recognized terminals
 
         if [[ ${_alertType} == header ]]; then
             printf "${_color}%s${reset}\n" "${_message}"
@@ -547,7 +546,7 @@ _parseOptions_() {
             # Custom options
 
             # Common options
-            -h | --help)
+            -h | --h | --help)
                 _usage_
                 _safeExit_
                 ;;
@@ -561,7 +560,7 @@ _parseOptions_() {
                 ;;
             -n | --dryrun) DRYRUN=true ;;
             -v | --verbose) VERBOSE=true ;;
-            -q | --quiet) QUIET=true ;;
+            -q | --q | --quiet) BASH_INTERACTIVE=false ;;
             --force) FORCE=true ;;
             --endopts)
                 shift
@@ -676,11 +675,11 @@ _usage_() {
   This is a script template.  Edit this description to print help to users.
 
   ${bold}${underline}Options:${reset}
-$(_columns_ -b -- '-h, --help' "Display this help and exit" 2)
+$(_columns_ -b -- '-h, --h, --help' "Display this help and exit" 2)
 $(_columns_ -b -- "--loglevel [LEVEL]" "One of: FATAL, ERROR (default), WARN, INFO, NOTICE, DEBUG, ALL, OFF" 2)
 $(_columns_ -b -- "--logfile [FILE]" "Full PATH to logfile.  (Default is '\${HOME}/logs/$(basename "$0").log')" 2)
 $(_columns_ -b -- "-n, --dryrun" "Non-destructive. Makes no permanent changes." 2)
-$(_columns_ -b -- "-q, --quiet" "Quiet (no output)" 2)
+$(_columns_ -b -- "-q, --q, --quiet" "Quiet (no output)" 2)
 $(_columns_ -b -- "-v, --verbose" "Output more information. (Items echoed to 'verbose')" 2)
 $(_columns_ -b -- "--force" "Skip all user interaction.  Implied 'Yes' to all actions." 2)
 

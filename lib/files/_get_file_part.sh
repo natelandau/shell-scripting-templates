@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
 #----------- https://github.com/natelandau/shell-scripting-templates ----------
@@ -56,9 +56,11 @@ bfl::get_file_part() {
   shift $((OPTIND - 1))
 
   # Verify argument values.
-  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: path was not specified."; return $BFL_ErrCode_Not_verified_arg_values; }
-  [[ -f "$1" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: path doesn't exists!"; return $BFL_ErrCode_Not_verified_arg_values; }
-  [[ -s "$1" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: '$1' is empty!"; return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: regex mask '$1' is blank!";    return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_blank "$2" && { bfl::writelog_fail "${FUNCNAME[0]}: regex mask '$2' is blank!";    return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_blank "$3" && { bfl::writelog_fail "${FUNCNAME[0]}: path '$3' was not specified."; return $BFL_ErrCode_Not_verified_arg_values; }
+  [[ -f "$3" ]]      || { bfl::writelog_fail "${FUNCNAME[0]}: path '$3' doesn't exists!";    return $BFL_ErrCode_Not_verified_arg_values; }
+  [[ -s "$3" ]]      || { bfl::writelog_fail "${FUNCNAME[0]}: path '$3' is empty!";          return $BFL_ErrCode_Not_verified_arg_values; }
 
   local _startRegex="${1}"
   local _endRegex="${2}"
@@ -68,15 +70,15 @@ bfl::get_file_part() {
   if [[ ${_removeLines} == true ]]; then
       if [[ ${_greedy} == true ]]; then
           if [[ ${_caseInsensitive} == true ]]; then
-              _output="$(sed -nE "/${_startRegex}/I,/${_endRegex}/Ip" "${_input}" | sed -n '2,$p' | sed '$d')"
+              _output="$(sed '1d' "${_input}" | sed '$d' | sed -nE "/${_startRegex}/I,/${_endRegex}/Ip")"
           else
-              _output="$(sed -nE "/${_startRegex}/,/${_endRegex}/p" "${_input}" | sed -n '2,$p' | sed '$d')"
+              _output="$(sed '1d' "${_input}" | sed '$d' | sed -nE "/${_startRegex}/,/${_endRegex}/p")"
           fi
       else
           if [[ ${_caseInsensitive} == true ]]; then
-              _output="$(sed -nE "/${_startRegex}/I,/${_endRegex}/I{p;/${_endRegex}/Iq}" "${_input}" | sed -n '2,$p' | sed '$d')"
+              _output="$(sed '1d' "${_input}" | sed '$d' | sed -nE "/${_startRegex}/I,/${_endRegex}/I{p;/${_endRegex}/Iq}")"
           else
-              _output="$(sed -nE "/${_startRegex}/,/${_endRegex}/{p;/${_endRegex}/q}" "${_input}" | sed -n '2,$p' | sed '$d')"
+              _output="$(sed '1d' "${_input}" | sed '$d' | sed -nE "/${_startRegex}/,/${_endRegex}/{p;/${_endRegex}/q}")"
           fi
       fi
   else
@@ -95,6 +97,16 @@ bfl::get_file_part() {
       fi
   fi
 
+  local s1 s2
+  if [[ ${_caseInsensitive} == true ]]; then
+      s1="$(echo "${_output}" | sed -nE "/${_startRegex}/Ip")"
+      s2="$(echo "${_output}" | sed -nE "/${_endRegex}/Ip")"
+  else
+      s1="$(echo "${_output}" | sed -n "/${_startRegex}/p")"
+      s2="$(echo "${_output}" | sed -n "/${_endRegex}/p")"
+  fi
+
+  [[ -n "$s1" && -n "$s2" ]] || return 0
   [[ -n ${_output:-} ]] && { printf "%s\n" "${_output}"; return 0; }
 
   return 1

@@ -6,7 +6,7 @@ load 'test_helper/bats-file/load'
 load 'test_helper/bats-assert/load'
 
 #ROOTDIR="$(git rev-parse --show-toplevel)"
-[[ $_GUARD_BFL_autoload -ne 1 ]] && . /etc/getConsts && . "$BASH_FUNCTION_LIBRARY" # подключаем внешнюю "библиотеку"
+[[ ${_GUARD_BFL_autoload} -eq 1 ]] || { . /etc/getConsts; . "$BASH_FUNCTION_LIBRARY"; }
 
 ######## FIXTURES ########
 unencrypted="${BATS_TEST_DIRNAME}/fixtures/test.md"
@@ -24,7 +24,7 @@ setup() {
 
     ######## DEFAULT FLAGS ########
     LOGFILE="${TESTDIR}/logs/log.txt"
-    QUIET=false
+    BASH_INTERACTIVE=true
     LOGLEVEL=ERROR
     VERBOSE=false
     FORCE=false

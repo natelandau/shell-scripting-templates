@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
@@ -46,17 +46,44 @@ bfl::merge_git_repositories() {
   bfl::is_git_repository "$1" || { bfl::writelog_fail "${FUNCNAME[0]}: path '$1' is not a git repository!"; return $BFL_ErrCode_Not_verified_arg_values; }
   bfl::is_git_repository "$3" || { bfl::writelog_fail "${FUNCNAME[0]}: path '$3' is not a git repository!"; return $BFL_ErrCode_Not_verified_arg_values; }
 
-  i=$(sed -n '/^\[remote "origin"\]$/=' "$3"/.git/config)
+  local o1="${1##*/}"    # $(basename "$1")
+  local o2="${3##*/}"    # $(basename "$3")
 
-  cd /etc/bash_functions_library
-  local o="${1##*/}"  # $(basename "$1")
-  local s="${3##*/}"  # $(basename "$3")
-  git remote add "$s" "$3"
-  git fetch "$s" --tags
-  git commit -m 'Commit before merging "$s" into "$o"'
-  GIT_EDITOR=${5:-xed} git merge --allow-unrelated-histories "$s"/"$b2"
-  git push origin "$b1"
-  git remote remove "$s"
+  local s i
+
+  i=$(sed -n "/^\[remote \"$o2\"\]$/=" "$1"/.git/config)
+
+if false; then
+  [[ -z "$i" ]] && bfl::build_multiple_git_config "$1" "$2" "$3" "$4" || \   # можно было git remote add "$o2" "$3"
+                                                            { bfl::writelog_fail "${FUNCNAME[0]}: bfl::build_multiple_git_config '$1' '$2' '$3' '$4'";     return 1; }
+  git fetch "$o2" --tags                                 || { bfl::writelog_fail "${FUNCNAME[0]}: git fetch '$o2' --tags";     return 1; }
+  git commit -m "Commit before merging '$o2' into '$o1'" || { bfl::writelog_fail "${FUNCNAME[0]}: git commit -m 'Commit before merging '$o2' into '$o1''"; return 1; }
+  GIT_EDITOR=${5:-xed} git merge --allow-unrelated-histories "$o2"/"$b2" \
+                                                         || { bfl::writelog_fail "${FUNCNAME[0]}: git merge --allow-unrelated-histories '$o2/$b2'";        return 1; }
+  git push origin "$b1"                                  || { bfl::writelog_fail "${FUNCNAME[0]}: git push origin '$b1'";      return 1; }
+  git remote remove "$o2"                                || { bfl::writelog_fail "${FUNCNAME[0]}: git remote remove '$o2'";    return 1; }
+fi
+
+  # read remote origin from $3/.git/config
+  s=$(bfl::get_file_part "\[remote \"origin\"\]" "\[branch \"$b2\"\]" "$3"/.git/config)
+  [[ -n "$s" ]] && s=$(echo "$s" | sed '1d') && [[ -n "$s" ]] && s=$(echo "$s" | sed '$d')
+  [[ -n "$s" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: text between sections [remote \"origin\"] и '[branch \"$b2\"]' in '$2' not found!"; return 1; }
+
+  local st
+  st=$(echo "$s" | sed '/url =/p' | sed 's|/|\\\/|' )
+  [[ -n "$st" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: echo '$s' | sed '/url =/p'!"; return 1; }
+
+  # read $1/.git/config
+  st=$(sed -n "/$st/p" "$1"/.git/config)
+  if [[ -z "$st" ]]; then
+      i=$(sed -n "/^\[remote \"origin\"\]$/=" "$1"/.git/config)
+      [[ -n "$i" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: section '[remote \"origin\"]' in '$1' not found!"; return 1; }
+
+      sed -i "$i"'i[remote "'"$o2"'"]' "$1"/.git/config && ((i++))
+      bfl::insert_string_to_file "$s" ${i} "$1"/.git/config || { bfl::writelog_fail "${FUNCNAME[0]}: bfl::insert_string_to_file '$s' '${i}' "$1"/.git/config"; return 1; }
+
+      echo "$(echo echo "$s" | sed '/url =/p')" >> "$1"/.git/config
+  fi
 
   return 0
   }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
 #----------- https://github.com/natelandau/shell-scripting-templates ----------
@@ -32,7 +32,7 @@ bfl::get_script_basedir() {
   local _source="${BASH_SOURCE[$i]}"
 
   local _dir
-  while [ -h "${_source}" ]; do # Resolve $SOURCE until the file is no longer a symlink
+  while [[ -h "${_source}" ]]; do # Resolve $SOURCE until the file is no longer a symlink
       _dir="$(cd -P "$(dirname "${_source}")" && pwd)"
       _source="$(readlink "${_source}")"
       [[ ${_source} != /* ]] && _source="${_dir}/${_source}" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located

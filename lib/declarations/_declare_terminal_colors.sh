@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #[[ -n $FMT_UNDERLINE ]] && return 0
 # https://unix.stackexchange.com/questions/269077/tput-setaf-color-table-how-to-determine-color-codes
@@ -38,7 +38,7 @@ bfl::declare_terminal_colors() {
 #  НЕЛЬЗЯ! В итог циклическая зависимость
 #  bfl::verify_dependencies "tput" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return $BFL_ErrCode_Not_verified_dependency; }  # Verify dependencies.
 
-  local clr="${RC_NOCOLOR:=-no}"
+  local clr="${RC_NOCOLOR:-no}"
   [[ "${clr,,}" =~ ^yes|true$ ]] && local -r bEnabled=false || local -r bEnabled=true
   local use256=false
 
@@ -92,7 +92,7 @@ bfl::declare_terminal_colors() {
       declare -gr FMT_REVERSE=""
   fi
 
-  if ! $bEnabled; then
+  if $bEnabled; then
       if $has_tput; then
           # ---------------------- Logging colors ----------------------
           declare -gr CLR_GOOD="$Green"             # Bright Green

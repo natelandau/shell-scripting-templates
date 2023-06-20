@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 # https://github.com/herrbischoff/awesome-osx-command-line/blob/master/functions.md
 # ---------- https://github.com/natelandau/shell-scripting-templates ----------
@@ -33,10 +33,7 @@ bfl::MacOS::have_scriptable_finder() {
   local os=$(bfl::get_OS) || { bfl::writelog_fail "${FUNCNAME[0]}: error os=\$(bfl::get_OS)"; return 1; }
   [[ "$os" == "mac" ]] || return 1
 
-  bfl::MacOS::have_scriptable_finder || {
-      [[ $BASH_INTERACTIVE == true ]] && printf "No GUI input without macOS\n"
-      return 1
-      }
+  bfl::MacOS::have_scriptable_finder || { [[ $BASH_INTERACTIVE == true ]] && printf "No GUI input without macOS\n"; return 1; }
 
   local _guiPrompt="${1:-Password:}"
   local _guiInput
@@ -48,6 +45,7 @@ bfl::MacOS::have_scriptable_finder() {
           text returned of (display dialog "${_guiPrompt}" default answer "" with hidden answer)
       end tell
 GUI_INPUT_MESSAGE
+  )
   printf "%s\n" "${_guiInput}"
 
   return 0

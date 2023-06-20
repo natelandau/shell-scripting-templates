@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
 # @file
@@ -28,7 +28,7 @@
 bfl::library_function() {
   bfl::verify_arg_count "$#" 1 2    || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]";  return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count. # TODO
 
-  bfl::verify_dependencies 'perl'   || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'perl' is not found!"; return $BFL_ErrCode_Not_verified_dependency; }
+  bfl::verify_dependencies 'perl'   || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'perl' is not found!"; return $BFL_ErrCode_Not_verified_dependency; } # TODO
 
   # Verify argument values.
   bfl::is_empty "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: Foo is required."; return $BFL_ErrCode_Not_verified_arg_values; } # TODO

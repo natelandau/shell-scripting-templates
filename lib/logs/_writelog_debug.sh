@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-! [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && return 0 || _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|')
+[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
 # ------------ https://github.com/Jarodiv/bash-function-libraries -------------
@@ -47,8 +47,6 @@ bfl::writelog_debug() {
       return 1
       }
 
- { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 3]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
-
   local -r msg="$1"
   local -r logfile="${3:-$BASH_FUNCTION_LOG}"
   bfl::write_log $LOG_LVL_DEBUG "$msg" "${2:-Debug}" "$logfile" || {
@@ -56,11 +54,18 @@ bfl::writelog_debug() {
       return 1
       }
 
-  ! [[ $BASH_INTERACTIVE == true ]] && return 0
-
-  #                           msg
+  [[ $BASH_INTERACTIVE == true ]] || return 0
+  [[ -n "$PS1" ]] || return 0
+  case $- in
+      *i*) #  Only if running interactively
+#                           msg
 #  bfl::write_log $LOG_LVL_ERROR "$1" "${CLR_BRACKET}[${CLR_DEBUG} fail ${CLR_BRACKET}]${CLR_NORMAL}" && return 0 || return 1
   printf "${CLR_DEBUG}$msg${NC}\n" > /dev/tty
   printf "${CLR_WARN}Written log message to $logfile${NC}\n" > /dev/tty
+          ;;
+      *)      # do nothing
+          ;;  # non-interactive
+  esac
+
   return 0
   }

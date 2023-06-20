@@ -8,7 +8,7 @@ load 'test_helper/bats-assert/load'
 PATH="/usr/local/opt/gnu-tar/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/grep/libexec/gnubin:${PATH}"
 
 #ROOTDIR="$(git rev-parse --show-toplevel)"
-[[ $_GUARD_BFL_autoload -ne 1 ]] && . /etc/getConsts && . "$BASH_FUNCTION_LIBRARY" # подключаем внешнюю "библиотеку"
+[[ ${_GUARD_BFL_autoload} -eq 1 ]] || { . /etc/getConsts; . "$BASH_FUNCTION_LIBRARY"; }
 
 ######## SETUP TESTS ########
 setup() {
@@ -23,7 +23,7 @@ setup() {
 
   ######## DEFAULT FLAGS ########
   LOGFILE="${TESTDIR}/logs/log.txt"
-  QUIET=false
+  BASH_INTERACTIVE=true
   LOGLEVEL=OFF
   VERBOSE=false
   FORCE=false
