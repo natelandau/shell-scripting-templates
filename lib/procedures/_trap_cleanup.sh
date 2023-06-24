@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,8 +15,8 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Prints the passed message to specified log depending on its log-level to stdout.
-# Log errors and cleanup from script when an error is trapped.  Called by 'trap'.
+#   Prints the passed message to specified log depending on its log-level to stdout.
+#   Log errors and cleanup from script when an error is trapped.  Called by 'trap'.
 #
 # @param Integer   ErrCode
 #   Error code.
@@ -33,10 +33,10 @@
 # @param String $cmnd
 #   Command executing at the time of the trap.
 #
-# @param String     $source
+# @param String $source
 #   bash source from calling script.
 #
-# @param boolean    $sourced
+# @param Boolean $sourced
 #       true / false.
 #
 # @param String $BASH_SOURCE
@@ -48,14 +48,14 @@
 # @param String    LogFile (optional)
 #   Log file.
 #
-# @return boolean $result
-#     0 / 1    ( true / false )
+# @return Boolean $result
+#     0 / 1   ( true / false )
 #
 # @example
 #   trap 'bfl::trap_cleanup "$?" "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]}" "$BASH_COMMAND" "$0" "${BASH_SOURCE[0]}" "$*" "$HOME/.faults"' EXIT INT TERM SIGINT SIGQUIT SIGTERM ERR
 #------------------------------------------------------------------------------
 bfl::trap_cleanup() {
-  bfl::verify_arg_count "$#" 8 9 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [8..9]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 8 9 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [8..9]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
   bfl::verify_dependencies "tput" && local -r has_tput=true || local -r has_tput=false
 
   local -r lineno_fns="${2% 0}"

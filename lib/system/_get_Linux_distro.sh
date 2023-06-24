@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Detects the Linux distribution of the host the script is run on.
+#   Detects the Linux distribution of the host the script is run on.
 #
 # @return String   $result
 # 		0 - If Linux distro is successfully detected
@@ -26,7 +26,7 @@
 #   bfl::get_Linux_distro
 #------------------------------------------------------------------------------
 bfl::get_Linux_distro() {
-  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local distro
   if [[ -f /etc/os-release ]]; then

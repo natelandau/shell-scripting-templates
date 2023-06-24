@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Takes a string as input and attempts to find a date within it to parse into component parts (day, month, year).
+#   Takes a string as input and attempts to find a date within it to parse into component parts (day, month, year).
 #
 # @param String $str
 #   A string.
@@ -44,9 +44,8 @@
 #               * MMDDYY          * YYMMDD            * mon-DD-YY
 # TODO:  Simplify and reduce the number of regex checks
 #------------------------------------------------------------------------------
-#
 bfl::parse_date() {
-  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   PARSE_DATE_FOUND="" PARSE_DATE_YEAR="" PARSE_DATE_MONTH="" PARSE_DATE_MONTH_NAME=""
   PARSE_DATE_DAY="" PARSE_DATE_HOUR="" PARSE_DATE_MINUTE=""

@@ -7,8 +7,8 @@
 
 [[ -z ${TERM+x} ]] && TERM='xterm-256color' || [[ "$TERM" == 'linux' ]] && TERM='xterm-256color'
 export TERM
-
-#set -uo pipefail
+#[[ "$TERM" == 'linux' ]] && unset TERM # Почему-то не работает!
+#[[ -z ${TERM+x} ]] && readonly TERM='xterm-256color'
 # ------------- https://github.com/jmooring/bash-function-library -------------
 #------------------------------------------------------------------------------
 # @file
@@ -78,19 +78,20 @@ export TERM
 #
 # This will only source file names that begin with an underscore.
 #------------------------------------------------------------------------------
-declare -gr BASH_FUNCTION_LOG="$HOME/.faults"
-declare -gr BFL_ErrCode_Not_verified_args_count=1
-declare -gr BFL_ErrCode_Not_verified_dependency=2
-declare -gr BFL_ErrCode_Not_verified_arg_values=3
+readonly BASH_FUNCTION_LOG="$HOME/.faults"                          # declare -gr
+readonly GIT_HUB_CONFIG="$HOME/.git-hub/config.d/github.com.config" # declare -gr
+readonly BFL_ErrCode_Not_verified_args_count=1                      # declare -gr
+readonly BFL_ErrCode_Not_verified_dependency=2                      # declare -gr
+readonly BFL_ErrCode_Not_verified_arg_values=3                      # declare -gr
 
-#   Some global variables
-#LOGFILE="${HOME}/logs/$(basename "$0").log"    - is declared in /etc/getConsts
+# ------------------------ Some global variables ------------------------------
+#LOGFILE="${HOME}/logs/${0##*/}.log"   $(basename "$0").log - is declared in ${HOME}/getConsts
 BASH_INTERACTIVE=true   # QUIET=false
 LOGLEVEL=ERROR
 VERBOSE=false
 FORCE=false
 DRYRUN=false
-
+#set -uo pipefail
 set +u # Это все, что я могу себе позволить
 set -o functrace -o pipefail # -eE - моментальный вылет, ничего не успев записать
 
@@ -124,7 +125,7 @@ EOF
   }
 
   [[ -f "$BASH_FUNCTION_LIBRARY" ]] || return 1
-  [[ -d $(dirname "$BASH_FUNCTION_LIBRARY") ]] || {
+  [[ -d "${BASH_FUNCTION_LIBRARY%/*}" ]] || {   # $(dirname "$BASH_FUNCTION_LIBRARY")
       local str="Error readlink -e ${BASH_SOURCE[0]}"
       printf "%s/n" "$str" >> "$BASH_FUNCTION_LOG"
       [[ $BASH_INTERACTIVE == true ]] && printf "%s\n" "$str" # > /dev/tty;
@@ -133,7 +134,7 @@ EOF
 
   #             source functions' bodies
   local f
-  for f in $(dirname "$BASH_FUNCTION_LIBRARY")/lib/*/_*.sh; do
+  for f in "${BASH_FUNCTION_LIBRARY%/*}"/lib/*/_*.sh; do  # $(dirname "$BASH_FUNCTION_LIBRARY")
       source "$f" || {
         [[ $BASH_INTERACTIVE == true ]] && printf "Error while loading $f\n" # > /dev/tty;
         return 1
@@ -196,14 +197,14 @@ bfl::parseOptions() {
             # Common options
             -h | --h | --help) cat <<USAGE_TEXT
 
-  ${Green}$(basename "$0") [OPTION]... [FILE]...${NC}
+  ${Green}${0##*/} [OPTION]... [FILE]...${NC}
 
   This is a script template.  Edit this description to print help to users.
 
   ${Green}${FMT_UNDERLINE}Options:${NC}
 $(bfl::_terminal_print_2columns -b -- '-h, --h, --help' "Display this help and exit" 2)
 $(bfl::_terminal_print_2columns -b -- "--loglevel [LEVEL]" "One of: FATAL, ERROR (default), WARN, INFO, NOTICE, DEBUG, ALL, OFF" 2)
-$(bfl::_terminal_print_2columns -b -- "--logfile [FILE]" "Full PATH to logfile.  (Default is '\${HOME}/logs/$(basename "$0").log')" 2)
+$(bfl::_terminal_print_2columns -b -- "--logfile [FILE]" "Full PATH to logfile.  (Default is '\${HOME}/logs/${0##*/}.log')" 2)
 $(bfl::_terminal_print_2columns -b -- "-n, --dryrun" "Non-destructive. Makes no permanent changes." 2)
 $(bfl::_terminal_print_2columns -b -- "-q, --q, --quiet" "Quiet (no output)" 2)
 $(bfl::_terminal_print_2columns -b -- "-v, --verbose" "Output more information. (Items echoed to 'verbose')" 2)
@@ -212,12 +213,12 @@ $(bfl::_terminal_print_2columns -b -- "--force" "Skip all user interaction.  Imp
   ${Green}${FMT_UNDERLINE}Example Usage:${NC}
 
     ${Gray}# Run the script and specify log level and log file.${NC}
-    $(basename "$0") -vn --logfile "/path/to/file.log" --loglevel 'WARN'
+    ${0##*/} -vn --logfile "/path/to/file.log" --loglevel 'WARN'
 USAGE_TEXT
 
                          bfl::script_lock_release ;;
             --loglevel)     shift
-                            LOGLEVEL=${1} ;;
+                            LOGLEVEL="${1}" ;;
             --logfile)      shift
                             LOGFILE="${1}" ;;
             -n | --dryrun)  DRYRUN=true ;;
@@ -243,12 +244,14 @@ USAGE_TEXT
 # Approach via: https://stackoverflow.com/a/28776166/8787985
 if (return 0 2> /dev/null); then
   bfl::autoload
+  #                                                                                                 {BASH_SOURCE[*]}  $1 $2 $3 $4 $5 $6 $7 $8 $9
+  trap 'bfl::trap_cleanup "$?" "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]}" "$BASH_COMMAND" "$0" "${BASH_SOURCE[0]}" "$*" "${BASH_FUNCTION_LOG}"' EXIT INT TERM SIGINT SIGQUIT SIGTERM ERR
 else
   bfl::autoload "$@"
 
 # Enable these shell behaviours if script not being sourced ONLY
 # Approach via: https://stackoverflow.com/a/28776166/8787985                                        {BASH_SOURCE[*]}  $1 $2 $3 $4 $5 $6 $7 $8 $9
-  trap 'bfl::trap_cleanup "$?" "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]}" "$BASH_COMMAND" "$0" "${BASH_SOURCE[0]}" "$*" "$HOME/.faults"' EXIT INT TERM SIGINT SIGQUIT SIGTERM ERR
+  trap 'bfl::trap_cleanup "$?" "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]}" "$BASH_COMMAND" "$0" "${BASH_SOURCE[0]}" "$*" "${BASH_FUNCTION_LOG}"' EXIT INT TERM SIGINT SIGQUIT SIGTERM ERR
   echo 'Script not being sourced' > /dev/tty
 # Ensure the error trap handler is inherited !!!
 # ----------------------- https://www.caliban.org/bash/index.shtml -----------------------
@@ -264,15 +267,12 @@ else
   shopt -s nullglob globstar
 fi
 
-#                                                                                                 {BASH_SOURCE[*]}  $1 $2 $3 $4 $5 $6 $7 $8 $9
-trap 'bfl::trap_cleanup "$?" "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]}" "$BASH_COMMAND" "$0" "${BASH_SOURCE[0]}" "$*" "$HOME/.faults"' EXIT INT TERM SIGINT SIGQUIT SIGTERM ERR
-
 # Enable xtrace if the DEBUG environment variable is set
 [[ "${DEBUG,,}" =~ ^1|yes|true$ ]] && set -o xtrace    # Trace the execution of the script (debug)
 
 # [[ $# -eq 0 ]] && bfl::parseOptions "-h"  # Force arguments when invoking the script
 bfl::parseOptions "$@"                      # Parse arguments passed to script
-# bfl::make_tempdir "$(basename "$0")"      # Create a temp directory '$TMP_DIR'
+# bfl::make_tempdir "${0##*/}"              # Create a temp directory '$TMP_DIR'
 bfl::script_lock_acquire                    # Acquire script lock
 
 if [[ "$(bfl::get_OS)" == "mac" ]]; then

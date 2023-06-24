@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,8 +15,8 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Sends a notification via Pushover.
-# NOTE:   The variables for the two API Keys must have valid values
+#   Sends a notification via Pushover.
+#   NOTE:   The variables for the two API Keys must have valid values
 #
 # @param String $title
 #   Title of notification.
@@ -33,14 +33,14 @@
 # @param String $device  (optional)
 #   Device.
 #
-# @return boolean $result
-#     0 / 1    ( true / false )
+# @return Boolean $result
+#     0 / 1   ( true / false )
 #
 # @example
 #   $ bfl::notify_pushover "Title Goes Here" "Message Goes Here"
 #------------------------------------------------------------------------------
 bfl::notify_pushover() {
-  bfl::verify_arg_count "$#" 4 5 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [4, 5]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 4 5 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [4, 5]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local _pushoverURL="https://api.pushover.net/1/messages.json"
   local _messageTitle="${1}"

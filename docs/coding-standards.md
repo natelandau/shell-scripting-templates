@@ -2,14 +2,14 @@
 
 ## Coding Standards
 
-[Getting Started](#getting-started) / [Library name conventions](#library-name-conventions) / [Naming Conventions](#naming-conventions) / [Variables](#variables) / [Coding](#coding) / [Indenting and Whitespace](#indenting-and-whitespace) / [Library Functions](#library-functions) / [Scripts template](#scripts-template)
+[Getting Started](#getting-started) / [About functions and library structure](#about-functions-and-library-structure) / [About function files](#about-function-files) / [bfl::die discussion](#bfl-die-discussion) / [Naming Conventions](#naming-conventions) / [Variables](#variables) / [Coding](#coding) / [Indenting and Whitespace](#indenting-and-whitespace) / [Library Functions](#library-functions) / [Scripts template](#scripts-template)
 
 ### Getting Started
 
 **In short: use template:** [function template](../../../templates/_library_function.sh) in order to make BFL functions similar and to folow unified coding standards.<br />
 Please, use this template to create a new library function. Contributions are welcome!
 
-#### General information about functions and library structure:
+#### About functions and library structure:
 - All libraries are located in `lib/`, every function located in `lib/[library_name]/` (like [Jarodiv](https://github.com/Jarodiv/bash-function-libraries)).<br />
 [Natelandau](https://github.com/natelandau/shell-scripting-templates) also keeps scripts in separate directory, but named `utilities`.<br />
 I have refused from nonstructured script location in project root (as in [JMooring](https://github.com/jmooring/bash-function-library) and [Ariver](https://github.com/ariver/bash_functions)).
@@ -32,9 +32,10 @@ a) surround function `bfl::foo` body not by brackets, but by parentheses. After 
 It cause the function to execute inside other bash subshell, and helper function will not be visible in global namespace.<br />
 b) if you can not follow method described above, name the helper function `bfl::foo::bar` to avoid namespace collisions.
 
-#### Function files structure:
+#### About function files:
 
-- In order to prevent sourcing scripts more than once there is a code at evey script header (similar to [Jarodiv](https://github.com/Jarodiv/bash-function-libraries)):
+- Most of functions depend on others.<br />
+In order to prevent sourcing scripts more than once there is a code at evey script header (similar to [Jarodiv](https://github.com/Jarodiv/bash-function-libraries)):
 ```bash
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -44,14 +45,14 @@ b) if you can not follow method described above, name the helper function `bfl::
 Beginning of `autoload.sh` a bit differ from scripts in `lib/*`, because `autoload.sh` doesn't not present in `lib/` structure.
 - Loading process in `autoload.sh` is very simple (line 136):<br />
 ```bash
-for f in $(dirname "$BASH_FUNCTION_LIBRARY")/lib/*/_*.sh; do
+for f in "${BASH_FUNCTION_LIBRARY%/*}"/lib/*/_*.sh; do    # $(dirname "$BASH_FUNCTION_LIBRARY")
     source "$f" || {
       [[ $BASH_INTERACTIVE == true ]] && printf "Error while loading $f\n" # > /dev/tty;
       return 1
       }
 ```
 
-### Function problems and discussion
+### bfl die discussion
 
 **Error handling**
 - I refused from using in scripts bfl::die on error (as [JMooring](https://github.com/jmooring/bash-function-library)), because I am trying to integrate `Bash Functions Library` in all system scripts.<br />

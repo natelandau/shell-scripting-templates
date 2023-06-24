@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -24,7 +24,7 @@
 #
 #------------------------------------------------------------------------------
 # @function
-# Declares colors for terminal.
+#   Declares colors for terminal.
 #
 # -----------------------------------------------------------------------------
 # @return global value  $TPUT_COLOR
@@ -36,7 +36,7 @@
 # shellcheck disable=SC2154
 bfl::declare_terminal_colors() {
 #  НЕЛЬЗЯ! В итог циклическая зависимость
-#  bfl::verify_dependencies "tput" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return $BFL_ErrCode_Not_verified_dependency; }  # Verify dependencies.
+#  bfl::verify_dependencies "tput" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   local clr="${RC_NOCOLOR:-no}"
   [[ "${clr,,}" =~ ^yes|true$ ]] && local -r bEnabled=false || local -r bEnabled=true

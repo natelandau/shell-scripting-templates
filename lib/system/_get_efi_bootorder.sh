@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,8 +15,8 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Returns a string with the efibootmgr entry for the boot order (if it exists)
-# Note: This function requires the tool "efibootmgr" which may has to be installed manually
+#   Returns a string with the efibootmgr entry for the boot order (if it exists)
+#   Note: This function requires the tool "efibootmgr" which may has to be installed manually
 #
 # @return String $result
 #   Comma separated list.
@@ -25,7 +25,7 @@
 #   bfl::get_efi_bootorder
 #------------------------------------------------------------------------------
 bfl::get_efi_bootorder() {
-  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local _bootorder
 

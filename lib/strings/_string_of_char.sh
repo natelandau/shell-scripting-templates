@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,22 +15,22 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Repeats a string.
+#   Repeats a string.
 #
-# @param string $str
+# @param String $str
 #   The string to be repeated.
 #
-# @param int $multiplier
+# @param Integer $multiplier
 #   Number of times the string will be repeated.
 #
-# @return string $str_repeated
+# @return String $str_repeated
 #   The repeated string.
 #
 # @example
 #   bfl::string_of_char "=" "10"
 #------------------------------------------------------------------------------
 bfl::string_of_char() {
-  bfl::verify_arg_count "$#" 2 2  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return $BFL_ErrCode_Not_verified_args_count; }      # Verify argument count.
+  bfl::verify_arg_count "$#" 2 2  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return ${BFL_ErrCode_Not_verified_args_count}; }      # Verify argument count.
 
   # Verify argument values.
   bfl::is_positive_integer "$2" || { bfl::writelog_fail "${FUNCNAME[0]}: $2 expected positive integer."; return 1; }

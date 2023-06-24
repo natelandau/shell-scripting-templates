@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -7,7 +7,7 @@
 #
 # Library of useful utility functions
 #
-#
+# @author  Alexei Kharchev
 #
 # @file
 # Defines function: bfl::prepare_la().
@@ -15,25 +15,25 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Prepares .la files for libraries in given directory.
+#   Prepares .la files for libraries in given directory.
 #
 # @option string--dry-run, -dry-run
 #   Enable test mode.
 #
-# @param string --library, --lib, -lib
+# @param String --library, --lib, -lib
 #   lib directory to make .la file
 #
-# @param string --version
+# @param String --version
 #   library version to write
 #
-# @param array $lib_names
+# @param Array $lib_names
 #   A list of libraries' names.
 #
 # @example
 #   bfl::prepare_la  --dry-run --lib=/tools/binutils-2.40/lib --version='0.0.0' libctf.so.0
 #------------------------------------------------------------------------------
 bfl::prepare_la() {
-  bfl::verify_arg_count "$#" 3 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [3..999]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 3 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [3..999]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local arr=(); local arr_libNames=()
   local dryrun=false; local IFS=''
@@ -55,7 +55,7 @@ bfl::prepare_la() {
 
   local -i i=${#arr_libNames[@]}
   [[ $i -eq 0 ]] && str="$str\nfiles were not defined!"
-  bfl::is_blank $str || { bfl::writelog_fail "${FUNCNAME[0]}: $str"; return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_blank $str || { bfl::writelog_fail "${FUNCNAME[0]}: $str"; return ${BFL_ErrCode_Not_verified_arg_values}; }
 # --------------------------------------------------
 
 #FullVersion="$2"    # `echo "$2" | sed 's/^\(.*\)-\([0-9][0-9.]*.*\)$/\2/'`

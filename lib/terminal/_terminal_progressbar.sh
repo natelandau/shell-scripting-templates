@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -14,7 +14,7 @@
 #------------------------------------------------------------------------------
 # Dependencies
 #------------------------------------------------------------------------------
-source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/terminal/_is_Terminal.sh
+source "${BASH_FUNCTION_LIBRARY%/*}"/lib/terminal/_is_Terminal.sh
 #------------------------------------------------------------------------------
 # @function
 #   Prints a progress bar within a for/while loop. For this to work correctly you.
@@ -33,15 +33,14 @@ source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/terminal/_is_Terminal.sh
 #       bfl::sleep 0.1
 #       bfl::terminal_progressbar "100" "Counting numbers"
 #   done
-
 #------------------------------------------------------------------------------
 bfl::terminal_progressbar() {
   [[ $BASH_INTERACTIVE == true ]] || return 0
   [[ $VERBOSE == true ]] && return 0            # Do nothing in quiet/verbose mode.
-  bfl::verify_arg_count "$#" 1 2  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return $BFL_ErrCode_Not_verified_args_count; }   # Verify argument count.
+  bfl::verify_arg_count "$#" 1 2  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return ${BFL_ErrCode_Not_verified_args_count}; }   # Verify argument count.
   [[ "$1" -eq 1 ]] && return # Do nothing with a single element
 #  bfl::is_Terminal || { bfl::writelog_fail "${FUNCNAME[0]}: no terminal found"; return 1; }                      # Do nothing if the output is not a terminal.
-  bfl::verify_dependencies "tput" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return $BFL_ErrCode_Not_verified_dependency; }  # Verify dependencies.
+  bfl::verify_dependencies "tput" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   local -i n=$1
   local -i _width=30

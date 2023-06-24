@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,22 +15,22 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Gets the file extension.
+#   Gets the file extension.
 #
-# @param string $path
+# @param String $path
 #   A relative path, absolute path, or symbolic link.
 #
-# @return string $file_extension
+# @return String $file_extension
 #   The file extension, excluding the preceding period.
 #
 # @example
 #   bfl::get_file_extension "./foo/bar.txt"
 #------------------------------------------------------------------------------
 bfl::get_file_extension() {
-  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   # Verify argument values.
-  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: path was not specified."; return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: path was not specified."; return ${BFL_ErrCode_Not_verified_arg_values}; }
 
   local s="$1"
   # Detect some common multi-extensions
@@ -42,7 +42,7 @@ bfl::get_file_extension() {
 
   [[ ${#s} -eq ${#ext} ]] && ext=""
   echo "$ext"
-#  bfl::verify_dependencies "sed" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return $BFL_ErrCode_Not_verified_dependency; }  # Verify dependencies.
+#  bfl::verify_dependencies "sed" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 #  echo "$s" | sed 's/^.*\.\([^.]*\)$/\1/'
   return 0
   }

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,24 +15,23 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Joins multiple strings into a single string, separated by another string.
+#   Joins multiple strings into a single string, separated by another string.
+#   Accepts an unlimited number of arguments.
 #
-# This function will accept an unlimited number of arguments.
-# Example: bfl::join_strings "," "foo" "bar" "baz"
-#
-# @param string $glue
+# @param String $glue
 #   The character or characters that will be used to glue the strings together.
+#
 # @param list $pieces
 #   The list of strings to be combined.
 #
-# @return string $joined_string
+# @return String $joined_string
 #   The joined string.
 #
 # @example
 #   bfl::join_strings "," "foo" "bar" "baz"
 #-----------------------------------------------------------------------------
 bfl::join_strings() {
-  bfl::verify_arg_count "$#" 2 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2, 999]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 2 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2, 999]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local -r glue="$1"
 

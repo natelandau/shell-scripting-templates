@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,23 +15,23 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Prepares .la files for libraries in given directory.
+#   Prepares .la files for libraries in given directory.
 #
-# @param string $TARGET (optional)
+# @param String $TARGET (optional)
 #   directory with /bin, /lib, /share and other standard directories
 #
 # @example
 #   bfl::switch_usr_local /STACK2
 #------------------------------------------------------------------------------
 bfl::switch_usr_local() {
-  bfl::verify_arg_count "$#" 0 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 1]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 0 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 1]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   # Verify argument values.
-  [[ -e /usr/local && ! -L /usr/local ]] && { bfl::writelog_fail "${FUNCNAME[0]}: /usr/local exists, but is not a symlink"; return $BFL_ErrCode_Not_verified_arg_values; }
+  [[ -e /usr/local && ! -L /usr/local ]] && { bfl::writelog_fail "${FUNCNAME[0]}: /usr/local exists, but is not a symlink"; return ${BFL_ErrCode_Not_verified_arg_values}; }
 
   local target="${1:-'/STACK2'}"
-  [[ -d "$target" ]]  || { bfl::writelog_fail "${FUNCNAME[0]}: failed - directory $target doesn't exist!"; return $BFL_ErrCode_Not_verified_arg_values; }
-  [[ -L /usr/local ]] || { bfl::writelog_fail "${FUNCNAME[0]}: /usr/local is not a symlink!"; return $BFL_ErrCode_Not_verified_arg_values; }
+  [[ -d "$target" ]]  || { bfl::writelog_fail "${FUNCNAME[0]}: failed - directory $target doesn't exist!"; return ${BFL_ErrCode_Not_verified_arg_values}; }
+  [[ -L /usr/local ]] || { bfl::writelog_fail "${FUNCNAME[0]}: /usr/local is not a symlink!"; return ${BFL_ErrCode_Not_verified_arg_values}; }
 
   bfl::is_root_available || { bfl::writelog_fail "${FUNCNAME[0]}: failed to get sudo rights!"; return 1; }
 

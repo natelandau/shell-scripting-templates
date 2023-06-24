@@ -7,9 +7,9 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Displays usage message.
+#   Displays usage message.
 #
-# @return string $msg
+# @return String $msg
 #   The usage message.
 #------------------------------------------------------------------------------
 usage() {
@@ -30,7 +30,7 @@ EOT
 
 #------------------------------------------------------------------------------
 # @function
-# Performs cleanup when script exits for any reason. Called by trap.
+#   Performs cleanup when script exits for any reason. Called by trap.
 #------------------------------------------------------------------------------
 cleanup() {
   # There's nothing to clean up.
@@ -39,14 +39,13 @@ cleanup() {
 
 #------------------------------------------------------------------------------
 # @function
-# Main function.
+#   Main function.
 #
-# @param string $color
+# @param String $color
 #   The foreground color of the banner.
 #   Supported colors: blue, cyan, green, magenta, red, yellow, or white.
-#
-# shellcheck disable=1090
 #------------------------------------------------------------------------------
+# shellcheck disable=1090
 main() {
   # Source the Bash Function Library.
   if ! source "${BASH_FUNCTION_LIBRARY}"; then

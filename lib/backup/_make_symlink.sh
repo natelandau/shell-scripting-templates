@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,9 +15,9 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Creates a symlink and backs up a file which may be overwritten by the new symlink.
-# If the exact same symlink already exists, nothing is done.
-# Default behavior will create a backup of a file to be overwritten.
+#   Creates a symlink and backs up a file which may be overwritten by the new symlink.
+#   If the exact same symlink already exists, nothing is done.
+#   Default behavior will create a backup of a file to be overwritten.
 #
 # @option String    -c, -n, s
 #    -c   Only report on new/changed symlinks.  Quiet when nothing done.
@@ -37,7 +37,7 @@
 #   bfl::make_symlink "/dir/someExistingFile" "/dir/aNewSymLink" "/dir/backup/location"
 #------------------------------------------------------------------------------
 bfl::make_symlink() {
-  bfl::verify_arg_count "$#" 2 5 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2, 5]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 2 5 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2, 5]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 #  declare -f "bfl::get_unique_filename" &>/dev/null || fatal "_backupFile_ needs function bfl::get_unique_filename"
 
   local opt
@@ -47,11 +47,12 @@ bfl::make_symlink() {
   local _onlyShowChanged=false
 
   while getopts ":cCnNsS" opt; do
-      case ${opt} in
-          n | N) _backupOriginal=false ;;
-          s | S) _useSudo=true ;;
-          c | C) _onlyShowChanged=true ;;
-          *) fatal "Missing required argument to ${FUNCNAME[0]}" ;;
+      case ${opt,,} in
+          n ) _backupOriginal=false ;;
+          s ) _useSudo=true ;;
+          c ) _onlyShowChanged=true ;;
+          *)  bfl::writelog_fail "${FUNCNAME[0]}: unrecognized option '${opt}'" # "${LINENO}"
+              return ${BFL_ErrCode_Not_verified_arg_values} ;;
       esac
   done
   shift $((OPTIND - 1))
@@ -69,7 +70,7 @@ bfl::make_symlink() {
       return 1
   fi
 
-  bfl::verify_arg_count "$#" 2 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 2 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local _sourceFile="$1"
   local _destinationFile="$2"

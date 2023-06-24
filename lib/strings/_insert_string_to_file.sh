@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,23 +15,23 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Inserts string to file. Supports multiline strings!
+#   Inserts string to file. Supports multiline strings!
 #
-# @param string $str
+# @param String $str
 #   The string to be inserted.
 #
 # @param Integer $line_no
 #   File line number.
 #
-# @param string $filename
+# @param String $filename
 #   The file to be edited.
 #
 # @example
 #   bfl::insert_string_to_file "$str" 288 'Makefile.in'
 #------------------------------------------------------------------------------
 bfl::insert_string_to_file() {
-  bfl::verify_arg_count "$#" 3 3   || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 3"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
-  bfl::verify_dependencies "uname" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency shuf not found" ; return $BFL_ErrCode_Not_verified_dependency; } # Verify dependencies.
+  bfl::verify_arg_count "$#" 3 3   || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 3"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
+  bfl::verify_dependencies "uname" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency shuf not found" ; return ${BFL_ErrCode_Not_verified_dependency}; } # Verify dependencies.
 
   local -i i
   i=`echo "$1" | wc -l`

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -14,10 +14,10 @@
 #------------------------------------------------------------------------------
 # Dependencies
 #------------------------------------------------------------------------------
-source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/declarations/_declare_terminal_colors.sh
+source "${BASH_FUNCTION_LIBRARY%/*}"/lib/declarations/_declare_terminal_colors.sh
 #------------------------------------------------------------------------------
 # @function
-# Verifies the number of arguments received against expected values.
+#   Verifies the number of arguments received against expected values.
 #
 # Other functions in this library call this function to verify the number of
 # arguments received. To prevent infinite loops, this function must not call
@@ -27,16 +27,18 @@ source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/declarations/_declare_terminal_co
 # - bfl::verify_arg_count()
 # - bfl::is_integer()
 #
-# @param int $actual_arg_count
+# @param Integer $actual_arg_count
 #   Actual number of arguments received.
-# @param int $expected_arg_count_min
+#
+# @param Integer $expected_arg_count_min
 #   Minimum number of arguments expected.
-# @param int $expected_arg_count_max
+#
+# @param Integer $expected_arg_count_max
 #   Maximum number of arguments expected.
 #
 # @example
 #   bfl::verify_arg_count "$#" 2 3
-#
+#------------------------------------------------------------------------------
 # shellcheck disable=SC2154
 #------------------------------------------------------------------------------
 # to have nested local functions without global scope: https://stackoverflow.com/questions/38264873/nested-functions-on-bash#new-answer

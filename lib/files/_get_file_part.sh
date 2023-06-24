@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Prints text of a file between two regex patterns.
+#   Prints text of a file between two regex patterns.
 #
 # @option String  -i, -r, -g
 #      -i  Case-insensitive regex
@@ -38,7 +38,7 @@
 #   bfl::get_file_part "^pattern1$" "^pattern2$" "String or variable containing a string"
 #------------------------------------------------------------------------------
 bfl::get_file_part() {
-  bfl::verify_arg_count "$#" 3 6 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [3, 6]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 3 6 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [3, 6]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local _removeLines=false
   local _greedy=false
@@ -46,21 +46,22 @@ bfl::get_file_part() {
   local opt
   local OPTIND=1
   while getopts ":iIrRgG" opt; do
-      case ${opt} in
-          i | I) _caseInsensitive=true ;;
-          r | R) _removeLines=true ;;
-          g | G) _greedy=true ;;
-          *) fatal "Unrecognized option '${1}' passed to ${FUNCNAME[0]}. Exiting." ;;
+      case ${opt,,} in
+          i ) _caseInsensitive=true ;;
+          r ) _removeLines=true ;;
+          g ) _greedy=true ;;
+          *)  bfl::writelog_fail "${FUNCNAME[0]}: unrecognized option '${opt}'" # "${LINENO}"
+              return ${BFL_ErrCode_Not_verified_arg_values} ;;
       esac
   done
   shift $((OPTIND - 1))
 
   # Verify argument values.
-  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: regex mask '$1' is blank!";    return $BFL_ErrCode_Not_verified_arg_values; }
-  bfl::is_blank "$2" && { bfl::writelog_fail "${FUNCNAME[0]}: regex mask '$2' is blank!";    return $BFL_ErrCode_Not_verified_arg_values; }
-  bfl::is_blank "$3" && { bfl::writelog_fail "${FUNCNAME[0]}: path '$3' was not specified."; return $BFL_ErrCode_Not_verified_arg_values; }
-  [[ -f "$3" ]]      || { bfl::writelog_fail "${FUNCNAME[0]}: path '$3' doesn't exists!";    return $BFL_ErrCode_Not_verified_arg_values; }
-  [[ -s "$3" ]]      || { bfl::writelog_fail "${FUNCNAME[0]}: path '$3' is empty!";          return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: regex mask '$1' is blank!";    return ${BFL_ErrCode_Not_verified_arg_values}; }
+  bfl::is_blank "$2" && { bfl::writelog_fail "${FUNCNAME[0]}: regex mask '$2' is blank!";    return ${BFL_ErrCode_Not_verified_arg_values}; }
+  bfl::is_blank "$3" && { bfl::writelog_fail "${FUNCNAME[0]}: path '$3' was not specified."; return ${BFL_ErrCode_Not_verified_arg_values}; }
+  [[ -f "$3" ]]      || { bfl::writelog_fail "${FUNCNAME[0]}: path '$3' doesn't exists!";    return ${BFL_ErrCode_Not_verified_arg_values}; }
+  [[ -s "$3" ]]      || { bfl::writelog_fail "${FUNCNAME[0]}: path '$3' is empty!";          return ${BFL_ErrCode_Not_verified_arg_values}; }
 
   local _startRegex="${1}"
   local _endRegex="${2}"

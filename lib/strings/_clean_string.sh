@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Cleans a string of text.
+#   Cleans a string of text.
 #  Always cleaned:
 #     - leading white space
 #     - trailing white space
@@ -43,8 +43,8 @@
 #   bfl::clean_string -lp " ,-" [STRING] [CHARS TO REMOVE]
 #------------------------------------------------------------------------------
 bfl::clean_string() {
-  bfl::verify_arg_count "$#" 1 7 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 7]"; return $BFL_ErrCode_Not_verified_args_count; }  # Verify argument count.
-  bfl::verify_dependencies "sed"  || { bfl::writelog_fail "${FUNCNAME[0]}: dependency sed not found."; return $BFL_ErrCode_Not_verified_dependency; }  # Verify dependencies.
+  bfl::verify_arg_count "$#" 1 7 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 7]"; return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
+  bfl::verify_dependencies "sed"  || { bfl::writelog_fail "${FUNCNAME[0]}: dependency sed not found."; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   local opt
   local _lc=false
@@ -55,23 +55,23 @@ bfl::clean_string() {
 
   local OPTIND=1
   while getopts ":lLuUaAsSpP" opt; do
-      case ${opt} in
-          l | L) _lc=true ;;
-          u | U) _uc=true ;;
-          a | A) _alphanumeric=true ;;
-          s | S) _us=true ;;
-          p | P) shift
-                 declare -a _pairs=()
-                 IFS=',' read -r -a _pairs <<<"$1"
-                 _replace=true
-                 ;;
-          *)     bfl::writelog_fail "${FUNCNAME[0]}: unrecognized option '$1' passed to _execute. Exiting."
-                 return 1 ;;
+      case ${opt,,} in
+          l ) _lc=true ;;
+          u ) _uc=true ;;
+          a ) _alphanumeric=true ;;
+          s ) _us=true ;;
+          p ) shift
+              declare -a _pairs=()
+              IFS=',' read -r -a _pairs <<<"$1"
+              _replace=true
+              ;;
+          *)  bfl::writelog_fail "${FUNCNAME[0]}: unrecognized option '${opt}'" # "${LINENO}"
+              return ${BFL_ErrCode_Not_verified_arg_values} ;;
       esac
   done
   shift $((OPTIND - 1))
 
-  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 7]"; return $BFL_ErrCode_Not_verified_args_count; }  # Verify argument count.
+  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 7]"; return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
 
   local _string="${1}"
   local _userChars="${2:-}"

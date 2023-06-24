@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Make string of an Nexus artifact.
+#   Prints string of an Nexus artifact.
 #
 # @param String   SERVER
 #
@@ -35,9 +35,8 @@
 # @example
 #   bfl::get_nexus_artifact_url ....
 #------------------------------------------------------------------------------
-#
 bfl::get_nexus_artifact_url() {
-  bfl::verify_arg_count "$#" 6 6 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 6"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 6 6 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 6"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local -r SERVER="${1:-}"
   local -r REPOSITORY="${2:-}"

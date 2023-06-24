@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,17 +15,17 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Replace substring in string
+#   Replace substring in string
 #
 # Bash StrReplace analog
 #
-# @param string $main_string
+# @param String $main_string
 #   String where replacement executes.
 #
-# @param string $search_string
+# @param String $search_string
 #   The sequence of char values to be replaced.
 #
-# @param string $new_string
+# @param String $new_string
 #   The replacement sequence of char values.
 #
 # @return String $result
@@ -35,7 +35,7 @@
 #   bfl::string_replace "/home/alexei/.local/lib/site-packages" "/home/alexei/.local" "/usr"
 #------------------------------------------------------------------------------
 bfl::string_replace() {
-  bfl::verify_arg_count "$#" 3 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 3"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 3 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 3"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   [[ -z "$2" ]] && { echo "$1"; return 0; }
 

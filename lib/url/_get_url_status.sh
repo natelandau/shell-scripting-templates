@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Report the HTTP status of a specified URL.
+#   Reports the HTTP status of a specified URL.
 #
 # @param String $url
 #   URL (will work fine without https:// prefix).
@@ -29,8 +29,7 @@
 # @param String $curl_opts  (optional)
 #   CURL opts separated by spaces (Use -L to follow redirects).
 #
-# @return boolean $result
-#     0 / 1    ( true / false )
+# @return Integer $result
 #   Prints the HTTP status code or status message
 #
 # @example
@@ -41,7 +40,7 @@
 #   $ _httpStatus_ www.google.com 100 --code
 #------------------------------------------------------------------------------
 bfl::get_url_status() {
-  bfl::verify_arg_count "$#" 1 7 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 7]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 7 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 7]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local _saveIFS=${IFS}
   IFS=$' \n\t'

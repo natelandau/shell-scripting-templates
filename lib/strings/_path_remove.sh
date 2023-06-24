@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,24 +15,24 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Searches and removes path from variable like PATH.
+#   Searches and removes path from variable like PATH.
 #
 # Standart Linux path functions. The string ONLY single line
 #
-# @param string $directory
+# @param String $directory
 #   The directory to be searching and removed. There may be several paths, eg.  /opt/lib:/usr/local/lib:/home/usr/.local/lib
 #
-# @param string $path_variable (optional)
+# @param String $path_variable (optional)
 #   The variable to be changed. By default, PATH
 #
 # @example
 #   bfl::path_remove '/opt/lib:/usr/local/lib:/home/usr/.local/lib' LD_LIBRARY_PATH
 #------------------------------------------------------------------------------
 bfl::path_remove() {
-  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   # Verify argument values.
-  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: path is empty!"; return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: path is empty!"; return ${BFL_ErrCode_Not_verified_arg_values}; }
 
   local -r PATHVARIABLE=${2:-PATH}
   local str="${!PATHVARIABLE}"  # Var value by its name

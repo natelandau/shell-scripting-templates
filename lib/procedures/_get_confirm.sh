@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,13 +15,13 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Seek user input for yes/no question.
+#   Seek user input for yes/no question.
 #
 # @param String $qstn
 #   Question being asked.
 #
-# @return String   $result
-# 		0 / 1  (yes / no)
+# @return Boolean $result
+#     0 / 1   ( true / false )
 #
 # @example
 #   bfl::get_confirm "Do something?" && printf "okay" || printf "not okay"
@@ -31,9 +31,9 @@
 #   fi
 #------------------------------------------------------------------------------
 bfl::get_confirm() {
-  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
-  ! [[ $BASH_INTERACTIVE == true ]] && return 0   # чтобы не зависла вдруг при загрузке
+  [[ $BASH_INTERACTIVE == true ]] || return 0   # чтобы не зависла вдруг при загрузке
 
   local _yesNo
   printf "$1\n" > /dev/tty
@@ -43,11 +43,11 @@ bfl::get_confirm() {
   fi
 
   while true; do
-      read -r -p " (y/n) " _yesNo
-      case ${_yesNo} in
-          [Yy]*) return 0 ;;
-          [Nn]*) return 1 ;;
-          *)  printf "Please answer yes or no.\n" > /dev/tty ;;
+      read -r -p " (Yes/No) " _yesNo
+      case ${_yesNo,,} in
+          yes ) return 0 ;;
+          no  ) return 1 ;;
+          *)    printf "Please answer yes or no.\n" > /dev/tty ;;
       esac
   done
 

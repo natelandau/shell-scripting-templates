@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Controls all printing of messages to log files and stdout.
+#   Controls all printing of messages to log files and stdout.
 #
 # @param String $alertType
 #   The type of alert to print
@@ -37,7 +37,7 @@
 #   bfl::alert "${alertType}" "${MESSAGE}" "${LINENO}"
 #------------------------------------------------------------------------------
 bfl::alert() {
-  bfl::verify_arg_count "$#" 2 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2, 3]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 2 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2, 3]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local _alertType="$1"
   local _msg="$2"

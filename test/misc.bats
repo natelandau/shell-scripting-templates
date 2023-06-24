@@ -6,7 +6,7 @@ load 'test_helper/bats-file/load'
 load 'test_helper/bats-assert/load'
 
 #ROOTDIR="$(git rev-parse --show-toplevel)"
-[[ ${_GUARD_BFL_autoload} -eq 1 ]] || { . /etc/getConsts; . "$BASH_FUNCTION_LIBRARY"; }
+[[ ${_GUARD_BFL_autoload} -eq 1 ]] || { . ${HOME}/getConsts; . "$BASH_FUNCTION_LIBRARY"; }
 
 ######## SETUP TESTS ########
 setup() {

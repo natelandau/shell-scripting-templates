@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -7,7 +7,7 @@
 #
 # Library of functions related to backups
 #
-#
+# @author  Alexei Kharchev
 #
 # @file
 # Defines function: bfl::btrfs_backup().
@@ -43,7 +43,7 @@
 # to have nested local functions without global scope: https://stackoverflow.com/questions/38264873/nested-functions-on-bash
 #                  !!!!
 bfl::btrfs_backup() ( # !!!
-  bfl::verify_arg_count "$#" 3 6 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [3..999]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 3 6 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [3..999]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
 #  set -o errexit  # Это защищает от игнорирование аварийного завершения команд
 #  set -u # или set -o nounset  # Это защищает от попыток использовать необъявленные переменные
@@ -103,12 +103,12 @@ ${Green} -v, --version            ${NC}     Prints software version and exit\n"
   done
 
   # Verify argument values.
-  bfl::is_blank "$fldr"    && { bfl::writelog_fail "${FUNCNAME[0]}: parameter --folder is not declared!";                return $BFL_ErrCode_Not_verified_arg_values; }
-  bfl::is_blank "$srcDir"  && { bfl::writelog_fail "${FUNCNAME[0]}: parameter --temp-snapshots-folder is not declared!"; return $BFL_ErrCode_Not_verified_arg_values; }
-  bfl::is_blank "$destDir" && { bfl::writelog_fail "${FUNCNAME[0]}: parameter --snapshots-folder is not declared!";      return $BFL_ErrCode_Not_verified_arg_values; }
-      [[ -d "$fldr" ]]     || { bfl::writelog_fail "${FUNCNAME[0]}: source folder $fldr doesn't exist!";                 return $BFL_ErrCode_Not_verified_arg_values; }
-      [[ -d "$srcDir" ]]   || { bfl::writelog_fail "${FUNCNAME[0]}: temp snapshot folder $srcDir doesn't exist!";        return $BFL_ErrCode_Not_verified_arg_values; }
-      [[ -d "$destDir" ]]  || { bfl::writelog_fail "${FUNCNAME[0]}: backup snapshot folder $destDir doesn't exist!";     return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_blank "$fldr"    && { bfl::writelog_fail "${FUNCNAME[0]}: parameter --folder is not declared!";                return ${BFL_ErrCode_Not_verified_arg_values}; }
+  bfl::is_blank "$srcDir"  && { bfl::writelog_fail "${FUNCNAME[0]}: parameter --temp-snapshots-folder is not declared!"; return ${BFL_ErrCode_Not_verified_arg_values}; }
+  bfl::is_blank "$destDir" && { bfl::writelog_fail "${FUNCNAME[0]}: parameter --snapshots-folder is not declared!";      return ${BFL_ErrCode_Not_verified_arg_values}; }
+      [[ -d "$fldr" ]]     || { bfl::writelog_fail "${FUNCNAME[0]}: source folder $fldr doesn't exist!";                 return ${BFL_ErrCode_Not_verified_arg_values}; }
+      [[ -d "$srcDir" ]]   || { bfl::writelog_fail "${FUNCNAME[0]}: temp snapshot folder $srcDir doesn't exist!";        return ${BFL_ErrCode_Not_verified_arg_values}; }
+      [[ -d "$destDir" ]]  || { bfl::writelog_fail "${FUNCNAME[0]}: backup snapshot folder $destDir doesn't exist!";     return ${BFL_ErrCode_Not_verified_arg_values}; }
 # -------------------------
   bfl::is_root_available   || { bfl::writelog_fail "${FUNCNAME[0]}: failed to get sudo rights!"; return 1; }
 

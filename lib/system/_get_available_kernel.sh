@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Returns the string representation of an array of all kernel sources available in '/usr/src' (lowest first, highest last).
+#   Returns the string representation of an array of all kernel sources available in '/usr/src' (lowest first, highest last).
 #
 # @return String  $result
 #   String representation of an array (e.g. '( [0]="4.16.18-gentoo" [1]="4.17.13-gentoo" [2]="4.17.14-gentoo" )').
@@ -24,7 +24,7 @@
 #   bfl::get_available_kernel
 #------------------------------------------------------------------------------
 bfl::get_available_kernel() {
-  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   # List all kernel sources folders, sort their base names naturally (the lowest version first, the highest last) and remove the 'linux-' prefix
   local s

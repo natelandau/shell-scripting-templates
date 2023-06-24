@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -47,7 +47,7 @@ LOG_FILE=/dev/null
 
 #------------------------------------------------------------------------------
 # @function
-# Prints the passed message depending on its log-level to stdout.
+#   Prints the passed message depending on its log-level to stdout.
 #
 # @param Integer $LEVEL
 #   Log level of the message.
@@ -64,7 +64,6 @@ LOG_FILE=/dev/null
 # @example
 #   bfl::write_log 0 "Compiling source" "Start operation" "$HOME/.faults"
 #------------------------------------------------------------------------------
-#
 bfl::write_log() {
   bfl::verify_arg_count "$#" 3 4 || { # Нельзя bfl::die Verify argument count.
       [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: error $*\n" > /dev/tty
@@ -79,24 +78,24 @@ bfl::write_log() {
 
   # Verify argument values.
   local -r logfile="${4:-$BASH_FUNCTION_LOG}"   # LOGFILE="$(pwd)/${0##*/}.log"   # $(basename "$0")
-  local d; d=$(dirname "$logfile")
-  ! [[ -d "$d" ]] && {
+  local d="${logfile%/*}"  #  $(dirname "$logfile")
+  [[ -d "$d" ]] || {
       mkdir -p "$d" || { # Нельзя bfl::die Verify arguments
       [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: cannot create directory '$d'!\n" > /dev/tty
       return 1
       }
   }
-  ! [[ -d "$d" ]] && { # Нельзя bfl::die Verify arguments
+  [[ -d "$d" ]] || { # Нельзя bfl::die Verify arguments
       [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: directory '$d' doesn't exists!\n" > /dev/tty
       return 1
       }
-  ! [[ -f "$logfile" ]] && {
+  [[ -f "$logfile" ]] || {
       touch "$logfile" || { # Нельзя bfl::die Verify arguments
       [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: cannot create '$logfile'!\n" > /dev/tty
       return 1
       }
   }
-  ! [[ -f "$logfile" ]] && { # Нельзя bfl::die Verify arguments
+  [[ -f "$logfile" ]] || { # Нельзя bfl::die Verify arguments
       [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: '$logfile' doesn't exists,no rights to create it!\n" > /dev/tty
       return 1
       }

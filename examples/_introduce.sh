@@ -7,7 +7,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Introduces a person given their name and age.
+#   Introduces a person given their name and age.
 #
 # This is a silly example of a function that could be added to the Bash
 # Function Library. Because the filename begins with an underscore, if this
@@ -124,12 +124,13 @@
 #
 #-----
 #
-# @param string $name
+# @param String $name
 #   The person's name.
-# @param int $age
+#
+# @param Integer $age
 #   The person's age.
 #
-# @return string $introduction
+# @return String $introduction
 #   The introduction.
 #
 # @example

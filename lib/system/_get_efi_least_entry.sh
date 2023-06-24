@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Returns of all EFI bootloader entries matching the OS_ID the one with the lowest boot priority, as long as there will be KEEP others left.
+#   Returns of all EFI bootloader entries matching the OS_ID the one with the lowest boot priority, as long as there will be KEEP others left.
 #
 # @param  String  $OS_ID
 #   Identifier that limits the search.
@@ -30,13 +30,13 @@
 #   bfl::get_efi_least_entry
 #------------------------------------------------------------------------------
 bfl::get_efi_least_entry() {
-  bfl::verify_arg_count "$#" 2 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 2 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local -r KEEP="${2:-2}"
 
   # Verify argument values.
-  bfl::is_blank "$1"      && { bfl::writelog_fail "${FUNCNAME[0]}: OS Id was not specified!";   return $BFL_ErrCode_Not_verified_arg_values; }
-  bfl::is_integer ${KEEP} || { bfl::writelog_fail "${FUNCNAME[0]}: 'KEEP' must be an integer!"; return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_blank "$1"      && { bfl::writelog_fail "${FUNCNAME[0]}: OS Id was not specified!";   return ${BFL_ErrCode_Not_verified_arg_values}; }
+  bfl::is_integer ${KEEP} || { bfl::writelog_fail "${FUNCNAME[0]}: 'KEEP' must be an integer!"; return ${BFL_ErrCode_Not_verified_arg_values}; }
 
   local -r OS_ID="${1,,}"
 

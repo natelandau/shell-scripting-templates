@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,8 +15,8 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Ensure a file to be created has a unique filename to avoid overwriting other
-# filenames by incrementing a number at the end of the filename
+#   Ensure a file to be created has a unique filename to avoid overwriting other
+#   filenames by incrementing a number at the end of the filename
 #
 # @option String    -i
 #   Places the unique integer before the file extension.
@@ -36,32 +36,30 @@
 #   printf "%s" "line" > "$(bfl::get_unique_filename "/some/dir/file.txt")"
 #------------------------------------------------------------------------------
 bfl::get_unique_filename() {
-  bfl::verify_arg_count "$#" 1 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 3]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 3]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local opt
   local OPTIND=1
   local _internalInteger=false
   while getopts ":iI" opt; do
-      case ${opt} in
-          i | I) _internalInteger=true ;;
-          *)
-              error "Unrecognized option '${1}' passed to ${FUNCNAME[0]}" "${LINENO}"
-              return 1
-              ;;
+      case ${opt,,} in
+          i) _internalInteger=true ;;
+          *) bfl::writelog_fail "${FUNCNAME[0]}: unrecognized option '${opt}'" # "${LINENO}"
+             return ${BFL_ErrCode_Not_verified_arg_values} ;;
       esac
   done
   shift $((OPTIND - 1))
 
-  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local _fullFile="${1}"
   #                         Why ?
   # Find directories with realpath if input is an actual file
   # [[ -e "${_fullFile}" ]] && _fullFile="$(bfl::get_canonical_path "${_fullFile}")"
-  f="$(basename "${_fullFile}")"
+  f="${_fullFile##*/}"  # $(basename "${_fullFile}")
 
   local _filePath
-  _filePath="$(dirname "${_fullFile}")"
+  _filePath="${_fullFile%/*}"  # $(dirname "${_fullFile}")
 
   local _spacer="${2:-.}"
   local f _ext _originalFile _newFilename str

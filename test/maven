@@ -27,17 +27,17 @@ declare_assertions() {
     'bfl::get_maven_artifact_path|"org.apache.maven" "maven-artifact" "3.1.1" "jar"|"$HOME/.m2/repository/org/apache/maven/maven-artifact/3.1.1/maven-artifact-3.1.1.jar"'
 #   If the artifact does not exist in the default repository, the function should exit with 1 but still return the path the artifact would have
     'bfl::get_maven_artifact_path|"biz.netcentric.michaelstrache" "non-existing-package" "1.0.0" "jar"|"$HOME/.m2/repository/biz/netcentric/michaelstrache/non-existing-package/1.0.0/non-existing-package-1.0.0.jar"'
-#   If the artifact exists in a userspecific repository, the function should exit with 0 and return the path of the artifact
-    'bfl::get_maven_artifact_path|"biz.netcentric.michaelstrache" "existing-package" "1.0.0" "jar" "$(dirname $BASH_FUNCTION_LIBRARY)/test/testdata/maven"|"$(dirname $BASH_FUNCTION_LIBRARY)/test/testdata/maven/existing-package/1.0.0/existing-package-1.0.0.jar"'
+#   If the artifact exists in a userspecific repository, the function should exit with 0 and return the path of the artifact  # (dirname $BASH_FUNCTION_LIBRARY)
+    'bfl::get_maven_artifact_path|"biz.netcentric.michaelstrache" "existing-package" "1.0.0" "jar" "${BASH_FUNCTION_LIBRARY%/*}/test/testdata/maven"|"${BASH_FUNCTION_LIBRARY%/*}/test/testdata/maven/existing-package/1.0.0/existing-package-1.0.0.jar"'
 #   bfl::get_maven_project_dependency_version
-#   If the dependency exists in the POM, the function should exit with 0 and return the version
-    'bfl::get_maven_project_dependency_version|"$(dirname $BASH_FUNCTION_LIBRARY)/testdata/maven/pom.xml" "biz.netcentric.michaelstrache" "existing-package"|"1.0.0"'
-#   If the dependency does not exist in the POM, the function should exit with 1 and return an empty string
-    'bfl::get_maven_project_dependency_version|"$(dirname $BASH_FUNCTION_LIBRARY)/testdata/maven/pom.xml" "biz.netcentric.michaelstrache" "non-existing-package"|""'
+#   If the dependency exists in the POM, the function should exit with 0 and return the version  # (dirname $BASH_FUNCTION_LIBRARY)
+    'bfl::get_maven_project_dependency_version|"${BASH_FUNCTION_LIBRARY%/*}/testdata/maven/pom.xml" "biz.netcentric.michaelstrache" "existing-package"|"1.0.0"'
+#   If the dependency does not exist in the POM, the function should exit with 1 and return an empty string  # (dirname $BASH_FUNCTION_LIBRARY)
+    'bfl::get_maven_project_dependency_version|"${BASH_FUNCTION_LIBRARY%/*}/testdata/maven/pom.xml" "biz.netcentric.michaelstrache" "non-existing-package"|""'
 #   bfl::update_maven_project_dependency_version
-#   If the dependency exists in the POM, the function should change it and exit with 0
-    'bfl::update_maven_project_dependency_version|"$(dirname $BASH_FUNCTION_LIBRARY)/testdata/maven/pom.xml" "biz.netcentric.michaelstrache" "existing-package" "2.0.0"|0'
-#   If the dependency exists in the POM, the function should change it and exit with 0
-    'bfl::update_maven_project_dependency_version|"$(dirname $BASH_FUNCTION_LIBRARY)/testdata/maven/pom.xml" "biz.netcentric.michaelstrache" "non-existing-package" "2.0.0"|0'
+#   If the dependency exists in the POM, the function should change it and exit with 0  # (dirname $BASH_FUNCTION_LIBRARY)
+    'bfl::update_maven_project_dependency_version|"${BASH_FUNCTION_LIBRARY%/*}/testdata/maven/pom.xml" "biz.netcentric.michaelstrache" "existing-package" "2.0.0"|0'
+#   If the dependency exists in the POM, the function should change it and exit with 0  # (dirname $BASH_FUNCTION_LIBRARY)
+    'bfl::update_maven_project_dependency_version|"${BASH_FUNCTION_LIBRARY%/*}/testdata/maven/pom.xml" "biz.netcentric.michaelstrache" "non-existing-package" "2.0.0"|0'
     )
   }

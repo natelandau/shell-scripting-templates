@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,26 +15,26 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Gets the files in a directory (recursively or not).
+#   Gets the files in a directory (recursively or not).
 #
 # NOT recursively
 #
-# @param string $path1
+# @param String $path1
 #   A directory path.
 #
-# @param string $path2
+# @param String $path2
 #   A directory path.
 #
-# @param string $mask
+# @param String $mask
 #   mask for searching files.
 #
 # @example
 #   bfl::move_and_relink "$folder1" "$folder2" ".la"
 #------------------------------------------------------------------------------
 bfl::move_and_relink() {
-  bfl::verify_arg_count "$#" 3 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 3"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 3 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 3"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
   # Verify argument values.
-  [[ -d "$1" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: directory '$1' doesn't exist"; return $BFL_ErrCode_Not_verified_args_count; }
+  [[ -d "$1" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: directory '$1' doesn't exist"; return ${BFL_ErrCode_Not_verified_args_count}; }
 
   local str
   [[ -z "$3" ]] && local -r fltr='*' || local -r fltr="$3"
@@ -51,7 +51,7 @@ bfl::move_and_relink() {
       b=true
       if [[ -L "$1"/"$f" ]] ; then
           s=`readlink "$1"/"$f"`
-          [[ -f "$s" ]] && s=`dirname "$s"`
+          [[ -f "$s" ]] && s="${s%/*}"  # s=$(dirname "$s")
           if [[ "$s" == "$2" ]]; then
               b=false
               [[ $BASH_INTERACTIVE == true ]] && printf "${Yellow}file ${NC}$1/$f ${Yellow}already linked to $2${NC}\n" > /dev/tty

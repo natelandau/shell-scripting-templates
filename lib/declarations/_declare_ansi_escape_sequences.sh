@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Declares ANSI escape sequences.
+#   Declares ANSI escape sequences.
 #
 # These are ANSI escape sequences for controlling a VT100 terminal. Examples
 # for using these constants within a script:
@@ -59,9 +59,8 @@
 #
 # @example:
 #   bfl::declare_ansi_escape_sequences
-#
-# shellcheck disable=SC2034
 #------------------------------------------------------------------------------
+# shellcheck disable=SC2034
 bfl::declare_ansi_escape_sequences() {
   [[ "${BASH_FUNCTION_LIBRARY_COLOR_OUTPUT:=enabled}" = "disabled" ]] && local bEnabled=false || local bEnabled=true
 #  [[ "$TERM" =~ 256color ]] && local use256=true || local use256=false

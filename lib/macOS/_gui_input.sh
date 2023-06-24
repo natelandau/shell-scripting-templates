@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,20 +15,20 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Ask for user input using a Mac dialog box.
+#   Ask for user input using a Mac dialog box.
 #
 # @param String $text
 #   Text in dialogue box (Default: Password).
 #
 # @return Boolean $result
-#    0 / 1     ( true / false )
+#     0 / 1   ( true / false )
 #   MacOS dialog box output / no output
 #
 # @example
 #   bfl::MacOS::have_scriptable_finder
 #------------------------------------------------------------------------------
 bfl::MacOS::have_scriptable_finder() {
-  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local os=$(bfl::get_OS) || { bfl::writelog_fail "${FUNCNAME[0]}: error os=\$(bfl::get_OS)"; return 1; }
   [[ "$os" == "mac" ]] || return 1

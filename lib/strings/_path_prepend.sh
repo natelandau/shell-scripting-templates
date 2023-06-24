@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,8 +15,8 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Searches path in the variable like PATH. If not found, add directory path to the beginning of string
-# This help to exclude duplicates
+#   Searches path in the variable like PATH. If not found, add directory path to the beginning of string
+#   This help to exclude duplicates
 #
 # Standart Linux path functions. The string ONLY single line
 #
@@ -24,37 +24,37 @@
 #   -c Check directories, don't add to PATH (or other variable) if doesn't exist.
 #   -x Fail if directories are not found.
 #
-# @param string $directory
+# @param String $directory
 #   The directory to be searching and prepend. There may be several paths, eg.  /opt/lib:/usr/local/lib:/home/usr/.local/lib
 #
-# @param string $path_variable (optional)
+# @param String $path_variable (optional)
 #   The variable to be changed. By default, PATH
 #
 # @example
 #   bfl::path_prepend '/opt/lib:/usr/local/lib:/home/usr/.local/lib' LD_LIBRARY_PATH
 #------------------------------------------------------------------------------
 bfl::path_prepend() {
-  bfl::verify_arg_count "$#" 1 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 3]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 3]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local opt
   local OPTIND=1
   local _checkPaths=false
   local _failIfNotFound=false
 
-  while getopts ":xX" opt; do
-      case ${opt} in
-          c | C)  _checkPaths=true ;;
-          x | X)  _failIfNotFound=true ;;
-          *)      bfl::writelog_fail "Unrecognized option '${1}'" "${LINENO}"
-                  return 1 ;;
+  while getopts ":xXcC" opt; do
+      case ${opt,,} in
+          c )  _checkPaths=true ;;
+          x )  _failIfNotFound=true ;;
+          *)   bfl::writelog_fail "${FUNCNAME[0]}: unrecognized option '${opt}'" # "${LINENO}"
+               return ${BFL_ErrCode_Not_verified_arg_values} ;;
       esac
   done
   shift $((OPTIND - 1))
 
-  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   # Verify argument values.
-  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: path is empty!"; return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: path is empty!"; return ${BFL_ErrCode_Not_verified_arg_values}; }
 
   local -r PATHVARIABLE="${2:-PATH}"
   local str="${!PATHVARIABLE}"  # Var value by its name

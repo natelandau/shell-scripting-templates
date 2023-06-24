@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -16,13 +16,13 @@
 # **************************************************************************** #
 # Dependencies                                                                 #
 # **************************************************************************** #
-# source "$(dirname $BASH_FUNCTION_LIBRARY)"/lib/logs/_write_log.sh
+source "${BASH_FUNCTION_LIBRARY%/*}"/lib/logs/_write_log.sh
 
 #------------------------------------------------------------------------------
 # @function
-# Prints passed Message on Log-Level info to stdout.
+#   Prints passed Message on Log-Level info to stdout.
 #
-# @param string $MESSAGE
+# @param String $MESSAGE
 #   Message to log.
 #
 # @param String $STATUS
@@ -34,7 +34,6 @@
 # @example
 #   bfl::writelog_info "some string"
 #------------------------------------------------------------------------------
-#
 bfl::writelog_info() {
   bfl::verify_arg_count "$#" 1 3 || { # Нельзя bfl::die Verify argument count.
       [[ $BASH_INTERACTIVE == true ]] && printf "${FUNCNAME[0]}: error: arguments count $# ∉ [1, 3]\n" > /dev/tty
@@ -54,7 +53,7 @@ bfl::writelog_info() {
       return 1
       }
 
-  ! [[ $BASH_INTERACTIVE == true ]] && return 0
+  [[ $BASH_INTERACTIVE == true ]] || return 0
   printf "${CLR_INFORM}$msg${NC}\n" > /dev/tty
   printf "${CLR_INFORM}Written log message to $logfile${NC}\n" > /dev/tty
   return 0

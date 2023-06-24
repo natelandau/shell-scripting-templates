@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -7,7 +7,7 @@
 #
 # Library of useful utility functions
 #
-#
+# @author  Michael Strache
 #
 # @file
 # Defines function: bfl::is_pkg_version().
@@ -15,20 +15,19 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Tests if STRING is a version string .
+#   Tests if STRING is a version string .
 #
-# @param string $value_to_test
+# @param String $value_to_test
 #   The value to be tested.
 #
-# @return Boolan $result
+# @return Boolean $result
 #      0 / 1 (true / false).
 #
 # @example
 #   bfl::is_pkg_version "1.0.0-SNAPSHOT"
 #------------------------------------------------------------------------------
-#
 bfl::is_pkg_version() {
-  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local -r argument="$1"
 

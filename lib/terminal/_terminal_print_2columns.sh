@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,8 +15,8 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Prints a two column output with fixed widths and wrapping text from a key/value pair.
-# Optionally pass a number of 2 space tabs to indent the output.
+#   Prints a two column output with fixed widths and wrapping text from a key/value pair.
+#   Optionally pass a number of 2 space tabs to indent the output.
 #
 # @option String -b
 #   Bold the left column.
@@ -46,20 +46,20 @@
 #   bfl::terminal_print_2columns -b -u "Key" "Long value text" [tab level]
 #------------------------------------------------------------------------------
 bfl::terminal_print_2columns() {
-  bfl::verify_arg_count "$#" 2 7 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2..7]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
-  bfl::verify_dependencies "tput" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return $BFL_ErrCode_Not_verified_dependency; }  # Verify dependencies.
+  bfl::verify_arg_count "$#" 2 7 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2..7]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
+  bfl::verify_dependencies "tput" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   # Verify options.
   local opt
   local OPTIND=1
   local _style=""
   while getopts ":bBuUrR" opt; do
-      case "$opt" in
-          b | B) _style="${_style}${bold}" ;;
-          u | U) _style="${_style}${underline}" ;;
-          r | R) _style="${_style}${reverse}" ;;
-          *) bfl::writelog_fail "Unrecognized option '$1' passed to ${FUNCNAME[0]}"; return 1;
-          ;;
+      case "${opt,,}" in
+          b ) _style="${_style}${bold}" ;;
+          u ) _style="${_style}${underline}" ;;
+          r ) _style="${_style}${reverse}" ;;
+          *)  bfl::writelog_fail "${FUNCNAME[0]}: unrecognized option '${opt}'" # "${LINENO}"
+              return ${BFL_ErrCode_Not_verified_arg_values} ;;
       esac
   done
   shift $((OPTIND - 1))

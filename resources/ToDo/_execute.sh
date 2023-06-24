@@ -56,15 +56,15 @@ bfl::execute() {
 
   local OPTIND=1
   while getopts ":vVpPeEsSqQnN" opt; do
-      case ${opt} in
-          v | V) _localVerbose=true ;;
-          p | P) _passFailures=true ;;
-          e | E) _echoResult=true ;;
-          s | S) _echoSuccessResult=true ;;
-          q | Q) _quietMode=true ;;
-          n | N) _echoNoticeResult=true ;;
-          *)  bfl::writelog_error "${FUNCNAME[0]}: Unrecognized option '$1' passed to _execute_. Exiting."
-              return 1 ;;
+      case ${opt,,} in
+          v ) _localVerbose=true ;;
+          p ) _passFailures=true ;;
+          e ) _echoResult=true ;;
+          s ) _echoSuccessResult=true ;;
+          q ) _quietMode=true ;;
+          n ) _echoNoticeResult=true ;;
+          *)  bfl::writelog_fail "${FUNCNAME[0]}: unrecognized option '${opt}'" # "${LINENO}"
+              return ${BFL_ErrCode_Not_verified_arg_values} ;;
       esac
   done
   shift $((OPTIND - 1))

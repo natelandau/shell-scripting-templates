@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,28 +15,28 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Returns the version string of the currently running kernel.
+#   Returns the version string of the currently running kernel.
 #
-# @param  String  $DEVICE
+# @param  String  $device
 #   The device providing the mount. This can be whatever device is supporting by the mount.
 #
-# @param  String  $DIR
+# @param  String  $dir
 #   The mount path for the mount.
 #
-# @param  String  $FSTYPE
+# @param  String  $fstype
 #   The mount type.
 #
-# @param  String  $OPTIONS
+# @param  String  $options
 #   A single string containing options for the mount, as they would appear in fstab.
 #
-# @return boolean $result
-#        0 / 1 (true / false)
+# @return Boolean $result
+#     0 / 1   ( true / false )
 #
 # @example
 #   bfl::mount
 #------------------------------------------------------------------------------
 bfl::mount() {
-  bfl::verify_arg_count "$#" 4 4 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 4"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 4 4 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 4"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local -r device="${1:-}"
   local -r d="${2:-}"

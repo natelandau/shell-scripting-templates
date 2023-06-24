@@ -11,9 +11,9 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Displays usage message.
+#   Displays usage message.
 #
-# @return string $msg
+# @return String $msg
 #   The usage message.
 #------------------------------------------------------------------------------
 usage() {

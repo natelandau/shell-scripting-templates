@@ -21,10 +21,10 @@ readonly BASH_FUNCTION_LIBRARY='/etc/bash_functions_library/autoload.sh'
 set +o allexport  # == set +a Disable using full option name syntax
 EOT
 )
-sudo printf "\\n%s\\n" "${heredoc}" >> /etc/getConsts
+sudo printf "\\n%s\\n" "${heredoc}" >> ${HOME}/getConsts
 
 sed -i '2iset +u' "${HOME}/.bashrc"
-sed -i '3i[[ $_GUARD_BFL_autoload -ne 1 ]] && . /etc/getConsts && . "$BASH_FUNCTION_LIBRARY"' "${HOME}/.bashrc"
+sed -i '3i[[ $_GUARD_BFL_autoload -ne 1 ]] && . ${HOME}/getConsts && . "$BASH_FUNCTION_LIBRARY"' "${HOME}/.bashrc"
 ```
 
 3\. Verify that the BASH_FUNCTION_LIBRARY environment variable is correct.

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,21 +15,21 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Returns the path the specified maven artefact would have in the local filesystem repository and if that artifact exists on localhost.
+#   Returns the path the specified maven artefact would have in the local filesystem repository and if that artifact exists on localhost.
 #
-# @param string $GROUP_ID
+# @param String $GROUP_ID
 #   GroupId as specified in the pom.xml.
 #
-# @param string $ARTIFACT_ID
+# @param String $ARTIFACT_ID
 #   ArtifactId as specified in the pom.xml.
 #
-# @param string $VERSION
+# @param String $VERSION
 #   Version of the artefact.
 #
-# @param string $EXTENSION
+# @param String $EXTENSION
 #   File extension of the artefact.
 #
-# @param string $REPOSITORY
+# @param String $REPOSITORY
 #   Path of the local repository, if not located at "${HOME}/.m2/repository".
 #
 # @return String $result
@@ -38,9 +38,8 @@
 # @example
 #   bfl::get_maven_artifact_path ....
 #------------------------------------------------------------------------------
-#
 bfl::get_maven_artifact_path() {
-  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local -r GROUP_ID="${1:-}"
   local -r ARTIFACT_ID="${2:-}"

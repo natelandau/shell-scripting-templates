@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,22 +15,22 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Removes leading and trailing whitespace, including blank lines, from string.
+#   Removes leading and trailing whitespace, including blank lines, from string.
 #
 # The string can either be single or multi-line. In a multi-line string,
 # leading and trailing whitespace is removed from every line.
 #
-# @param string $str
+# @param String $str
 #   The string to be trimmed.
 #
-# @return string $str_trimmed
+# @return String $str_trimmed
 #   The trimmed string.
 #
 # @example
 #   bfl::trim " foo "
 #------------------------------------------------------------------------------
 bfl::trim() {
-  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   # Explanation of sed commands:
   # - Remove leading whitespace from every line: s/^[[:space:]]+//

@@ -2,7 +2,9 @@ Main / [Usage](#usage) / [Libraries](#libraries) / [Installation](installation.m
 
 ## Bash Function Library (collection of utility functions)
 
-A collection of BASH utility functions and script templates used to ease the creation of portable and hardened BASH scripts with sane defaults.
+A collection of BASH utility functions and script templates used to ease the creation of portable and hardened BASH scripts with sane defaults.<br />
+I load these up in my own shell environment.<br />
+If they're useful for anyone else, then great! :)
 
 #### This project is copied from several bash functions projects with the similar approach.
 #### Sourced git repositories I have got ideas, templates, tests and examples to current project:
@@ -17,20 +19,12 @@ A collection of BASH utility functions and script templates used to ease the cre
 
 ### Usage
 
-Before loading `Bash Functions Library` to any script your should declare it's location in global variable like `$BASH_FUNCTION_LIBRARY`.<br />
-Since I source functions from current project to many system scripts, I have to define the file where this variable is declared.<br />
-In my system this variable and some other exported variables of common used tools are declared in `/etc/getConsts`.<br />
-This way I can change `Bash Functions Library` locaton without rewriting source in many system files.<br />
-I have to change variable `$BASH_FUNCTION_LIBRARY` only. The method you load `/etc/getConsts` or other script as system starting you should define **by yourself** (maybe from `/etc/profile` or `/etc/profile.d/script.sh` ... )
-
-**Contents of my `/etc/getConsts` :**
+In short:<br />
+1) clone repository: `git clone git@github.com:AlexeiKharchev/bash_functions_library "$YOUR_PATH"`<br />
+2) create script to define repository locaton (in order ro source from any script):<br />
+**Contents of my `${HOME}/getConsts` :**
 ```bash
 set -o allexport  # == set -a Enable using full option name syntax
-# -------------------------------------------------------------------
-declare -x BASH_INTERACTIVE=true    # Global shell variable
-[[ "$TERM" == 'linux' ]] && unset TERM
-[[ -z ${TERM+x} ]] && readonly TERM='xterm-256color'
-
 ...................... some directory declarations ......................
 readonly BASH_FUNCTION_LIBRARY='/etc/bash_functions_library/autoload.sh'
 .........................................................................
@@ -40,38 +34,44 @@ readonly localPythonModulesDir="/home/alexei/.local/lib/$myPython/site-packages"
 .........................................................................
 set +o allexport  # == set +a Disable using full option name syntax
 ```
-Note: readonly is a "Special Builtin". If Bash is in POSIX mode then readonly (and not declare) has the effect "returning an error status will not cause the shell to exit" [https://stackoverflow.com/questions/30362831/what-is-difference-in-declare-r-and-readonly-in-bash](https://stackoverflow.com/questions/30362831/what-is-difference-in-declare-r-and-readonly-in-bash)<br />
-
-In this case location of `Bash Functions Library` will be exported variable.<br />
-In my system I put current project directly to `/etc` directory because of integrating `Bash Functions Library` in many system scripts.<br />
-Every script like `/etc/bash.bashrc`, `/etc/bashrc`, `~/.bashrc`, `~/.profile` and others at script' beginning loads `Bash Functions Library` and `/etc/getConsts` together:
+3) source ${HOME}/getConsts in /etc/profile (or some autoload script in /etc/profile.d)<br />
 ```bash
-# Plug in external script libarary
-[[ ${_GUARD_BFL_autoload} -eq 1 ]] || { . /etc/getConsts; . "$BASH_FUNCTION_LIBRARY" ; }
+source ${HOME}/getConsts
+```
+4) run terminal and type `bfl::string_of_char 'A' 50`<br />
+Your should see `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA` in terminal
+5) use `Bash Functions Library` in ypur scripts like this:
+```bash
+# plug in external library
+[[ ${_GUARD_BFL_autoload} -eq 1 ]] || { . ${HOME}/getConsts; . "$BASH_FUNCTION_LIBRARY" ; }
+echo "${DarkGreen}Loading /etc/profile${NC}"
 ```
 As a result, `getConsts` will be loaded no more than once.<br />
-**Source in your scripts `autoload.sh`**, because most of the `BFL` functions depend on one or more of the others.<br />
-It is very important to handle errors. I have `trap` function declaration in my `.bashrc` **before**  $BASH\_FUNCTION_LIBRARY sourcing:
-```bash
-set -o functrace
-trap 'bfl::trap_cleanup "$?" "${BASH_LINENO[*]}" "$LINENO" "${FUNCNAME[*]}" "$BASH_COMMAND" "$0" "${BASH_SOURCE[0]} "$*" "$HOME/.faults"' EXIT INT TERM SIGINT SIGQUIT SIGTERM ERR
-```
-where `"$HOME/.faults"` is my log file.
+In order to handle errors there is declaration `trap 'bfl::trap_cleanup ...` in `autoload.sh`,<br />
+so you need not to additionally declare `trap`.<br />
+Log file declared in `autoload.sh`:    `readonly BASH_FUNCTION_LOG="$HOME/.faults"`
 
+### Templates
+
+Use [_library_function.sh](templates/_library_function.sh) for writing new functions.
+
+|                         Library                        |                                          Description                                              |
+|:------------------------------------------------------:|---------------------------------------------------------------------------------------------------|
+| [_library_function.sh](templates/_library_function.sh) | Use to add some new function, in order to make coding simplier and folow unified coding standards |
+| [script](templates/script)                             | Use to create a script which leverages the Bash Function Library                                  |
+
+### Additionally
+
+More detailed section **Usage** you can see [here](docs/detailed-usage.md).
 Complex `sed` find/replace operations are supported with the files located in `sedfiles/`. Read [the usage instructions](sedfiles/README.md).
 
 Basic alerting from [Natelandau](https://github.com/natelandau/shell-scripting-templates) and logging and setting colors from [JMooring](https://github.com/jmooring/bash-function-library) functions (included in `autoload.sh` by default). Print messages to stdout and to a user specified logfile using the following functions.
 
 ```bash
-debug "some text"     # Printed only when in verbose (-v) mode
-info "some text"      # Basic informational messages
-notice "some text"    # Messages which should be read. Brighter than 'info'
 warning "some text"   # Non-critical warnings
 error "some text"     # Prints errors and the function stack but does not stop the script.
-fatal "some text"     # Fatal errors. Exits the script
-success "some text"   # Prints a success message
-header "some text"    # Prints a header element
-dryrun "some text"    # Prints commands that would be run if not in dry run (-n) mode
+debug "some text"     # Printed only when in verbose (-v) mode
+   ... etc ...
 ```
 
 ### Libraries
@@ -109,7 +109,7 @@ The following **global variables** must be set for the alert functions to work:
 | **`$DRYRUN`** | If `true` does not eval commands passed to `_execute_` function | `false` |
 | **`$RC_NOCOLOR`** | Disable coloured output. If `false`, command `tput` also needs var `$TERM` | `false` |
 | ??? | **`$BASH_FUNCTION_LIBRARY_COLOR_OUTPUT`** |  |
-| **`$LOGFILE`** | Path to a log file |  |
+| **`$LOGFILE`** | Path to a log file | `"$HOME/.faults"` |
 | **`$LOGLEVEL`** | One of: `FATAL`, `ERROR`, `WARN`, `INFO`, `DEBUG`, `ALL`, `OFF` | `ERROR` |
 
 Temporary variables in scripts:
@@ -118,7 +118,7 @@ Temporary variables in scripts:
 | **`$SPIN_NUM`** | Used in `_terminal_spinner.sh` |
 | **`$PROGRESS_BAR_PROGRESS`** | Used in `_terminal_progressbar.sh` |
 
-## The main script `autoload.sh` is roughly split into three sections:
+### The main script `autoload.sh` is roughly split into three sections:
 #### I. TOP: Description, options and global variables:
 These default options are included in the templates and used throughout the utility functions. CLI flags to set/unset them are:
 - **`-h, --h, --help`**: Prints the contents of the `_usage_` function. Edit the text in that function to provide help
@@ -153,14 +153,6 @@ Every library has its own test suite that can be run separately:
 bats test/*.bats
 ```
 A git pre-commit hook provides automated testing is located in the `.hooks/` directory. Read about [how to install the hook](.hooks/README.md).
-
-
-### Templates
-
-|                         Library                        |                                          Description                                              |
-|:------------------------------------------------------:|---------------------------------------------------------------------------------------------------|
-| [_library_function.sh](templates/_library_function.sh) | Use to add some new function, in order to make coding simplier and folow unified coding standards |
-| [script](templates/script)                             | Use to create a script which leverages the Bash Function Library                                  |
 
 
 ### Documentation

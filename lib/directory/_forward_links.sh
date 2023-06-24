@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -14,29 +14,28 @@
 #------------------------------------------------------------------------------
 # Dependencies
 #------------------------------------------------------------------------------
-#source $(dirname "$BASH_FUNCTION_LIBRARY")/lib/declarations/_declare_terminal_colors.sh
+#source "${BASH_FUNCTION_LIBRARY%/*}"/lib/declarations/_declare_terminal_colors.sh
 #------------------------------------------------------------------------------
 # @function
-# Gets the files in a directory (recursively or not).
+#   Gets the files in a directory (recursively or not).
+#   If python3 given in parameter $mask, this folder and files in it will be excluded from linking,
 #
-# If python3 given in parameter $mask, this folder and files in it will be excluded from linking,
-#
-# @param string $path1
+# @param String $path1
 #   A directory path to get files.
 #
-# @param string $path2
+# @param String $path2
 #   A directory path to put file links.
 #
-# @param array $mask_list (optional)
+# @param Array $mask_list (optional)
 #   List of masks for direct linking not files, but whole folders.
 #
 # @example
 #   bfl::forward_links  /tools/binutils-2.40 /usr/local
 #------------------------------------------------------------------------------
 bfl::forward_links() {
-  bfl::verify_arg_count "$#" 2 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2..999]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 2 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2..999]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
-   # eval $ask_sudo
+  # eval $ask_sudo
   bfl::is_root_available || { bfl::writelog_fail "${FUNCNAME[0]}: failed${NC} - cannot get sudo rights!"; return 1; }
 
   local dryrun=false
@@ -49,12 +48,11 @@ bfl::forward_links() {
       esac
   done
 
-  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: source is empty!"; return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: source is empty!"; return ${BFL_ErrCode_Not_verified_arg_values}; }
 
   #$1 - source, $2 - destination, $3 ... - unic folder names
   #/usr/local/cmake-3.23.2  /usr/copy   "cmake-3.23"
-  local fromParentFolder
-  fromParentFolder=$(dirname "$1")
+  local fromParentFolder="${1%/*}"    # $(dirname "$1")
   local -i i=${#fromParentFolder}
   local patternFPF st2
   patternFPF=$(echo "$fromParentFolder" | sed 's|/|\\\/|g;s/\./\\\./g') #  patternFromParentFolder
@@ -116,7 +114,7 @@ bfl::forward_links() {
                   fi
               fi
 
-              srt=`dirname "$st2"`
+              srt="${st2%/*}"   # $(dirname "$st2")
               [[ -d "$srt" ]] || install -v -d "$srt"
 
               if [[ -d "$st2" ]]; then

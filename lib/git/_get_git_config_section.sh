@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Gets the git config section from local repository.
+#   Gets the git config section from local repository.
 #
 # @param String $path
 #   Git repository path.
@@ -30,12 +30,12 @@
 #   bfl::get_git_config_section "/repo" "origin"
 #------------------------------------------------------------------------------
 bfl::get_git_config_section() {
-  bfl::verify_arg_count "$#" 2 2  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
-#  checked by bfl::is_git_repository :      bfl::verify_dependencies "git"  || { bfl::writelog_fail "${FUNCNAME[0]}: dependency shuf not found" ; return $BFL_ErrCode_Not_verified_dependency; } # Verify dependencies.
+  bfl::verify_arg_count "$#" 2 2  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
+#  checked by bfl::is_git_repository :      bfl::verify_dependencies "git"  || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'git' not found" ; return ${BFL_ErrCode_Not_verified_dependency}; } # Verify dependencies.
 
   # Verify argument values.
-  bfl::is_git_repository "$1" || { bfl::writelog_fail "${FUNCNAME[0]}: path '$1' is not a git repository!"; return $BFL_ErrCode_Not_verified_arg_values; }
-  bfl::is_blank "$2" && { bfl::writelog_fail "${FUNCNAME[0]}: git branch name is blank!"; return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_git_repository "$1" || { bfl::writelog_fail "${FUNCNAME[0]}: path '$1' is not a git repository!"; return ${BFL_ErrCode_Not_verified_arg_values}; }
+  bfl::is_blank "$2" && { bfl::writelog_fail "${FUNCNAME[0]}: git branch name is blank!"; return ${BFL_ErrCode_Not_verified_arg_values}; }
 
   local s str=""
   pushd "$1" > /dev/null 2>&1

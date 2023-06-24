@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -16,24 +16,23 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Returns lines block for pastng in text file
+#   Returns lines block for pastng in text file
+#   The string - header for code blocks dividing
 #
-# The string - header for code blocks dividing
-#
-# @param string $TEXT
+# @param String $text
 #   The headline text.
 #
-# @param string $FORMAT
+# @param String $format
 #   The headline layout to use (valid options: 'h1', 'h2').
 #
-# @return string $str
+# @return String $str
 #   2 new lines, header line between 2 symbol lines.
 #
 # @example
 #   bfl::get_section_header "New section" "//" 30 "-"
 #------------------------------------------------------------------------------
 bfl::get_section_header() {
-  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local -r TEXT="${1:-}"
   local -r FORMAT="${2:-}"

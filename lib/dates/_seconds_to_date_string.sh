@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Converts seconds to the hh:mm:ss format.
+#   Converts seconds to the hh:mm:ss format.
 #
 # @param Integer $seconds
 #   The number of seconds to convert.
@@ -33,9 +33,8 @@
 #      TOTALTIME=$(($ENDTIME-$STARTTIME)) # human readable time
 #      bfl::seconds_to_date_string "$TOTALTIME"
 #------------------------------------------------------------------------------
-#
 bfl::seconds_to_date_string() {
-  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   declare -ir seconds="$1"
   bfl::is_positive_integer "$seconds" || { bfl::writelog_fail "${FUNCNAME[0]} '$1' expected to be positive integer."; return 1; }

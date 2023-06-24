@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,20 +15,20 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Transliterates a string.
+#   Transliterates a string.
 #
-# @param string $str
+# @param String $str
 #   The string to transliterate.
 #
-# @return string $str
+# @return String $str
 #   The transliterated string.
 #
 # @example
 #   bfl::transliterate "_Olé Über! "
 #------------------------------------------------------------------------------
 bfl::transliterate() {
-  bfl::verify_arg_count "$#" 1 1   || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; }       # Verify argument count.
-  bfl::verify_dependencies "iconv" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency iconv not found"; return $BFL_ErrCode_Not_verified_dependency; }  # Verify dependencies.
+  bfl::verify_arg_count "$#" 1 1   || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return ${BFL_ErrCode_Not_verified_args_count}; }       # Verify argument count.
+  bfl::verify_dependencies "iconv" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency iconv not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   local str
   shopt -s extglob          # Enable extended pattern matching features.

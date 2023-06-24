@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,23 +15,22 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Returns line for pastng in text file like: // ----------- Section -----------
+#   Returns line for pastng in text file like: // ---------- Section ----------
+#   The string - header for code blocks dividing
 #
-# The string - header for code blocks dividing
-#
-# @param string $header
+# @param String $header
 #   The section name.
 #
-# @param string $line_beginning (optional)
+# @param String $line_beginning (optional)
 #   '#' by default.
 #
-# @param integer $width (optional)
+# @param Integer $width (optional)
 #   Width of line (including section name).
 #
-# @param string $symbols (optional)
+# @param String $symbols (optional)
 #   '-' by default.
 #
-# @return string $str
+# @return String $str
 #   Something like // ----------- Section -----------
 #
 # @example
@@ -39,10 +38,10 @@
 #         для вывода на экран можно использовать $COLUMNS
 #------------------------------------------------------------------------------
 bfl::get_section_header_line() {
-  bfl::verify_arg_count "$#" 1 4  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1..4]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 1 4  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1..4]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   # Verify argument values.
-  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: no parameters were specified!"; return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: no parameters were specified!"; return ${BFL_ErrCode_Not_verified_arg_values}; }
 
   local bgn
   [[ -z ${2+x} ]] && bgn='#' || bgn="$2"  # может быть и '//'
@@ -55,7 +54,7 @@ bfl::get_section_header_line() {
 
   local t
   ((t=l-iBgn-iHdr-3))
-  [[ t -lt 0 ]] && { bfl::writelog_fail "${FUNCNAME[0]}:${NC} line' total length ${Red}$l${NC} is not enough for printing ${Yellow}$hdr."; return $BFL_ErrCode_Not_verified_arg_values; }
+  [[ t -lt 0 ]] && { bfl::writelog_fail "${FUNCNAME[0]}:${NC} line' total length ${Red}$l${NC} is not enough for printing ${Yellow}$hdr."; return ${BFL_ErrCode_Not_verified_arg_values}; }
 
   local y z
   y=$((t/2)); z=$((t-y*2))

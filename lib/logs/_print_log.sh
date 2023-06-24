@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Prints the passed message depending on its log-level to stdout.
+#   Prints the passed message depending on its log-level to stdout.
 #
 # @param String $msg
 #   Message to log.
@@ -29,7 +29,6 @@
 # @example
 #   bfl::print_log "some string"
 #------------------------------------------------------------------------------
-#
 bfl::print_log() {
   [[ $BASH_INTERACTIVE == true ]] || return 0
   # Verify argument count.
@@ -37,7 +36,7 @@ bfl::print_log() {
       printf "${FUNCNAME[0]}: error $*\n" > /dev/tty
       return 1
       }
-  bfl::verify_dependencies "tput" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return $BFL_ErrCode_Not_verified_dependency; }  # Verify dependencies.
+  bfl::verify_dependencies "tput" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   # Verify arguments
   bfl::is_blank "$1" && { # Нельзя bfl::die

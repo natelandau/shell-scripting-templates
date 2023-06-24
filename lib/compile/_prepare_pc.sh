@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -7,7 +7,7 @@
 #
 # Library of useful utility functions
 #
-#
+# @author  Alexei Kharchev
 #
 # @file
 # Defines function: bfl::prepare_pc().
@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Prepares .pc files for libraries in given directory.
+#   Prepares .pc files for libraries in given directory.
 #
 # @option String --dry-run, -dry-run
 #   Enable test mode.
@@ -26,14 +26,14 @@
 # @param String --version
 #   library version to write
 #
-# @param array $lib_names
+# @param Array $lib_names
 #   A list of libraries' names.
 #
 # @example
 #   bfl::prepare_pc  --dry-run --lib=/tools/binutils-2.40/lib/pkgconfig --version='0.0.0' libctf.so.0
 #------------------------------------------------------------------------------
 bfl::prepare_pc() {
-  bfl::verify_arg_count "$#" 3 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [3..999]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 3 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [3..999]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local arr=(); local arr_pcFiles=()
   local dryrun=false; local IFS=''
@@ -55,7 +55,7 @@ bfl::prepare_pc() {
 
   local -i i=${#arr_pcFiles[@]}
   [[ $i -eq 0 ]] && str="$str\npc files list is not defined!"
-  bfl::is_blank $str || { bfl::writelog_fail "${FUNCNAME[0]}: $str"; return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_blank $str || { bfl::writelog_fail "${FUNCNAME[0]}: $str"; return ${BFL_ErrCode_Not_verified_arg_values}; }
 
 # printf '//----------------------------------- libraries -----------------------------------\n'
 local FileName pcFile

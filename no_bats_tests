@@ -2,18 +2,19 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Tests a function to see if its return code matches the expected return code.
+#   Tests a function to see if its return code matches the expected return code.
 #
-# @param string $function_to_test
+# @param String $function_to_test
 #   The function to be tested.
-# @param string $args
-#   The arguments to pass to the function.
-# @param string $expected_return_code
-#   The expected return code (0 or 1).
 #
+# @param String $args
+#   The arguments to pass to the function.
+#
+# @param String $expected_return_code
+#   The expected return code (0 or 1).
+#------------------------------------------------------------------------------
 # shellcheck disable=SC2059
 # shellcheck disable=SC2154
-#------------------------------------------------------------------------------
 assert() {
   bfl::verify_arg_count "$#" 3 3 || exit 1
 
@@ -54,22 +55,18 @@ assert() {
 
 #------------------------------------------------------------------------------
 # @function
-# Main function.
+#   Main function.
 #
-# @param array global $assertions
+# @param Array global $assertions
 #   Global array created by declare_assertions().
-#
+#------------------------------------------------------------------------------
 # shellcheck disable=SC1090
 # shellcheck disable=SC2034
 # shellcheck disable=SC2059
-#------------------------------------------------------------------------------
 main() {
-  if ! source "${BASH_FUNCTION_LIBRARY}"; then
-      printf "Error. Unable to source BASH_FUNCTION_LIBRARY.\\n" 1>&2
-      exit 1
-  fi
+  source "${BASH_FUNCTION_LIBRARY}" || { printf "Error. Unable to source BASH_FUNCTION_LIBRARY.\\n" 1>&2 ; exit 1; }
 
-  d="$(dirname $BASH_FUNCTION_LIBRARY)/test"
+  d="${BASH_FUNCTION_LIBRARY%/*}"/test  # "$(dirname $BASH_FUNCTION_LIBRARY)/test"
   for f in `ls "$d"/`; do
       unset assertions
       source "$BASH_FUNCTION_LIBRARY"/test/"$f"

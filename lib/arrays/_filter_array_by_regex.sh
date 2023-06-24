@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,8 +15,8 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Determine if a regex matches an array element.  Default is case sensitive.
-# Pass -i flag to ignore case.
+#   Determine if a regex matches an array element.  Default is case sensitive.
+#   Pass -i flag to ignore case.
 #
 # @param String $regex_mask
 #   Value to search for.
@@ -35,19 +35,18 @@
 #  if bfl::filter_array_by_regex  -i "VALUE" "${ARRAY[@]}"; then ...
 #------------------------------------------------------------------------------
 bfl::filter_array_by_regex() {
-  bfl::verify_arg_count "$#" 2 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2, 3]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
+  bfl::verify_arg_count "$#" 2 3 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2, 3]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 
   local opt
   local -i OPTIND=1
   while getopts ":iI" opt; do
-      case $opt in
-          i | I) # shellcheck disable=SC2064
-                trap '$(shopt -p nocasematch)' RETURN # reset nocasematch when function exits
-                shopt -s nocasematch                  # Use case-insensitive regex
-                ;;
-          *) bfl::writelog_fail "${FUNCNAME[0]}: unrecognized option '$1'."
-                return $BFL_ErrCode_Not_verified_arg_values
-                ;;
+      case ${opt,,} in
+          i ) # shellcheck disable=SC2064
+              trap '$(shopt -p nocasematch)' RETURN # reset nocasematch when function exits
+              shopt -s nocasematch                  # Use case-insensitive regex
+              ;;
+          *)  bfl::writelog_fail "${FUNCNAME[0]}: unrecognized option '${opt}'" # "${LINENO}"
+              return ${BFL_ErrCode_Not_verified_arg_values} ;;
       esac
   done
   shift $((OPTIND - 1))

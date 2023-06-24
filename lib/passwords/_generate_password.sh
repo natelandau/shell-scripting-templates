@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Generates a random password.
+#   Generates a random password.
 #
 # Password characteristics:
 # - At least one lowercase letter
@@ -29,23 +29,23 @@
 # benign special character (i.e., it won't break quoted strings, doesn't
 # contain escape sequences, etc.).
 #
-# @param int $pswd_length
+# @param Integer $pswd_length
 #   The length of the desired password.
 #
-# @return string $password
+# @return String $password
 #   A random password
 #
 # @example
 #   bfl::generate_password "16"
 #------------------------------------------------------------------------------
 bfl::generate_password() {
-  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return $BFL_ErrCode_Not_verified_args_count; }                       # Verify argument count.
-  bfl::verify_dependencies "pwgen" "shuf" || { bfl::writelog_fail "${FUNCNAME[0]}: dependencies pegen shuf not found"; return $BFL_ErrCode_Not_verified_dependency; }  # Verify dependencies.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return ${BFL_ErrCode_Not_verified_args_count}; }                       # Verify argument count.
+  bfl::verify_dependencies "pwgen" "shuf" || { bfl::writelog_fail "${FUNCNAME[0]}: dependencies pegen shuf not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   declare -r min_pswd_length=8
 
-  bfl::is_positive_integer "$1"   || { bfl::writelog_fail "${FUNCNAME[0]}: Expected password length ($1) to be positive integer."; return $BFL_ErrCode_Not_verified_arg_values; }
-  [[ $1 -lt ${min_pswd_length} ]] && { bfl::writelog_fail "${FUNCNAME[0]}: Expected password length ($1) >= $min_pswd_length.";    return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_positive_integer "$1"   || { bfl::writelog_fail "${FUNCNAME[0]}: Expected password length ($1) to be positive integer."; return ${BFL_ErrCode_Not_verified_arg_values}; }
+  [[ $1 -lt ${min_pswd_length} ]] && { bfl::writelog_fail "${FUNCNAME[0]}: Expected password length ($1) >= $min_pswd_length.";    return ${BFL_ErrCode_Not_verified_arg_values}; }
 
   declare -r pswd_length="$1"
   declare password length_one length_two

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /dev/null/bash
 
 [[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------------
 # @function
-# Randomly extracts one or more sequential paragraphs from a given resource.
+#   Randomly extracts one or more sequential paragraphs from a given resource.
 #
 # The resources are located in the resources/lorem directory. Each resource
 # contains one paragraph per line. The resources were created from books
@@ -29,9 +29,9 @@
 #   5) Captions
 #   6) Any paragraph less than or equal to 200 characters.
 #
-# @param int $paragraphs (optional)
+# @param Integer $paragraphs (optional)
 #   The number of paragraphs to extract (default: 1).
-# @param string $resource (optional)
+# @param String $resource (optional)
 #   The resource from which to extract the paragraphs (default: muir).
 #   Valid resources:
 #   - burroughs (The Breath of Life by John Burroughs)
@@ -40,7 +40,7 @@
 #   - muir (Our National Parks by John Muir)
 #   - virgil (The Aeneid by Virgil)
 #
-# @return string $text
+# @return String $text
 #   The extracted paragraphs.
 #
 # @example
@@ -59,22 +59,22 @@
 #   bfl::lorem 3 virgil
 #------------------------------------------------------------------------------
 bfl::lorem() {
-  bfl::verify_arg_count "$#" 0 2  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0..2]"; return $BFL_ErrCode_Not_verified_args_count; } # Verify argument count.
-  bfl::verify_dependencies "shuf" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency shuf not found" ; return $BFL_ErrCode_Not_verified_dependency; } # Verify dependencies.
+  bfl::verify_arg_count "$#" 0 2  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0..2]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
+  bfl::verify_dependencies "shuf" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency shuf not found" ; return ${BFL_ErrCode_Not_verified_dependency}; } # Verify dependencies.
 
   # Declare positional arguments (readonly, sorted by position).
   declare -r paragraphs="${1:-1}"
   declare -r resource="${2:-muir}"
 
   # Verify argument values.
-  bfl::is_positive_integer "$paragraphs" || { bfl::writelog_fail "${FUNCNAME[0]}: paragraph count must be a positive integer."; return $BFL_ErrCode_Not_verified_arg_values; }
+  bfl::is_positive_integer "$paragraphs" || { bfl::writelog_fail "${FUNCNAME[0]}: paragraph count must be a positive integer."; return ${BFL_ErrCode_Not_verified_arg_values}; }
 
   # Declare variables
   local -i first_paragraph_number last_paragraph_number maximum_first_paragraph_number resource_paragraph_count
   local msg resource_directory resource_file text
 
-  # Set the resource directory path.
-  resource_directory=$(dirname "${BASH_FUNCTION_LIBRARY}")/resources/lorem || { bfl::writelog_fail "${FUNCNAME[0]}: unable to determine resource directory."; return 1; }
+  # Set the resource directory path.  $(dirname "${BASH_FUNCTION_LIBRARY}")
+  resource_directory="${BASH_FUNCTION_LIBRARY%/*}"/resources/lorem || { bfl::writelog_fail "${FUNCNAME[0]}: unable to determine resource directory."; return 1; }
 
   # Select the resource file from which to extract paragraphs.
   case "${resource}" in
