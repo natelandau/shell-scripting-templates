@@ -46,7 +46,7 @@ bfl::script_lock_acquire() {
   if declare -f "bfl::script_lock_release" &>/dev/null; then
       bfl::writelog_fail "${FUNCNAME[0]}: Unable to acquire script lock: ${Yellow}${_lockDir}${Red}. If you trust the script isn't running, delete the lock dir"
   else
-      [[ $BASH_INTERACTIVE ]] && printf "%s\n" "ERROR: Could not acquire script lock. If you trust the script isn't running, delete: ${_lockDir}" > /dev/tty
+      [[ $BASH_INTERACTIVE == true ]] && printf "%s\n" "ERROR: Could not acquire script lock. If you trust the script isn't running, delete: ${_lockDir}" > /dev/tty
   fi
 
   return 1

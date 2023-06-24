@@ -5,7 +5,7 @@
 #------------------------------------------------------------------------------
 # ------------ https://github.com/Jarodiv/bash-function-libraries -------------
 #
-# Library of useful utility functions
+# Library of useful utility functions for compiling sources
 #
 # @author  Michael Strache
 #

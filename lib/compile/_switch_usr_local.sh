@@ -5,9 +5,9 @@
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 #
-# Library of useful utility functions
+# Library of useful utility functions for compiling sources
 #
-#
+# @author  Alexei Kharchev
 #
 # @file
 # Defines function: bfl::switch_usr_local().
@@ -15,10 +15,13 @@
 
 #------------------------------------------------------------------------------
 # @function
-#   Prepares .la files for libraries in given directory.
+#   Rebuilds symlinks to / out of /usr/local.
 #
 # @param String $TARGET (optional)
 #   directory with /bin, /lib, /share and other standard directories
+#
+# @return Boolean $result
+#     0 / 1   ( true / false )
 #
 # @example
 #   bfl::switch_usr_local /STACK2

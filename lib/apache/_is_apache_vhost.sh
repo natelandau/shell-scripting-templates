@@ -39,17 +39,16 @@ bfl::is_apache_vhost() {
   bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: path is required."; return ${BFL_ErrCode_Not_verified_arg_values}; }
 
   # Declare positional arguments (readonly, sorted by position).
+  [[ -n "$2" ]] && bfl::is_blank "$2" && { bfl::writelog_fail "${FUNCNAME[0]}: path_sites_enabled is blank!"; return ${BFL_ErrCode_Not_verified_arg_values}; }
   local -r sites_enabled="${2:-"/etc/apache2/sites-enabled"}"
-  [[ -z "$sites_enabled" ]] && { bfl::writelog_fail "${FUNCNAME[0]}: path_sites_enabled is required."; return ${BFL_ErrCode_Not_verified_arg_values}; }
 
   # Declare all other variables (sorted by name).
-  declare canonical_sites_enabled
+  local canonical_sites_enabled
 
   # Get canonical paths.
-  canonical_path=$(bfl::get_directory_path "$1") || {
-    bfl::writelog_fail "${FUNCNAME[0]}: unable to determine canonical path to $1."; return 1; }
-  canonical_sites_enabled=$(bfl::get_directory_path "${sites_enabled}") || {
-    bfl::writelog_fail "${FUNCNAME[0]}: unable to determine canonical path to ${sites_enabled}."; return 1; }
+  canonical_path=$(bfl::get_directory_path "$1") || { bfl::writelog_fail "${FUNCNAME[0]}: unable to determine canonical path to $1."; return 1; }
+  canonical_sites_enabled=$(bfl::get_directory_path "${sites_enabled}") || { bfl::writelog_fail "${FUNCNAME[0]}: unable to determine canonical path to ${sites_enabled}."; return 1; }
 
-  grep -q -P -R -m1 "DocumentRoot\\s+${canonical_path}$" "${canonical_sites_enabled}"
+  grep -q -P -R -m1 "DocumentRoot\\s+${canonical_path}$" "${canonical_sites_enabled}" || { bfl::writelog_fail "${FUNCNAME[0]}: Failed grep -q -P -R -m1 'DocumentRoot\\s+${canonical_path}$' '${canonical_sites_enabled}'"; return 1; }
+  return 0
   }

@@ -5,7 +5,7 @@
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 #
-# Library of useful utility functions
+# Library of useful utility functions for compiling sources
 #
 #
 #
