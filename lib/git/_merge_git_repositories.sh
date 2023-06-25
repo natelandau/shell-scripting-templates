@@ -54,10 +54,26 @@ bfl::merge_git_repositories() {
   i=$(sed -n "/^\[remote \"$o2\"\]$/=" "$1"/.git/config)
 
 if false; then
+#  1) compare files from directories!
+#  2) goto dir2
+  str=`git status | tail -n 1`
+  if [[ -z "$str" ]]; then    # "$str" != "нечего коммитить, нет изменений в рабочем каталоге"
+     git add .
+     git commit -m  "Preparing to merging with $o1" || { bfl::writelog_fail "${FUNCNAME[0]}: git commit -m 'Preparing to merging with '$o1''"; return 1; }
+     git push origin "$4"
+  fi
+#  3) goto dir 1
+  str=`git status | tail -n 1`
+  if [[ -z "$str" ]]; then    # "$str" != "нечего коммитить, нет изменений в рабочем каталоге"
+      git add .
+      git commit -m "Commit before merging '$o2' into '$o1'" || { bfl::writelog_fail "${FUNCNAME[0]}: git commit -m 'Commit before merging '$o2' into '$o1''"; return 1; }
+      git push origin "$2"
+  fi
+
+
   [[ -z "$i" ]] && bfl::build_multiple_git_config "$1" "$2" "$3" "$4" || \   # можно было git remote add "$o2" "$3"
                                                             { bfl::writelog_fail "${FUNCNAME[0]}: bfl::build_multiple_git_config '$1' '$2' '$3' '$4'";     return 1; }
   git fetch "$o2" --tags                                 || { bfl::writelog_fail "${FUNCNAME[0]}: git fetch '$o2' --tags";     return 1; }
-  git commit -m "Commit before merging '$o2' into '$o1'" || { bfl::writelog_fail "${FUNCNAME[0]}: git commit -m 'Commit before merging '$o2' into '$o1''"; return 1; }
   GIT_EDITOR=${5:-xed} git merge --allow-unrelated-histories "$o2"/"$b2" \
                                                          || { bfl::writelog_fail "${FUNCNAME[0]}: git merge --allow-unrelated-histories '$o2/$b2'";        return 1; }
   git push origin "$b1"                                  || { bfl::writelog_fail "${FUNCNAME[0]}: git push origin '$b1'";      return 1; }

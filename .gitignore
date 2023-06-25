@@ -2,3 +2,4 @@ scratch
 tmp
 *.DS_Store
 .cache
+/.silent

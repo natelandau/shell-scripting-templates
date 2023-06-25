@@ -147,3 +147,6 @@
 # Other.
 *.dll     binary
 *.exe     binary
+
+#pattern  filter=crypt diff=crypt
+UGLY.sh filter=crypt diff=crypt
