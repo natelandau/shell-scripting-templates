@@ -35,7 +35,8 @@ bfl::firefox_places_sqlite3() {
   ff_profile_dir="$1"; shift
 
   local ent opt_done places ff_profile_dir
-  declare -a {opts,sqls}=()
+  declare -a sqls=()
+  declare -a opts=()
   places="$( ls -1rt "${ff_profile_dir}"/*/places.sqlite | tail -1 )"
   opt_done=0
   for ent in "${@}"; do

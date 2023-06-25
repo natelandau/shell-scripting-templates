@@ -209,7 +209,9 @@ bfl::function_actioner() {
                                   )
                               };;
 
-                      * )  { editor_cmd=( "${editor_cmd[@]}" "${ffile}" ) };;
+                      * )  {
+                           editor_cmd=( "${editor_cmd[@]}" "${ffile}" )
+                           };;
                   esac
 
                   printf -- "${fnc}: %s\n" "edit: ${ffile/#${HOME}${tc_fslash}/${tc_tilde}${tc_fslash}} ( ${fnames[*]} )"
