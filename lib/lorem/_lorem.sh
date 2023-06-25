@@ -36,6 +36,7 @@
 #   Valid resources:
 #   - burroughs (The Breath of Life by John Burroughs)
 #   - darwin (The Origin of Species by Charles Darwin)
+#   - hugo (Les Miserables by Victor Hugo)
 #   - mills (The Rocky Mountain Wonderland by Enos Mills)
 #   - muir (Our National Parks by John Muir)
 #   - virgil (The Aeneid by Virgil)
@@ -83,6 +84,9 @@ bfl::lorem() {
       ;;
     "darwin" )
       resource_file=${resource_directory}/the-origin-of-species-by-charles-darwin.txt
+      ;;
+    "hugo" )
+      resource_file=${resource_directory}/les-miserables-by-victor-hugo.txt
       ;;
     "mills" )
       resource_file=${resource_directory}/the-rocky-mountain-wonderland-by-enos-mills.txt
