@@ -1,6 +1,6 @@
 #! /dev/null/bash
 
-[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
+[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var="_GUARD_BFL_$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|\1\2|')" || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ bfl::load_bash_completions() {
   # ------------------------------------------
   if [[ $BASH_INTERACTIVE == true ]]; then
       seq -s- 70 | tr -d '[0-9]' > /dev/tty
-      printf "${DarkOrange}Loading $d:${NC}\n" > /dev/tty
+      printf "${DarkOrange}Loading $1:${NC}\n" > /dev/tty
   fi
 
   local -r _backup_glob='@(#*#|*@(~|.@(bak|orig|rej|swp|dpkg*|rpm@(orig|new|save))))'

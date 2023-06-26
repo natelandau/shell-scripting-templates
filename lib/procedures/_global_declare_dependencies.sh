@@ -1,6 +1,6 @@
 #! /dev/null/bash
 
-[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
+[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var="_GUARD_BFL_$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|\1\2|')" || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 #------------------------------------------------------------------------------
 # ------------- https://github.com/jmooring/bash-function-library -------------
@@ -25,7 +25,7 @@ bfl::global_declare_dependencies() {
 
 # grep -rnw lib/* -e 'bfl::verify_dependencies' | sed -n '/^[^:]*_verify_dependencies.sh:/!p' | sed 's/#.*$//' | sed 's/#.*$//' | sed 's/^.*bfl::verify_dependencies \([^|]*\) ||.*$/\1/' | sed 's/^.*bfl::verify_dependencies \([^\&]*\) \&\&.*$/\1/' | sed 's/^"\(.*\)"[ ]*$/\1/' | sort | uniq
   local f h
-  for f in aws brew compgen curl dpkg find git grep iconv ifconfig javaws jq ldapsearch opensnoop openssl pbcopy pbpaste perl proxychains4 pwgen python ruby screencapture sed sendmail shopt shuf speedtest-cli sqlite3 ssh tput trap uname vcsh; do
+  for f in aws brew compgen curl dpkg find git grep iconv ifconfig javaws jq ldapsearch opensnoop openssl pbcopy pbpaste perl proxychains4 pwgen python ruby screencapture sed sendmail shuf speedtest-cli sqlite3 ssh tput uname vcsh; do
       h="${f/-/_}"; h="_BFL_HAS_${h^^}"
       [[ ${!h} -eq 1 ]] && continue
 
