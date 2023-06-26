@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Performs assertion testing of the functions in this library.
+#
+# This simple testing mechanism has no provision for the construction and
+# deconstruction of unit test scaffolding.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+# Declares assertions.
+#
+# @return global array $assertions
+#   This is a one dimensional array. Each element is a pipe delimited list
+#   of three values in this sequence:
+#
+#   1. Function to test (example: bfl::join)
+#   2. Parameters to pass to function (example, "1" "2" "3")
+#   3. Expected return code (example: 0)
+#------------------------------------------------------------------------------
+declare_assertions() {
+  declare -ga assertions=(
+    'bfl::get_directory_path||1'
+    'bfl::get_directory_path|""|1'
+    'bfl::get_directory_path|" "|1'
+    'bfl::get_directory_path|"a" "b"|1'
+    'bfl::get_directory_path|"/tmp"|0'
+    'bfl::get_directory_path|"/tmp/non-existent-directory"|1'
+    'bfl::get_directory_path|"/etc/host.conf"|1'
+    )
+  }

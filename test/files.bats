@@ -1,43 +1,32 @@
 #!/usr/bin/env bats
 #shellcheck disable
 
+# Unittests for the functions in lib/arrays
+#
+# The unit tests in this script are written using the BATS framework.
+# See: https://github.com/sstephenson/bats
+
+
+# **************************************************************************** #
+# Imports                                                                      #
+# **************************************************************************** #
+[[ ${_GUARD_BFL_autoload} -eq 1 ]] || { . ${HOME}/getConsts; . "$BASH_FUNCTION_LIBRARY"; }
+
+
+# **************************************************************************** #
+# Init                                                                         #
+# **************************************************************************** #
 load 'test_helper/bats-support/load'
 load 'test_helper/bats-file/load'
 load 'test_helper/bats-assert/load'
 
-######## SETUP TESTS ########
-ROOTDIR="$(git rev-parse --show-toplevel)"
-SOURCEFILE="${ROOTDIR}/utilities/files.bash"
-BASEHELPERS="${ROOTDIR}/utilities/misc.bash"
-ALERTS="${ROOTDIR}/utilities/alerts.bash"
-
 PATH="/usr/local/opt/gnu-tar/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/grep/libexec/gnubin:${PATH}"
 
-if test -f "${SOURCEFILE}" >&2; then
-  source "${SOURCEFILE}"
-else
-  echo "Sourcefile not found: ${SOURCEFILE}" >&2
-  printf "Can not run tests.\n" >&2
-  exit 1
-fi
+#ROOTDIR="$(git rev-parse --show-toplevel)"
 
-if test -f "${ALERTS}" >&2; then
-  source "${ALERTS}"
-  _setColors_ #Set color constants
-else
-  echo "Sourcefile not found: ${ALERTS}" >&2
-  printf "Can not run tests.\n" >&2
-  exit 1
-fi
-
-if test -f "${BASEHELPERS}" >&2; then
-  source "${BASEHELPERS}"
-else
-  echo "Sourcefile not found: ${BASEHELPERS}" >&2
-  printf "Can not run tests.\n" >&2
-  exit 1
-fi
-
+# **************************************************************************** #
+# Setup tests                                                                  #
+# **************************************************************************** #
 setup() {
 
   TESTDIR="$(temp_make)"
@@ -50,7 +39,7 @@ setup() {
 
   ######## DEFAULT FLAGS ########
   LOGFILE="${TESTDIR}/logs/log.txt"
-  QUIET=false
+  BASH_INTERACTIVE=true
   LOGLEVEL=OFF
   VERBOSE=false
   FORCE=false
@@ -73,10 +62,10 @@ teardown() {
 TEXT="${BATS_TEST_DIRNAME}/fixtures/text.txt"
 YAML1="${BATS_TEST_DIRNAME}/fixtures/yaml1.yaml"
 YAML1parse="${BATS_TEST_DIRNAME}/fixtures/yaml1.yaml.txt"
-unencrypted="${BATS_TEST_DIRNAME}/fixtures/test.md"
-encrypted="${BATS_TEST_DIRNAME}/fixtures/test.md.enc"
 
-######## RUN TESTS ########
+# **************************************************************************** #
+# Test Casses                                                                  #
+# **************************************************************************** #
 @test "Sanity..." {
   run true
 
@@ -84,96 +73,86 @@ encrypted="${BATS_TEST_DIRNAME}/fixtures/test.md.enc"
   assert_output ""
 }
 
-@test "_decryptFile_" {
-  run _decryptFile_ "${encrypted}" "test-decrypted.md"
+# ---------------------------------------------------------------------------- #
+# bfl::get_file_name                                                           #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::get_file_name: with extension" {
+  run bfl::get_file_name "./path/to/file/test.txt"
   assert_success
-  assert_file_exist "test-decrypted.md"
-  run cat "test-decrypted.md"
-  assert_success
-  assert_line --index 0 "# About"
-  assert_line --index 1 "This repository contains everything needed to bootstrap and configure new Mac computer. Included here are:"
+  assert_output "test.txt"
 }
 
-@test "_encryptFile_" {
-  run _encryptFile_ "${unencrypted}" "test-encrypted.md.enc"
+@test "bfl::get_file_name: without extension" {
+  run bfl::get_file_name "path/to/file/test"
   assert_success
-  assert_file_exist "test-encrypted.md.enc"
-  run cat "test-encrypted.md.enc"
-  assert_line --index 0 --partial "Salted__"
+  assert_output "test"
 }
 
-_testBackupFile_() {
+# ---------------------------------------------------------------------------- #
+# bfl::get_file_basename                                                       #
+# ---------------------------------------------------------------------------- #
 
-  @test "_backupFile_: no source" {
-    run _backupFile_ "testfile"
-
-    assert_failure
-  }
-
-  @test "_backupFile_: simple backup" {
-    touch "testfile"
-    run _backupFile_ "testfile"
-
-    assert_success
-    assert_file_exist "testfile.bak"
-    assert_file_exist "testfile"
-  }
-
-  @test "_backupFile_: backup and unique name" {
-    touch "testfile"
-    touch "testfile.bak"
-    run _backupFile_ "testfile"
-
-    assert_success
-    assert_file_exist "testfile.bak"
-    assert_file_exist "testfile"
-    assert_file_exist "testfile.bak.1"
-  }
-
-  @test "_backupFile_: move" {
-    touch "testfile"
-    run _backupFile_ -m "testfile"
-
-    assert_success
-    assert_file_exist "testfile.bak"
-    assert_file_not_exist "testfile"
-  }
-
-  @test "_backupFile_: directory" {
-    touch "testfile"
-    run _backupFile_ -d "testfile"
-
-    assert_success
-    assert_file_exist "backup/testfile"
-    assert_file_exist "testfile"
-  }
-
-  @test "_backupFile_: move to directory w/ custom name" {
-    touch "testfile"
-    run _backupFile_ -dm "testfile" "dir"
-
-    assert_success
-    assert_file_exist "dir/testfile"
-    assert_file_not_exist "testfile"
-  }
-
+@test "bfl::get_file_basename" {
+  run bfl::get_file_basename "path/to/file/test.txt"
+  assert_success
+  assert_output "test"
 }
+
+# ---------------------------------------------------------------------------- #
+# bfl::get_file_extension                                                      #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::get_file_extension: simple extension" {
+    run bfl::get_file_extension "path/to/file/test.txt"
+  assert_success
+  assert_output "txt"
+}
+
+@test "bfl::get_file_extension: no extension" {
+    run bfl::get_file_extension "path/to/file/test"
+  assert_failure
+}
+
+@test "bfl::get_file_extension: two level extension" {
+  run bfl::get_file_extension "path/to/file/test.tar.bz2"
+  assert_success
+  assert_output "tar.bz2"
+}
+
+# ---------------------------------------------------------------------------- #
+# bfl::get_canonical_path                                                      #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::get_canonical_path" {
+    run bfl::get_canonical_path
+    assert_success
+    if [[ -d /usr/local/Cellar/ ]]; then
+        assert_output --regexp "^/usr/local/Cellar/bats-core/[0-9]\.[0-9]\.[0-9]"
+    elif [[ -d /opt/homebrew/Cellar ]]; then
+        assert_output --regexp "^/opt/homebrew/Cellar/bats-core/[0-9]\.[0-9]\.[0-9]"
+    fi
+}
+
+# ---------------------------------------------------------------------------- #
+# bfl::get_files_list                                                          #
+# ---------------------------------------------------------------------------- #
 
 _testListFiles_() {
-  @test "_listFiles_: glob" {
+  @test "bfl::get_files_list: glob" {
     touch yestest{1,2,3}.txt
     touch notest{1,2,3}.txt
-    run _listFiles_ g "yestest*.txt" "${TESTDIR}"
+    run bfl::get_files_list g "yestest*.txt" "${TESTDIR}"
 
     assert_success
     assert_output --partial "yestest1.txt"
     refute_output --partial "notest1.txt"
   }
 
-  @test "_listFiles_: regex" {
+  @test "bfl::get_files_list: regex" {
     touch yestest{1,2,3}.txt
     touch notest{1,2,3}.txt
-    run _listFiles_ regex ".*notest[0-9]\.txt" "${TESTDIR}"
+    run bfl::get_files_list regex ".*notest[0-9]\.txt" "${TESTDIR}"
 
     assert_success
     refute_output --partial "yestest1.txt"
@@ -181,263 +160,133 @@ _testListFiles_() {
   }
 
   @test "_listFiles: fail no args" {
-    run _listFiles_
+    run bfl::get_files_list
     assert_failure
   }
 
   @test "_listFiles: fail one arg" {
-    run _listFiles_ "g"
+    run bfl::get_files_list "g"
     assert_failure
   }
 
   @test "_listFiles: fail when no files found" {
-    run _listFiles_ regex ".*notest[0-9]\.txt" "${TESTDIR}"
+    run bfl::get_files_list regex ".*notest[0-9]\.txt" "${TESTDIR}"
     assert_failure
   }
 }
 
-_testMakeSymlink_() {
-
-  @test "_makeSymlink_: Fail with no source fire" {
-    run _makeSymlink_ "sourceFile" "destFile"
-
-    assert_failure
-  }
-
-  @test "_makeSymlink_: fail with no specified destination" {
-    touch "test.txt"
-    run _makeSymlink_ "test.txt"
-
-    assert_failure
-  }
-
-  @test "_makeSymlink_: make link" {
-    touch "test.txt"
-    touch "test2.txt"
-    run _makeSymlink_ "${TESTDIR}/test.txt" "${TESTDIR}/test2.txt"
-
-    assert_success
-    assert_output --regexp "\[   info\] symlink /.*/test\.txt → /.*/test2\.txt"
-    assert_link_exist "test2.txt"
-    assert_file_exist "test2.txt.bak"
-  }
-
-  @test "_makeSymlink_: Ignore already existing links" {
-    touch "test.txt"
-    ln -s "$(realpath test.txt)" "${TESTDIR}/test2.txt"
-    run _makeSymlink_ "$(realpath test.txt)" "${TESTDIR}/test2.txt"
-
-    assert_success
-    assert_link_exist "test2.txt"
-    assert_output --regexp "\[   info\] Symlink already exists: /.*/test\.txt → /.*/test2\.txt"
-  }
-
-  @test "_makeSymlink_: Ignore already existing links - quiet" {
-    touch "test.txt"
-    ln -s "$(realpath test.txt)" "${TESTDIR}/test2.txt"
-    run _makeSymlink_ -c "$(realpath test.txt)" "${TESTDIR}/test2.txt"
-
-    assert_success
-    assert_link_exist "test2.txt"
-    assert_output ""
-  }
-
-  @test "_makeSymlink_: Ignore already existing links - dryrun" {
-    DRYRUN=true
-    touch "test.txt"
-    ln -s "$(realpath test.txt)" "${TESTDIR}/test2.txt"
-    run _makeSymlink_ "$(realpath test.txt)" "${TESTDIR}/test2.txt"
-
-    assert_success
-    assert_link_exist "test2.txt"
-    assert_output --regexp "\[ dryrun\] Symlink already exists: /.*/test\.txt → /.*/test2\.txt"
-  }
-
-  @test "_makeSymlink_: Don't make backup" {
-    touch "test.txt"
-    touch "test2.txt"
-    run _makeSymlink_ -n "${TESTDIR}/test.txt" "${TESTDIR}/test2.txt"
-
-    assert_success
-    assert_output --regexp "\[   info\] symlink /.*/test\.txt → /.*/test2\.txt"
-    assert_link_exist "test2.txt"
-    assert_file_not_exist "test2.txt.bak"
-  }
-
-}
+# ---------------------------------------------------------------------------- #
+# bfl::parse_yaml                                                              #
+# ---------------------------------------------------------------------------- #
 
 _testParseYAML_() {
 
-  @test "_parseYAML: success" {
-    run _parseYAML_ "$YAML1" ""
+  @test "bfl::parse_yaml: success" {
+    run bfl::parse_yaml_ "$YAML1" ""
     assert_success
     assert_output "$( cat "$YAML1parse")"
   }
 
-  @test "_parseYAML_: empty file" {
+  @test "bfl::parse_yaml_: empty file" {
     touch empty.yaml
-    run _parseYAML_ "empty.yaml"
+    run bfl::parse_yaml_ "empty.yaml"
     assert_failure
   }
 
-  @test "_parseYAML_: no file" {
-    run _parseYAML_ "empty.yaml"
+  @test "bfl::parse_yaml_: no file" {
+    run bfl::parse_yaml_ "empty.yaml"
     assert_failure
   }
 }
 
-@test "_readFile_: Failure" {
-  run _readFile_ "testfile.txt"
-  assert_failure
-}
+# ---------------------------------------------------------------------------- #
+# bfl::get_unique_filename                                                     #
+# ---------------------------------------------------------------------------- #
 
-@test "_readFile_: Reads files line by line" {
-  echo -e "line 1\nline 2\nline 3" > testfile.txt
-
-  run _readFile_ "testfile.txt"
-  assert_line --index 0 'line 1'
-  assert_line --index 2 'line 3'
-}
-
-@test "_sourceFile_ failure" {
-  run _sourceFile_ "someNonExistantFile"
-
-  assert_failure
-  assert_output --partial "[  fatal] Attempted to source 'someNonExistantFile'. Not found"
-}
-
-@test "_sourceFile_ success" {
-  echo "echo 'hello world'" > "testSourceFile.txt"
-  run _sourceFile_ "testSourceFile.txt"
-
-  assert_success
-  assert_output "hello world"
-}
-
-@test "_createUniqueFilename_: no extension" {
+@test "bfl::get_unique_filename: no extension" {
   touch "test"
 
-  run _createUniqueFilename_ "test"
+  run bfl::get_unique_filename "test"
   assert_output --regexp ".*/test\.1$"
 }
 
-@test "_createUniqueFilename_: no extension - internal integer" {
+@test "bfl::get_unique_filename: no extension - internal integer" {
   touch "test"
   touch "test.1"
 
-  run _createUniqueFilename_ -i "test"
+  run bfl::get_unique_filename -i "test"
   assert_output --regexp ".*/test\.2$"
 }
 
-@test "_createUniqueFilename_: Count to 3" {
+@test "bfl::get_unique_filename: Count to 3" {
   touch "test.txt"
   touch "test.txt.1"
   touch "test.txt.2"
 
-  run _createUniqueFilename_ "test.txt"
+  run bfl::get_unique_filename "test.txt"
   assert_output --regexp ".*/test\.txt\.3$"
 }
 
-@test "_createUniqueFilename_: internal integer" {
+@test "bfl::get_unique_filename: internal integer" {
   touch "test.txt"
   touch "test.1.txt"
   touch "test.2.txt"
 
-  run _createUniqueFilename_ -i "test.txt"
+  run bfl::get_unique_filename -i "test.txt"
   assert_output --regexp ".*/test\.3\.txt$"
 }
 
-@test "_createUniqueFilename_: two extensions" {
+@test "bfl::get_unique_filename: two extensions" {
   touch "test.tar.gz"
   touch "test.1.tar.gz"
   touch "test.2.tar.gz"
 
-  run _createUniqueFilename_ -i "test.tar.gz"
+  run bfl::get_unique_filename -i "test.tar.gz"
   assert_output --regexp ".*/test\.3\.tar.gz$"
 }
 
-@test "_createUniqueFilename_: Don't confuse existing numbers" {
+@test "bfl::get_unique_filename: Don't confuse existing numbers" {
   touch "test-2.txt"
 
-  run _createUniqueFilename_ "test-2.txt"
+  run bfl::get_unique_filename "test-2.txt"
   assert_output --regexp ".*/test-2\.txt\.1$"
 }
 
-@test "_createUniqueFilename_: User specified separator" {
+@test "bfl::get_unique_filename: User specified separator" {
   touch "test.txt"
 
-  run _createUniqueFilename_ "test.txt" " "
+  run bfl::get_unique_filename "test.txt" " "
   assert_output --regexp ".*/test\.txt 1$"
 }
 
-@test "_createUniqueFilename_: failure" {
-  run _createUniqueFilename_
+@test "bfl::get_unique_filename: failure" {
+  run bfl::get_unique_filename
 
   assert_failure
 }
 
-@test "_fileName_: with extension" {
-  run _fileName_ "./path/to/file/test.txt"
-  assert_success
-  assert_output "test.txt"
-}
+# ---------------------------------------------------------------------------- #
+# bfl::file_contains                                                           #
+# ---------------------------------------------------------------------------- #
 
-@test "_fileName_: without extension" {
-  run _fileName_ "path/to/file/test"
-  assert_success
-  assert_output "test"
-}
-
-@test "_fileBasename_" {
-  run _fileBasename_ "path/to/file/test.txt"
-  assert_success
-  assert_output "test"
-}
-
-@test "_fileExtension_: simple extension" {
-    run _fileExtension_ "path/to/file/test.txt"
-  assert_success
-  assert_output "txt"
-}
-
-@test "_fileExtension_: no extension" {
-    run _fileExtension_ "path/to/file/test"
-  assert_failure
-}
-
-@test "_fileExtension_: two level extension" {
-  run _fileExtension_ "path/to/file/test.tar.bz2"
-  assert_success
-  assert_output "tar.bz2"
-}
-
-@test "_filePath_: does not exist" {
-  run _filePath_ "path/to/file/test.txt"
-  assert_success
-  assert_output "path/to/file"
-}
-
-@test "_filePath_: exists" {
-  touch "./test.txt"
-  run _filePath_ "./test.txt"
-  assert_success
-  assert_output --regexp "^/.*/files\.bats-"
-}
-
-@test "_fileContains_: No match" {
+@test "bfl::file_contains: No match" {
   echo "some text" > "./test.txt"
-  run _fileContains_ "./test.txt" "nothing here"
+  run bfl::file_contains "./test.txt" "nothing here"
   assert_failure
 }
 
-@test "_fileContains_: Pattern matched" {
+@test "bfl::file_contains: Pattern matched" {
   echo "some text" > "./test.txt"
-  run _fileContains_ "./test.txt" "some*"
+  run bfl::file_contains "./test.txt" "some*"
   assert_success
 }
 
-@test "_printFileBetween_: match case-insensitive" {
-  run _printFileBetween_ -i "^#+ orange1" "^#+$" "${TEXT}"
+# ---------------------------------------------------------------------------- #
+# bfl::get_file_part                                                           #
+# ---------------------------------------------------------------------------- #
+
+@test "bfl::get_file_part: match case-insensitive" {
+  run bfl::get_file_part -i "^#+ orange1" "^#+$" "${TEXT}"
   assert_success
   assert_line --index 0 "############ Orange1 ############"
   assert_line --index 1 "# 1"
@@ -448,8 +297,8 @@ _testParseYAML_() {
   refute_output --regexp "Grape|Orange2"
 }
 
-@test "_printFileBetween_: match case-insensitive - greedy" {
-  run _printFileBetween_ -ig "^#+ orange" "##" "${TEXT}"
+@test "bfl::get_file_part: match case-insensitive - greedy" {
+  run bfl::get_file_part -ig "^#+ orange" "##" "${TEXT}"
   assert_success
   assert_line --index 0 "############ Orange1 ############"
   assert_line --index 1 "# 1"
@@ -466,13 +315,13 @@ _testParseYAML_() {
   refute_output --regexp "Grape"
 }
 
-@test "_printFileBetween_: no match" {
-  run _printFileBetween_ "^#+ orange1" "^#+$" "${TEXT}"
+@test "bfl::get_file_part: no match" {
+  run bfl::get_file_part "^#+ orange1" "^#+$" "${TEXT}"
   assert_failure
 }
 
-@test "_printFileBetween_: remove lines" {
-  run _printFileBetween_ -ri "^[A-Z0-9]+\(\)" "^ *}.*" "${TEXT}"
+@test "bfl::get_file_part: remove lines" {
+  run bfl::get_file_part -ri "^[A-Z0-9]+\(\)" "^ *}.*" "${TEXT}"
   assert_success
   assert_line --index 0 --partial "# buf :  Backup file with time stamp"
   assert_line --index 5 --regexp "^ *cp -a .*"
@@ -481,8 +330,8 @@ _testParseYAML_() {
   refute_output --regexp "md5Check"
 }
 
-@test "_printFileBetween_: remove lines - greedy" {
-  run _printFileBetween_ -gr "^[a-zA-Z0-9]+\(\)" "^ *}.*" "${TEXT}"
+@test "bfl::get_file_part: remove lines - greedy" {
+  run bfl::get_file_part -gr "^[a-zA-Z0-9]+\(\)" "^ *}.*" "${TEXT}"
   assert_success
   assert_line --index 0 --partial "# buf :  Backup file with time stamp"
   assert_line --index 5 --regexp "^ *cp -a .*"
@@ -491,7 +340,5 @@ _testParseYAML_() {
   assert_output --regexp "md5Check"
 }
 
-_testBackupFile_
 _testListFiles_
-_testMakeSymlink_
 _testParseYAML_

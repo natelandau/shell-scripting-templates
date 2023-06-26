@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Performs assertion testing of the functions in this library.
+#
+# This simple testing mechanism has no provision for the construction and
+# deconstruction of unit test scaffolding.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+# Declares assertions.
+#
+# @return global array $assertions
+#   This is a one dimensional array. Each element is a pipe delimited list
+#   of three values in this sequence:
+#
+#   1. Function to test (example: bfl::join)
+#   2. Parameters to pass to function (example, "1" "2" "3")
+#   3. Expected return code (example: 0)
+#------------------------------------------------------------------------------
+declare_assertions() {
+  declare -ga assertions=(
+    'bfl::get_file_directory||1'
+    'bfl::get_file_directory|""|1'
+    'bfl::get_file_directory|" "|1'
+    'bfl::get_file_directory|"a" "b"|1'
+    'bfl::get_file_directory|"/tmp"|1'
+    'bfl::get_file_directory|"/tmp/non-existent-file.ext"|1'
+    'bfl::get_file_directory|"/etc/host.conf"|0'
+
+    'bfl::get_file_extension||1'
+    'bfl::get_file_extension|""|1'
+    'bfl::get_file_extension|" "|1'
+    'bfl::get_file_extension|"a" "b"|1'
+    'bfl::get_file_extension|"/tmp/non-existent-file.ext"|1'
+    'bfl::get_file_extension|"/etc/host.conf"|0'
+
+    'bfl::get_file_basename||1'
+    'bfl::get_file_basename|""|1'
+    'bfl::get_file_basename|" "|1'
+    'bfl::get_file_basename|"a" "b"|1'
+    'bfl::get_file_basename|"/tmp/non-existent-file.ext"|1'
+    'bfl::get_file_basename|"/etc/host.conf"|0'
+
+    'bfl::get_file_name||1'
+    'bfl::get_file_name|""|1'
+    'bfl::get_file_name|" "|1'
+    'bfl::get_file_name|"a" "b"|1'
+    'bfl::get_file_name|"/tmp/non-existent-file.ext"|1'
+    'bfl::get_file_name|"/etc/host.conf"|0'
+
+    'bfl::get_file_path||1'
+    'bfl::get_file_path|""|1'
+    'bfl::get_file_path|" "|1'
+    'bfl::get_file_path|"a" "b"|1'
+    'bfl::get_file_path|"/tmp/non-existent-file.ext"|1'
+    'bfl::get_file_path|"/etc/host.conf"|0'
+  )
+}

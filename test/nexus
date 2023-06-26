@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Performs assertion testing of the functions in this library.
+#
+# This simple testing mechanism has no provision for the construction and
+# deconstruction of unit test scaffolding.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+# Declares assertions.
+#
+# @return global array $assertions
+#   This is a one dimensional array. Each element is a pipe delimited list
+#   of three values in this sequence:
+#
+#   1. Function to test (example: bfl::join)
+#   2. Parameters to pass to function (example, "1" "2" "3")
+#   3. Expected return code (example: 0)
+#------------------------------------------------------------------------------
+declare_assertions() {
+  declare -ga assertions=(
+#   bfl::fetch_nexus_artifact
+#   If the input is correct, the artifact should be downloaded as T_TARGET and the function should return 0
+    'bfl::fetch_nexus_artifact|"" "" "https://nexus.localhost" "myrepo" "biz.netcentric.michaelstrache" "existing-package" "1.0.0" "jar" "_bfl_temporary_var=$(mktemp -d 2>/dev/null"|"$_bfl_temporary_var"'
+#   If T_TARGET is a directory, the file should be downloaded to that directory and the function should return 0
+#   ....
+#   If T_TARGET is not specified, the file should be downloaded to the current location and the function should return 0
+    'bfl::fetch_nexus_artifact|"" "" "https://nexus.localhost" "myrepo" "biz.netcentric.michaelstrache" "existing-package" "1.0.0" "jar" "_bfl_temporary_var=$(mktemp -d 2>/dev/null"|"$_bfl_temporary_var"|0'
+#   bfl::get_nexus_artifact_url
+#   The URL should be '${T_NEXUS_SERVER}/nexus/service/local/artifact/maven/redirect?r=${T_NEXUS_REPOSITORY}&g=${T_NEXUS_GROUPID}&a=${T_NEXUS_ARTIFACTID}&v=${T_NEXUS_VERSION}&e=${T_NEXUS_EXTESION}'
+    'bfl::get_nexus_artifact_url|"https://nexus.localhost" "myrepo" "biz.netcentric.michaelstrache" "existing-package" "1.0.0" "jar"|"https://nexus.localhost/nexus/service/local/artifact/maven/redirect?r=myrepo&g=biz.netcentric.michaelstrache&a=existing-package&v=1.0.0"&e=jar"'
+    )
+  }

@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Performs assertion testing of the functions in this library.
+#
+# This simple testing mechanism has no provision for the construction and
+# deconstruction of unit test scaffolding.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+# Declares assertions.
+#
+# @return global array $assertions
+#   This is a one dimensional array. Each element is a pipe delimited list
+#   of three values in this sequence:
+#
+#   1. Function to test (example: bfl::join)
+#   2. Parameters to pass to function (example, "1" "2" "3")
+#   3. Expected return code (example: 0)
+#------------------------------------------------------------------------------
+declare_assertions() {
+  declare -ga assertions=(
+#   bfl::url_encode
+    'bfl::url_encode||1'
+    'bfl::url_encode|""|1'
+    'bfl::url_encode|"" ""|1'
+    'bfl::url_encode|"a" "b"|1'
+    'bfl::url_encode|"foo bar"|0'
+#   bfl::url_exists
+#   If URL is pointing to an existing file, the function should return 0
+    'bfl::url_exists|"http://www.w3.org/History/1989/proposal.rtf"|0'
+#   If URL is not pointing to an existing file, the function should return 1
+    'bfl::url_exists|""|1'
+#   If the credendials are valid, the function should return 0
+    'bfl::url_exists|"http://www.advancedhtml.co.uk/password/" "demo" "password"|0'
+#   If the credendials are invalid, the function should return 1
+    'bfl::url_exists|"http://www.advancedhtml.co.uk/password/" "demo" ""|1'
+#   If only username or password are specified, the function should ignore the credentials and, being unable to retrieve the file, return 1
+    'bfl::url_exists|"http://www.w3.org/History/1989/proposal.rtf" "demo"|1'
+  )

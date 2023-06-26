@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Performs assertion testing of the functions in this library.
+#
+# This simple testing mechanism has no provision for the construction and
+# deconstruction of unit test scaffolding.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+# Declares assertions.
+#
+# @return global array $assertions
+#   This is a one dimensional array. Each element is a pipe delimited list
+#   of three values in this sequence:
+#
+#   1. Function to test (example: bfl::join)
+#   2. Parameters to pass to function (example, "1" "2" "3")
+#   3. Expected return code (example: 0)
+#------------------------------------------------------------------------------
+declare_assertions() {
+  declare -ga assertions=(
+    'bfl::die||1'
+    'bfl::die|""|1'
+    'bfl::die|" "|1'
+    'bfl::die|"foo"|1'
+    'bfl::die|"foo" "bar"|1'
+
+    'bfl::error||0'
+    'bfl::error|""|0'
+    'bfl::error|" "|0'
+    'bfl::error|"foo"|0'
+    'bfl::error|"foo" "bar"|1'
+
+    'bfl::inform||0'
+    'bfl::inform|""|0'
+    'bfl::inform|" "|0'
+    'bfl::inform|"foo"|0'
+    'bfl::inform|"foo" "bar"|1'
+
+    'bfl::print_args||1'
+    'bfl::print_args|"foo"|0'
+    'bfl::print_args|""|0'
+
+    'bfl::verify_arg_count||1'
+    'bfl::verify_arg_count|"7"|1'
+    'bfl::verify_arg_count|"4" "5" "6"|1'
+    'bfl::verify_arg_count|"a" "8" "9"|1'
+    'bfl::verify_arg_count|"7" "b" "9"|1'
+    'bfl::verify_arg_count|"7" "8" "c"|1'
+    'bfl::verify_arg_count|"2" "1" "3"|0'
+
+    'bfl::verify_dependencies||1'
+    'bfl::verify_dependencies|"rm" "sort" "cough"|1'
+    'bfl::verify_dependencies|"rm" "ls" "whoami"|0'
+
+    'bfl::warn||0'
+    'bfl::warn|""|0'
+    'bfl::warn|" "|0'
+    'bfl::warn|"foo"|0'
+    'bfl::warn|"foo" "bar"|1'
+  )

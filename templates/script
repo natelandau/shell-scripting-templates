@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+
+[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/lib/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\1\2|') || return 0
+[[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
+#------------------------------------------------------------------------------
+# @file
+# Does something. # TODO
+#
+# Detailed description. Use multiple lines if needed. # TODO
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+#   Displays usage message.
+#
+# @return String $msg
+#   The usage message.
+#------------------------------------------------------------------------------
+usage() {
+  declare msg
+  msg=$(cat <<EOT
+One sentence description. # TODO
+
+Detailed description. Use multiple lines if needed. # TODO
+
+Usage:    ${0##*/} foo bar # TODO   $(basename "$0")
+
+Example:  ${0##*/} "Fred" "George" # TODO   $(basename "$0")
+EOT
+  )
+  printf "%s\\n" "${msg}"
+  }
+
+#------------------------------------------------------------------------------
+# @function
+# Performs cleanup when script exits for any reason. Called by trap.
+#
+# Detailed description. Use multiple lines if needed. # TODO
+#------------------------------------------------------------------------------
+cleanup() {
+  # TODO
+  :
+  }
+
+#------------------------------------------------------------------------------
+# @function
+# Main function.
+#
+# Detailed description. Use multiple lines if needed. # TODO
+#
+# @param type $foo # TODO
+#   Description. # TODO
+# @param type $bar # TODO
+#   Description. # TODO
+#
+# shellcheck disable=1090
+#------------------------------------------------------------------------------
+main() {
+  # Source the Bash Function Library.
+  if ! source "${BASH_FUNCTION_LIBRARY}"; then
+    printf "Error. Unable to source BASH_FUNCTION_LIBRARY.\\n" 1>&2
+    exit 1
+  fi
+
+  # Display usage message if requested.
+  [[ "$#" -gt 0 && ("$1" = "-h" || "$1" = "--help") ]] && { usage; exit 0; }
+
+  # Verify argument count.
+  bfl::verify_arg_count "$#" 2 2 || { usage; exit 1; } # TODO
+
+  # Verify dependencies.
+  bfl::verify_dependencies "printf" # TODO
+
+  # Declare positional arguments (readonly, sorted by position).
+  declare -r foo="$1" # TODO
+  declare -r bar="$2" # TODO
+
+  # Declare readonly variables (sorted by name).
+  declare -r wibble="Harry" # TODO
+  declare -r wobble="Ron" # TODO
+
+  # Declare all other variables (sorted by name).
+  declare eggs="Dean" # TODO
+  declare ham="Seamus" # TODO
+
+  # Verify argument values.
+  bfl::is_empty "${foo}" && bfl::die "Foo is required." # TODO
+  bfl::is_empty "${bar}" && bfl::die "Bar is required." # TODO
+
+  # TODO
+  printf "%s\\n" "${foo}, ${bar}, ${wibble}, ${wobble}, ${eggs}, and ${ham}."
+  }
+
+set -euo pipefail
+trap cleanup EXIT
+main "$@"

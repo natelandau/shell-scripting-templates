@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Performs assertion testing of the functions in this library.
+#
+# This simple testing mechanism has no provision for the construction and
+# deconstruction of unit test scaffolding.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+# Declares assertions.
+#
+# @return global array $assertions
+#   This is a one dimensional array. Each element is a pipe delimited list
+#   of three values in this sequence:
+#
+#   1. Function to test (example: bfl::join)
+#   2. Parameters to pass to function (example, "1" "2" "3")
+#   3. Expected return code (example: 0)
+#------------------------------------------------------------------------------
+declare_assertions() {
+  declare -ga assertions=(
+#   bfl::compare_pkg_versions
+#   Should return 0 if VERSION1 is lower than VERSION2."
+#   Simple version numbers
+    'bfl::compare_pkg_versions|"1.0" "2.0"|0'
+    'bfl::compare_pkg_versions|"1.9" "2.0"|0'
+    'bfl::compare_pkg_versions|"1.0" "1.9"|0'
+#   Version numbers with two digits
+    'bfl::compare_pkg_versions|"1.0" "1.10"|0'
+    'bfl::compare_pkg_versions|"1.10" "2.0"|0'
+#   One version number with bugfix version
+    'bfl::compare_pkg_versions|"1.0" "2.0.0"|0'
+    'bfl::compare_pkg_versions|"1.0" "1.10.0"|0'
+    'bfl::compare_pkg_versions|"1.0" "1.0.10"|0'
+    'bfl::compare_pkg_versions|"1.0.0" "2.0"|0'
+    'bfl::compare_pkg_versions|"1.10.0" "2.0"|0'
+    'bfl::compare_pkg_versions|"1.10.10" "2.0"|0'
+#   Both version numbers with bugfix version
+    'bfl::compare_pkg_versions|"1.0.0" "2.0.0"|0'
+    'bfl::compare_pkg_versions|"1.10.0" "2.0.0"|0'
+    'bfl::compare_pkg_versions|"1.0.10" "2.0.0"|0'
+    'bfl::compare_pkg_versions|"1.0.10" "1.10.0"|0'
+#   Should return 1 if VERSION1 is equal to VERSION2."
+    'bfl::compare_pkg_versions|"1.0" "1.0"|1'           # Simple version numbers
+    'bfl::compare_pkg_versions|"1.0.0" "1.0.0"|1'       # Both version numbers with bugfix version
+#   Should return 2 If VERSION1 is higher than VERSION2."
+#   Simple version numbers
+    'bfl::compare_pkg_versions|"2.0" "1.0"|2'
+    'bfl::compare_pkg_versions|"2.0" "1.10"|2'
+    'bfl::compare_pkg_versions|"2.0" "1.9"|2'
+    'bfl::compare_pkg_versions|"1.9" "1.0"|2'
+#   Version numbers with two digits
+    'bfl::compare_pkg_versions|"1.10" "1.0"|2'
+    'bfl::compare_pkg_versions|"2.0" "1.10"|2'
+#   One version number with bugfix version
+    'bfl::compare_pkg_versions|"2.0.0" "1.0"|2'
+    'bfl::compare_pkg_versions|"1.10.0" "1.0"|2'
+    'bfl::compare_pkg_versions|"1.0.10" "1.0"|2'
+    'bfl::compare_pkg_versions|"2.0" "1.0.0"|2'
+    'bfl::compare_pkg_versions|"2.0" "1.10.0"|2'
+    'bfl::compare_pkg_versions|"2.0" "1.0.10"|2'
+#   Both version numbers with bugfix version
+    'bfl::compare_pkg_versions|"2.0.0" "1.0.0"|2'
+    'bfl::compare_pkg_versions|"2.0.0" "1.10.0"|2'
+    'bfl::compare_pkg_versions|"2.0.0" "1.0.10"|2'
+    'bfl::compare_pkg_versions|"1.10.0" "1.0.10"|2'
+#   bfl::is_pkg_version
+#   Should return 0, when the STRING matches the pattern 'major.minor.bugfix-suffix'
+    'bfl::is_pkg_version|"1"|0'                         # Only major component
+    'bfl::is_pkg_version|"1.0"|0'                       # major and minor components
+    'bfl::is_pkg_version|"1.0.0"|0'                     # major, minor and bugfix components
+    'bfl::is_pkg_version|"1.0.0-SNAPSHOT"|0'            # major, minor, bugfx and suffix component
+#   Should return 1, when the STRING does not match the pattern 'major.minor.bugfix-suffix'
+    'bfl::is_pkg_version|"1a"|1'                        # major component does not match '[[:digit:]]
+    'bfl::is_pkg_version|"1.0a"|1'                      # minor component does not match '[[:digit:]]
+    'bfl::is_pkg_version|"1.0.0a"|1'                    # bugfix component does not match '[[:digit:]]
+    'bfl::is_pkg_version|"1.0.0.0"|1'                   # has more than three version-components
+    'bfl::is_pkg_version|"1.0.0-SNAPSHOT-A"|1'          # sufix does not match '-[[:alnum:]]'
+#   bfl::string_replace
+#   Should return STRING with each occurence of TARGET replaced with REPLACEMENT
+    'bfl::string_replace|"foo-bar" "-" "#"|"foo#bar"'   # String with a single occurence
+    'bfl::string_replace|"foo-bar" "o" "#"|"f##-bar"'   # String with multiple occurences
+    'bfl::string_replace|"foo-bar" "#" "#"|"foo-bar"'   # String with no occurences
+    'bfl::string_replace|"foo-bar" "oo" "#"|"f#-bar"'   # Match multiple chars
+    'bfl::string_replace|"foo-bar" "-" "##"|"foo##bar"' # Match one char, replace with multiple chars
+#   Should return the STRING if REPLACEMENT or TARGET were not specified
+#   String with a single occurence
+    'bfl::string_replace|"foo-bar" "-"|"foo-bar"'
+    'bfl::string_replace|"foo-bar"|"foo-bar"'
+#    Should return an empty string if STRING was not specified
+    'bfl::string_replace||""'
+#   bfl::string_split
+#   Should return the string representation of an array, containing STRING splittet into its elements using REGEX
+    'bfl::string_split|"foo,bar" ","|"( foo bar )"'     # String separated by a single char
+    'bfl::string_split|"foo, bar" ", "|"( foo bar )"'   # String separated by a multiple chars
+    'bfl::string_split|"foo--bar" "-+"|"( foo bar )"'   # String separated by a a regex
+    'bfl::string_split|"foo,bar"|"( foo,bar )"'         # No separator
+    'bfl::string_split||"(  )"'                         # No argument
+    )
+  }

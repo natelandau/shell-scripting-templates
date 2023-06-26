@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Creates documentation for library functions.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+#   Displays usage message.
+#
+# @return String $msg
+#   The usage message.
+#------------------------------------------------------------------------------
+usage() {
+  declare msg
+  msg=$(cat <<EOT
+Creates documentation for library functions.
+
+Usage:    ${0##*/}    # $(basename "$0")
+
+Example:  ${0##*/}    # $(basename "$0")
+EOT
+  )
+  printf "%s\\n" "${msg}"
+}
+
+#------------------------------------------------------------------------------
+# @function
+#   Main function.
+#------------------------------------------------------------------------------
+# shellcheck disable=1090
+main() {
+  # Source the Bash Function Library.
+  if ! source "${BASH_FUNCTION_LIBRARY}"; then
+    printf "Error. Unable to source BASH_FUNCTION_LIBRARY.\\n" 1>&2
+    exit 1
+  fi
+
+  # Verify argument count.
+  bfl::verify_arg_count "$#" 0 0 || { usage; exit 1; }
+
+  # Verify dependencies.
+  bfl::verify_dependencies "grep" "sed"
+
+  # Declare readonly variables (sorted by name).
+  declare -r btx3="\\x60\\x60\\x60" # 3 backticks
+  declare -r header="# Bash Function Library\\n\\n## Function List"
+  declare -r output_file_name="function-list.md"
+
+  # Declare all other variables (sorted by name).
+  declare body
+  declare file
+  declare footer
+  declare func_examples
+  declare func_name
+  declare func_params
+  declare func_returns
+  declare func_summary
+  declare header_examples
+  declare header_params
+  declare header_returns
+
+  declare toc
+
+  # Create footer.
+  footer="*Last updated: $(date --iso-8601=s).*"
+
+  # Loop through the files.
+  for file in "${BASH_FUNCTION_LIBRARY%/*}"/_*; do    #  "$(dirname "${BASH_FUNCTION_LIBRARY}")"
+
+      # Set the headers for each section. Need to do this each time through the
+      # loop because one or more may be pluralized if there is more than one.
+      header_examples="Example"
+      header_params="Parameter"
+      header_returns="Return"
+
+      # Find the function name (one line).
+      func_name=$(grep -Eo -m1 "bfl::.+" "${file}" | sed 's/().*//') \
+        || bfl::die "Unable to find function name"
+
+      # Find the function description (one entry).
+      func_summary=$(grep -A1 "@function" "${file}" | tail -n1 | sed 's/^# *//') \
+        || bfl::die "Unable to find function description."
+
+      # The sed command to format @param and @return entries:
+      #
+      #   1. Remove leading "#" and spaces from each line.
+      #   2. Add ">" to the beginning of each line.
+      #   3. Replace ">@tag " with a newline.
+
+      # Find the function parameters (zero or more entries).
+      set +e
+      func_params=$(grep -A1 --no-group-separator "# *@param" "${file}" | \
+        sed 's/^# *// ; s/^/>/ ; s/>@param /\\n/')
+      [[ "$(grep -c "# *@param" "${file}")" -gt "1" ]] && header_params+="s"
+      set -e
+
+      # Find the function returns (zero or more entries).
+      set +e
+      func_returns=$(grep -A1 --no-group-separator "# *@return" "${file}" | \
+        sed 's/^# *// ; s/^/>/ ; s/>@return /\\n/')
+      [[ "$(grep -c "# *@return" "${file}")" -gt "1" ]] && header_returns+="s"
+      set -e
+
+      # The sed command to format @example entries:
+      #
+      #   1. Delete the line containing the @example tag.
+      #   2. Remove leading "#" and spaces from each line.
+
+      # Find the function examples (zero or more entries).
+      set +e
+      func_examples=$(grep -A1 --no-group-separator "# *@example" "${file}" | \
+        sed '/.*@example.*/d ; s/^# *//' )
+      [[ "$(grep -c "# *@example" "${file}")" -gt "1" ]] && header_examples+="s"
+      set -e
+
+      # Surround the examples with 3 backticks.
+      func_examples="\\n${btx3}bash\\n${func_examples}\\n${btx3}\\n"
+
+      # Add to the table of contents.
+      toc+="* [${func_name}](#${func_name//::/})\\n"
+
+      # Add to the body.
+      body+="## ${func_name}\\n\\n"
+      body+="${func_summary}\\n\\n"
+      bfl::is_empty "${func_params}"   || body+="**${header_params}**\\n"
+      bfl::is_empty "${func_params}"   || body+="${func_params}\\n\\n"
+      bfl::is_empty "${func_returns}"  || body+="**${header_returns}**\\n"
+      bfl::is_empty "${func_returns}"  || body+="${func_returns}\\n\\n"
+      bfl::is_empty "${func_examples}" || body+="**${header_examples}**\\n"
+      bfl::is_empty "${func_examples}" || body+="${func_examples}\\n"
+  done
+
+  printf  "%b\\n\\n%b\\n%b---\\n%b\\n" "${header}" "${toc}" "${body}" "${footer}" \
+      > "${BASH_FUNCTION_LIBRARY%/*}/docs/${output_file_name}"    # "$(dirname "${BASH_FUNCTION_LIBRARY}")"
+}
+
+set -euo pipefail
+main "$@"

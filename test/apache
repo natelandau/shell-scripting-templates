@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# ----------- https://github.com/jmooring/bash-function-library.git -----------
+#
+# Test suite fo functions library related to Apache
+#
+# @author  Joe Mooring
+#
+# @file
+# Performs assertion testing of the functions in this library.
+#
+# This simple testing mechanism has no provision for the construction and
+# deconstruction of unit test scaffolding. Consequently, I am unable to provide
+# an affirmative assertion for bfl::is_apache_vhost.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+# Declares assertions.
+#
+# @return global array $assertions
+#   This is a one dimensional array. Each element is a pipe delimited list
+#   of three values in this sequence:
+#
+#   1. Function to test (example: bfl::join)
+#   2. Parameters to pass to function (example, "1" "2" "3")
+#   3. Expected return code (example: 0)
+#------------------------------------------------------------------------------
+declare_assertions() {
+  declare -ga assertions=(
+    'bfl::is_apache_vhost||1'
+    'bfl::is_apache_vhost|""|1'
+    'bfl::is_apache_vhost|"" ""|1'
+    'bfl::is_apache_vhost|" " " "|1'
+    'bfl::is_apache_vhost|"a" "b"|1'
+    'bfl::is_apache_vhost|"a"|1'
+    'bfl::is_apache_vhost|"a" " "|1'
+    'bfl::is_apache_vhost|"a" "b"|1'
+    'bfl::is_apache_vhost|"a" "/etc/apache2/sites-enabled"|1'
+    'bfl::is_apache_vhost|"/tmp" "b"|1'
+    )
+  }

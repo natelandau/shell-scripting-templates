@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @function
+#   Tests a function to see if its return code matches the expected return code.
+#
+# @param String $function_to_test
+#   The function to be tested.
+#
+# @param String $args
+#   The arguments to pass to the function.
+#
+# @param String $expected_return_code
+#   The expected return code (0 or 1).
+#------------------------------------------------------------------------------
+# shellcheck disable=SC2059
+# shellcheck disable=SC2154
+assert() {
+  bfl::verify_arg_count "$#" 3 3 || exit 1
+
+  declare -r function_to_test="$1"
+  declare -r args="$2"
+  declare -r expected_return_code="$3"
+  declare actual_return_code
+  declare cmd
+  declare cmd_output
+  declare format
+  declare result
+
+  # Test for empty strings.
+  if bfl::is_empty "${function_to_test}"; then
+    bfl::die "\$function_to_test is a an empty string."
+  fi
+  if bfl::is_empty "${expected_return_code}"; then
+    bfl::die "\$expected_return_code is a an empty string."
+  fi
+
+  # Run the command. The command is run in a subshell (command substitution);
+  # exit calls will terminate the subshell, not this script.
+  cmd=$(printf "%s %s" "${function_to_test}" "${args}")
+  cmd_output=$(eval "${cmd}" 2>&1)
+  actual_return_code="$?"
+
+  # Print results.
+  if [[ "${actual_return_code}" -eq "${expected_return_code}" ]]; then
+    result="PASS"
+    format="${bfl_aes_green}%-${cw1}s${bfl_aes_reset} %-${cw2}s %-${cw3}s %-${cw4}s %-${cw5}s %-${cw6}s${bfl_aes_reset} \\n"
+  else
+    result="FAIL"
+    format="${bfl_aes_red}%-${cw1}s${bfl_aes_reset} %-${cw2}s %-${cw3}s %-${cw4}s %-${cw5}s %-${cw6}s${bfl_aes_reset} \\n"
+  fi
+  cmd_output=${cmd_output//[$'\n']}
+  printf "${format}" "${result}" "${function_to_test:0:${cw2}}" "${args:0:${cw3}}" "${expected_return_code}" "${actual_return_code}" "${cmd_output:0:${cw6}}"
+}
+
+#------------------------------------------------------------------------------
+# @function
+#   Main function.
+#
+# @param Array global $assertions
+#   Global array created by declare_assertions().
+#------------------------------------------------------------------------------
+# shellcheck disable=SC1090
+# shellcheck disable=SC2034
+# shellcheck disable=SC2059
+main() {
+  source "${BASH_FUNCTION_LIBRARY}" || { printf "Error. Unable to source BASH_FUNCTION_LIBRARY.\\n" 1>&2 ; exit 1; }
+
+  d="${BASH_FUNCTION_LIBRARY%/*}"/test  # "$(dirname $BASH_FUNCTION_LIBRARY)/test"
+  for f in `ls "$d"/`; do
+      unset assertions
+      source "$BASH_FUNCTION_LIBRARY"/test/"$f"
+      declare_assertions # Declare assertions.
+
+      # Declare column widths (global constants) for displaying test results.
+      declare -rg cw1=6     # Width of column 1: Result (PASS/FAIL)
+      declare -rg cw2=37    # Width of column 2: Function
+      declare -rg cw3=33    # Width of column 3: Arguments
+      declare -rg cw4=8     # Width of column 4: Expected return code
+      declare -rg cw5=6     # Width of column 5: Actual return code
+      declare -rg cw6=109   # Width of column 6: Command output
+
+      # Declare other local variables.
+      declare assertion
+      declare -r format="%-${cw1}s %-${cw2}s %-${cw3}s %-${cw4}s %-${cw5}s %-${cw6}s"
+      declare line_1 line_2 line_3 line_4 line_5 line_6
+      declare -a pieces
+
+      # Create table header lines for for displaying test results.
+      line_1=$(bfl::repeat "=" ${cw1})
+      line_2=$(bfl::repeat "=" ${cw2})
+      line_3=$(bfl::repeat "=" ${cw3})
+      line_4=$(bfl::repeat "=" ${cw4})
+      line_5=$(bfl::repeat "=" ${cw5})
+      line_6=$(bfl::repeat "=" ${cw6})
+
+      # Clear the screen.
+      clear
+
+      # Print initial newline.
+      printf "\\n"
+
+      # Print table header.
+      printf "${format}\\n" "" "" "" "Expected" "Actual" ""
+      printf "${format}\\n" "" "" "" "Return" "Return" ""
+      printf "${format}\\n" "Result" "Function" "Arguments (truncated)" "Code" "Code" "First line of command output (truncated)"
+      printf "%s %s %s %s %s %s\\n" "${line_1}" "${line_2}" "${line_3}" "${line_4}" "${line_5}" "${line_6}"
+
+      # Run assertion tests.
+      for assertion in "${assertions[@]}"; do
+          IFS="|" read -r -a pieces <<< "${assertion}"
+          # ${pieces[0]} is the function to be called
+          # ${pieces[1]} is the arguments string
+          # ${pieces[2]} is the expected return code
+          assert "${pieces[0]}" "${pieces[1]}" "${pieces[2]}" || true
+      done
+
+        # Print final newline.
+        printf "\\n"
+  done
+}
+
+set -euo pipefail
+main

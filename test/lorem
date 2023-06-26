@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Performs assertion testing of the functions in this library.
+#
+# This simple testing mechanism has no provision for the construction and
+# deconstruction of unit test scaffolding.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+# Declares assertions.
+#
+# @return global array $assertions
+#   This is a one dimensional array. Each element is a pipe delimited list
+#   of three values in this sequence:
+#
+#   1. Function to test (example: bfl::join)
+#   2. Parameters to pass to function (example, "1" "2" "3")
+#   3. Expected return code (example: 0)
+#------------------------------------------------------------------------------
+declare_assertions() {
+  declare -ga assertions=(
+    'bfl::lorem|""|0'
+    'bfl::lorem|"0"|1'
+    'bfl::lorem|"-1"|1'
+    'bfl::lorem|"a"|1'
+    'bfl::lorem|"1" "darwin" "a"|1'
+    'bfl::lorem||0'
+    'bfl::lorem|"2"|0'
+    'bfl::lorem|"1" "burroughs" |0'
+    'bfl::lorem|"1" "darwin" |0'
+    'bfl::lorem|"1" "mills" |0'
+    'bfl::lorem|"1" "muir" |0'
+    'bfl::lorem|"1" "virgil" |0'
+    'bfl::lorem|"1" "xxx" |1'
+  )
+}

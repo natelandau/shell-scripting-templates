@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Performs assertion testing of the functions in this library.
+#
+# This simple testing mechanism has no provision for the construction and
+# deconstruction of unit test scaffolding.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+# Declares assertions.
+#
+# @return global array $assertions
+#   This is a one dimensional array. Each element is a pipe delimited list
+#   of three values in this sequence:
+#
+#   1. Function to test (example: bfl::join)
+#   2. Parameters to pass to function (example, "1" "2" "3")
+#   3. Expected return code (example: 0)
+#------------------------------------------------------------------------------
+declare_assertions() {
+  declare -ga assertions=(
+#    bfl::find_nearest_integer
+    'bfl::find_nearest_integer||1'
+    'bfl::find_nearest_integer|"" "" ""|1'
+    'bfl::find_nearest_integer|"" ""|1'
+    'bfl::find_nearest_integer|" " " "|1'
+    'bfl::find_nearest_integer|"a" ""|1'
+    'bfl::find_nearest_integer|"1" ""|1'
+    'bfl::find_nearest_integer|"1" " "|1'
+    'bfl::find_nearest_integer|"1" "a e g"|1'
+    'bfl::find_nearest_integer|"1.1" "4 -1 0 1 4"|1'
+    'bfl::find_nearest_integer|"1" "4.1 -1 0 1 4"|1'
+    'bfl::find_nearest_integer|"-2" "-4 -1 0 1 4"|0'
+    'bfl::find_nearest_integer|"0" "-4 -1 0 1 4"|0'
+    'bfl::find_nearest_integer|"2" "-4 -1 0 1 4"|0'
+#    bfl::is_integer
+    'bfl::is_integer||1'
+    'bfl::is_integer|""|1'
+    'bfl::is_integer|" "|1'
+    'bfl::is_integer|"foo"|1'
+    'bfl::is_integer|"1.2"|1'
+    'bfl::is_integer|"1" "2" "3"|1'
+    'bfl::is_integer|"-1"|0'
+    'bfl::is_integer|"1"|0'
+#    bfl::is_positive_integer
+    'bfl::is_positive_integer||1'
+    'bfl::is_positive_integer|""|1'
+    'bfl::is_positive_integer|" "|1'
+    'bfl::is_positive_integer|"foo"|1'
+    'bfl::is_positive_integer|"1.2"|1'
+    'bfl::is_positive_integer|"1" "2" "3"|1'
+    'bfl::is_positive_integer|"-1"|1'
+    'bfl::is_positive_integer|"1"|0'
+#    bfl::is_float
+#   If STRING is a floating point number, the function should return 0, otherwise 1
+    'bfl::is_float|"1"|0'
+    'bfl::is_float|"0"|0'
+    'bfl::is_float|"+1"|0'
+    'bfl::is_float|"-1"|0'
+    'bfl::is_float|"1.0"|0'
+    'bfl::is_float|"0.0"|0'
+    'bfl::is_float|"+1.0"|0'
+    'bfl::is_float|"-1.0"|0'
+    'bfl::is_float|""|1'
+#    bfl::is_hex_number
+#   If STRING is a hexadecimal, the function should return 0, otherwise 1
+    'bfl::is_hex_number|"1"|0'
+    'bfl::is_hex_number|"0"|0'
+    'bfl::is_hex_number|"a"|0'
+    'bfl::is_hex_number|"A"|0'
+    'bfl::is_hex_number|"1a"|0'
+    'bfl::is_hex_number|"a1"|0'
+    'bfl::is_hex_number|"+1"|1'
+    'bfl::is_hex_number|"-1"|1'
+    'bfl::is_hex_number|"1.0"|1'
+    'bfl::is_hex_number|"g"|1'
+    'bfl::is_hex_number|""|1'
+#    bfl::is_integer
+#   If STRING is an integer, the function should return 0, otherwise 1
+    'bfl::is_integer|"1"|0'
+    'bfl::is_integer|"0"|0'
+    'bfl::is_integer|"+1"|0'
+    'bfl::is_integer|"-1"|0'
+    'bfl::is_integer|"1.0"|1'
+    'bfl::is_integer|""|1'
+#    bfl::is_natural_number
+#   If STRING is a natural number, the function should return 0, otherwise 1
+    'bfl::is_natural_number|"1"|0'
+    'bfl::is_natural_number|"0"|0'
+    'bfl::is_natural_number|"-1"|1'
+    'bfl::is_natural_number|"1.0"|1'
+    'bfl::is_natural_number|""|1'
+    )
+  }

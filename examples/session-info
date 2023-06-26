@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# @file
+# Displays a banner with user and system information.
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# @function
+#   Displays usage message.
+#
+# @return String $msg
+#   The usage message.
+#------------------------------------------------------------------------------
+usage() {
+  declare msg
+  msg=$(cat <<EOT
+Displays a banner with user and system information.
+
+Supported colors: blue, cyan, green, magenta, red, yellow, or white (default).
+
+Usage:    ${0##*/} color    # $(basename "$0")
+
+Examples: ${0##*/} "red"    # $(basename "$0")
+          ${0##*/} "green"  # $(basename "$0")
+EOT
+  )
+  printf "%s\\n" "${msg}"
+}
+
+#------------------------------------------------------------------------------
+# @function
+#   Performs cleanup when script exits for any reason. Called by trap.
+#------------------------------------------------------------------------------
+cleanup() {
+  # There's nothing to clean up.
+  :
+}
+
+#------------------------------------------------------------------------------
+# @function
+#   Main function.
+#
+# @param String $color
+#   The foreground color of the banner.
+#   Supported colors: blue, cyan, green, magenta, red, yellow, or white.
+#------------------------------------------------------------------------------
+# shellcheck disable=1090
+main() {
+  # Source the Bash Function Library.
+  if ! source "${BASH_FUNCTION_LIBRARY}"; then
+    printf "Error. Unable to source BASH_FUNCTION_LIBRARY.\\n" 1>&2
+    exit 1
+  fi
+
+  # Display usage message if requested.
+  [[ "$#" -gt 0 && ("$1" = "-h" || "$1" = "--help") ]] && { usage; exit 0; }
+
+  # Verify argument count.
+  bfl::verify_arg_count "$#" 0 1 || { usage; exit 1; }
+
+  # Verify dependencies.
+  bfl::verify_dependencies "curl"
+
+  # Declare positional arguments (readonly, sorted by position).
+  declare -r color="${1:-"white"}"
+
+  # Declare all other variables (sorted by name).
+  declare border
+  declare date_now
+  declare host
+  declare ip_address_private
+  declare ip_address_public
+  declare name_of_color_constant
+  declare time_now
+  declare user
+  declare width
+
+  # Verify argument values.
+  case "${color}" in
+    "blue"|"cyan"|"green"|"magenta"|"red"|"yellow"|"white" )
+      name_of_color_constant="bfl_aes_${color}"
+      ;;
+    * )
+      bfl::error "The specified color is not supported." && { usage; exit 1; }
+      ;;
+  esac
+
+  # Get values to display.
+  date_now=$(date "+%A, %B %-d, %Y") ||
+    bfl::die "Unable to determine date."
+  host=$(hostname) ||
+    bfl::die "Unable to determine hostname ."
+  ip_address_private=$(ip route get 1 | head -n1 | cut -d' ' -f7) ||
+    bfl::die "Unable to determine private IP address."
+  ip_address_public=$(curl -s --max-time 5 https://ipinfo.io/ip) ||
+    bfl::die "Unable to determine public IP address."
+  time_now=$(date "+%-l:%M %p %Z") ||
+    bfl::die "Unable to determine time."
+  user=$(whoami) ||
+    bfl::die "Unable to determine user."
+
+  # Create border.
+  width=$((21+${#date_now}))
+  border=$(bfl::repeat "=" "${width}") ||
+    bfl::die "Unable to create a repeated string."
+
+  # Display the banner.
+  printf "%b\\n" "${!name_of_color_constant}"   # Indirect variable expansion.
+  printf "%s\\n" "${border}"
+  column -t -s "|$" <<<"
+User:|${user}
+Hostname:|${host}
+Private IP address:|${ip_address_private}
+Public IP address:|${ip_address_public}
+Date:|${date_now}
+Time:|${time_now}
+  "
+  printf "%s\\n" "${border}"
+  printf "\\n"
+}
+
+set -euo pipefail
+trap cleanup EXIT
+main "$@"
