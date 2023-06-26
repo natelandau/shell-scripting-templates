@@ -28,7 +28,7 @@
 #------------------------------------------------------------------------------
 bfl::grab2file() {
   bfl::verify_arg_count "$#" 1 2 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
-  bfl::verify_dependencies "screencapture" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'screencapture' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_SCREENCAPTURE} -eq 1 ]] || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'screencapture' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   # Verify argument values.
   bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: path is required."; return ${BFL_ErrCode_Not_verified_arg_values}; }

@@ -39,8 +39,8 @@
 #   bfl::merge_git_repositories "/etc/bash_functions_library" "master"  "~/scripts/Jarodiv" "master"
 #------------------------------------------------------------------------------
 bfl::merge_git_repositories() {
-  bfl::verify_arg_count "$#" 4 4  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
-  bfl::verify_dependencies "git"  || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'git' not found" ; return ${BFL_ErrCode_Not_verified_dependency}; } # Verify dependencies.
+  bfl::verify_arg_count "$#" 4 4 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 2";      return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
+  [[ ${_BFL_HAS_GIT} -eq 1 ]]    || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'git' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   # Verify argument values.
   bfl::is_git_repository "$1" || { bfl::writelog_fail "${FUNCNAME[0]}: path '$1' is not a git repository!"; return ${BFL_ErrCode_Not_verified_arg_values}; }

@@ -21,6 +21,6 @@
 #   bfl::pbc4env
 #------------------------------------------------------------------------------
 bfl::pbc4env() {
-  bfl::verify_dependencies "pbcopy" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'pbcopy' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_PBCOPY} -eq 1 ]] || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'pbcopy' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
   printf %s "${PBENV}" | pbcopy
   }

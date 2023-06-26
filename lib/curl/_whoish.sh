@@ -26,8 +26,8 @@
 #------------------------------------------------------------------------------
 bfl::whoish()  {
   bfl::verify_arg_count "$#" 1 999  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 999]"; return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
-  bfl::verify_dependencies "curl"   || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'curl' not found";  return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
-  bfl::verify_dependencies "jq"     || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'jq' not found";    return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_CURL} -eq 1 ]]      || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'curl' not found";  return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_JQ} -eq 1 ]]        || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'jq' not found";    return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   local addr curl_cmd json jq_flt urls url
   addr="${1}"

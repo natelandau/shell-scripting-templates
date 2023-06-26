@@ -31,7 +31,7 @@ bfl::verify_dependencies() {
 
   for app in "${apps[@]}"; do
       if ! hash "${app}" 2> /dev/null; then
-          bfl::write_log "${FUNCNAME[0]}: $app is not installed."
+          bfl::writelog_fail "${FUNCNAME[0]}: $app is not installed."
           return 1
       fi
   done

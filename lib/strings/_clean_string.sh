@@ -44,7 +44,7 @@
 #------------------------------------------------------------------------------
 bfl::clean_string() {
   bfl::verify_arg_count "$#" 1 7 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 7]"; return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
-  bfl::verify_dependencies "sed"  || { bfl::writelog_fail "${FUNCNAME[0]}: dependency sed not found."; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_SED} -eq 1 ]]    || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'sed' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   local opt
   local _lc=false

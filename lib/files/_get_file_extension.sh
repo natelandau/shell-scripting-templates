@@ -42,7 +42,7 @@ bfl::get_file_extension() {
 
   [[ ${#s} -eq ${#ext} ]] && ext=""
   echo "$ext"
-#  bfl::verify_dependencies "sed" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+#  [[ ${_BFL_HAS_SED} -eq 1 ]] || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 #  echo "$s" | sed 's/^.*\.\([^.]*\)$/\1/'
   return 0
   }

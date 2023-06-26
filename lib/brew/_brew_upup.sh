@@ -25,7 +25,7 @@
 #------------------------------------------------------------------------------
 bfl::brew_upup() {
 #  bfl::verify_arg_count "$#" 1 2  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]";  return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
-  bfl::verify_dependencies "brew" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'brew' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_BREW} -eq 1 ]] || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'brew' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   declare tmp=
 

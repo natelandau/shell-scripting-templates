@@ -24,8 +24,8 @@
 #   bfl::build_bash_256_color_map -f
 #------------------------------------------------------------------------------
 bfl::build_bash_256_color_map ()  {
-  bfl::verify_arg_count "$#" 0 1  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 1]"; return $BFL_ErrCode_Not_verified_args_count; }    # Verify argument count.
-  bfl::verify_dependencies "tput" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found";  return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  bfl::verify_arg_count "$#" 0 1  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [0, 1]";   return $BFL_ErrCode_Not_verified_args_count; }    # Verify argument count.
+  [[ ${_BFL_HAS_TPUT} -eq 1 ]]    || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'tput' not found";  return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   local opt
   local OPTIND=1

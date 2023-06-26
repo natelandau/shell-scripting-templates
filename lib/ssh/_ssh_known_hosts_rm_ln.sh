@@ -31,7 +31,7 @@
 #------------------------------------------------------------------------------
 bfl::ssh_known_hosts_rm_ln() {
   bfl::verify_arg_count "$#" 1 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 999]"; return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
-  bfl::verify_dependencies "ssh"   || { bfl::writelog_fail "${FUNCNAME[0]}: dependency ssh not found";   return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_SSH} -eq 1 ]]      || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'ssh' not found";   return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   # Verify argument values.
   bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: ssh hosts file is required."; return ${BFL_ErrCode_Not_verified_arg_values}; }

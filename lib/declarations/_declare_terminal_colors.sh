@@ -36,7 +36,7 @@
 # shellcheck disable=SC2154
 bfl::declare_terminal_colors() {
 #  НЕЛЬЗЯ! В итог циклическая зависимость
-#  bfl::verify_dependencies "tput" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+#  [[ ${_BFL_HAS_TPUT} -eq 1 ]] || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'tput' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   local clr="${RC_NOCOLOR:-no}"
   [[ "${clr,,}" =~ ^yes|true$ ]] && local -r bEnabled=false || local -r bEnabled=true

@@ -22,7 +22,7 @@
 #------------------------------------------------------------------------------
 bfl::gitC ()  {
 #  bfl::verify_arg_count "$#" 1 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 999]"; return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
-  bfl::verify_dependencies "compgen"  || { bfl::writelog_fail "${FUNCNAME[0]}: dependency compgen not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_COMPGEN} -eq 1 ]] || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'compgen' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   local tmps tmp rgx tc_tab
 

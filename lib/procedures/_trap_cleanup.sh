@@ -56,7 +56,6 @@
 #------------------------------------------------------------------------------
 bfl::trap_cleanup() {
   bfl::verify_arg_count "$#" 8 9 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [8..9]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
-  bfl::verify_dependencies "tput" && local -r has_tput=true || local -r has_tput=false
 
   local -r lineno_fns="${2% 0}"
   if [[ "${lineno_fns}" == "0" ]]; then
@@ -79,7 +78,7 @@ bfl::trap_cleanup() {
   local -r logfile="${9:-$BASH_FUNCTION_LOG}"
 
   # Replace the cursor in-case 'tput civis' has been used
-  $has_tput && tput cnorm
+  [[ ${_BFL_HAS_TPUT} -eq 1 ]] && tput cnorm
 
   bfl::writelog_fail "$msg" "${_funcstack}" "$logfile" && return 0
 

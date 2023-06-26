@@ -23,7 +23,7 @@
 bfl::num_gitfile_renum()  {
   bfl::verify_arg_count "$#" 2 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [2, 999]"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
 #  [ -n "${1}" -a "${#}" -gt 1 ] || return 1  То же самое
-  bfl::verify_dependencies "git"  || { bfl::writelog_fail "${FUNCNAME[0]}: dependency git not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_GIT} -eq 1 ]]    || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'git' not found"; return ${BFL_ErrCode_Not_verified_dependency}; } # Verify dependencies.
 
   # Verify argument values.
   bfl::is_integer "$1" || { bfl::writelog_fail "${FUNCNAME[0]}: '$1' is has no integer type"; return ${BFL_ErrCode_Not_verified_arg_values}; }

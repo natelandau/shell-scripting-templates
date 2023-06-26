@@ -38,7 +38,7 @@ bfl::encrypt_file() {
   [[ -f "$1" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: path doesn't exists!"; return ${BFL_ErrCode_Not_verified_arg_values}; }
   [[ -s "$1" ]] || { bfl::writelog_fail "${FUNCNAME[0]}: '$1' is empty!"; return ${BFL_ErrCode_Not_verified_arg_values}; }
 
-  bfl::verify_dependencies "openssl" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_OPENSSL} -eq 1 ]] || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'openssl' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   local _fileToDecrypt="${1}"
   local _defaultName="${_fileToDecrypt%.enc}"

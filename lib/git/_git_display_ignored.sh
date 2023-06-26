@@ -22,7 +22,7 @@
 #------------------------------------------------------------------------------
 bfl::git_display_ignored()  {
 #  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 0"; return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
-  bfl::verify_dependencies "git"  || { bfl::writelog_fail "${FUNCNAME[0]}: dependency git not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_GIT} -eq 1 ]] || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'git' not found"; return ${BFL_ErrCode_Not_verified_dependency}; } # Verify dependencies.
 
   local tc_tab
   printf -v tc_tab '\t'                                                        # ????

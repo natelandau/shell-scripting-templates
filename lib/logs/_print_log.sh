@@ -36,7 +36,7 @@ bfl::print_log() {
       printf "${FUNCNAME[0]}: error $*\n" > /dev/tty
       return 1
       }
-  bfl::verify_dependencies "tput" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_TPUT} -eq 1 ]] || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   # Verify arguments
   bfl::is_blank "$1" && { # Нельзя bfl::die

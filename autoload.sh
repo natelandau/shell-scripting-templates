@@ -2,7 +2,7 @@
 # shellcheck source-path=SCRIPTDIR/../shell-scripting-templates/utilities
 # shellcheck source-path=SCRIPTDIR/../../shell-scripting-templates/utilities
 
-[[ "$BASH_SOURCE" =~ /bash_functions_library ]] && _bfl_temporary_var=$(echo "$BASH_SOURCE" | sed 's|^.*/\([^/]*\)/\([^/]*\)\.sh$|_GUARD_BFL_\2|') || return 0
+[[ "${BASH_SOURCE%/*}" =~ /bash_functions_library$ ]] && _bfl_temporary_var="_GUARD_BFL_$(echo "${BASH_SOURCE##*/}" | sed 's/\.sh$//' | tr [:lower:] [:upper:])" || return 0
 [[ ${!_bfl_temporary_var} -eq 1 ]] && return 0 || readonly $_bfl_temporary_var=1
 
 [[ -z ${TERM+x} ]] && TERM='xterm-256color' || [[ "$TERM" == 'linux' ]] && TERM='xterm-256color'
@@ -269,6 +269,8 @@ fi
 
 # Enable xtrace if the DEBUG environment variable is set
 [[ "${DEBUG,,}" =~ ^1|yes|true$ ]] && set -o xtrace    # Trace the execution of the script (debug)
+
+bfl::global_declare_dependencies
 
 # [[ $# -eq 0 ]] && bfl::parseOptions "-h"  # Force arguments when invoking the script
 bfl::parseOptions "$@"                      # Parse arguments passed to script

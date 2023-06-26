@@ -25,7 +25,7 @@
 #------------------------------------------------------------------------------
 bfl::vcsh_untracked() {
 #  bfl::verify_arg_count "$#" 1 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 999]"; return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
-  bfl::verify_dependencies "vcsh"   || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'vcsh' not found";   return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_VCSH} -eq 1 ]] || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'vcsh' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   { printf '/%s\n' \
           .DS_Store .Trash .cache .local .opt .rnd Applications Desktop Documents Downloads Library Maildirs Movies Music Pictures Public

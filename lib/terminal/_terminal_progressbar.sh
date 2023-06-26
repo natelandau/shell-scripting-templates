@@ -40,7 +40,7 @@ bfl::terminal_progressbar() {
   bfl::verify_arg_count "$#" 1 2  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 2]"; return ${BFL_ErrCode_Not_verified_args_count}; }   # Verify argument count.
   [[ "$1" -eq 1 ]] && return # Do nothing with a single element
 #  bfl::is_Terminal || { bfl::writelog_fail "${FUNCNAME[0]}: no terminal found"; return 1; }                      # Do nothing if the output is not a terminal.
-  bfl::verify_dependencies "tput" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency tput not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_TPUT} -eq 1 ]]    || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'tput' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   local -i n=$1
   local -i _width=30

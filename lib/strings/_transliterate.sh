@@ -27,8 +27,8 @@
 #   bfl::transliterate "_Olé Über! "
 #------------------------------------------------------------------------------
 bfl::transliterate() {
-  bfl::verify_arg_count "$#" 1 1   || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return ${BFL_ErrCode_Not_verified_args_count}; }       # Verify argument count.
-  bfl::verify_dependencies "iconv" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency iconv not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1";        return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
+  [[ ${_BFL_HAS_ICONV} -eq 1 ]]  || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'iconv' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   local str
   shopt -s extglob          # Enable extended pattern matching features.

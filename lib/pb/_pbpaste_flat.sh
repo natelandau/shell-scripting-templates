@@ -21,6 +21,6 @@
 #   bfl::pbpaste_flat
 #------------------------------------------------------------------------------
 bfl::pbpaste_flat() {
-  bfl::verify_dependencies "pbpaste" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'pbpaste' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_PBPASTE} -eq 1 ]] || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'pbpaste' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
   pbpaste | tr -s '[:space:]' ' '
   }

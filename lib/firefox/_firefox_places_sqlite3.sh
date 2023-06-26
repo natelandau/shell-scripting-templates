@@ -27,8 +27,8 @@
 #   bfl::firefox_places_sqlite3 "$HOME/Library/Application Support/Firefox/Profiles" ...
 #------------------------------------------------------------------------------
 bfl::firefox_places_sqlite3() {
-  bfl::verify_arg_count "$#" 2 999   || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 999]"; return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
-  bfl::verify_dependencies "sqlite3" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'sqlite3' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  bfl::verify_arg_count "$#" 2 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 999]";   return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
+  [[ ${_BFL_HAS_SQLITE3} -eq 1 ]]  || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'sqlite3' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: Firefox profiles folder is required.";         return ${BFL_ErrCode_Not_verified_arg_values}; }
   [[ -d "$1" ]]      || { bfl::writelog_fail "${FUNCNAME[0]}: Firefox profiles folder '$1' doesn't exist!";  return ${BFL_ErrCode_Not_verified_arg_values}; }

@@ -22,7 +22,7 @@
 #------------------------------------------------------------------------------
 bfl::grab2clip() {
 #  bfl::verify_arg_count "$#" 0 0 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
-  bfl::verify_dependencies "screencapture" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'screencapture' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_SCREENCAPTURE} -eq 1 ]]   || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'screencapture' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   [[ $BASH_INTERACTIVE == true ]] && printf '\n'
   screencapture -h 2>&1 | sed '1,/^ *-i /d;/^ *-m /,$d;s/^             //' || { bfl::writelog_fail "${FUNCNAME[0]}: Failed screencapture -h 2>&1 | sed '..."; return ${BFL_ErrCode_Not_verified_dependency}; }

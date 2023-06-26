@@ -27,8 +27,8 @@
 #   bfl::is_debian_pkg_installed "gcc1"
 #------------------------------------------------------------------------------
 bfl::is_debian_pkg_installed() {
-  bfl::verify_arg_count "$#" 1 1  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"    ; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
-  bfl::verify_dependencies "dpkg" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency gpkg not found"; return ${BFL_ErrCode_Not_verified_dependency}; } # Verify dependencies.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1";       return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
+  [[ ${_BFL_HAS_DPKG} -eq 1 ]]   || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'dpkg' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   local str
   str=$(dpkg --status "$1" 2>/dev/null | sed -n '/^Status:/p')

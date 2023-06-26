@@ -42,8 +42,8 @@
 #   bfl::send_mail_msg "a@b.com" "x@y.com" "x@y.com" "Test" "Line 1.\\nLine 2."
 #------------------------------------------------------------------------------
 bfl::send_mail_msg() {
-  bfl::verify_arg_count "$#" 5 5      || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 5"; return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
-  bfl::verify_dependencies "sendmail" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency sendmail not found."; return ${BFL_ErrCode_Not_verified_dependency}; } # Verify dependencies.
+  bfl::verify_arg_count "$#" 5 5   || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 5";            return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
+  [[ ${_BFL_HAS_SENDMAIL} -eq 1 ]] || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'sendmail' not found."; return ${BFL_ErrCode_Not_verified_dependency}; } # Verify dependencies.
 
   # Verify arguments
   bfl::is_empty "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: The message recipient was not specified."; return ${BFL_ErrCode_Not_verified_arg_values}; }

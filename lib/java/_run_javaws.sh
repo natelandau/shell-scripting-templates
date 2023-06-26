@@ -25,7 +25,7 @@
 #------------------------------------------------------------------------------
 bfl::run_javaws() {
   bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1"; return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
-  bfl::verify_dependencies "javaws" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'javaws' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_JAVAWS} -eq 1 ]] || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'javaws' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   echo "$1" | sed -n '$p' | xargs -tI@ javaws -verbose -wait "@"
   }

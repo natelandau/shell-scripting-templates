@@ -27,8 +27,8 @@
 #   bfl::is_git_repository "/repo"
 #------------------------------------------------------------------------------
 bfl::is_git_repository() {
-  bfl::verify_arg_count "$#" 1 1  || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1";      return ${BFL_ErrCode_Not_verified_args_count}; } # Verify argument count.
-  bfl::verify_dependencies "git"  || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'git' not found"; return ${BFL_ErrCode_Not_verified_dependency}; } # Verify dependencies.
+  bfl::verify_arg_count "$#" 1 1 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ≠ 1";      return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
+  [[ ${_BFL_HAS_GIT} -eq 1 ]]    || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'git' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   # Verify argument values.
   bfl::is_blank "$1" && { bfl::writelog_fail "${FUNCNAME[0]}: git repository path was not specified.";  return ${BFL_ErrCode_Not_verified_arg_values}; }

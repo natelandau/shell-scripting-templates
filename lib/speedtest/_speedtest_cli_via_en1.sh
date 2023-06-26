@@ -24,9 +24,9 @@
 #   bfl::speedtest_cli_via_en1 ...
 #------------------------------------------------------------------------------
 bfl::speedtest_cli_via_en1() {
-  bfl::verify_arg_count "$#" 1 999 || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 999]"; return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
-  bfl::verify_dependencies "ifconfig" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'ifconfig' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
-  bfl::verify_dependencies "speedtest-cli" || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'speedtest-cli' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  bfl::verify_arg_count "$#" 1 999      || { bfl::writelog_fail "${FUNCNAME[0]} arguments count $# ∉ [1, 999]";         return ${BFL_ErrCode_Not_verified_args_count}; }  # Verify argument count.
+  [[ ${_BFL_HAS_IFCONFIG} -eq 1 ]]      || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'ifconfig' not found";      return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
+  [[ ${_BFL_HAS_SPEEDTEST_CLI} -eq 1 ]] || { bfl::writelog_fail "${FUNCNAME[0]}: dependency 'speedtest-cli' not found"; return ${BFL_ErrCode_Not_verified_dependency}; }  # Verify dependencies.
 
   local en1_ip
   en1_ip="$( ifconfig en1 )" || { bfl::writelog_fail "${FUNCNAME[0]}: Failed ifconfig en1"; return 1; }
