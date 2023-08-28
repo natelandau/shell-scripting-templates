@@ -7,7 +7,3 @@
 [submodule "test/test_helper/bats-asser"]
 	path = test/test_helper/bats-assert
 	url = https://github.com/bats-core/bats-assert
-[submodule ".hooks"]
-	path = .hooks
-	url = https://github.com/natelandau/githooks
-        branch = main
