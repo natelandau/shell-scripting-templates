@@ -1,0 +1,33 @@
+---
+# Find full documentation at: https://yamllint.readthedocs.io/en/stable/index.html
+extends: default
+locale: en_US.UTF-8
+
+ignore: |
+    .venv
+
+rules:
+    braces:
+        level: error
+        max-spaces-inside: 1
+        min-spaces-inside: 1
+    comments-indentation: disable
+    comments:
+        min-spaces-from-content: 1
+    indentation:
+        spaces: consistent
+        indent-sequences: true
+        check-multi-line-strings: false
+    line-length: disable
+    quoted-strings:
+        quote-type: any
+        required: false
+        extra-required:
+            - "^http://"
+            - "^https://"
+            - "ftp://"
+            - 'ssh \w.*'
+        extra-allowed: []
+    truthy:
+        level: error
+        check-keys: false

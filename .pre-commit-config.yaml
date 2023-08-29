@@ -1,0 +1,74 @@
+---
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+default_install_hook_types: [commit-msg, pre-commit]
+default_stages: [commit, manual]
+fail_fast: true
+repos:
+    - repo: "https://github.com/commitizen-tools/commitizen"
+      rev: 3.7.0
+      hooks:
+          - id: commitizen
+          - id: commitizen-branch
+            stages:
+                - post-commit
+                - push
+    - repo: "https://github.com/pre-commit/pre-commit-hooks"
+      rev: v4.4.0
+      hooks:
+          - id: check-added-large-files
+          - id: check-byte-order-marker
+          - id: check-case-conflict
+          - id: check-executables-have-shebangs
+          - id: check-json
+          - id: check-merge-conflict
+          - id: check-shebang-scripts-are-executable
+            exclude: '\.sed$'
+          - id: check-symlinks
+          - id: check-xml
+          - id: check-yaml
+          - id: destroyed-symlinks
+          - id: detect-aws-credentials
+          - id: detect-private-key
+          - id: end-of-file-fixer
+          - id: fix-byte-order-marker
+          - id: mixed-line-ending
+          - id: trailing-whitespace
+
+    - repo: "https://github.com/adrienverge/yamllint.git"
+      rev: v1.32.0
+      hooks:
+          - id: yamllint
+            files: \.(yaml|yml)$
+            entry: yamllint --strict --config-file .yamllint.yml
+
+    - repo: local
+      hooks:
+          - id: poetry-check
+            name: poetry check
+            entry: poetry check
+            language: system
+            files: pyproject.toml
+            pass_filenames: false
+
+          - id: stopwords
+            name: stopwords
+            entry: bash -c '~/bin/git-stopwords ${PWD}/"$@"'
+            language: system
+            pass_filenames: true
+
+          - id: bats
+            name: bats
+            language: system
+            files: '^test/.*\.bats$'
+            types_or: [shell, bash, sh, zsh]
+            entry: bash -c 'find test/ -maxdepth 1 -name "*.bats" -exec bats -t {} \;'
+            pass_filenames: false
+
+          - id: shellcheck
+            name: shellcheck
+            entry: shellcheck
+            language: system
+            types: [shell, bash, sh]
+            exclude: '^archive/.*|.*\.bats'

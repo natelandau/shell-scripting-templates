@@ -1,0 +1,10 @@
+# Allow opening any 'source'd file, even if not specified as input
+external-sources=true
+
+# Specify the shell to use
+shell=bash
+
+disable=SC2236 # Allow [ ! -z foo ] instead of suggesting -n
+disable=SC2001 # Allow string="stirng" ; echo "$string" | sed -e "s/ir/ri/"
+disable=SC2317 # Allow Command appears to be unreachable
+disable=SC2034 # Allow unused variables
