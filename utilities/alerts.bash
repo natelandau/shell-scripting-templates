@@ -194,7 +194,7 @@ header() { _alert_ header "${1}" "${2:-}"; }
 debug() { _alert_ debug "${1}" "${2:-}"; }
 fatal() {
     _alert_ fatal "${1}" "${2:-}"
-    _safeExit_ "1"
+    return 1
 }
 
 _printFuncStack_() {

@@ -63,7 +63,7 @@ repos:
             language: system
             files: '^test/.*\.bats$'
             types_or: [shell, bash, sh, zsh]
-            entry: bash -c 'find test/ -maxdepth 1 -name "*.bats" -exec bats -t {} \;'
+            entry: bash -c 'find test/ -maxdepth 1 -name "*.bats" -print0 | xargs -0 -n1 bats -t'
             pass_filenames: false
 
           - id: shellcheck

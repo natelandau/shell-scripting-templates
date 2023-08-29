@@ -242,7 +242,7 @@ teardown() {
 
 @test "_varIsFalse_: false" {
   testvar=true
-  run _variableIsFalse_ "${testvar}"
+  run _varIsFalse_ "${testvar}"
   assert_failure
 }
 

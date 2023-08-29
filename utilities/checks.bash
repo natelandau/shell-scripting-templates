@@ -160,7 +160,7 @@ _isInternetAvailable_() {
     else
         _checkInternet="$(curl --compressed -Is google.com -m 10)"
     fi
-    if [[ -z ${_checkInternet:-} ]]; then
+    if [[ -z ${_checkInternet-} ]]; then
         return 1
     fi
 }
@@ -277,7 +277,7 @@ _rootAvailable_() {
 
     if [[ ${EUID} -eq 0 ]]; then
         _superuser=true
-    elif [[ -z ${1:-} ]]; then
+    elif [[ -z ${1-} ]]; then
         debug 'Sudo: Updating cached credentials ...'
         if sudo -v; then
             if [[ $(sudo -H -- "${BASH}" -c 'printf "%s" "$EUID"') -eq 0 ]]; then
@@ -312,7 +312,7 @@ _varIsTrue_() {
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    [[ ${1} == "true" || ${1} == 0 ]] && return 0 || return 1
+    [[ ${1,,} == "true" || ${1} == 0 ]] && return 0 || return 1
 }
 
 _varIsFalse_() {
@@ -328,7 +328,7 @@ _varIsFalse_() {
 
     [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
 
-    [[ ${1} == false || ${1} == 1 ]] && return 0 || return 1
+    [[ ${1,,} == "false" || ${1} == 1 ]] && return 0 || return 1
 }
 
 _varIsEmpty_() {
@@ -342,7 +342,7 @@ _varIsEmpty_() {
     # USAGE
     #					_varIsEmpty_ "${var}"
 
-    [[ -z ${1:-} || ${1:-} == "null" ]] && return 0 || return 1
+    [[ -z ${1-} || ${1-} == "null" ]] && return 0 || return 1
 }
 
 _isIPv6_() {

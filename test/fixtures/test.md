@@ -2,11 +2,11 @@
 
 This repository contains everything needed to bootstrap and configure new Mac computer. Included here are:
 
-- dotfiles
-- ~/bin/ scripts
-- Configuration files
-- Scripting templates and utilities
-- `install.sh`, a script to put everything where it needs to go
+-   dotfiles
+-   ~/bin/ scripts
+-   Configuration files
+-   Scripting templates and utilities
+-   `install.sh`, a script to put everything where it needs to go
 
 **Disclaimer:** _I am not a professional programmer and I bear no responsibility whatsoever if any of these scripts wipes your computer, destroys your data, crashes your car, or otherwise causes mayhem and destruction. USE AT YOUR OWN RISK._
 
@@ -24,8 +24,8 @@ The files are organized into three subdirectories.
 dotfiles
 ├── bin/
 ├── config/
-│   ├── bash/
-│   └── shell/
+│   ├── bash/
+│   └── shell/
 ├── install.sh
 ├── install-config.yaml
 ├── lib/
@@ -34,20 +34,20 @@ dotfiles
 └── scripting/
 ```
 
-- **bin** - Symlinked to `~/bin` and is added to your `$PATH`.
-- **config** - Contains the elements needed to configure your environment and specific apps.
-- config/**bash** - Files in this directory are _sourced_ by `.bash_profile`.
-- config/**shell** - Files here are symlinked to your local environment. Ahem, dotfiles.
-- **lib** - Contains the scripts and configuration for `install.sh`
-- lib/**bootstrap** - Scripts here are executed by `install.sh` first.
-- lib/**configure** - Scripts here are executed by `install.sh` after packages have been installed
-- **config-install.yaml** - This YAML file contains the list of symlinks to be created, as well as the packages to be installed.
-- **scripting** - This directory contains bash scripting utilities and templates which I re-use often.
+-   **bin** - Symlinked to `~/bin` and is added to your `$PATH`.
+-   **config** - Contains the elements needed to configure your environment and specific apps.
+-   config/**bash** - Files in this directory are _sourced_ by `.bash_profile`.
+-   config/**shell** - Files here are symlinked to your local environment. Ahem, dotfiles.
+-   **lib** - Contains the scripts and configuration for `install.sh`
+-   lib/**bootstrap** - Scripts here are executed by `install.sh` first.
+-   lib/**configure** - Scripts here are executed by `install.sh` after packages have been installed
+-   **config-install.yaml** - This YAML file contains the list of symlinks to be created, as well as the packages to be installed.
+-   **scripting** - This directory contains bash scripting utilities and templates which I re-use often.
 
 **IMPORTANT:** Unless you want to use my defaults, make sure you do the following:
 
-- Edit `config-install.yaml` to reflect your preferred packages
-- Review the files in `config/` to configure your own aliases, preferences, etc.
+-   Edit `config-install.yaml` to reflect your preferred packages
+-   Review the files in `config/` to configure your own aliases, preferences, etc.
 
 #### Private Files
 

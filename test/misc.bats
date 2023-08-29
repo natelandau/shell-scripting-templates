@@ -156,9 +156,9 @@ teardown() {
     run _findBaseDir_
     assert_success
     if [ -d /usr/local/Cellar/ ]; then
-        assert_output --regexp "^/usr/local/Cellar/bats-core/[0-9]\.[0-9]\.[0-9]"
+        assert_output --regexp "^/usr/local/Cellar/bats-core/[0-9][0-9]?\.[0-9][0-9]?\.[0-9][0-9]?"
     elif [ -d /opt/homebrew/Cellar ]; then
-        assert_output --regexp "^/opt/homebrew/Cellar/bats-core/[0-9]\.[0-9]\.[0-9]"
+        assert_output --regexp "^/opt/homebrew/Cellar/bats-core/[0-9][0-9]?\.[0-9][0-9]?\.[0-9][0-9]?"
     fi
 }
 

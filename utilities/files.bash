@@ -399,7 +399,7 @@ _fileExtension_() {
 
 _filePath_() {
     # DESC:
-    #					Finds the directory name from a file path. If it exists on filesystem, print
+    #		  Finds the directory name from a file path. If it exists on filesystem, print
     #         absolute path.  If a string, remove the filename and return the path
     # ARGS:
     #					$1 (Required) - Input string path
@@ -668,7 +668,7 @@ _parseYAML_() {
             vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
             printf("%s%s%s%s=(\"%s\")\n", "'"${_prefix}"'",vn, $2, conj[indent-1],$3);
     }
-  }' | sed 's/_=/+=/g' | sed 's/[[:space:]]*#.*"/"/g'
+  }' | sed 's/__=/+=/g' | sed 's/_=/+=/g' | sed 's/[[:space:]]*#.*"/"/g' | sed 's/=("--")//g'
 }
 
 _printFileBetween_() (
