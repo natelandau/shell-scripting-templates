@@ -1,4 +1,4 @@
-# format \b[word]\b where '\b' is a word delimeter
+# format \b[word]\b where '\b' is a word delimiter
 # format //gI where the 'I' is case insensitivity.  Only works in gnu-sed.
 s/\ba\b//gI
 s/\bable\b//gI

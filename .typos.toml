@@ -1,0 +1,2 @@
+[default.extend-words]
+    nd = "nd" # Used in the context of '2nd'

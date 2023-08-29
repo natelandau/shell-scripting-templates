@@ -302,10 +302,10 @@ _testParseYAML_() {
 }
 
 @test "_sourceFile_ failure" {
-  run _sourceFile_ "someNonExistantFile"
+  run _sourceFile_ "someNonExistentFile"
 
   assert_failure
-  assert_output --partial "[  fatal] Attempted to source 'someNonExistantFile'. Not found"
+  assert_output --partial "[  fatal] Attempted to source 'someNonExistentFile'. Not found"
 }
 
 @test "_sourceFile_ success" {

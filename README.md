@@ -290,7 +290,7 @@ Functions for string manipulation
 - **`_ltrim_`** Removes all leading whitespace (from the left)
 - **`_regexCapture_`** Use regex to validate and parse strings
 - **`_rtrim_`** Removes all leading whitespace (from the right)
-- **`_splitString_`** Split a string based on a given delimeter
+- **`_splitString_`** Split a string based on a given delimiter
 - **`_stringContains_`** Tests whether a string matches a substring
 - **`_stringRegex_`** Tests whether a string matches a regex pattern
 - **`_stripANSI_`** Strips ANSI escape sequences from text
@@ -310,7 +310,7 @@ Functions required to allow the script template and alert functions to be used
 
 - Function names use camel case surrounded by underscores: `_nameOfFunction_`
 - Local variable names use camel case with a starting underscore: `_localVariable`
-- Global variables are in ALL_CAPS with underscores seperating words
+- Global variables are in ALL_CAPS with underscores separating words
 - Exceptions to the variable an function naming rules are made for alerting functions and colors to ease my speed of programming. (Breaking years of habits is hard...) I.e. `notice "Some log item: ${blue}blue text${reset}` Where `notice` is a function and `$blue` and `$reset` are global variables but are lowercase.
 - Variables are always surrounded by quotes and brackets `"${1}"` (Overly verbose true, but a safe practice)
 - Formatting is provided by [shfmt](https://github.com/mvdan/sh) using 4 spaces for indentation

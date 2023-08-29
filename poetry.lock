@@ -504,6 +504,26 @@ files = [
 ]
 
 [[package]]
+name = "typos"
+version = "1.16.8"
+description = "Source Code Spelling Correction"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "typos-1.16.8-py3-none-macosx_10_7_x86_64.whl", hash = "sha256:b4d0bf1728ff35849690c956b0c8f01f6cf00a86d4d76a2fcecda808345417bf"},
+    {file = "typos-1.16.8-py3-none-macosx_11_0_arm64.whl", hash = "sha256:0155e64c26074aec76dabd5e716334aae6cef16371e6457536a7b27be638200e"},
+    {file = "typos-1.16.8-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:cc2b8831dfae748a831962036aa325d3a6cf339dbf397969779d31381b33081f"},
+    {file = "typos-1.16.8-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:902c501e9527ceffd43f3f78356ae0c8e0f4e013981438cce91c56fe55fc4b7f"},
+    {file = "typos-1.16.8-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f4ac08d8de1a1657bbe8467afa41776bd7d5991112543cd9337d120185f8b945"},
+    {file = "typos-1.16.8-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:b3f3f714b03bad7d48b416b218be13395a5980ca1dd71f3e45f22ca0f7b2d44e"},
+    {file = "typos-1.16.8-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:1e31ea1b36e3860a16e399dacc2584a08fa4114a8f8d1520d7740ddbe1fad28a"},
+    {file = "typos-1.16.8-py3-none-win32.whl", hash = "sha256:3df2e208e0a6385c9f1c990c7222ec2067e499162a7a6c615c0e730deadef4c8"},
+    {file = "typos-1.16.8-py3-none-win_amd64.whl", hash = "sha256:a9a1ed3107c05f34045f2e697c6cdb339a15411ccfc4dd1358cf18d6c684d4a7"},
+    {file = "typos-1.16.8.tar.gz", hash = "sha256:362b1238729eb8644cf9ece59886a40e7ef01eaaf4ff4910e511cb9cf97d5f21"},
+]
+
+[[package]]
 name = "virtualenv"
 version = "20.24.3"
 description = "Virtual Python Environment builder"
@@ -574,4 +594,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
         python-versions = "^3.11"
-content-hash = "d26a03f9429c641f0c78f670697c58eae05369c75bcc6d2866f1f0ca8e97db53"
+content-hash = "54e105b0b6c5998507ab75393f875db4856f3ceb20820c8cf298640d76058b1a"

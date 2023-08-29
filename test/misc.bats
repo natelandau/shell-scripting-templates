@@ -80,23 +80,23 @@ teardown() {
 }
 
 @test "_execute_: Bad command" {
-    run _execute_ "rm nonexistant.txt"
+    run _execute_ "rm nonexistent.txt"
 
     assert_failure
-    assert_output --partial "[warning] rm nonexistant.txt"
+    assert_output --partial "[warning] rm nonexistent.txt"
 }
 
 @test "_execute_ -e: Bad command" {
-    run _execute_ -e "rm nonexistant.txt"
+    run _execute_ -e "rm nonexistent.txt"
 
     assert_failure
-    assert_output "error: rm nonexistant.txt"
+    assert_output "error: rm nonexistent.txt"
 }
 
 @test "_execute_ -p: Return 0 on bad command" {
-    run _execute_ -p "rm nonexistant.txt"
+    run _execute_ -p "rm nonexistent.txt"
     assert_success
-    assert_output --partial "[warning] rm nonexistant.txt"
+    assert_output --partial "[warning] rm nonexistent.txt"
 }
 
 @test "_execute_: Good command" {

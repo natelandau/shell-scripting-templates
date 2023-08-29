@@ -307,9 +307,9 @@ _splitString_() (
 
     declare -a _arr=()
     local _input="${1}"
-    local _delimeter="${2}"
+    local _delimiter="${2}"
 
-    IFS="${_delimeter}" read -r -a _arr <<<"${_input}"
+    IFS="${_delimiter}" read -r -a _arr <<<"${_input}"
 
     printf '%s\n' "${_arr[@]}"
 )

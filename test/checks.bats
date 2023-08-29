@@ -92,7 +92,7 @@ teardown() {
 }
 
 @test "_commandExists_: false" {
-  run _commandExists_ "someNonexistantBinary"
+  run _commandExists_ "someNonexistentBinary"
   assert_failure
 }
 

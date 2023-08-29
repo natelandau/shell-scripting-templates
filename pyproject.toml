@@ -11,6 +11,7 @@
         commitizen = "^3.7.0"
         pre-commit = "^3.3.3"
         python     = "^3.11"
+        typos      = "^1.16.8"
         yamllint   = "^1.32.0"
 
 [build-system]

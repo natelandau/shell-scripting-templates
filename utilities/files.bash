@@ -8,7 +8,7 @@ _backupFile_() {
     #         $1 (Required)   - Source file
     #         $2 (Optional)   - Destination dir name used only with -d flag (defaults to ./backup)
     # OPTS:
-    #         -d  - Move files to a backup direcory
+    #         -d  - Move files to a backup directory
     #         -m  - Replaces copy (default) with move, effectively removing the original file
     # REQUIRES:
     #         _execute_
@@ -84,7 +84,7 @@ _createUniqueFilename_() {
     #         filenames by incrementing a number at the end of the filename
     # ARGS:
     #         $1 (Required) - Name of file to be created
-    #         $2 (Optional) - Separation characted (Defaults to a period '.')
+    #         $2 (Optional) - Separation character (Defaults to a period '.')
     # OUTS:
     #         stdout: Unique name of file
     #         0 if successful
