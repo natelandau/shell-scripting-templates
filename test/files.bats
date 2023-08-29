@@ -301,6 +301,13 @@ _testParseYAML_() {
   assert_line --index 2 'line 3'
 }
 
+@test "_randomLineFromFile_" {
+  echo -e "line 1\nline 2\nline 3" > testfile.txt
+
+  run _randomLineFromFile_ "testfile.txt"
+  assert_output --regexp "^line [123]$"
+}
+
 @test "_sourceFile_ failure" {
   run _sourceFile_ "someNonExistentFile"
 

@@ -1,2 +1,9 @@
-[default.extend-words]
-    nd = "nd" # Used in the context of '2nd'
+[default]
+    default.locale = "en_us"
+
+    [default.extend-words]
+        curren = "curren" # Used in the context of '¤100'
+        nd     = "nd"     # Used in the context of '2nd'
+
+[files]
+    extend-exclude = ["test/test_helper"]

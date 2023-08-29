@@ -749,6 +749,31 @@ _printFileBetween_() (
     fi
 )
 
+_randomLineFromFile_() {
+    # DESC:
+    #         Returns a random line from a file
+    # ARGS:
+    #         $1 (Required) - Input file
+    # OUTS:
+    #         Returns random line from file
+    # USAGE:
+    #         _randomLineFromFile_ "file.txt"
+
+    [[ $# == 0 ]] && fatal "Missing required argument to ${FUNCNAME[0]}"
+
+    local _fileToRead="$1"
+    local _rnd
+
+    [ ! -f "${_fileToRead}" ] \
+        && {
+            error "'${_fileToRead}' not found"
+            return 1
+        }
+
+    _rnd=$((1 + RANDOM % $(wc -l <"${_fileToRead}")))
+    sed -n "${_rnd}p" "${_fileToRead}"
+}
+
 _readFile_() {
     # DESC:
     #         Prints each line of a file
