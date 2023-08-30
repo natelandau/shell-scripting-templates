@@ -5,10 +5,12 @@
     license     = "MIT"
     name        = "shell-scripting-templates"
     readme      = "README.md"
+    repository  = "https://github.com/natelandau/shell-scripting-templates"
     version     = "0.1.0"
 
     [tool.poetry.dependencies]
         commitizen = "^3.7.0"
+        poethepoet = "^0.22.0"
         pre-commit = "^3.3.3"
         python     = "^3.11"
         typos      = "^1.16.8"
@@ -24,3 +26,23 @@
     update_changelog_on_bump = true
     version                  = "0.1.0"
     version_files            = ["pyproject.toml:version"]
+
+[tool.poe.tasks]
+
+    [tool.poe.tasks.lint]
+        help = "Lint this package"
+
+        [[tool.poe.tasks.lint.sequence]]
+            shell = "poetry check"
+
+        [[tool.poe.tasks.lint.sequence]]
+            shell = "typos"
+
+        [[tool.poe.tasks.lint.sequence]]
+            shell = "yamllint ."
+
+            # [[tool.poe.tasks.lint.sequence]]
+            #     shell = "shellcheck bin-*/*"
+
+        [[tool.poe.tasks.lint.sequence]]
+            shell = "pre-commit run --all-files"

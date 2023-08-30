@@ -5,6 +5,7 @@ locale: en_US.UTF-8
 
 ignore: |
     .venv
+    test/test_helper
 
 rules:
     braces:
