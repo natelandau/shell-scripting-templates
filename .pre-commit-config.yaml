@@ -7,7 +7,7 @@ default_stages: [commit, manual]
 fail_fast: true
 repos:
     - repo: "https://github.com/commitizen-tools/commitizen"
-      rev: 3.7.0
+      rev: v3.13.0
       hooks:
           - id: commitizen
           - id: commitizen-branch
@@ -15,7 +15,7 @@ repos:
                 - post-commit
                 - push
     - repo: "https://github.com/pre-commit/pre-commit-hooks"
-      rev: v4.4.0
+      rev: v4.5.0
       hooks:
           - id: check-added-large-files
           - id: check-byte-order-marker
@@ -37,14 +37,14 @@ repos:
           - id: trailing-whitespace
 
     - repo: "https://github.com/adrienverge/yamllint.git"
-      rev: v1.32.0
+      rev: v1.33.0
       hooks:
           - id: yamllint
             files: \.(yaml|yml)$
             entry: yamllint --strict --config-file .yamllint.yml
 
     - repo: "https://github.com/crate-ci/typos"
-      rev: v1.16.8
+      rev: v1.16.26
       hooks:
           - id: typos
 
@@ -57,6 +57,7 @@ repos:
             files: pyproject.toml
             pass_filenames: false
 
+            # This calls a personal pre-commit script. Disable if you don't have it.
           - id: stopwords
             name: stopwords
             entry: bash -c '~/bin/git-stopwords ${PWD}/"$@"'
